@@ -27,11 +27,15 @@ const shortened = (value: string, length: number) => value.length <= length ? va
 const yaml = (value: unknown) => JSON.stringify(value);
 
 function inlineMedia(body:string, publication:CanonicalPublication){
-  const bySource=new Map(publication.media.filter((item)=>item.publicPath).map((item)=>[item.sourcePath,item.publicPath!]));
+  const bySource=new Map(publication.media.filter((item)=>item.publicPath).map((item)=>[item.sourcePath,item]));
   return body.replace(/<!--telegram-media:([^>]+)-->/g,(_match,encoded:string)=>{
     const sourcePath=decodeURIComponent(encoded);
-    const publicPath=bySource.get(sourcePath);
-    return publicPath?`![Иллюстрация из Telegram Article](${publicPath})`:"";
+    const item=bySource.get(sourcePath);
+    if(!item?.publicPath)return "";
+    if(item.type==="image")return `![Иллюстрация из Telegram Article](${item.publicPath})`;
+    if(item.type==="video")return `<video class="telegram-inline-media" controls preload="metadata" src="${item.publicPath}">Видео из Telegram Article</video>`;
+    if(item.type==="audio")return `<audio class="telegram-inline-media" controls preload="metadata" src="${item.publicPath}">Аудио из Telegram Article</audio>`;
+    return `[Документ из Telegram Article](${item.publicPath})`;
   });
 }
 

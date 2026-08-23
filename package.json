@@ -22,6 +22,7 @@
     "enrichment:review": "tsx pipeline/enrichment/review.ts",
     "content:refresh": "npm run enrichment:local && npm run telegram:materialize",
     "audit:content": "tsx pipeline/audit.ts",
+    "audit:media": "tsx pipeline/audit-media.ts",
     "migrate:legacy": "tsx pipeline/migrate-legacy-content.ts",
     "videos:materialize": "tsx pipeline/materialize-videos.ts",
     "videos:sync": "tsx pipeline/sync-youtube.ts && npm run videos:materialize",

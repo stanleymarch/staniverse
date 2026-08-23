@@ -61,5 +61,9 @@ export function selectVisualEdges(edges: GraphEdge[], budget = 180, minConfidenc
     .filter((edge) => !isCausalRelation(edge) && !isInferredGraphEdge(edge))
     .sort((a, b) => b.confidence - a.confidence);
   const inferred = eligible.filter((edge) => !isCausalRelation(edge) && isInferredGraphEdge(edge)).sort((a, b) => b.confidence - a.confidence);
-  return [...causal, ...explicit, ...inferred].slice(0, Math.max(0, budget));
+  const limit = Math.max(0, budget);
+  if (limit < 2 || causal.length === 0 || explicit.length === 0) return [...causal, ...explicit, ...inferred].slice(0, limit);
+  const selected = [causal[0], explicit[0]];
+  const reserved = new Set(selected);
+  return [...selected, ...causal, ...explicit, ...inferred].filter((edge, index, all) => reserved.has(edge) ? all.indexOf(edge) === index : true).slice(0, limit);
 }

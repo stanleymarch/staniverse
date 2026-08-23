@@ -1,18 +1,22 @@
 const workIds = [
-  "ai-vayfu-i-virtualnye-pomoschniki", "arka-vyatskogo-kremlya", "avtomaticheskiy-kanal-dlya-proekta-chertezhi",
+  "ai-vayfu-i-virtualnye-pomoschniki", "arka-vyatskogo-kremlya", "audiospektakl-saltykiada", "avtomaticheskiy-kanal-dlya-proekta-chertezhi",
   "chertezhi-tekhdiplomy", "ermil-kostrov", "katalog-promyshlennoy-arkhitektury", "lending-prilozheniya-logoped-buduschego",
-  "otborochnaya-rabota-artmasters", "prepodavanie-metodicheskaya-rabota-i-prodakshn-v-tsifrovykh-kafedrakh",
+  "dver-kotoraya-zhdyot", "maslenitsa-v-slobodskom", "prepodavanie-metodicheskaya-rabota-i-prodakshn-v-tsifrovykh-kafedrakh",
   "prodakshn-dlya-staniverse", "prodakshn-dlya-ya-ty-gorod", "rabota-k-yubileyu-goroda", "sayt-advokata-antona-okulova",
+  "rubyspot",
   "sayt-programmy-razvitiya-vyatgu-na-2021-2030-gody", "sayt-proekta-ya-ty-gorod",
   "sayt-regionalnogo-tsentra-finansovoy-gramotnosti-kirovskoy-oblasti",
   "sayt-vserossiyskogo-foruma-inklyuzivnogo-vysshego-obrazovaniya", "sistema-sbora-i-analiza-trendov-na-n8n",
-  "tsifrovaya-stsenografiya-dlya-nomera-na-artmasters", "video-dlya-regionalnogo-operatora-po-obrascheniyu-s-tko",
-  "virtualnyy-ofis-advokata",
+  "tsifrovoy-sad-staniverse-xyz", "tyaga", "video-dlya-regionalnogo-operatora-po-obrascheniyu-s-tko",
+  "virtualnyy-ofis-advokata", "ya-obmanyvat-sebya-ne-stanu",
 ];
 
 export const legacyRedirects = new Map<string, string>([
   ...workIds.map((id) => [`works/cases/${id}`, `/works/${id}/`] as const),
+  ["works/otborochnaya-rabota-artmasters", "/works/dver-kotoraya-zhdyot/"],
+  ["works/tsifrovaya-stsenografiya-dlya-nomera-na-artmasters", "/works/ya-obmanyvat-sebya-ne-stanu/"],
+  ["lab/parametrick", "/projects/mnemoform/"],
   ["articles/ii-vayfu-na-14-fevralya-instruktsiya-po-primeneniyu-i-sozdaniyu", "/articles/ai-waifu/"],
   ["articles/index", "/garden/"], ["works/index", "/works/"], ["garden/index", "/garden/"],
-    ["contacts", "/about/"], ["profile", "/about/"], ["manifesto", "/about/#manifesto"],
+    ["contacts", "/about/"], ["profile", "/about/"], ["manifesto", "/about/#manifesto"], ["donaty", "/donate/"],
 ]);

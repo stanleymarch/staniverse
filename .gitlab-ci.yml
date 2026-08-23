@@ -9,6 +9,9 @@ deploy-pages:
   script:
     - npm ci --cache .npm --prefer-offline
     - npm test
+    - npm run audit:content
+    - npm run audit:media
+    - npm run videos:verify
     - npm run build
   pages:
     publish: dist

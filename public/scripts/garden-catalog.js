@@ -36,6 +36,7 @@
   function filtered() {
     const q = (search?.value || "").trim().toLocaleLowerCase("ru-RU"),
       k = selected("[data-kind-filter]"),
+      c = selected("[data-channel-filter]"),
       t = selected("[data-topic-filter]"),
       m = document.querySelector("[data-media-filter]:checked");
     return records.filter((r) => {
@@ -45,8 +46,9 @@
       return (
         (!q || hay.includes(q)) &&
         (!k.length || k.includes(r.kind)) &&
+        (!c.length || c.includes(r.channelKey)) &&
         (!t.length || t.every((x) => r.topics.some((y) => y.id === x))) &&
-        (!m || r.media > 0)
+        (!m || r.media > 0 || r.thumbnail)
       );
     });
   }
@@ -56,7 +58,7 @@
     list.innerHTML = visible
       .map(
         (r) =>
-          `<a class="garden-row" href="${esc(r.href)}"><div class="garden-row-meta">${esc(r.kindLabel)}</div><div><h2>${esc(r.title)}</h2><p>${esc(r.summary)}</p><div class="garden-row-topics">${r.topics
+          `<a class="garden-row${r.thumbnail ? " has-thumbnail" : ""}" href="${esc(r.href)}"><div class="garden-row-meta">${r.thumbnail ? `<img class="garden-row-thumbnail" src="${esc(r.thumbnail)}" alt="" loading="lazy" width="320" height="180">` : ""}<span>${esc(r.channelLabel || r.kindLabel)}</span></div><div><h2>${esc(r.title)}</h2><p>${esc(r.summary)}</p><div class="garden-row-topics">${r.topics
             .slice(0, 4)
             .map((t) => `<span>${esc(t.label)}</span>`)
             .join(
@@ -67,6 +69,7 @@
     count.textContent = `${result.length} материалов`;
     const terms = [
       ...selected("[data-kind-filter]"),
+      ...selected("[data-channel-filter]"),
       ...selected("[data-topic-filter]"),
     ];
     active.textContent = terms.length
@@ -85,7 +88,7 @@
   document.addEventListener("change", (e) => {
     if (
       e.target.matches(
-        "[data-kind-filter],[data-topic-filter],[data-media-filter]",
+        "[data-kind-filter],[data-channel-filter],[data-topic-filter],[data-media-filter]",
       )
     ) {
       limit = 24;
@@ -105,7 +108,7 @@
     ?.addEventListener("click", () => {
       document
         .querySelectorAll(
-          "[data-kind-filter],[data-topic-filter],[data-media-filter]",
+          "[data-kind-filter],[data-channel-filter],[data-topic-filter],[data-media-filter]",
         )
         .forEach((i) => (i.checked = false));
       if (search) search.value = "";

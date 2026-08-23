@@ -15,30 +15,62 @@
     return node;
   };
   function render(records) {
-    const visible = records.slice(0, 30);
+    const materials = records.slice(0, 24);
+    const topicCounts = new Map();
+    materials.forEach((record) => record.topics.forEach((topic) => {
+      const current = topicCounts.get(topic.id) || { ...topic, count: 0 };
+      current.count += 1;
+      topicCounts.set(topic.id, current);
+    }));
+    const topicNodes = [...topicCounts.values()]
+      .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label, "ru"))
+      .slice(0, 8)
+      .map((topic) => ({ id: `topic:${topic.id}`, title: topic.label, href: topic.href, kindLabel: "Тема", topics: [], relations: [], topic }));
+    const visible = [...materials, ...topicNodes];
     const positions = new Map(visible.map((record, index) => [record.id, point(index)]));
     svg.replaceChildren();
     list.replaceChildren();
     const edges = el("g", { class: "garden-map-edges" });
+    const seenEdges = new Set();
     visible.forEach((record) => {
       const from = positions.get(record.id);
       (record.relations || []).forEach((relation) => {
         const to = positions.get(relation.target);
-        if (!from || !to || record.id >= relation.target) return;
+        const key = [record.id, relation.target].sort().join("|");
+        if (!from || !to || seenEdges.has(key)) return;
+        seenEdges.add(key);
         const inferred = relation.type === "topic" || relation.type === "semantic";
         edges.append(el("line", { x1: from.x, y1: from.y, x2: to.x, y2: to.y, class: inferred ? "garden-map-edge inferred" : "garden-map-edge proven" }));
       });
     });
+    materials.forEach((record) => {
+      const from = positions.get(record.id);
+      record.topics.forEach((topic) => {
+        const to = positions.get(`topic:${topic.id}`);
+        if (from && to) edges.append(el("line", { x1: from.x, y1: from.y, x2: to.x, y2: to.y, class: "garden-map-edge inferred" }));
+      });
+    });
+    topicNodes.forEach((record) => {
+      const from = positions.get(record.id);
+      record.topic.related.forEach((targetId) => {
+        const targetKey = `topic:${targetId}`;
+        const to = positions.get(targetKey);
+        if (from && to && record.id < targetKey) edges.append(el("line", { x1: from.x, y1: from.y, x2: to.x, y2: to.y, class: "garden-map-edge inferred curated" }));
+      });
+    });
     svg.append(edges);
     const nodes = el("g", { class: "garden-map-nodes" });
+    const labelledTitles = new Set();
     visible.forEach((record, index) => {
       const pos = positions.get(record.id);
-      const anchor = el("a", { href: record.href, class: "garden-map-node" });
+      const anchor = el("a", { href: record.href, class: `garden-map-node${record.topic ? " is-topic" : ""}` });
       const title = el("title");
       title.textContent = `${record.title} — ${record.kindLabel}`;
       anchor.append(title, el("circle", { cx: pos.x, cy: pos.y, r: index < 5 ? 9 : 6 }));
-      if (index < 10) {
-        const label = el("text", { x: pos.x + 13, y: pos.y + 4 });
+      if (index < 10 && !labelledTitles.has(record.title)) {
+        labelledTitles.add(record.title);
+        const labelOnLeft = pos.x > 570;
+        const label = el("text", { x: pos.x + (labelOnLeft ? -13 : 13), y: pos.y + 4, "text-anchor": labelOnLeft ? "end" : "start" });
         label.textContent = record.title.length > 34 ? `${record.title.slice(0, 32)}…` : record.title;
         anchor.append(label);
       }

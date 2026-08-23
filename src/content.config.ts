@@ -64,6 +64,8 @@ const relation = z.object({
   evidence: relationEvidence,
   provenance: relationProvenance.optional(),
   confidence: z.number().min(0).max(1).default(1),
+  /** Human-readable reason retained from deterministic or reviewed enrichment. */
+  explanation: z.string().optional(),
   /** Review state is separate from evidence: an inferred edge may be accepted. */
   reviewStatus: relationReviewStatus.default("accepted"),
   /** `status` is retained as an input alias for older review exports. */

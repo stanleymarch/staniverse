@@ -1,0 +1,38 @@
+---
+import Base from "../../layouts/Base.astro";
+---
+
+<Base title="Поддержать Staniverse" description="Способы поддержать независимые проекты Staniverse.">
+  <main class="support-page">
+    <header>
+      <div class="section-kicker">Независимые проекты</div>
+      <h1>Поддержать</h1>
+      <p class="lead">Если тебе откликается то, что я делаю, сюда можно подкинуть топлива для цифрового сада, исследований и новых опытов.</p>
+    </header>
+    <section class="support-copy">
+      <p>Поддержка уходит на вполне земные вещи: сервисы и модели, хостинг, камеры, звук, датчики, железо и прототипы. Именно из них затем появляются видео, XR-опыты и новые проекты.</p>
+      <div class="support-options">
+        <a href="https://boosty.to/staniverse" rel="me external"><span>Регулярно</span><strong>Boosty</strong><small>boosty.to/staniverse ↗</small></a>
+        <a href="https://pay.cloudtips.ru/p/5e805926" rel="external"><span>Разово</span><strong>CloudTips</strong><small>Банковская карта ↗</small></a>
+        <a href="https://finance.ozon.ru/apps/sbp/ozonbankpay/019dbb77-d8ba-7221-b537-d44b3c78d28f" rel="external"><span>Быстро</span><strong>Ozon Банк / СБП</strong><small>Перевод через СБП ↗</small></a>
+      </div>
+      <p>С криптовалютой пока не стал делать публичные адреса: добавлю их, когда будет достаточно понятная и спокойная схема. В любом случае спасибо. Для независимых проектов поддержка означает возможность чуть реже откладывать следующий эксперимент на потом.</p>
+    </section>
+  </main>
+</Base>
+
+<style>
+  .support-page { max-width: 76rem; min-height: 70vh; margin: 0 auto; padding: clamp(4rem, 9vw, 9rem) var(--page-pad); }
+  .support-page header { max-width: 58rem; }
+  .support-page h1 { margin: .25rem 0 1rem; font: 650 clamp(3.5rem, 9vw, 8rem)/.9 Unbounded, sans-serif; letter-spacing: -.065em; }
+  .lead { max-width: 48rem; color: var(--muted); font-size: clamp(1.1rem, 2vw, 1.5rem); line-height: 1.45; }
+  .support-copy { max-width: 62rem; margin-top: clamp(3rem, 7vw, 6rem); }
+  .support-copy > p { max-width: 58rem; color: var(--muted); font-size: 1rem; line-height: 1.7; }
+  .support-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 2.5rem 0; border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+  .support-options a { display: grid; min-height: 12rem; padding: 1.25rem; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); color: var(--ink); text-decoration: none; transition: background .2s ease, border-color .2s ease; }
+  .support-options a:hover, .support-options a:focus-visible { border-color: var(--accent); background: rgba(101, 221, 242, .06); }
+  .support-options span { color: var(--muted); font-size: .72rem; text-transform: uppercase; letter-spacing: .12em; }
+  .support-options strong { align-self: end; font: 550 clamp(1.25rem, 2vw, 1.8rem)/1.1 Unbounded, sans-serif; }
+  .support-options small { margin-top: .55rem; color: var(--accent); }
+  @media (max-width: 700px) { .support-page h1 { font-size: clamp(2.6rem, 12.5vw, 4rem); overflow-wrap: anywhere; } .support-options { grid-template-columns: 1fr; } .support-options a { min-height: 9rem; } }
+</style>

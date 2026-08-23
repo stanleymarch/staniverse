@@ -10,7 +10,7 @@ entities: []
 featured: true
 updated: "2026-07-14"
 legacySource: "F:/Code/active/sverseq/content/lab/ya-ty-gorod.md"
-relations: [{"target":"work:sayt-proekta-ya-ty-gorod","type":"develops","evidence":"editorial","confidence":1},{"target":"project:metavyatka","type":"related","evidence":"editorial","confidence":0.8},{"target":"project:zapovednaya-vyatka-360","type":"related","evidence":"editorial","confidence":0.8}]
+relations: [{"target":"work:sayt-proekta-ya-ty-gorod","type":"develops","evidence":"editorial","confidence":1},{"target":"project:nearventure","type":"related","evidence":"editorial","confidence":1},{"target":"project:metavyatka","type":"related","evidence":"editorial","confidence":0.8},{"target":"project:zapovednaya-vyatka-360","type":"related","evidence":"editorial","confidence":0.8}]
 ---
 ## Суть
 Авторский медиапроект о культурных и природных богатствах Кировской области. Существовал с 2018 по 2024 год — от коротких фото- и видеопубликаций на [YouTube](https://youtube.com/@yatygorod) и [VK](https://vk.com/yatygorod) до лонгридов с 360-панорамами и виртуальных пространств. Снимались памятники культуры и архитектуры, природные территории и заказники, велотуризм по региону, промышленное наследие, соседние города.
@@ -47,10 +47,6 @@ relations: [{"target":"work:sayt-proekta-ya-ty-gorod","type":"develops","evidenc
 
 ## Возрождение сайта
 В 2026 году сайт [yatygorod.ru](https://yatygorod.ru) восстановлен — пересобран на [Astro](https://astro.build) и захощен на GitLab Pages. Архив проекта теперь доступен как статический сайт с сохранением всей структуры материалов.
-
-## Связи
-- Связанные проекты: Nearventure, [MetaVyatka](/projects/metavyatka/), [Заповедная Вятка 360°](/projects/zapovednaya-vyatka-360/)
-- Посты / материалы: Речь на визитку, 2024-08-01_360-видео-о-Вятке-и-выбор-платформы
 
 ## Ссылки
 - https://youtube.com/@yatygorod

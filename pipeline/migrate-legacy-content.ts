@@ -11,15 +11,16 @@ const legacyRepo=resolve(legacyRoot,"..");
 // This list comes from the generated index that was actually published, not from
 // whichever drafts happen to be present in the old working tree today.
 const publishedWorkSlugs=[
-  "ai-vayfu-i-virtualnye-pomoschniki","arka-vyatskogo-kremlya","avtomaticheskiy-kanal-dlya-proekta-chertezhi",
-  "chertezhi-tekhdiplomy","ermil-kostrov","katalog-promyshlennoy-arkhitektury","lending-prilozheniya-logoped-buduschego",
-  "otborochnaya-rabota-artmasters","prepodavanie-metodicheskaya-rabota-i-prodakshn-v-tsifrovykh-kafedrakh",
+  "ai-vayfu-i-virtualnye-pomoschniki","arka-vyatskogo-kremlya","audiospektakl-saltykiada","avtomaticheskiy-kanal-dlya-proekta-chertezhi",
+  "chertezhi-tekhdiplomy","dver-kotoraya-zhdyot","ermil-kostrov","katalog-promyshlennoy-arkhitektury","lending-prilozheniya-logoped-buduschego",
+  "maslenitsa-v-slobodskom","prepodavanie-metodicheskaya-rabota-i-prodakshn-v-tsifrovykh-kafedrakh",
   "prodakshn-dlya-staniverse","prodakshn-dlya-ya-ty-gorod","rabota-k-yubileyu-goroda","sayt-advokata-antona-okulova",
+  "rubyspot",
   "sayt-proekta-ya-ty-gorod","sayt-programmy-razvitiya-vyatgu-na-2021-2030-gody",
   "sayt-regionalnogo-tsentra-finansovoy-gramotnosti-kirovskoy-oblasti",
   "sayt-vserossiyskogo-foruma-inklyuzivnogo-vysshego-obrazovaniya","sistema-sbora-i-analiza-trendov-na-n8n",
-  "tsifrovaya-stsenografiya-dlya-nomera-na-artmasters","video-dlya-regionalnogo-operatora-po-obrascheniyu-s-tko",
-  "virtualnyy-ofis-advokata",
+  "tsifrovoy-sad-staniverse-xyz","tyaga","video-dlya-regionalnogo-operatora-po-obrascheniyu-s-tko",
+  "virtualnyy-ofis-advokata","ya-obmanyvat-sebya-ne-stanu",
 ] as const;
 const workAliases:Record<string,string>={};
 const projectAliases:Record<string,string>={};
@@ -27,7 +28,7 @@ const curated:Record<string,Relation[]>={
   "project:staniverse":[{target:"work:prodakshn-dlya-staniverse",type:"develops",evidence:"editorial",confidence:1},{target:"publication:telegram:staniverse:1013",type:"documents",evidence:"editorial",confidence:1}],
   "project:albina":[{target:"article:ai-waifu",type:"develops",evidence:"editorial",confidence:1},{target:"publication:telegram:staniverse:566",type:"documents",evidence:"editorial",confidence:1}],
   "project:metavyatka":[{target:"work:arka-vyatskogo-kremlya",type:"develops",evidence:"editorial",confidence:1},{target:"project:ya-ty-gorod",type:"related",evidence:"editorial",confidence:.9}],
-  "project:ya-ty-gorod":[{target:"work:sayt-proekta-ya-ty-gorod",type:"develops",evidence:"editorial",confidence:1}],
+  "project:ya-ty-gorod":[{target:"work:sayt-proekta-ya-ty-gorod",type:"develops",evidence:"editorial",confidence:1},{target:"project:nearventure",type:"related",evidence:"editorial",confidence:1}],
   "work:arka-vyatskogo-kremlya":[{target:"project:metavyatka",type:"develops",evidence:"editorial",confidence:1}],
   "work:sistema-sbora-i-analiza-trendov-na-n8n":[{target:"article:ai-diploma",type:"related",evidence:"editorial",confidence:.9}],
   "article:ai-waifu":[{target:"project:albina",type:"develops",evidence:"editorial",confidence:1},{target:"publication:youtube:ncQ31xB3GLE",type:"related",evidence:"editorial",confidence:1},{target:"publication:youtube:AqqQ-xNAcCw",type:"related",evidence:"editorial",confidence:.9}],
@@ -69,14 +70,24 @@ for(const file of workFiles){const slug=basename(file,".md"),target=`work:${cano
 for(const file of projectFiles){const slug=basename(file,".md"),target=`project:${canonicalProject(slug)}`;allTargets.set(slug,target);const {meta}=parseSource(await readFile(resolve(legacyRoot,"lab",file),"utf8"));for(const alias of arr(meta.aliases))allTargets.set(alias.split("/").at(-1)!,target)}
 
 function convertWikiLinks(body:string){return body.replace(/!\[[^\]]*\]\(\/assets\/(?:foo\.jpg|Pasted%20image%2020260418202604\.png|diplom-14-n8n-workflow\.jpg)\)\s*/g,"").replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g,(_,raw,label)=>{const slug=String(raw).split("/").at(-1)!;const target=allTargets.get(slug);const text=label??slug;if(!target)return text;const [kind,id]=target.split(":");return `[${text}](/${kind==="work"?"works":"projects"}/${id}/)`})}
-const cleanMarkdown=(body:string)=>convertWikiLinks(body).replace(/[ \t]+$/gm,"");
+const cleanMarkdown=(body:string)=>convertWikiLinks(body)
+  .replace(/^##\s+Связи\s*$[\s\S]*?(?=^##\s|(?![\s\S]))/gmi,"")
+  .replace(/\bParametrick\b/g,"[Mnemoform (раньше Parametrick)](/projects/mnemoform/)")
+  .replace(/[ \t]+$/gm,"")
+  .trim();
 function relationsFor(body:string,id:string){const found=[...body.matchAll(/\[\[([^\]|/]+)(?:\|[^\]]+)?\]\]/g)].flatMap((match)=>{const target=allTargets.get(match[1]);return target&&target!==id?[{target,type:"related" as const,evidence:"editorial" as const,confidence:.8}]:[]});return [...new Map([...(curated[id]??[]),...found].map((relation)=>[relation.target,relation])).values()]}
 
 async function migrateWork(file:string){
   const slug=basename(file,".md"),canonical=canonicalWork(slug),sourcePath=`${legacyRepo.replace(/\\/g,"/")}#published:${slug}`;const {meta,body}=parseSource(readPublishedWork(slug));
-  const features=sectionBullets(body,"Что делал лично");const clientLine=body.match(/^-\s+Клиент(?:ы\s*\/\s*партнёры)?\s*:\s*(.+)$/mi)?.[1];
+  const features=sectionBullets(body,"Что делал лично");const clientLine=body.match(/^-\s+Клиент(?:ы\s*\/\s*партнёры)?[ \t]*:[ \t]*(.+)$/mi)?.[1];const projectLine=body.match(/^-\s+Проект[ \t]*:[ \t]*(.+)$/mi)?.[1];
   const id=`work:${canonical}`;const relations=relationsFor(body,id);const domains=arr(meta.domain);const tags=arr(meta.tags);
-  const workStatus=meta.status==="ongoing"?"ongoing":"completed";const client=clientLine?plain(clientLine).replace(/^-\s*/,""):undefined;const front=["---",`id: ${yaml(id)}`,"kind: work",`title: ${yaml(String(meta.title??slug))}`,`summary: ${yaml(summary(body))}`,`year: ${yaml(meta.year??"—")}`,`genres: ${yaml(domains.length?domains:tags)}`,`role: ${yaml(features.slice(0,3).join("; ")||"Автор и исполнитель")}`,client?`client: ${yaml(client)}`:undefined,`status: ${workStatus}`,`tags: ${yaml(tags)}`,"entities: []",`featured: ${Boolean(meta.featured)}`,`features: ${yaml(features)}`,`legacySource: ${yaml(sourcePath.replace(/\\/g,"/"))}`,`relations: ${yaml(relations)}`,"---",""].filter((line):line is string=>line!==undefined).join("\n");
+  const workStatus=meta.status==="ongoing"?"ongoing":"completed";
+  const explicitClient=clientLine?plain(clientLine).replace(/^-\s*/,""):undefined;
+  const ownerTarget=projectLine?.match(/\[\[([^\]|]+)/)?.[1]?.split("/").at(-1);
+  const ownerId=ownerTarget?canonicalProject(ownerTarget):undefined;
+  const ownerNames:Record<string,string>={albina:"Albina",metavyatka:"MetaVyatka",omnipub:"OmniPub",staniverse:"staniverse","ya-ty-gorod":"я.ты.город"};
+  const client=explicitClient||(ownerId&&ownerNames[ownerId]?`Проект: ${ownerNames[ownerId]}`:undefined);
+  const front=["---",`id: ${yaml(id)}`,"kind: work",`title: ${yaml(String(meta.title??slug))}`,`summary: ${yaml(summary(body))}`,`year: ${yaml(meta.year??"—")}`,`genres: ${yaml(domains.length?domains:tags)}`,`role: ${yaml(features.slice(0,3).join("; ")||"Автор и исполнитель")}`,client?`client: ${yaml(client)}`:undefined,`status: ${workStatus}`,`tags: ${yaml(tags)}`,"entities: []",`featured: ${Boolean(meta.featured)}`,`features: ${yaml(features)}`,`legacySource: ${yaml(sourcePath.replace(/\\/g,"/"))}`,`relations: ${yaml(relations)}`,"---",""].filter((line):line is string=>line!==undefined).join("\n");
   await writeFile(resolve(targetRoot,"works",`${canonical}.md`),`${front}${cleanMarkdown(body)}\n`,"utf8");
 }
 async function migrateProject(file:string){

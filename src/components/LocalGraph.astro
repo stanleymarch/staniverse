@@ -51,16 +51,20 @@ const arrowMarkerId = `local-graph-arrow-${currentId.replace(/[^a-z0-9]+/gi, "-"
           {graph.edges.map((edge) => {
             const source = graph.nodes.find((node) => node.id === edge.source);
             const target = graph.nodes.find((node) => node.id === edge.target);
+            const dx = source && target ? target.x - source.x : 0;
+            const dy = source && target ? target.y - source.y : 0;
+            const distance = Math.hypot(dx, dy) || 1;
+            const inset = edge.causal ? 6 : 0;
             return source && target ? (
               <line
                 class={`local-graph__edge ${edge.dotted ? "is-dotted" : "is-solid"}`}
                 data-edge-depth={edge.depth}
                 data-edge-type={edge.type}
                 data-edge-causal={edge.causal ? "true" : "false"}
-                x1={source.x}
-                y1={source.y}
-                x2={target.x}
-                y2={target.y}
+                x1={source.x + (dx / distance) * inset}
+                y1={source.y + (dy / distance) * inset}
+                x2={target.x - (dx / distance) * inset}
+                y2={target.y - (dy / distance) * inset}
                 marker-end={edge.causal ? `url(#${arrowMarkerId})` : undefined}
               />
             ) : null;

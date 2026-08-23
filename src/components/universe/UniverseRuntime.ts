@@ -7,6 +7,8 @@ type NodeVisual = {
   node: GraphNode;
   mesh: import("three").Mesh;
   label?: import("three").Sprite;
+  aura?: import("three").Sprite;
+  radius: number;
   revealed: boolean;
   layer: "core" | "neighborhood" | "archive";
 };
@@ -167,8 +169,13 @@ class GenerativeRouteAudio {
   private routeRoot = 110;
 
   private ensure() {
-    if (this.context) return;
-    this.context = new AudioContext();
+    if (this.context) return true;
+    try {
+      this.context = new AudioContext();
+    } catch {
+      this.context = undefined;
+      return false;
+    }
     this.master = this.context.createGain();
     this.master.gain.value = 0.022;
     this.master.connect(this.context.destination);
@@ -182,12 +189,17 @@ class GenerativeRouteAudio {
       oscillator.start();
       this.oscillators.push(oscillator);
     });
+    return true;
   }
 
   async toggle() {
-    this.ensure();
+    if (!this.ensure()) return false;
     if (!this.context) return false;
-    if (this.context.state === "suspended") await this.context.resume();
+    try {
+      if (this.context.state === "suspended") await this.context.resume();
+    } catch {
+      return false;
+    }
     this.enabled = !this.enabled;
     if (!this.enabled) await this.context.suspend();
     return this.enabled;
@@ -227,6 +239,7 @@ export async function mountUniverse() {
   if (!canvas) return;
 
   const dataById = new Map(graph.nodes.map((node) => [node.id, node]));
+  const compactViewport = window.matchMedia("(max-width: 780px)").matches;
   const neighbors = new Map<string, Set<string>>();
   const edgesByNode = new Map<string, Array<{ edge: GraphEdge; outgoing: boolean }>>();
   graph.edges.forEach((edge) => {
@@ -292,6 +305,7 @@ export async function mountUniverse() {
     glowContext.fillStyle = glowGradient;
     glowContext.fillRect(0, 0, 96, 96);
     const glowTexture = new THREE.CanvasTexture(glowCanvas);
+    const sharedSphereGeometry = new THREE.SphereGeometry(1, compactViewport ? 9 : 14, compactViewport ? 9 : 14);
 
     const labelFor = (text: string) => {
       const labelCanvas = document.createElement("canvas");
@@ -321,29 +335,41 @@ export async function mountUniverse() {
         ring * Math.sin(longitude) * Math.sin(latitude),
         ring * Math.cos(latitude),
       );
-      const radius = node.featured ? .48 : layer === "core" ? .31 : layer === "neighborhood" ? .17 : .075;
-      const geometry = new THREE.SphereGeometry(radius, layer === "archive" ? 8 : 14, layer === "archive" ? 8 : 14);
+      const baseRadius = node.featured ? .48 : layer === "core" ? .31 : layer === "neighborhood" ? .17 : .075;
+      const radius = baseRadius * (compactViewport ? .56 : .72);
       const material = new THREE.MeshBasicMaterial({ color: NODE_COLORS[node.kind] ?? 0xc4d3e3, transparent: true, opacity: 0 });
-      const mesh = new THREE.Mesh(geometry, material);
+      const mesh = new THREE.Mesh(sharedSphereGeometry, material);
+      mesh.scale.setScalar(radius);
       mesh.position.copy(position);
       mesh.userData.nodeId = node.id;
-      const visual: NodeVisual = { node, mesh, revealed: false, layer };
+      const visual: NodeVisual = { node, mesh, radius, revealed: false, layer };
       field.add(mesh);
       nodeVisuals.set(node.id, visual);
-      const aura = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTexture, color: NODE_COLORS[node.kind] ?? 0xc4d3e3, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false }));
-      aura.scale.setScalar(node.featured ? 4.7 : layer === "core" ? 3 : layer === "neighborhood" ? 1.7 : .72);
-      mesh.add(aura);
-      const labelBudget = 22;
-      const shouldLabel = node.featured || (initialIds.has(node.id) && index < labelBudget);
+      if (!compactViewport || layer !== "archive") {
+        const aura = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTexture, color: NODE_COLORS[node.kind] ?? 0xc4d3e3, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false }));
+        const auraSize = compactViewport
+          ? node.featured ? 1.8 : layer === "core" ? 1.35 : .7
+          : node.featured ? 2.9 : layer === "core" ? 2.1 : layer === "neighborhood" ? 1.05 : .42;
+        aura.scale.setScalar(auraSize / radius);
+        mesh.add(aura);
+        visual.aura = aura;
+      }
+      const labelBudget = compactViewport ? 0 : 10;
+      const shouldLabel = initialIds.has(node.id) && index < labelBudget;
       if (shouldLabel) {
         const label = labelFor(node.title);
-        if (label) { visual.label = label; label.visible = false; mesh.add(label); }
+        if (label) {
+          label.scale.multiplyScalar(1 / radius);
+          label.position.y /= radius;
+          visual.label = label;
+          label.visible = false;
+          mesh.add(label);
+        }
       }
-      mesh.userData.aura = aura;
     });
 
     const edgeVisuals: EdgeVisual[] = [];
-    const lineBudget = 180;
+    const lineBudget = compactViewport ? 72 : 180;
     selectVisualEdges(graph.edges, lineBudget, .55)
       .forEach((edge) => {
         const source = nodeVisuals.get(edge.source);
@@ -362,7 +388,10 @@ export async function mountUniverse() {
           const direction = new THREE.Vector3().subVectors(target.mesh.position, source.mesh.position);
           const length = direction.length();
           if (length > 0) {
-            arrow = new THREE.ArrowHelper(direction.normalize(), source.mesh.position, length, 0xf1b7dd, .7, .35);
+            const unit = direction.normalize();
+            const origin = source.mesh.position.clone().addScaledVector(unit, source.radius * 1.3);
+            const visibleLength = Math.max(.2, length - (source.radius + target.radius) * 1.3);
+            arrow = new THREE.ArrowHelper(unit, origin, visibleLength, 0xf1b7dd, .7, .35);
             const arrowLine = arrow.line.material as import("three").LineBasicMaterial;
             const arrowCone = arrow.cone.material as import("three").MeshBasicMaterial;
             arrowLine.transparent = true;
@@ -376,7 +405,7 @@ export async function mountUniverse() {
       });
 
     const dustPositions: number[] = [];
-    for (let index = 0; index < 520; index += 1) {
+    for (let index = 0; index < (compactViewport ? 210 : 520); index += 1) {
       dustPositions.push((seed() - .5) * 140, (seed() - .5) * 90, (seed() - .5) * 120);
     }
     const dustGeometry = new THREE.BufferGeometry();
@@ -389,8 +418,7 @@ export async function mountUniverse() {
       visual.mesh.visible = true;
       const material = visual.mesh.material as import("three").MeshBasicMaterial;
       material.opacity = visual.layer === "archive" ? .26 : 1;
-      const aura = visual.mesh.userData.aura as import("three").Sprite;
-      (aura.material as import("three").SpriteMaterial).opacity = visual.node.featured ? .58 : visual.layer === "core" ? .35 : visual.layer === "neighborhood" ? .16 : .025;
+      if (visual.aura) (visual.aura.material as import("three").SpriteMaterial).opacity = visual.node.featured ? .58 : visual.layer === "core" ? .35 : visual.layer === "neighborhood" ? .16 : .025;
       if (visual.label) visual.label.visible = true;
     };
     nodeVisuals.forEach((visual) => { visual.mesh.visible = false; });
@@ -398,10 +426,11 @@ export async function mountUniverse() {
       .filter((visual) => initialIds.has(visual.node.id))
       .forEach(reveal);
     [...nodeVisuals.values()]
-      .filter((visual) => !visual.revealed)
+      .filter((visual) => !visual.revealed && visual.layer !== "archive")
       .sort((a, b) => Number(b.node.featured) - Number(a.node.featured) || nodeDegree(b.node.id) - nodeDegree(a.node.id))
+      .slice(0, compactViewport ? 16 : 48)
       .forEach((visual, index) => {
-        timers.push(window.setTimeout(() => reveal(visual), 500 + Math.min(index, 55) * 34));
+        timers.push(window.setTimeout(() => { reveal(visual); updateHighlights(); }, 500 + Math.min(index, 55) * 34));
       });
 
     let selectedId: string | null = null;
@@ -416,12 +445,13 @@ export async function mountUniverse() {
         const material = visual.mesh.material as import("three").MeshBasicMaterial;
         const isPath = selectedId === visual.node.id || direct.has(visual.node.id);
         material.opacity = visual.layer === "archive" ? (isPath ? .7 : .18) : (selectedId && !isPath ? .48 : 1);
-        visual.mesh.scale.setScalar(selectedId === visual.node.id ? 1.42 : direct.has(visual.node.id) ? 1.15 : 1);
+        const emphasis = selectedId === visual.node.id ? 1.42 : direct.has(visual.node.id) ? 1.15 : 1;
+        visual.mesh.scale.setScalar(visual.radius * emphasis);
       });
       edgeVisuals.forEach(({ edge, line, material, arrow, source, target }) => {
         const active = Boolean(selectedId && (edge.source === selectedId || edge.target === selectedId));
         line.visible = source.revealed && target.revealed;
-        const opacity = selectedId ? (active ? .92 : .1) : (source.layer === "core" && target.layer === "core" ? .38 : .13);
+        const opacity = selectedId ? (active ? .92 : .08) : (source.layer === "core" && target.layer === "core" ? .5 : .22);
         material.opacity = opacity;
         const color = active ? 0x6de1f4 : isCausalRelation(edge) ? 0xf1b7dd : isInferredGraphEdge(edge) ? 0x6d9eb8 : 0x8ea6c0;
         material.color.set(color);
@@ -657,7 +687,7 @@ export async function mountUniverse() {
     const frame = () => {
       if (!renderer.xr.isPresenting) camera.position.z += (targetZoom - camera.position.z) * .07;
       if (!reduced && !renderer.xr.isPresenting) field.rotation.y += .00045;
-      dust.rotation.y += .0001;
+      if (!reduced) dust.rotation.y += .0001;
       renderer.render(scene, camera);
     };
     renderer.setAnimationLoop(frame);
@@ -676,6 +706,7 @@ export async function mountUniverse() {
       dustGeometry.dispose();
       (dust.material as import("three").Material).dispose();
       glowTexture.dispose();
+      sharedSphereGeometry.dispose();
       controllerRayGeometry.dispose();
       xrControllers.forEach((item) => scene.remove(item));
       xrDisposers.forEach((dispose) => dispose());

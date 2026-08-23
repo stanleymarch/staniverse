@@ -32,3 +32,14 @@ test("returns an empty neighbourhood for an unknown stable id", () => {
   assert.deepEqual(graph.nodes, []);
   assert.deepEqual(graph.edges, []);
 });
+
+test("does not expand a topic hub into the whole archive and respects the node budget", () => {
+  const archive = Array.from({ length: 80 }, (_, index) => node(`post-${index}`));
+  const topic = node("topic:ai", "topic");
+  const graph = buildLocalGraph("current", [node("current"), topic, ...archive], [
+    edge("current", "topic:ai", "topic", "topic"),
+    ...archive.map((item) => edge("topic:ai", item.id, "topic", "topic")),
+  ]);
+  assert.deepEqual(graph.nodes.map((item) => item.id), ["current", "topic:ai"]);
+  assert.ok(graph.nodes.length <= 32);
+});

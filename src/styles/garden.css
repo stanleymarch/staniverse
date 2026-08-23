@@ -1,3 +1,6 @@
+.garden-page {
+  --page-pad: clamp(1rem, 4vw, 4rem);
+}
 .garden-hero {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(18rem, 38rem);
@@ -27,7 +30,7 @@
   min-height: 3.25rem;
   border: 1px solid var(--line);
   background: var(--surface);
-  color: var(--text);
+  color: var(--ink);
   padding: 0 1rem;
   font: inherit;
 }
@@ -130,7 +133,7 @@
   color: var(--muted);
 }
 .garden-result-head p:first-child {
-  color: var(--text);
+  color: var(--ink);
 }
 .garden-row {
   display: grid;
@@ -149,6 +152,21 @@
 .garden-row-date {
   font-size: 0.78rem;
   color: var(--muted);
+}
+.garden-row-meta {
+  display: grid;
+  gap: 0.6rem;
+  align-content: start;
+}
+.garden-row-thumbnail {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 1px solid var(--line);
+  object-fit: cover;
+}
+.garden-row.has-thumbnail {
+  grid-template-columns: minmax(10rem, 15rem) minmax(0, 1fr) auto;
 }
 .garden-row-date {
   white-space: nowrap;
@@ -184,7 +202,8 @@
 }
 .garden-map-panel {
   padding: 3rem var(--page-pad);
-  max-width: 42rem;
+  width: 100%;
+  max-width: 68rem;
   margin: auto;
 }
 .garden-map-panel h2 {
@@ -205,9 +224,18 @@
     transparent 62%
   );
 }
+.garden-map-viewport {
+  margin: 2rem 0;
+}
+.garden-map-viewport .garden-map-svg {
+  margin: 0;
+}
+.garden-map-pan-hint {
+  display: none;
+}
 .garden-map-edge {
   vector-effect: non-scaling-stroke;
-  stroke: color-mix(in srgb, var(--text) 28%, transparent);
+  stroke: color-mix(in srgb, var(--ink) 28%, transparent);
   stroke-width: 1;
 }
 .garden-map-edge.inferred {
@@ -220,8 +248,16 @@
   stroke-width: 3;
   vector-effect: non-scaling-stroke;
 }
+.garden-map-node.is-topic circle {
+  fill: var(--bg);
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+.garden-map-node.is-topic text {
+  fill: var(--accent);
+}
 .garden-map-node text {
-  fill: var(--text);
+  fill: var(--ink);
   font-size: 12px;
   paint-order: stroke;
   stroke: var(--bg);
@@ -304,6 +340,12 @@
   .garden-row {
     grid-template-columns: 1fr;
   }
+  .garden-row.has-thumbnail {
+    grid-template-columns: 1fr;
+  }
+  .garden-row-thumbnail {
+    max-width: 22rem;
+  }
   .garden-row p {
     display: -webkit-box;
     -webkit-line-clamp: 3;
@@ -314,7 +356,22 @@
     padding-inline: 1rem;
   }
   .garden-map-svg {
-    aspect-ratio: 4 / 5;
+    width: 48rem;
+    max-width: none;
+    aspect-ratio: 10 / 7;
+  }
+  .garden-map-viewport {
+    margin-inline: -1rem;
+    padding: 0 1rem 1rem;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scrollbar-color: var(--accent) var(--surface);
+  }
+  .garden-map-pan-hint {
+    display: block;
+    margin-bottom: -.75rem;
+    color: var(--accent) !important;
+    font-size: .78rem;
   }
   .garden-map-list {
     columns: 1;

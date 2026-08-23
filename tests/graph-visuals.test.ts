@@ -32,6 +32,16 @@ test("selector respects confidence and puts topic edges last", () => {
   assert.deepEqual(selected.map((item) => item.type), ["mentions", "part-of"]);
 });
 
+test("selector reserves both a causal and an explicit edge at a small budget", () => {
+  const selected = selectVisualEdges([
+    edge("develops", "editorial", .99),
+    edge("documents", "editorial", .98),
+    edge("mentions", "hyperlink", .7),
+  ], 2);
+  assert.equal(selected.some(isCausalRelation), true);
+  assert.equal(selected.some((item) => !isCausalRelation(item) && !isInferredGraphEdge(item)), true);
+});
+
 test("causal relation labels and direction are explicit", () => {
   assert.equal(isCausalRelation(edge("documents")), true);
   assert.equal(isCausalRelation(edge("related")), false);

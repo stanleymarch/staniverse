@@ -46,13 +46,6 @@ relations: [{"target":"project:ya-ty-gorod","type":"related","evidence":"editori
 ## Результат
 Создан инструмент для краеведов и музеев — открытый каталог, который пополняется силами сообщества. Об проекте писали [kirov-grad.ru](https://kirov-grad.ru/news/v-kirovskoy-oblasti-sozdayut-katalog-pamyatnikov-promyshlennoy-arkhitektury/) и [istochnik.online](https://www.istochnik.online/news/v-kirove-poyavilsya-onlajn-katalog-promyshlennoj-arhitektury).
 
-## Связи
-- Клиент: Водонапорная башня Слободского
-- Проект: При поддержке Фонда Потанина
-- Связанные кейсы: Сайт Водонапорной башни Слободской
-- Посты / материалы: 2025-02-15_Стас-представляет-канал-о-технологиях-VR
-- Заметки: [я.ты.город](/projects/ya-ty-gorod/)
-
 ## Ссылки
 - https://slbtower.ru/industrial-buildings/
 - https://web.archive.org/web/20250424215724/https://slobtower.ru/industrial-buildings/

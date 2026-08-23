@@ -82,6 +82,10 @@
 .media-gallery { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,280px),1fr)); gap: .75rem; min-width: 0; margin: 0 0 3rem; }
 .media-gallery a { display: block; min-width: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 1rem; background: var(--panel); }
 .media-gallery img { display: block; width: 100%; max-width: 100%; height: min(56vw,520px); max-height: 70vh; object-fit: cover; }
+.media-gallery video { display: block; width: 100%; max-width: 100%; max-height: 70vh; border: 1px solid var(--line); border-radius: 1rem; background: #03070d; }
+.media-gallery audio { width: 100%; align-self: center; }
+.media-document { display: grid!important; min-height: 8rem; place-items: center; padding: 1rem; color: var(--accent); text-align: center; }
+.telegram-inline-media { display: block; width: 100%; max-width: 100%; margin-block: 1.5rem; }
 
 .topic-cloud {
   display: grid;

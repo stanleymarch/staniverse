@@ -1,5 +1,5 @@
 import type { GraphEdge, GraphNode } from "../lib/graph";
-import { isCausalRelation, isInferredGraphEdge, relationLabel } from "../lib/graph-visuals";
+import { isCausalRelation, isInferredGraphEdge, relationLabel, selectVisualEdges } from "../lib/graph-visuals";
 
 export interface LocalGraphNode extends GraphNode {
   depth: number;
@@ -43,7 +43,7 @@ function positionFor(depth: number, index: number, count: number) {
  * Projects the full graph into a small, deterministic neighbourhood. The
  * component can reveal one, two, or three hops without running a renderer.
  */
-export function buildLocalGraph(currentId: string, nodes: GraphNode[], edges: GraphEdge[], maxDepth = 3): LocalGraphData {
+export function buildLocalGraph(currentId: string, nodes: GraphNode[], edges: GraphEdge[], maxDepth = 3, maxNodes = 32): LocalGraphData {
   const nodeById = new Map(nodes.map((node) => [node.id, node]));
   const adjacent = new Map<string, Array<{ id: string; edge: GraphEdge }>>();
 
@@ -53,20 +53,39 @@ export function buildLocalGraph(currentId: string, nodes: GraphNode[], edges: Gr
     adjacent.get(edge.target)?.push({ id: edge.source, edge }) ?? adjacent.set(edge.target, [{ id: edge.source, edge }]);
   }
 
+  const edgeRank = (edge: GraphEdge) => isCausalRelation(edge) ? 0 : isInferredGraphEdge(edge) ? 2 : 1;
+  for (const neighbours of adjacent.values()) {
+    neighbours.sort((a, b) => edgeRank(a.edge) - edgeRank(b.edge) || b.edge.confidence - a.edge.confidence || (nodeById.get(a.id)?.title ?? a.id).localeCompare(nodeById.get(b.id)?.title ?? b.id, "ru"));
+  }
+
   const depthById = new Map<string, number>();
   if (nodeById.has(currentId)) depthById.set(currentId, 0);
-  const queue = [currentId];
-  while (queue.length > 0) {
-    const id = queue.shift();
-    if (!id) continue;
-    const depth = depthById.get(id);
-    if (depth === undefined || depth >= maxDepth) continue;
-    for (const { id: neighbour } of adjacent.get(id) ?? []) {
-      if (!depthById.has(neighbour)) {
-        depthById.set(neighbour, depth + 1);
-        queue.push(neighbour);
+  let frontier = [currentId];
+  let topicCount = 0;
+  for (let depth = 1; depth <= maxDepth && frontier.length > 0 && depthById.size < maxNodes; depth += 1) {
+    const candidates = new Map<string, { id: string; edge: GraphEdge }>();
+    for (const id of frontier) {
+      // A topic is useful local context, but traversing through a topic hub
+      // turns a neighbourhood into almost the complete archive.
+      if (nodeById.get(id)?.kind === "topic") continue;
+      for (const candidate of adjacent.get(id) ?? []) {
+        if (depthById.has(candidate.id)) continue;
+        const previous = candidates.get(candidate.id);
+        if (!previous || edgeRank(candidate.edge) < edgeRank(previous.edge) || candidate.edge.confidence > previous.edge.confidence) candidates.set(candidate.id, candidate);
       }
     }
+    const perDepthBudget = Math.min(10, maxNodes - depthById.size);
+    const selected = [...candidates.values()]
+      .sort((a, b) => edgeRank(a.edge) - edgeRank(b.edge) || b.edge.confidence - a.edge.confidence || (nodeById.get(a.id)?.title ?? a.id).localeCompare(nodeById.get(b.id)?.title ?? b.id, "ru"))
+      .filter(({ id }) => {
+        if (nodeById.get(id)?.kind !== "topic") return true;
+        if (topicCount >= 6) return false;
+        topicCount += 1;
+        return true;
+      })
+      .slice(0, perDepthBudget);
+    frontier = selected.map(({ id }) => id);
+    frontier.forEach((id) => depthById.set(id, depth));
   }
 
   const byDepth = new Map<number, string[]>();
@@ -87,8 +106,7 @@ export function buildLocalGraph(currentId: string, nodes: GraphNode[], edges: Gr
     });
 
   const localIds = new Set(depthById.keys());
-  const localEdges = edges
-    .filter((edge) => localIds.has(edge.source) && localIds.has(edge.target))
+  const localEdges = selectVisualEdges(edges.filter((edge) => localIds.has(edge.source) && localIds.has(edge.target)), 120, 0)
     .map((edge) => ({
       ...edge,
       depth: Math.max(depthById.get(edge.source) ?? maxDepth, depthById.get(edge.target) ?? maxDepth),
@@ -97,8 +115,7 @@ export function buildLocalGraph(currentId: string, nodes: GraphNode[], edges: Gr
       label: relationLabel(edge.type),
       sourceNode: nodeById.get(edge.source),
       targetNode: nodeById.get(edge.target),
-    }))
-    .sort((a, b) => b.confidence - a.confidence);
+    }));
 
   return { current: nodeById.get(currentId), nodes: localNodes, edges: localEdges };
 }

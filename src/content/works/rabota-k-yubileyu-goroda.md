@@ -38,12 +38,5 @@ relations: [{"target":"project:ya-ty-gorod","type":"related","evidence":"editori
 - DaVinci Resolve
 - Одна любовь. Хотя даже две.
 
-## Связи
-- Клиент:
-- Проект: [я.ты.город](/projects/ya-ty-gorod/)
-- Связанные кейсы:
-- Посты / материалы: 2024-06-12_AI-кавер-про-Вятку-к-650-летию
-- Заметки:
-
 ## Ссылки
 -
