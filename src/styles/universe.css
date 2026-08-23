@@ -16,4 +16,7 @@
 
 .xr-status { align-self: center; color: #95a4be; font-size: .68rem; }
 .xr-button { position: static !important; inset: auto !important; width: auto !important; opacity: 1 !important; }
-@media (max-width: 720px) { .xr-status { display: none; } }
+.node-search input { width: min(13rem, 24vw); padding: .58rem .8rem; border: 1px solid #4c5470; border-radius: 2rem; background: rgba(9,12,24,.8); color: white; }
+.universe-canvas:focus-visible { outline: 2px solid #d7ff64; outline-offset: -4px; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+@media (max-width: 720px) { .xr-status,.node-search { display: none; } }

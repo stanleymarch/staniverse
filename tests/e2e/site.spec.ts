@@ -82,6 +82,13 @@ test("about and footer expose both media ecosystems", async ({ page }) => {
   }
 });
 
+test("manifesto remains a first-class canonical page", async ({ page }) => {
+  await page.goto("/manifesto/");
+  await expect(page).toHaveURL(/\/articles\/manifesto\/$/);
+  await expect(page.getByRole("heading", { name: "Манифест" })).toBeVisible();
+  await expect(page.locator(".prose").getByRole("link", { name: "MetaVyatka" })).toHaveAttribute("href", "/projects/metavyatka/");
+});
+
 test("content page has compact local graph with universe handoff", async ({ page }) => {
   await page.goto("/projects/albina/");
   const graph = page.getByRole("complementary", { name: /Что связано/ });
@@ -104,6 +111,29 @@ test("fullscreen universe is separate, interactive and sound is opt-in", async (
   await expect(sound).toHaveAttribute("aria-pressed", "true");
   await page.screenshot({ path: testInfo.outputPath("universe.png"), fullPage: true });
   expect(errors).toEqual([]);
+});
+
+test("universe supports keyboard navigation and reduced motion", async ({ page }, testInfo) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/universe/");
+  await expect(page.locator("[data-universe]")).toHaveAttribute("data-motion", "reduced");
+  const canvas = page.locator("canvas.universe-canvas");
+  await canvas.focus();
+  await expect(canvas).toBeFocused();
+  await page.keyboard.press("ArrowRight");
+  await page.keyboard.press("Home");
+  if (testInfo.project.name === "desktop") {
+    const search = page.locator("[data-node-search]");
+    await search.fill("Nearventure");
+    await search.press("Enter");
+    await expect(page.locator("[data-node-title]")).toHaveText("Nearventure");
+  }
+});
+
+test("legacy portfolio links preserve canonical works", async ({ page }) => {
+  await page.goto("/works/cases/virtualnyy-ofis-advokata/");
+  await expect(page).toHaveURL(/\/works\/virtualnyy-ofis-advokata\/$/);
+  await expect(page.getByRole("heading", { name: "Виртуальный офис адвоката" })).toBeVisible();
 });
 
 test("layout has no horizontal overflow", async ({ page }) => {

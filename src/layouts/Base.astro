@@ -4,6 +4,8 @@ import "../styles/details.css";
 
 interface Props { title: string; description?: string; immersive?: boolean }
 const { title, description = "Staniverse — работы, собственные проекты, публикации и карта опыта Станислава Ермоленко.", immersive = false } = Astro.props;
+const pageTitle = title === "Staniverse" ? title : `${title} · Staniverse`;
+const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
 <!doctype html>
 <html lang="ru" class:list={{ immersive }}>
@@ -12,7 +14,15 @@ const { title, description = "Staniverse — работы, собственны�
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
     <meta name="theme-color" content="#070a12" />
-    <title>{title === "Staniverse" ? title : `${title} · Staniverse`}</title>
+    <link rel="canonical" href={canonical} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Staniverse" />
+    <meta property="og:locale" content="ru_RU" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary" />
+    <title>{pageTitle}</title>
   </head>
   <body>
     <a class="skip-link" href="#content">К содержанию</a>
@@ -33,7 +43,7 @@ const { title, description = "Staniverse — работы, собственны�
     {!immersive && (
       <footer class="site-footer">
         <div><strong>Staniverse</strong><p>Связи между технологиями, памятью, медиа и местом.</p></div>
-        <div class="footer-links"><a href="mailto:stas@staniverse.xyz">Почта</a><a href="https://t.me/staniverse">Telegram</a><a href="https://vk.com/staniverse">VK</a><a href="https://www.youtube.com/@staniverse">YouTube</a><a href="https://vk.com/yatygorod">VK я.ты.город.</a><a href="https://www.youtube.com/@yatygorod">YouTube я.ты.город.</a></div>
+        <div class="footer-links"><a href="/articles/manifesto/">Манифест</a><a href="mailto:stas@staniverse.xyz">Почта</a><a href="https://t.me/staniverse">Telegram</a><a href="https://vk.com/staniverse">VK</a><a href="https://www.youtube.com/@staniverse">YouTube</a><a href="https://vk.com/yatygorod">VK я.ты.город.</a><a href="https://www.youtube.com/@yatygorod">YouTube я.ты.город.</a></div>
       </footer>
     )}
   </body>

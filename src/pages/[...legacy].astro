@@ -1,0 +1,22 @@
+---
+import { legacyRedirects } from "../lib/legacy-redirects";
+
+export function getStaticPaths() {
+  return [...legacyRedirects].map(([legacy, destination]) => ({ params: { legacy }, props: { destination } }));
+}
+
+const { destination } = Astro.props as { destination: string };
+const canonical = new URL(destination, Astro.site);
+---
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="refresh" content={`0;url=${destination}`} />
+    <link rel="canonical" href={canonical} />
+    <title>Страница переехала · Staniverse</title>
+    <script is:inline define:vars={{ destination }}>location.replace(destination + location.search + location.hash)</script>
+  </head>
+  <body><p>Страница переехала: <a href={destination}>открыть новый адрес</a>.</p></body>
+</html>
