@@ -3,79 +3,83 @@ import Base from "../../layouts/Base.astro";
 import { allEntries } from "../../lib/content";
 import { buildGraph } from "../../lib/graph";
 import "../../styles/universe.css";
+
 const graph = buildGraph(await allEntries());
 ---
+
 <Base title="Вселенная" immersive>
   <section class="universe-page" data-universe data-graph={JSON.stringify(graph)}>
-    <canvas class="universe-canvas" tabindex="0" aria-label="Пространственный граф связей Staniverse" aria-describedby="universe-help"></canvas>
+    <canvas
+      class="universe-canvas"
+      tabindex="0"
+      aria-label="Пространственный граф связей Staniverse"
+      aria-describedby="universe-help"
+    ></canvas>
+
     <div class="universe-ui">
-      <div class="universe-top"><a class="universe-logo" href="/">← staniverse</a><div class="universe-actions" data-universe-actions><label class="node-search"><span class="sr-only">Найти узел</span><input data-node-search list="universe-nodes" placeholder="Найти узел…" /></label><datalist id="universe-nodes">{graph.nodes.map((node) => <option value={node.title} />)}</datalist><span class="xr-status" data-xr-status>Проверяю XR…</span><button class="icon-button" data-sound aria-pressed="false">Звук: выкл</button><button class="icon-button" data-reset>К центру</button></div></div>
-      <div class="universe-intro" data-intro><div class="section-kicker">Пространственный режим</div><h1>Летай между идеями</h1><p id="universe-help">Тяни мышью, используй колесо и выбирай звёзды. С клавиатуры работают стрелки, +/−, Home и поиск узла. В совместимом шлеме входи в VR и указывай на узлы контроллером. Цвет обозначает тип материала, а белые центры собирают темы.</p><div class="universe-legend"><span style="--c:#64dff4">работы</span><span style="--c:#8872ff">проекты</span><span style="--c:#ff73c9">статьи</span><span style="--c:#d7ff64">публикации</span><span style="--c:#fff">темы</span></div></div>
-      <aside class="node-card" data-node-card><div class="section-kicker" data-node-kind></div><h2 data-node-title></h2><div class="tag-row" data-node-tags></div><a data-node-link>Открыть →</a></aside>
+      <header class="universe-top">
+        <a class="universe-logo" href="/" aria-label="Вернуться на главную">← staniverse</a>
+        <div class="universe-actions" data-universe-actions>
+          <label class="node-search">
+            <span class="sr-only">Найти узел</span>
+            <input data-node-search type="search" list="universe-nodes" placeholder="Найти узел…" autocomplete="off" />
+          </label>
+          <datalist id="universe-nodes">
+            {graph.nodes.map((node) => <option value={node.title} />)}
+          </datalist>
+          <button class="icon-button" type="button" data-history-back disabled>Назад</button>
+          <button class="icon-button" type="button" data-reset>Сбросить фокус</button>
+          <button class="icon-button" type="button" data-sound aria-pressed="false">Звук: выкл</button>
+          <span class="xr-status" data-xr-status>Проверяю XR…</span>
+          <span class="xr-status xr-status-vr" data-xr-vr-status>VR — проверка</span>
+          <span class="xr-status xr-status-ar" data-xr-ar-status>AR — проверка</span>
+        </div>
+      </header>
+
+      <section class="universe-intro" data-intro>
+        <div class="section-kicker">пространственный режим</div>
+        <h1>Летай между идеями</h1>
+        <p id="universe-help">
+          Вращай поле мышью или пальцем, приближай колесом. Выбирай узлы с клавиатуры и открывай соседние связи.
+          Белые центры — темы, линии с точками — тематические связи, тонкие линии — подтверждённые упоминания.
+        </p>
+        <div class="universe-legend" aria-label="Легенда графа">
+          <span class="legend-node legend-work">работы</span>
+          <span class="legend-node legend-project">проекты</span>
+          <span class="legend-node legend-article">статьи</span>
+          <span class="legend-node legend-publication">публикации</span>
+          <span class="legend-node legend-topic">темы</span>
+          <span class="legend-edge legend-edge-evidence">упоминание</span>
+          <span class="legend-edge legend-edge-topic">тема</span>
+        </div>
+      </section>
+
+      <aside class="node-card" data-node-card aria-label="Выбранный узел" aria-live="polite" hidden>
+        <div class="section-kicker" data-node-kind></div>
+        <h2 data-node-title></h2>
+        <div class="tag-row" data-node-tags></div>
+        <div class="node-neighbors" data-node-neighbors>
+          <div class="node-neighbors-title">Связи рядом</div>
+          <div class="node-neighbor-list" data-node-neighbor-list></div>
+        </div>
+        <a class="node-link" data-node-link>Открыть материал <span aria-hidden="true">↗</span></a>
+      </aside>
+
+      <details class="universe-fallback">
+        <summary>Открыть список узлов</summary>
+        <p>Доступная версия карты без 3D. Выберите материал, чтобы перейти к его связям.</p>
+        <ol class="universe-node-list" data-node-list>
+          {graph.nodes.map((node) => (
+            <li><button type="button" data-node-id={node.id}>{node.title}</button><span>{node.kind === "topic" ? "тема" : node.kind}</span></li>
+          ))}
+        </ol>
+      </details>
+      <div class="universe-announcer sr-only" data-announcer aria-live="polite" aria-atomic="true"></div>
     </div>
   </section>
-  <script>
-    import * as THREE from "three";
-    import { VRButton } from "three/addons/webxr/VRButton.js";
-    import type { GraphNode, GraphEdge } from "../../lib/graph";
-    const root = document.querySelector<HTMLElement>("[data-universe]");
-    if (!root) throw new Error("Universe root missing");
-    const universeRoot = root;
-    const canvas = root.querySelector<HTMLCanvasElement>("canvas");
-    if (!canvas) throw new Error("Universe canvas missing");
-    const data = JSON.parse(root.dataset.graph ?? "{}") as { nodes: GraphNode[]; edges: GraphEdge[] };
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-    renderer.xr.enabled = true;
-    const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x03050b, .012);
-    const camera = new THREE.PerspectiveCamera(60, 1, .1, 1000); camera.position.set(0, 0, 38);
-    const colors: Record<string, number> = { work:0x64dff4, project:0x8872ff, article:0xff73c9, "telegram-post":0xd7ff64, "telegram-article":0xd7ff64, "youtube-video":0xffb35c, video:0xffb35c, topic:0xffffff };
-    const glowCanvas=document.createElement("canvas");glowCanvas.width=128;glowCanvas.height=128;const glowContext=glowCanvas.getContext("2d")!;const glowGradient=glowContext.createRadialGradient(64,64,2,64,64,62);glowGradient.addColorStop(0,"rgba(255,255,255,1)");glowGradient.addColorStop(.15,"rgba(255,255,255,.65)");glowGradient.addColorStop(.45,"rgba(255,255,255,.16)");glowGradient.addColorStop(1,"rgba(255,255,255,0)");glowContext.fillStyle=glowGradient;glowContext.fillRect(0,0,128,128);const glowTexture=new THREE.CanvasTexture(glowCanvas);
-    function labelSprite(text:string){const labelCanvas=document.createElement("canvas");labelCanvas.width=512;labelCanvas.height=96;const context=labelCanvas.getContext("2d")!;context.font="500 28px Geologica, sans-serif";context.textAlign="center";context.fillStyle="rgba(235,242,255,.9)";context.fillText(text.length>30?`${text.slice(0,29)}…`:text,256,52);const texture=new THREE.CanvasTexture(labelCanvas);const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:texture,transparent:true,depthWrite:false}));sprite.scale.set(7.8,1.45,1);sprite.position.set(0,-1.05,0);return sprite}
-    const group = new THREE.Group(); scene.add(group);
-    const nodeMap = new Map<string, THREE.Mesh>();
-    const degree = new Map<string,number>();
-    data.edges.forEach((edge)=>{degree.set(edge.source,(degree.get(edge.source)??0)+1);degree.set(edge.target,(degree.get(edge.target)??0)+1)});
-    const coreNodes = data.nodes.filter((node)=>node.kind!=="telegram-post"&&node.kind!=="telegram-article"&&node.kind!=="youtube-video"&&node.kind!=="video");
-    const connectedPublications = data.nodes.filter((node)=>!coreNodes.includes(node)&&(degree.get(node.id)??0)>0);
-    const archiveNodes = data.nodes.filter((node)=>!coreNodes.includes(node)&&(degree.get(node.id)??0)===0);
-    const placement = new Map<string,{index:number,total:number,layer:"core"|"connected"|"archive"}>();
-    coreNodes.forEach((node,index)=>placement.set(node.id,{index,total:coreNodes.length,layer:"core"}));
-    connectedPublications.forEach((node,index)=>placement.set(node.id,{index,total:connectedPublications.length,layer:"connected"}));
-    archiveNodes.forEach((node,index)=>placement.set(node.id,{index,total:archiveNodes.length,layer:"archive"}));
-    data.nodes.forEach((node) => {
-      const item = placement.get(node.id)!;
-      const phi = Math.acos(1-(2*(item.index+.5))/Math.max(1,item.total));
-      const theta = Math.PI*(1+Math.sqrt(5))*item.index;
-      const radius = item.layer==="core" ? 3.8+(item.index%3)*1.7 : item.layer==="connected" ? 10+(item.index%5)*1.5 : 21+(item.index%7)*1.65;
-      const position = new THREE.Vector3(radius*Math.cos(theta)*Math.sin(phi),radius*Math.sin(theta)*Math.sin(phi),radius*Math.cos(phi));
-      const size = node.featured?.5:item.layer==="core"?.34:item.layer==="connected"?.16:.055;
-      const materialOpacity = item.layer==="archive"?.32:1;
-      const geometry = new THREE.SphereGeometry(size, item.layer==="archive"?8:16, item.layer==="archive"?8:16); const material = new THREE.MeshBasicMaterial({ color: colors[node.kind] ?? 0xffffff,transparent:true,opacity:materialOpacity });
-      const mesh = new THREE.Mesh(geometry, material); mesh.position.copy(position); mesh.userData = node; group.add(mesh); nodeMap.set(node.id, mesh);
-      const glowOpacity=node.featured?.58:item.layer==="core"?.38:item.layer==="connected"?.2:.035;
-      const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map:glowTexture,color: colors[node.kind] ?? 0xffffff, transparent:true, opacity:glowOpacity, blending:THREE.AdditiveBlending,depthWrite:false })); glow.scale.setScalar(node.featured?4.8:item.layer==="core"?3.1:item.layer==="connected"?1.8:.7); mesh.add(glow); if(node.featured)mesh.add(labelSprite(node.title));
-    });
-    const linePositions: number[]=[]; data.edges.filter((edge)=>edge.confidence>=.6).forEach((edge)=>{const a=nodeMap.get(edge.source),b=nodeMap.get(edge.target);if(a&&b) linePositions.push(...a.position.toArray(),...b.position.toArray())});
-    const lineGeometry=new THREE.BufferGeometry();lineGeometry.setAttribute("position",new THREE.Float32BufferAttribute(linePositions,3));group.add(new THREE.LineSegments(lineGeometry,new THREE.LineBasicMaterial({color:0x7183b8,transparent:true,opacity:.28})));
-    const dustGeometry=new THREE.BufferGeometry();const dust=[];for(let i=0;i<900;i++)dust.push((Math.random()-.5)*160,(Math.random()-.5)*100,(Math.random()-.5)*120);dustGeometry.setAttribute("position",new THREE.Float32BufferAttribute(dust,3));scene.add(new THREE.Points(dustGeometry,new THREE.PointsMaterial({color:0x8398d8,size:.08,transparent:true,opacity:.55})));
-    let dragging=false,px=0,py=0,targetZoom=38;const raycaster=new THREE.Raycaster();const pointer=new THREE.Vector2();
-    function showNode(node:GraphNode){const card=universeRoot.querySelector<HTMLElement>("[data-node-card]");const kind=card?.querySelector<HTMLElement>("[data-node-kind]");const title=card?.querySelector<HTMLElement>("[data-node-title]");const tags=card?.querySelector<HTMLElement>("[data-node-tags]");const link=card?.querySelector<HTMLAnchorElement>("[data-node-link]");if(!card||!kind||!title||!tags||!link)return;card.classList.add("open");kind.textContent=node.kind==="topic"?"тема":node.kind;title.textContent=node.title;tags.innerHTML=node.tags.map(t=>`<span>#${t}</span>`).join("");link.href=node.href;const intro=universeRoot.querySelector<HTMLElement>("[data-intro]");if(intro)intro.style.display="none"}
-    function focusNode(node:GraphNode){const mesh=nodeMap.get(node.id);if(!mesh)return;group.position.copy(mesh.position).multiplyScalar(-1);showNode(node)}
-    const focusId=new URLSearchParams(location.search).get("focus");const focusMesh=focusId?nodeMap.get(focusId):undefined;if(focusMesh){group.position.copy(focusMesh.position).multiplyScalar(-1);showNode(focusMesh.userData as GraphNode)}
-    function resize(){const w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}resize();addEventListener("resize",resize);
-    canvas.addEventListener("pointerdown",e=>{dragging=true;px=e.clientX;py=e.clientY;canvas.setPointerCapture(e.pointerId)});canvas.addEventListener("pointerup",()=>dragging=false);canvas.addEventListener("pointermove",e=>{if(dragging){group.rotation.y+=(e.clientX-px)*.004;group.rotation.x+=(e.clientY-py)*.002;px=e.clientX;py=e.clientY}});canvas.addEventListener("wheel",e=>{targetZoom=THREE.MathUtils.clamp(targetZoom+e.deltaY*.018,18,72)},{passive:true});
-    canvas.addEventListener("click",e=>{if(dragging)return;const rect=canvas.getBoundingClientRect();pointer.x=((e.clientX-rect.left)/rect.width)*2-1;pointer.y=-((e.clientY-rect.top)/rect.height)*2+1;raycaster.setFromCamera(pointer,camera);const hit=raycaster.intersectObjects([...nodeMap.values()])[0];if(hit)showNode(hit.object.userData as GraphNode)});
-    canvas.addEventListener("keydown",(event)=>{const step=event.shiftKey?.16:.07;if(event.key==="ArrowLeft")group.rotation.y-=step;else if(event.key==="ArrowRight")group.rotation.y+=step;else if(event.key==="ArrowUp")group.rotation.x-=step;else if(event.key==="ArrowDown")group.rotation.x+=step;else if(event.key==="+"||event.key==="=")targetZoom=THREE.MathUtils.clamp(targetZoom-3,18,72);else if(event.key==="-"||event.key==="_")targetZoom=THREE.MathUtils.clamp(targetZoom+3,18,72);else if(event.key==="Home"){group.rotation.set(0,0,0);group.position.set(0,0,0);targetZoom=38}else return;event.preventDefault()});
-    const titleMap=new Map(data.nodes.map((node)=>[node.title.toLocaleLowerCase("ru-RU"),node]));root.querySelector<HTMLInputElement>("[data-node-search]")?.addEventListener("change",(event)=>{const node=titleMap.get((event.currentTarget as HTMLInputElement).value.trim().toLocaleLowerCase("ru-RU"));if(node)focusNode(node)});
-    const controllerRayGeometry=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0),new THREE.Vector3(0,0,-1)]);
-    for(let index=0;index<2;index++){const controller=renderer.xr.getController(index);const ray=new THREE.Line(controllerRayGeometry,new THREE.LineBasicMaterial({color:0xd7ff64,transparent:true,opacity:.8}));ray.name="selector-ray";ray.scale.z=8;controller.add(ray);controller.addEventListener("select",()=>{raycaster.setFromXRController(controller);const hit=raycaster.intersectObjects([...nodeMap.values()])[0];if(hit)showNode(hit.object.userData as GraphNode)});scene.add(controller)}
-    const actions=root.querySelector<HTMLElement>("[data-universe-actions]");const xrStatus=root.querySelector<HTMLElement>("[data-xr-status]");
-    const xrApi=(navigator as Navigator & {xr?:{isSessionSupported(mode:string):Promise<boolean>}}).xr;
-    if(xrApi){const xrButton=VRButton.createButton(renderer,{optionalFeatures:["local-floor","bounded-floor","hand-tracking"]});xrButton.className="icon-button xr-button";xrButton.dataset.xrEntry="";xrButton.style.display="none";actions?.prepend(xrButton);renderer.xr.addEventListener("sessionstart",()=>xrButton.textContent="Выйти из VR");renderer.xr.addEventListener("sessionend",()=>xrButton.textContent="Войти в VR");xrApi.isSessionSupported("immersive-vr").then((supported)=>{if(supported){xrButton.style.display="";xrButton.textContent="Войти в VR"}else xrButton.remove();if(xrStatus)xrStatus.textContent=supported?"VR готов: контроллер выбирает узлы":"Шлем не найден — экранный режим"}).catch(()=>{xrButton.remove();if(xrStatus)xrStatus.textContent="XR недоступен — экранный режим"})}else if(xrStatus)xrStatus.textContent="На этом устройстве — экранный режим";
-    root.querySelector<HTMLButtonElement>("[data-reset]")?.addEventListener("click",()=>{group.rotation.set(0,0,0);group.position.set(0,0,0);targetZoom=38});
-    let audio: AudioContext | undefined;root.querySelector<HTMLButtonElement>("[data-sound]")?.addEventListener("click",async event=>{const button=event.currentTarget as HTMLButtonElement;const shouldEnable=button.getAttribute("aria-pressed")!=="true";if(!audio){audio=new AudioContext();const master=audio.createGain();master.gain.value=.035;master.connect(audio.destination);[55,82.5,110].forEach((f,i)=>{const o=audio!.createOscillator(),g=audio!.createGain();o.type=i===1?"sine":"triangle";o.frequency.value=f;g.gain.value=.2/(i+1);o.connect(g).connect(master);o.start()})}if(shouldEnable){if(audio.state==="suspended")await audio.resume();button.textContent="Звук: вкл";button.setAttribute("aria-pressed","true")}else{if(audio.state==="running")await audio.suspend();button.textContent="Звук: выкл";button.setAttribute("aria-pressed","false")}});
-    const reduced=matchMedia("(prefers-reduced-motion: reduce)").matches;root.dataset.motion=reduced?"reduced":"full";function frame(){if(!renderer.xr.isPresenting)camera.position.z+=(targetZoom-camera.position.z)*.06;if(!dragging&&!reduced&&!renderer.xr.isPresenting)group.rotation.y+=.0007;renderer.render(scene,camera)}renderer.setAnimationLoop(frame);
-  </script>
 </Base>
+
+<script>
+  import { mountUniverse } from "../../components/universe/UniverseRuntime";
+  mountUniverse();
+</script>
