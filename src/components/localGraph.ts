@@ -27,23 +27,19 @@ export function isDottedLocalEdge(edge: GraphEdge) {
   return isInferredGraphEdge(edge);
 }
 
-function positionFor(depth: number, index: number, count: number) {
-  if (depth === 0) return { x: 50, y: 50 };
-
-  const angle = (Math.PI * 2 * index) / Math.max(count, 1) - Math.PI / 2;
-  const radiusX = depth === 1 ? 35 : depth === 2 ? 43 : 47;
-  const radiusY = depth === 1 ? 33 : depth === 2 ? 42 : 46;
-  return {
-    x: 50 + Math.cos(angle) * radiusX,
-    y: 50 + Math.sin(angle) * radiusY,
-  };
+function positionFor(index: number) {
+  // These are labelled cards, not mathematical points. A deterministic field
+  // gives each node a real hit target without collisions at narrow widths.
+  const columns = [18, 50, 82];
+  const row = Math.floor(index / columns.length);
+  return { x: columns[index % columns.length], y: 10 + row * 20 };
 }
 
 /**
  * Projects the full graph into a small, deterministic neighbourhood. The
  * component can reveal one, two, or three hops without running a renderer.
  */
-export function buildLocalGraph(currentId: string, nodes: GraphNode[], edges: GraphEdge[], maxDepth = 3, maxNodes = 32): LocalGraphData {
+export function buildLocalGraph(currentId: string, nodes: GraphNode[], edges: GraphEdge[], maxDepth = 3, maxNodes = 14): LocalGraphData {
   const nodeById = new Map(nodes.map((node) => [node.id, node]));
   const adjacent = new Map<string, Array<{ id: string; edge: GraphEdge }>>();
 
@@ -74,12 +70,12 @@ export function buildLocalGraph(currentId: string, nodes: GraphNode[], edges: Gr
         if (!previous || edgeRank(candidate.edge) < edgeRank(previous.edge) || candidate.edge.confidence > previous.edge.confidence) candidates.set(candidate.id, candidate);
       }
     }
-    const perDepthBudget = Math.min(10, maxNodes - depthById.size);
+    const perDepthBudget = Math.min(5, maxNodes - depthById.size);
     const selected = [...candidates.values()]
       .sort((a, b) => edgeRank(a.edge) - edgeRank(b.edge) || b.edge.confidence - a.edge.confidence || (nodeById.get(a.id)?.title ?? a.id).localeCompare(nodeById.get(b.id)?.title ?? b.id, "ru"))
       .filter(({ id }) => {
         if (nodeById.get(id)?.kind !== "topic") return true;
-        if (topicCount >= 6) return false;
+        if (topicCount >= 3) return false;
         topicCount += 1;
         return true;
       })
@@ -88,20 +84,11 @@ export function buildLocalGraph(currentId: string, nodes: GraphNode[], edges: Gr
     frontier.forEach((id) => depthById.set(id, depth));
   }
 
-  const byDepth = new Map<number, string[]>();
-  for (const [id, depth] of depthById) {
-    const list = byDepth.get(depth) ?? [];
-    list.push(id);
-    byDepth.set(depth, list);
-  }
-  for (const list of byDepth.values()) list.sort((a, b) => (nodeById.get(a)?.title ?? a).localeCompare(nodeById.get(b)?.title ?? b, "ru"));
-
-  const localNodes = [...depthById.entries()]
-    .sort(([, a], [, b]) => a - b)
-    .map(([id, depth]) => {
+  const orderedNodes = [...depthById.entries()].sort(([idA, a], [idB, b]) => a - b || (nodeById.get(idA)?.title ?? idA).localeCompare(nodeById.get(idB)?.title ?? idB, "ru"));
+  const localNodes = orderedNodes
+    .map(([id, depth], index) => {
       const node = nodeById.get(id)!;
-      const siblings = byDepth.get(depth) ?? [id];
-      const position = positionFor(depth, siblings.indexOf(id), siblings.length);
+      const position = positionFor(index);
       return { ...node, depth, ...position };
     });
 

@@ -6,6 +6,8 @@ summary: "Где смотреть кейноут Meta Connect, если не в 
 date: "2023-09-27T20:56:48"
 updated: "2023-09-27T20:57:47"
 tags: []
+sourceTags: []
+topics: []
 entities: []
 sourceUrl: "https://t.me/staniverse/7"
 sourceId: "7"

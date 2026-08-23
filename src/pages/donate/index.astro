@@ -24,7 +24,7 @@ import Base from "../../layouts/Base.astro";
 <style>
   .support-page { max-width: 76rem; min-height: 70vh; margin: 0 auto; padding: clamp(4rem, 9vw, 9rem) var(--page-pad); }
   .support-page header { max-width: 58rem; }
-  .support-page h1 { margin: .25rem 0 1rem; font: 650 clamp(3.5rem, 9vw, 8rem)/.9 Unbounded, sans-serif; letter-spacing: -.065em; }
+  .support-page h1 { max-width: 100%; margin: .25rem 0 1rem; font: 650 clamp(3.25rem, 7vw, 6.5rem)/.94 Unbounded, sans-serif; letter-spacing: -.055em; overflow-wrap: anywhere; }
   .lead { max-width: 48rem; color: var(--muted); font-size: clamp(1.1rem, 2vw, 1.5rem); line-height: 1.45; }
   .support-copy { max-width: 62rem; margin-top: clamp(3rem, 7vw, 6rem); }
   .support-copy > p { max-width: 58rem; color: var(--muted); font-size: 1rem; line-height: 1.7; }
@@ -34,5 +34,5 @@ import Base from "../../layouts/Base.astro";
   .support-options span { color: var(--muted); font-size: .72rem; text-transform: uppercase; letter-spacing: .12em; }
   .support-options strong { align-self: end; font: 550 clamp(1.25rem, 2vw, 1.8rem)/1.1 Unbounded, sans-serif; }
   .support-options small { margin-top: .55rem; color: var(--accent); }
-  @media (max-width: 700px) { .support-page h1 { font-size: clamp(2.6rem, 12.5vw, 4rem); overflow-wrap: anywhere; } .support-options { grid-template-columns: 1fr; } .support-options a { min-height: 9rem; } }
+  @media (max-width: 700px) { .support-page h1 { font-size: clamp(2.25rem, 10vw, 3.5rem); } .support-options { grid-template-columns: 1fr; } .support-options a { min-height: 9rem; } }
 </style>

@@ -49,7 +49,7 @@ export function buildGraph(entries: AnyEntry[]) {
     title: entry.data.title,
     kind: entry.data.kind,
     href: entryHref(entry),
-    tags: entry.data.tags,
+    tags: [...new Set([...entry.data.tags, ...(entry.data.topics ?? [])])],
     featured: entry.data.featured,
   }));
   const topics = collectTopics(entries, true);
@@ -64,12 +64,17 @@ export function buildGraph(entries: AnyEntry[]) {
   const explicit: GraphEdge[] = entries.flatMap((entry) =>
     entry.data.relations.map((relation) => ({ source: entry.data.id, ...relation })),
   );
-  const topicEdges: GraphEdge[] = topics.flatMap((topic) => topic.entries.map((entry) => ({
-    source: entry.data.id,
-    target: `topic:${topic.name}`,
-    type: "part-of",
-    evidence: "topic",
-    confidence: 0.82,
-  })));
+  const topicEdges: GraphEdge[] = topics.flatMap((topic) => topic.entries.map((entry) => {
+    const isSource = new Set(entry.data.sourceTags ?? entry.data.tags).has(topic.id) || new Set(entry.data.sourceTags ?? entry.data.tags).has(topic.name);
+    return {
+      source: entry.data.id,
+      target: `topic:${topic.name}`,
+      type: "part-of",
+      evidence: "topic",
+      confidence: isSource ? 1 : .62,
+      reviewStatus: isSource ? "confirmed" as const : "inferred" as const,
+      provenance: { kind: isSource ? "imported" as const : "deterministic" as const, field: isSource ? "sourceTags" : "topics", method: isSource ? "telegram hashtag or curated tag" : "automatic topic rule" },
+    };
+  }));
   return { nodes: [...entryNodes, ...topicNodes], edges: [...explicit, ...topicEdges] };
 }

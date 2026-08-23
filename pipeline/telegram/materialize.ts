@@ -61,6 +61,8 @@ for (const publication of archive.publications) {
     publication.date ? `date: ${yaml(publication.date)}` : undefined,
     publication.editedDate ? `updated: ${yaml(publication.editedDate)}` : undefined,
     `tags: ${yaml(enriched.tags)}`,
+    `sourceTags: ${yaml(enriched.sourceTags)}`,
+    `topics: ${yaml(enriched.topics)}`,
     `entities: ${yaml(enriched.entities)}`,
     `sourceUrl: ${yaml(publication.sourceUrl)}`,
     `sourceId: ${yaml(publication.sourceId)}`,

@@ -6,6 +6,8 @@ summary: "Пожалею или порадуюсь тому, что завёл �
 date: "2023-09-05T00:12:26"
 updated: "2023-09-05T00:13:25"
 tags: []
+sourceTags: []
+topics: []
 entities: []
 sourceUrl: "https://t.me/staniverse/3"
 sourceId: "3"

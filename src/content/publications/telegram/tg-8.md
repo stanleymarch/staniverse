@@ -6,6 +6,8 @@ summary: "Публикация без текстовой подписи; в ар
 date: "2023-09-27T20:56:49"
 updated: "2023-09-27T20:56:51"
 tags: []
+sourceTags: []
+topics: []
 entities: []
 sourceUrl: "https://t.me/staniverse/8"
 sourceId: "8"

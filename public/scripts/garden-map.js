@@ -39,7 +39,8 @@
         const key = [record.id, relation.target].sort().join("|");
         if (!from || !to || seenEdges.has(key)) return;
         seenEdges.add(key);
-        const inferred = relation.type === "topic" || relation.type === "semantic";
+        const provenance = typeof relation.provenance === "string" ? relation.provenance : relation.provenance?.kind;
+        const inferred = relation.reviewStatus === "inferred" || relation.reviewStatus === "proposed" || ["deterministic", "enrichment", "inferred"].includes(provenance) || ["topic", "semantic", "entity"].includes(relation.evidence);
         edges.append(el("line", { x1: from.x, y1: from.y, x2: to.x, y2: to.y, class: inferred ? "garden-map-edge inferred" : "garden-map-edge proven" }));
       });
     });

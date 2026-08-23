@@ -17,14 +17,17 @@ const publicationMeta = entry.collection === "publications" && entry.data.platfo
   sourceUrl: entry.data.sourceUrl,
 } : undefined;
 const gallery = entry.collection === "publications" && entry.data.kind !== "telegram-article" ? entry.data.media.filter((item) => item.publicPath) : [];
+const sourceTags = entry.data.sourceTags ?? entry.data.tags;
+const inferredTopics = entry.data.topics.filter((topic) => !sourceTags.includes(topic));
 ---
 <Base title={entry.data.title} description={entry.data.summary}>
   <article class="entry-shell">
     <header class="entry-hero">
       <div class="section-kicker">{kindLabel[entry.data.kind]}{status && ` · ${status}`}</div>
-      <h1>{entry.data.title}</h1>
+      <h1 class:list={{ "is-long": entry.data.title.length > 64, "is-very-long": entry.data.title.length > 105 }}>{entry.data.title}</h1>
       <p class="entry-summary">{entry.data.summary}</p>
-      <div class="tag-row">{entry.data.tags.map((tag) => <a href={`/topics/${topicSlug(tag)}/`}>#{tag}</a>)}</div>
+      {sourceTags.length > 0 && <div class="tag-group"><span class="tag-origin">{entry.collection === "publications" ? "Теги автора" : "Темы редакции"}</span><div class="tag-row">{sourceTags.map((tag) => <a href={`/topics/${topicSlug(tag)}/`}>#{tag}</a>)}</div></div>}
+      {inferredTopics.length > 0 && <details class="auto-topics"><summary>Автоматически найденные темы · {inferredTopics.length}</summary><p>Это навигационные гипотезы, а не ручная разметка.</p><div class="tag-row is-inferred">{inferredTopics.map((topic) => <a href={`/topics/${topicSlug(topic)}/`}>{topic}</a>)}</div></details>}
       {publicationMeta && <div class="publication-facts"><span>{publicationMeta.platform}</span><span>{publicationMeta.ownership}</span><a href={publicationMeta.sourceUrl}>Открыть оригинал ↗</a></div>}
       {entry.data.kind === "work" && <dl class="work-facts">
         <div><dt>Год</dt><dd>{entry.data.year}</dd></div>

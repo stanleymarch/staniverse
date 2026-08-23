@@ -91,7 +91,8 @@ test("local enrichment classifies topics and exact project mentions without rewr
   assert.ok(result.entities.includes("Nearventure"));
   assert.equal(result.relations[0].targetId,"project:nearventure");
   const merged=mergeEnrichment(publication,result);
-  assert.ok(merged.tags.includes("xr"));
+  assert.equal(merged.tags.includes("xr"),false);
+  assert.ok(merged.topics.includes("xr"));
   assert.deepEqual(merged.entities,["Nearventure"]);
 });
 
@@ -120,6 +121,21 @@ test("non-local enrichment remains a proposal until reviewed",()=>{
     {key:`${result.id}::topic::${proposedTopic}`,status:"accepted",reviewedAt:"2026-08-23"},
     {key:`${result.id}::relation::${proposedRelation.targetId}|${proposedRelation.type}`,status:"accepted",reviewedAt:"2026-08-23"},
   ]);
-  assert.equal(reviewed.tags.includes(proposedTopic),true);
+  assert.equal(reviewed.tags.includes(proposedTopic),false);
+  assert.equal(reviewed.topics.includes(proposedTopic),true);
   assert.equal(reviewed.relations[0]?.target,"project:nearventure");
+});
+
+test("local enrichment keeps precise IoT, open-source and intimacy topics without broad false positives",()=>{
+  const [signal]=normalizeExport({messages:[{id:93,text:"IoT на ESP32 и Zigbee, исходники опубликованы как open source. ИИ-компаньон работает локально."}]});
+  const topics=enrichLocally(signal).topics;
+  assert.ok(topics.includes("iot"));
+  assert.ok(topics.includes("open source"));
+  assert.ok(topics.includes("близость, отношения и компаньоны"));
+  const [noise]=normalizeExport({messages:[{id:94,text:"Во время экскурсии увидел сайт Белого дома в интернете и результаты голосования."}]});
+  const noiseTopics=enrichLocally(noise).topics;
+  assert.equal(noiseTopics.includes("образование"),false);
+  assert.equal(noiseTopics.includes("веб-разработка"),false);
+  assert.equal(noiseTopics.includes("цифровая культура"),false);
+  assert.equal(noiseTopics.includes("музыка и звук"),false);
 });

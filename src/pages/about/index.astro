@@ -153,7 +153,7 @@ import Base from "../../layouts/Base.astro";
   }
   @media (max-width: 600px) {
     .about-page .catalog-hero { padding-top: 2rem; }
-    .about-page .catalog-hero h1 { font-size: clamp(3rem, 15vw, 5rem); }
+    .about-page .catalog-hero h1 { max-width: 10ch; font-size: clamp(2.35rem, 10.5vw, 3.25rem); line-height: 1; letter-spacing: -.045em; }
     .direction-grid, .tools-grid, .achievement-list { grid-template-columns: 1fr; }
     .direction-grid article, .direction-grid article + article { padding: 1.2rem 0; border-right: 0; }
     .direction-grid article:first-child { border-top: 0; }

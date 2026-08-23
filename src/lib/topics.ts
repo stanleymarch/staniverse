@@ -26,7 +26,7 @@ export interface TopicGroup {
 
 export function collectTopics(entries: AnyEntry[], catalogOnly = false): TopicGroup[] {
   const groups = new Map<string, AnyEntry[]>();
-  for (const entry of entries) for (const tag of entry.data.tags) {
+  for (const entry of entries) for (const tag of [...entry.data.tags, ...(entry.data.topics ?? [])]) {
     const ids = normalizeTopics([tag]);
     for (const id of ids) {
       if (!id) continue;

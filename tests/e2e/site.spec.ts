@@ -68,6 +68,19 @@ test("garden catalog includes projects and commissioned experience without mixin
   await expect(page.locator('[data-topic-filter][value="iot"]')).toBeVisible();
 });
 
+test("garden exposes removable filter chips and persists filter state", async ({ page }) => {
+  await page.goto("/garden/");
+  if (["tablet", "mobile"].includes(test.info().project.name)) await page.locator("[data-filter-toggle]").click();
+  await page.locator('[data-topic-filter][value="iot"]').check();
+  await expect(page.locator(".garden-filter-chip")).toHaveCount(1);
+  await expect(page).toHaveURL(/topic=iot/);
+  await page.reload();
+  await expect(page.locator('[data-topic-filter][value="iot"]')).toBeChecked();
+  await page.locator(".garden-filter-chip").click();
+  await expect(page.locator('[data-topic-filter][value="iot"]')).not.toBeChecked();
+  await expect(page).not.toHaveURL(/topic=iot/);
+});
+
 test("garden map reflects the currently filtered catalogue", async ({ page }, testInfo) => {
   await page.goto("/garden/");
   await page.locator('[data-garden-mode="map"]').click();

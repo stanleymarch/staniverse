@@ -6,6 +6,8 @@ summary: "Пора научиться перестать верить в поб�
 date: "2023-09-23T17:33:28"
 updated: "2023-09-23T17:35:15"
 tags: []
+sourceTags: []
+topics: ["игры"]
 entities: []
 sourceUrl: "https://t.me/staniverse/5"
 sourceId: "5"
