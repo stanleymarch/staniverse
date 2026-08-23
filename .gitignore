@@ -11,3 +11,4 @@ pipeline/enrichment/jobs/
 pipeline/enrichment/review/
 test-results/
 playwright-report/
+.audit/

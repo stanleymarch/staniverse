@@ -34,14 +34,13 @@ const publicationIds = [
 const publicationsById = new Map((await getCollection("publications")).map((entry) => [entry.data.id, entry]));
 const publications = publicationIds.flatMap((id) => {
   const entry = publicationsById.get(id);
-  return entry?.data.ownership === "own" ? [entry] : [];
+  return entry?.data.ownership === "verified" || entry?.data.ownership === "own" ? [entry] : [];
 });
 
 const workImages: Record<string, string> = {
-  "work:virtualnyy-ofis-advokata": "https://staniverse.xyz/works/cases/virtualnyy-ofis-advokata-og-image.webp",
-  "work:tsifrovaya-stsenografiya-dlya-nomera-na-artmasters": "https://staniverse.xyz/works/cases/ya-obmanyvat-sebya-ne-stanu-og-image.webp",
-  "work:otborochnaya-rabota-artmasters": "https://staniverse.xyz/works/cases/dver-kotoraya-zhdyot-og-image.webp",
-  "work:arka-vyatskogo-kremlya": "https://staniverse.xyz/works/cases/arka-vyatskogo-kremlya-og-image.webp",
+  "work:virtualnyy-ofis-advokata": "/media/works/virtualnyy-ofis-advokata.webp",
+  "work:tsifrovaya-stsenografiya-dlya-nomera-na-artmasters": "/media/works/tsifrovaya-stsenografiya-artmasters.webp",
+  "work:otborochnaya-rabota-artmasters": "/media/works/otborochnaya-artmasters.webp",
 };
 ---
 
@@ -50,7 +49,7 @@ const workImages: Record<string, string> = {
     <section class="hero home-hero">
       <div class="hero-copy">
         <div class="section-kicker">Станислав Ермоленко · Вятка</div>
-        <h1 class="display">Соединяю<br />технологии,<br />медиа и место</h1>
+        <h1 class="display">Создаю цифровые<br />опыты</h1>
         <p class="hero-lead">Режиссёр цифровых опытов, исследователь и разработчик. Работаю на стыке XR, AI, веба и документального медиа.</p>
         <div class="hero-actions">
           <a class="button primary" href="/works/">Работы</a>
@@ -133,6 +132,7 @@ const workImages: Record<string, string> = {
           </a>
         ))}
       </div>
+      {publications.length===0&&<div class="media-channel-grid"><a href="https://www.youtube.com/@staniverse" target="_blank" rel="noreferrer"><span>YouTube</span><strong>Staniverse</strong><small>AI, XR и цифровые эксперименты. Видео появятся здесь после автоматической проверки канала.</small></a><a href="https://www.youtube.com/@yatygorod" target="_blank" rel="noreferrer"><span>Отдельная коллекция</span><strong>я.ты.город.</strong><small>Документальные материалы о Вятском крае не смешиваются с основной лентой.</small></a></div>}
       <div class="channel-links"><a href="https://t.me/staniverse" target="_blank" rel="noreferrer">Telegram @staniverse <span aria-hidden="true">↗</span></a><a href="https://www.youtube.com/@staniverse" target="_blank" rel="noreferrer">YouTube @staniverse <span aria-hidden="true">↗</span></a><a href="https://www.youtube.com/@yatygorod" target="_blank" rel="noreferrer">YouTube @yatygorod <span aria-hidden="true">↗</span></a></div>
     </section>
 
@@ -213,6 +213,7 @@ const workImages: Record<string, string> = {
   .path-notes h3 { margin: 1rem 0 .5rem; color: var(--home-ink); font-size: 1rem; }
   .path-notes p { max-width: 30rem; margin: 0; color: var(--home-muted); font-size: .82rem; line-height: 1.55; }
   .media-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+  .media-channel-grid{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--home-line)}.media-channel-grid a{display:grid;gap:.45rem;padding:1.5rem 2rem 1.5rem 0;color:inherit;border-bottom:1px solid var(--home-line)}.media-channel-grid a+a{padding-left:2rem;border-left:1px solid var(--home-line)}.media-channel-grid span{color:var(--home-cyan);font-size:.68rem}.media-channel-grid strong{font-size:1.15rem}.media-channel-grid small{max-width:30rem;color:var(--home-muted);line-height:1.5}
   .media-tile { color: inherit; }
   .media-tile img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; filter: saturate(.7); transition: filter .3s ease; }
   .media-tile:hover img, .media-tile:focus-visible img { filter: saturate(1); }
@@ -251,7 +252,8 @@ const workImages: Record<string, string> = {
     .home-page .display { max-width: 10ch; font-size: clamp(3rem, 15vw, 5rem); }
     .hero-visual { min-height: 68vw; }
     .hero-visual figcaption { align-items: start; flex-direction: column; gap: .4rem; }
-    .capability-grid, .home-work-grid, .media-grid, .home-doors { grid-template-columns: 1fr; }
+    .capability-grid, .home-work-grid, .media-grid, .media-channel-grid, .home-doors { grid-template-columns: 1fr; }
+    .media-channel-grid a+a{padding-left:0;border-left:0}
     .capability-grid article, .capability-grid article + article { padding: 1.2rem 0; border-right: 0; }
     .capability-grid article:first-child { border-top: 0; }
     .home-work-featured { grid-column: auto; }

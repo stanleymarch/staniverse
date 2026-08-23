@@ -13,7 +13,7 @@ const status = entry.data.kind === "project" ? projectStatus[entry.data.status] 
 const embedUrl = entry.collection === "publications" ? entry.data.embedUrl : undefined;
 const publicationMeta = entry.collection === "publications" && entry.data.platform ? {
   platform: entry.data.platform === "youtube" ? "YouTube" : entry.data.platform === "vk" ? "VK Видео" : "Telegram",
-  ownership: entry.data.ownership === "external" ? "Внешний материал" : "Авторское видео",
+  ownership: entry.data.ownership === "verified" || entry.data.ownership === "own" ? "Проверенное авторское видео" : entry.data.ownership === "external" ? "Внешний материал" : "Авторство ожидает проверки",
   sourceUrl: entry.data.sourceUrl,
 } : undefined;
 const gallery = entry.collection === "publications" && entry.data.kind !== "telegram-article" ? entry.data.media.filter((item) => item.type === "image" && item.publicPath) : [];
