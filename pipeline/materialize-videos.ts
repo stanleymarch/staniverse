@@ -36,6 +36,7 @@ export function materializedFrontmatter(video: MaterializedVideo) {
     featured: false,
     sourceUrl: video.sourceUrl,
     sourceId: video.id,
+    ...(video.publishedAt ? { date: video.publishedAt } : {}),
     threadIds: [],
     media: [],
     platform: video.platform,

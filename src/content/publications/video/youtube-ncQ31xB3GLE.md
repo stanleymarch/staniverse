@@ -1,13 +1,14 @@
 ---
 id: "publication:youtube:ncQ31xB3GLE"
-kind: "video"
-title: "Видеоверсия: создаём ИИ-вайфу и виртуального помощника"
-summary: "Видео, связанное с article:ai-waifu; принадлежность каналу ожидает проверки."
+kind: "youtube-video"
+title: "Создаём ИИ-вайфу и не только: руководство по созданию виртуальных помощников"
+summary: "Авторское видео, связанное с article:ai-waifu."
 tags: ["youtube","video"]
 entities: []
 featured: false
-sourceUrl: "https://youtu.be/ncQ31xB3GLE"
+sourceUrl: "https://www.youtube.com/watch?v=ncQ31xB3GLE"
 sourceId: "ncQ31xB3GLE"
+date: "2025-02-15T08:36:58+00:00"
 threadIds: []
 media: []
 platform: "youtube"
@@ -16,9 +17,10 @@ format: "video"
 thumbnailUrl: "https://i.ytimg.com/vi/ncQ31xB3GLE/hqdefault.jpg"
 embedUrl: "https://www.youtube.com/embed/ncQ31xB3GLE"
 channel: {"key":"staniverse","handle":"@staniverse","platform":"youtube"}
-ownership: "pending"
-verification: {"status":"pending","reason":"channel-id-not-established","evidence":[{"kind":"channel-page","path":"src/content/projects/staniverse.md","url":"https://www.youtube.com/@staniverse"},{"kind":"channel-page","path":"src/content/works/prodakshn-dlya-staniverse.md","url":"https://www.youtube.com/@staniverse"}]}
+channelId: "UCtvI-sljBnwb7ZFR8Teyd6Q"
+ownership: "verified"
+verification: {"status":"verified","reason":"allowlisted-channel-id","evidence":[{"kind":"channel-page","path":"src/content/projects/staniverse.md","url":"https://www.youtube.com/@staniverse"},{"kind":"channel-page","path":"src/content/works/prodakshn-dlya-staniverse.md","url":"https://www.youtube.com/@staniverse"}]}
 relations: [{"target":"article:ai-waifu","type":"part-of","evidence":"editorial","confidence":1}]
 ---
 
-[Открыть на платформе](https://youtu.be/ncQ31xB3GLE)
+[Открыть на платформе](https://www.youtube.com/watch?v=ncQ31xB3GLE)

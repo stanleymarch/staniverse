@@ -28,6 +28,8 @@ export interface VideoManifestEntry {
   channelHandle?: string;
   /** Deliberately absent until a local source proves the platform channel ID. */
   channelId?: string;
+  /** Publication timestamp reported by the canonical channel feed. */
+  publishedAt?: string;
   verification?: VideoVerification;
 }
 
