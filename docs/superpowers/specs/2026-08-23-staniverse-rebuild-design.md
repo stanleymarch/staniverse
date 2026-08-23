@@ -1,65 +1,143 @@
-# Staniverse rebuild design
+# Staniverse: канонический цифровой сад и пространственная карта опыта
 
-## Purpose
+Дата: 2026-08-23
 
-Build Staniverse from scratch as a public, immersive map of Stanislav's work, own projects, publications, experience, themes, and ideas. The new site must not depend on Obsidian or Quartz. Existing repositories are migration sources only.
+## Результат
 
-## Core distinctions
+Staniverse становится единым Astro-сайтом: публичным профилем, портфолио заказных работ, лабораторией собственных проектов, медиатекой и цифровым садом. Он сохраняет автоматические связи и навигационную силу Obsidian, но не зависит от Obsidian, Quartz и нескольких репозиториев. Кинематографичная Вселенная остаётся фирменным опытом, но не заменяет обычный сайт.
 
-- **Work** is a completed result for a client, organization, contest, or clearly bounded external task. Works have genres and may be featured.
-- **Project** is a self-directed, living system. Projects can be ideas, planned, in development, active, paused, completed, or archived.
-- A project remains one living page. It may link to separate work cases when it produces a bounded external or completed result.
-- **Publication** covers Telegram posts, Telegram articles, authored long-form articles, and YouTube videos.
-- **Topic** and **entity** connect all content types.
-- A **dossier** is a generated view of a sufficiently rich cluster, not another manually maintained source file.
+## Правила достоверности
 
-## Source of truth
+- Никаких придуманных работ, проектов, видео, клиентов, результатов, дат и ролей. Канон берётся из прежнего сайта и `sverseq`.
+- `Work` означает работу для внешнего заказчика, организации, конкурса или ограниченной внешней задачи.
+- Собственный продакшн Staniverse, я.ты.город. и других инициатив описывается внутри `Project` как этап, глава или внутренний кейс, но не попадает в Works.
+- `Project` означает собственную инициативу со статусом idea, planned, development, active, paused, completed или archived.
+- `Video` считается авторским видео Staniverse только после проверки публикации на открытом `@staniverse`. `@yatygorod` образует отдельную проектную коллекцию. Иные YouTube-ссылки остаются внешними источниками или embeds.
+- Манифест относится к «Обо мне», а не к Articles.
+- Авторский текст и факты отделены от автоматических выводов. Предположение не показывается как факт.
 
-The repository is the only public-content source of truth. Hand-authored pages and metadata live in typed content collections. Telegram and YouTube importers write neutral source records and canonical publications. Generated enrichment is stored separately from authorial text.
+## Модель контента
 
-## Content policy
+| Тип | Назначение | Обязательное содержание |
+|---|---|---|
+| `work` | Заказная работа | заказчик, задача, роль, вклад, процесс, результат, жанры, доказательные материалы |
+| `project` | Своя инициатива | замысел, статус, происхождение, этапы, результаты, публикации, работы, следующий шаг |
+| `article` | Самостоятельный лонгрид | типографика и узкая колонка чтения |
+| `telegram-publication` | Пост, цепочка или Telegram Article | source ID, дата, entities, ссылки, порядок текста и медиа |
+| `video` | Проверенное видео своего канала | platform, channel identity, videoId, thumbnail, дата, принадлежность |
+| `page` | Биография, манифест и служебные страницы | редакционный тип страницы |
+| `topic` | Контролируемая тема | стабильный ID, название, aliases, parent |
+| `entity` | Человек, организация, место, технология, событие | стабильный ID, тип, aliases |
+| `relation` | Ребро графа | source, target, type, evidence, provenance, confidence, review status |
 
-- Rewrite and normalize descriptions of works, projects, profile pages, and other permanent editorial pages into a consistent first-person voice.
-- Preserve Telegram post wording. Rebuild posts from primary Telegram data with correct formatting, message chains, links, captions, and media references.
-- Do not migrate the existing Quartz-generated Telegram Markdown. Use it only to audit completeness and extract regression fixtures for difficult historical cases.
-- Use standard Markdown links in bodies and stable typed IDs in structured relationships.
-- Preserve legacy URLs through a redirect map.
-- Preserve raw imported source data as an immutable archive.
+Исходные Telegram-теги сохраняются как `sourceTags`. Публичную навигацию создают только нормализованные `topics`. Один материал может одновременно иметь темы IoT, XR и open source.
 
-## Import pipeline
+## Контролируемые темы
 
-The Telegram importer is rewritten without Obsidian concepts. It re-fetches or re-parses primary Telegram history instead of copying the current generated Markdown. The previous implementation supplies algorithms and test fixtures for self-reply chains, explicit continuation links, albums, reply context, entities and hyperlinks, captions, media, and incremental deduplication. It must not create wikilinks, wiki stubs, or Quartz frontmatter. Telegram article records are imported through the current Telegram API and normalized as publications while preserving their source identity.
+Верхний уровень: AI; агенты и автоматизация; XR и пространственные медиа; IoT и физические интерфейсы; open source и автономная инфраструктура; веб и цифровые продукты; видео и медиапроизводство; звук и музыка; город, территория и наследие; культура и исследования; образование; путешествия; игры и виртуальные культуры; близость, отношения и компаньоны.
 
-Pipeline: `raw archive -> normalize -> validate -> enrich -> graph build`.
+Последняя ветка включает одиночество, отношения, AI-компаньонов, виртуальных персонажей, интимность, сексуальность и этику. Словарь хранит aliases и правила нормализации. Обогащение может предложить тему, но не публикует её без принятия в локальном review-интерфейсе.
 
-## Graph model
+## Связи и доказательства
 
-Every edge has a source, target, type, provenance, and confidence. Explicit replies, hyperlinks, embeds, and manual relations are authoritative. Entity overlap, topics, semantic similarity, temporal proximity, and possible influence are derived signals.
+Авторитетные связи: Telegram reply/continuation, явная ссылка или embed, ручная связь, `part-of`, `documents`, `contains-video`, `client`, `grew-from`, `uses-result`, явно названная сущность. Вычисляемые: общая тема, сущность, семантическая и временная близость.
 
-The same graph data powers related-content blocks, filters, dossiers, timelines, the compact local graph on content pages, and the separate fullscreen WebXR experience.
+Каждое ребро содержит доказательство: ID сообщения, URL, поле frontmatter или версию вычислителя. Доказанные связи рисуются сплошными линиями, рекомендации пунктиром. Причинные формулировки разрешены только для ручной или явно подтверждённой связи.
 
-## Experience
+## Telegram и enrichment
 
-The homepage must immediately explain who Stanislav is and expose CV, completed work, own projects, experience, and contact paths. The cinematic graph, generative sound, and spatial interaction are a signature experience, not the entire site.
+Новая ручная выгрузка `ChatExport_2026-08-23` становится неизменяемым baseline с manifest и хешами. Обновления через Telethon забирают только сообщения после максимального ID baseline и сохраняются append-only пакетами. Повторный запуск идемпотентен.
 
-The fullscreen graph and compact local graph are separate components with separate interaction models. The fullscreen view supports exploration and later WebXR. The local graph only explains the immediate context of one item.
+`raw archive -> normalize -> assemble chains/albums -> validate -> deterministic relations -> enrichment proposals -> review -> graph artifact`
 
-## Technology
+Парсер сохраняет Telegram entities, links, replies, альбомы, цепочки, continuations, spoiler и точное положение медиа. Telegram Article хранит последовательность блоков, поэтому фотография остаётся внутри текста на исходном месте.
 
-- Astro 7, TypeScript, static output for GitLab Pages.
-- Typed Astro content collections.
-- Client-side islands only for filtering, graph interaction, sound, and WebXR.
-- A neutral build-generated graph artifact; no runtime database is required.
-- Git-native editing for the first release. A later admin UI may commit to GitLab through OAuth and the repository API without changing the content model.
+Сначала работают правила, затем локальные embeddings. Недорогая модель через OpenRouter вызывается только для неоднозначных предложений. Ответы кешируются по content hash с моделью и prompt version. Сборка не зависит от LLM. Локальный review UI принимает, отклоняет, переименовывает и объединяет предложения, записывая решения в Git.
 
-## First vertical slice
+## Информационная архитектура
 
-The first verified slice includes representative works, own projects with different statuses, an article, Telegram posts, topic pages, a homepage, works and projects catalogs, publication filtering, related-content data, a compact local graph, and a distinct fullscreen cinematic graph. It also includes a neutral importer prototype and tests for thread construction.
+Навигация: Главная, Работы, Проекты, Сад, Обо мне. Вселенная получает заметный самостоятельный вход.
 
-## Verification
+### Главная
 
-- Schema and referential-integrity tests reject invalid types and missing relation targets.
-- Importer tests cover reply chains, continuation links, albums, and deduplication.
-- Astro type checking and production build pass.
-- Browser checks confirm primary navigation, filtering, local graph behavior, fullscreen graph behavior, responsive layout, keyboard access, and reduced-motion behavior.
-- A final requirements audit distinguishes demonstrated vertical-slice behavior from later full-corpus migration work.
+Чистый первый экран с реальным авторским визуалом, кратким позиционированием, ролями, контактами и CTA к работам/проектам. Далее: четыре компетенции; 3-4 сильные внешние работы; собственная лаборатория; опыт, образование и достижения без обязательного скачивания CV; авторские медиа с настоящими thumbnails и разделением каналов; фрагмент манифеста; входы в Сад и Вселенную.
+
+В образовании: с сентября 2026 года магистратура ИТМО «Цифровые методы в гуманитарных исследованиях», направление 45.04.04 «Интеллектуальные системы в гуманитарной среде».
+
+### Работы и проекты
+
+Works фильтруются по жанру, году, роли и теме. Страница показывает заказчика, задачу, контекст, роль, личный вклад, features, процесс, результат, медиа и проверенные связи.
+
+Projects фильтруются по статусу и теме. Страница показывает замысел, происхождение, статус, роль автора, хронологию, этапы/внутренние кейсы, результаты, медиа, публикации, связанные заказные работы и дальнейшее направление.
+
+### Сад и материалы
+
+Сад прежде всего каталог, не стена карточек и не полноэкранная паутина. Есть поиск, комбинируемые фильтры type/topic/project/source/date/media/status и URL-state. Режимы: хронологическая Лента, сканируемый Каталог с фасетами, Obsidian-подобная Карта.
+
+Основная колонка материала имеет ширину 680-760 px. Контекст не перекрывает текст и медиа. Полные связи и локальный граф идут после текста. На мобильном всё образует одну колонку.
+
+## Два графических опыта
+
+Локальный граф объясняет контекст одной сущности: один уровень по умолчанию, раскрытие 2-3 уровней, активный узел, поиск пути, keyboard и текстовый fallback, без звука.
+
+Вселенная является отдельным WebGL/WebXR-опытом. Старт показывает несколько смысловых систем, а не сотни равноправных точек. Узлы раскрываются по мере приближения/выбора; всегда видны focus, направление и история маршрута.
+
+- Desktop: полёт, поиск, focus mode, возврат, путь между узлами.
+- Mobile: touch, облегчённый режим, опциональный WebXR AR.
+- Headset: VR controllers, teleport/comfort movement, spatial selection.
+- Sound: генеративная музыка реагирует на систему, скорость и подтверждённый маршрут; включается явно.
+- LOD: кластеры, progressive reveal, лимит labels, adaptive quality.
+- Fallback: интерактивная 2D-карта и текстовый маршрут без WebGL/WebXR или при reduced motion.
+
+Оба интерфейса используют один graph artifact, но разные компоненты и interaction model.
+
+## Визуальное направление
+
+Режим: полный визуальный overhaul с сохранением контента, пространственной идеи, URL и доступности. Design Read: тёмная цифровая редакционная среда, где спокойный личный профиль соседствует с живой картой знаний. Не dashboard и не бесконечная sci-fi панель.
+
+Основной сайт: `DESIGN_VARIANCE 7`, `MOTION_INTENSITY 4`, `VISUAL_DENSITY 5`. Вселенная: `8 / 8 / 4`.
+
+- Единая тёмная тема, off-black вместо pure black.
+- Один главный акцент: холодный голубой/циан. Фиолетовый редкий вторичный, розовый исключительный. Салатовый исключён.
+- Широкий выразительный grotesk для display и спокойный sans для текста, self-hosted.
+- Открытые композиции вместо вложенных карточек.
+- Реальные фото, кадры работ и thumbnails. Никаких fake UI и placeholder-проектов.
+- Motion объясняет состояние, переход или причинный путь и имеет reduced-motion fallback.
+
+До кодирования создаются отдельные крупные visual references: первый экран, избранные работы, Сад, Work/Project, Telegram Article, локальный граф и Вселенная. Они анализируются по сетке, типографике, цвету, controls и responsive collapse.
+
+## Адаптивность и технология
+
+Контрольные ширины: 360, 768, 1024, 1440 px. Controls не уходят за viewport; mobile nav доступен; смысловой текст не позиционируется абсолютно; Telegram headings имеют fluid scale. Две колонки складываются раньше перекрытия. Targets не меньше 44x44 px. Вселенная имеет отдельную плотность labels и controls по классу устройства.
+
+- Astro 7, TypeScript, static GitLab Pages, один репозиторий.
+- Typed content collections; build-generated search/graph artifacts.
+- Нативный CSS/Astro; client islands только для filters, graph, sound и WebXR.
+- Никакой React/UI-library миграции ради внешнего вида.
+- Старые slugs получают redirects.
+- В Git хранятся оптимизированные derivatives и media manifest; оригиналы остаются в архиве/объектном storage. Size check блокирует тяжёлые случайные commits.
+
+## Acceptance criteria
+
+- Corpus map сопоставляет каждую прежнюю сущность с новым каноном или явным исключением.
+- Schema/referential tests отклоняют отсутствующие targets и нелегальные types.
+- Importer tests покрывают replies, continuation, albums, entities, inline media, articles, incremental deduplication.
+- YouTube ownership требует совпадения allowlisted channel ID.
+- Astro check, production build и browser tests проходят.
+- Все шаблоны визуально проверены на 360, 768, 1024, 1440 px.
+- Проверены keyboard, focus, contrast, reduced motion, sound opt-in и fallback без WebGL.
+- Garden filters комбинируются и восстанавливаются из URL.
+- Local graph и Universe подтверждены как разные UI над одним data artifact.
+- Обычные страницы ориентированы на LCP < 2.5 s, INP < 200 ms, CLS < 0.1; Вселенная загружается только после явного входа.
+
+## Порядок реализации
+
+1. Закрыть corpus map и таблицу канонических решений.
+2. Исправить схемы Work/Project/Page/Video/Topic/Relation.
+3. Переписать Telegram normalization и inline media, добавить review store.
+4. Создать и утвердить visual references.
+5. Пересобрать tokens, shell, главную и About.
+6. Пересобрать Works, Projects, Garden и материалы.
+7. Реализовать локальный граф и доказательную навигацию.
+8. Пересобрать Вселенную с progressive reveal, spatial controls и audio.
+9. Провести полный responsive, accessibility, content-truth и performance audit.
