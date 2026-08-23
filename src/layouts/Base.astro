@@ -29,7 +29,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     {!immersive && (
       <header class="site-header">
         <a class="brand" href="/" aria-label="Staniverse, на главную"><span class="brand-mark">s</span><span>staniverse</span></a>
-        <nav aria-label="Основная навигация">
+        <nav id="primary-navigation" aria-label="Основная навигация">
           <a href="/works/">Работы</a>
           <a href="/projects/">Проекты</a>
           <a href="/garden/">Сад</a>
@@ -37,6 +37,10 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
           <a href="/about/">Обо мне</a>
         </nav>
         <a class="universe-link" href="/universe/">Вселенная <span aria-hidden="true">↗</span></a>
+        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-navigation">
+          <span class="menu-toggle-label">Меню</span>
+          <span class="menu-toggle-icon" aria-hidden="true"></span>
+        </button>
       </header>
     )}
     <main id="content"><slot /></main>
@@ -48,3 +52,27 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     )}
   </body>
 </html>
+
+<script>
+  document.querySelectorAll<HTMLElement>(".site-header").forEach((header) => {
+    const toggle = header.querySelector<HTMLButtonElement>(".menu-toggle");
+    const nav = header.querySelector<HTMLElement>("#primary-navigation");
+    if (!toggle || !nav) return;
+
+    const setOpen = (open: boolean) => {
+      header.toggleAttribute("data-menu-open", open);
+      toggle.setAttribute("aria-expanded", String(open));
+    };
+
+    toggle.addEventListener("click", () => setOpen(toggle.getAttribute("aria-expanded") !== "true"));
+    nav.addEventListener("click", (event) => {
+      if ((event.target as Element).closest("a")) setOpen(false);
+    });
+    header.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        setOpen(false);
+        toggle.focus();
+      }
+    });
+  });
+</script>

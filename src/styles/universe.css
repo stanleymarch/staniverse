@@ -1,6 +1,7 @@
 .universe-canvas {
   position: relative;
   z-index: 0;
+  max-width: 100%;
 }
 
 .universe-ui {
@@ -17,6 +18,21 @@
 .xr-status { align-self: center; color: #95a4be; font-size: .68rem; }
 .xr-button { position: static !important; inset: auto !important; width: auto !important; opacity: 1 !important; }
 .node-search input { width: min(13rem, 24vw); padding: .58rem .8rem; border: 1px solid #4c5470; border-radius: 2rem; background: rgba(9,12,24,.8); color: white; }
-.universe-canvas:focus-visible { outline: 2px solid #d7ff64; outline-offset: -4px; }
+.universe-canvas:focus-visible { outline: 2px solid var(--accent); outline-offset: -4px; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 @media (max-width: 720px) { .xr-status,.node-search { display: none; } }
+
+@media (max-width: 700px) {
+  .universe-top { align-items: flex-start; padding: .75rem; }
+  .universe-logo { max-width: 42vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .universe-actions { gap: .35rem; }
+  .icon-button { padding: .5rem .65rem; font-size: .75rem; }
+  .universe-intro { max-height: min(42vh, 20rem); overflow: auto; }
+}
+
+@media (max-width: 430px) {
+  .universe-top { padding: .6rem; }
+  .universe-logo { font-size: .72rem; }
+  .universe-actions .icon-button { padding: .45rem .55rem; }
+  .node-card { right: .75rem; bottom: .75rem; width: calc(100vw - 1.5rem); }
+}
