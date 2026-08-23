@@ -1,9 +1,9 @@
 ---
 import type { AnyEntry } from "../lib/content";
-import { hrefFor, kindLabel, projectStatus } from "../lib/content";
+import { hrefFor, kindLabel, projectStatus, workStatus } from "../lib/content";
 interface Props { entry: AnyEntry; large?: boolean }
 const { entry, large = false } = Astro.props;
-const status = entry.data.kind === "project" ? projectStatus[entry.data.status] : undefined;
+const status = entry.data.kind === "project" ? projectStatus[entry.data.status] : entry.data.kind === "work" ? workStatus[entry.data.status] : undefined;
 const extraFilters = entry.data.kind === "work" ? entry.data.genres : entry.data.kind === "project" ? [entry.data.status, ...entry.data.domains] : [];
 ---
 <a class:list={["content-card", `kind-${entry.data.kind}`, { large }]} href={hrefFor(entry)} data-kind={entry.data.kind} data-tags={[...entry.data.tags, ...extraFilters].join(" ")} data-search={`${entry.data.title} ${entry.data.summary} ${entry.data.tags.join(" ")} ${extraFilters.join(" ")}`.toLowerCase()}>

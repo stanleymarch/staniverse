@@ -27,14 +27,14 @@ const graph = buildGraph(await allEntries());
     const scene = new THREE.Scene();
     scene.fog = new THREE.FogExp2(0x03050b, .012);
     const camera = new THREE.PerspectiveCamera(60, 1, .1, 1000); camera.position.set(0, 0, 38);
-    const colors: Record<string, number> = { work:0x64dff4, project:0x8872ff, article:0xff73c9, "telegram-post":0xd7ff64, "telegram-article":0xd7ff64, "youtube-video":0xffb35c };
+    const colors: Record<string, number> = { work:0x64dff4, project:0x8872ff, article:0xff73c9, "telegram-post":0xd7ff64, "telegram-article":0xd7ff64, "youtube-video":0xffb35c, video:0xffb35c };
     const glowCanvas=document.createElement("canvas");glowCanvas.width=128;glowCanvas.height=128;const glowContext=glowCanvas.getContext("2d")!;const glowGradient=glowContext.createRadialGradient(64,64,2,64,64,62);glowGradient.addColorStop(0,"rgba(255,255,255,1)");glowGradient.addColorStop(.15,"rgba(255,255,255,.65)");glowGradient.addColorStop(.45,"rgba(255,255,255,.16)");glowGradient.addColorStop(1,"rgba(255,255,255,0)");glowContext.fillStyle=glowGradient;glowContext.fillRect(0,0,128,128);const glowTexture=new THREE.CanvasTexture(glowCanvas);
     function labelSprite(text:string){const labelCanvas=document.createElement("canvas");labelCanvas.width=512;labelCanvas.height=96;const context=labelCanvas.getContext("2d")!;context.font="500 28px Geologica, sans-serif";context.textAlign="center";context.fillStyle="rgba(235,242,255,.9)";context.fillText(text.length>30?`${text.slice(0,29)}…`:text,256,52);const texture=new THREE.CanvasTexture(labelCanvas);const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:texture,transparent:true,depthWrite:false}));sprite.scale.set(7.8,1.45,1);sprite.position.set(0,-1.05,0);return sprite}
     const group = new THREE.Group(); scene.add(group);
     const nodeMap = new Map<string, THREE.Mesh>();
     const degree = new Map<string,number>();
     data.edges.forEach((edge)=>{degree.set(edge.source,(degree.get(edge.source)??0)+1);degree.set(edge.target,(degree.get(edge.target)??0)+1)});
-    const coreNodes = data.nodes.filter((node)=>node.kind!=="telegram-post"&&node.kind!=="telegram-article"&&node.kind!=="youtube-video");
+    const coreNodes = data.nodes.filter((node)=>node.kind!=="telegram-post"&&node.kind!=="telegram-article"&&node.kind!=="youtube-video"&&node.kind!=="video");
     const connectedPublications = data.nodes.filter((node)=>!coreNodes.includes(node)&&(degree.get(node.id)??0)>0);
     const archiveNodes = data.nodes.filter((node)=>!coreNodes.includes(node)&&(degree.get(node.id)??0)===0);
     const placement = new Map<string,{index:number,total:number,layer:"core"|"connected"|"archive"}>();

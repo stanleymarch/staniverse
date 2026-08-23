@@ -1,5 +1,6 @@
 ---
 import "../styles/global.css";
+import "../styles/details.css";
 
 interface Props { title: string; description?: string; immersive?: boolean }
 const { title, description = "Staniverse — работы, собственные проекты, публикации и карта опыта Станислава Ермоленко.", immersive = false } = Astro.props;
@@ -31,7 +32,7 @@ const { title, description = "Staniverse — работы, собственны�
     {!immersive && (
       <footer class="site-footer">
         <div><strong>Staniverse</strong><p>Связи между технологиями, памятью, медиа и местом.</p></div>
-        <div class="footer-links"><a href="mailto:stas@staniverse.xyz">Почта</a><a href="https://t.me/staniverse">Telegram</a><a href="https://www.youtube.com/@staniverse">YouTube</a><a href="https://www.youtube.com/@yatygorod">я.ты.город.</a></div>
+        <div class="footer-links"><a href="mailto:stas@staniverse.xyz">Почта</a><a href="https://t.me/staniverse">Telegram</a><a href="https://vk.com/staniverse">VK</a><a href="https://www.youtube.com/@staniverse">YouTube</a><a href="https://vk.com/yatygorod">VK я.ты.город.</a><a href="https://www.youtube.com/@yatygorod">YouTube я.ты.город.</a></div>
       </footer>
     )}
   </body>

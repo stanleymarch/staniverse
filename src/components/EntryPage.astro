@@ -3,12 +3,19 @@ import type { AnyEntry } from "../lib/content";
 import type { GraphEdge, GraphNode } from "../lib/graph";
 import Base from "../layouts/Base.astro";
 import LocalGraph from "./LocalGraph.astro";
-import { kindLabel, projectStatus } from "../lib/content";
+import { kindLabel, projectStatus, workStatus } from "../lib/content";
 import { render } from "astro:content";
 interface Props { entry: AnyEntry; nodes: GraphNode[]; edges: GraphEdge[] }
 const { entry, nodes, edges } = Astro.props;
 const { Content } = await render(entry);
-const status = entry.data.kind === "project" ? projectStatus[entry.data.status] : undefined;
+const status = entry.data.kind === "project" ? projectStatus[entry.data.status] : entry.data.kind === "work" ? workStatus[entry.data.status] : undefined;
+const embedUrl = entry.collection === "publications" ? entry.data.embedUrl : undefined;
+const publicationMeta = entry.collection === "publications" && entry.data.platform ? {
+  platform: entry.data.platform === "youtube" ? "YouTube" : entry.data.platform === "vk" ? "VK Видео" : "Telegram",
+  ownership: entry.data.ownership === "external" ? "Внешний материал" : "Авторское видео",
+  sourceUrl: entry.data.sourceUrl,
+} : undefined;
+const gallery = entry.collection === "publications" ? entry.data.media.filter((item) => item.type === "image" && item.publicPath) : [];
 ---
 <Base title={entry.data.title} description={entry.data.summary}>
   <article class="entry-shell">
@@ -17,7 +24,16 @@ const status = entry.data.kind === "project" ? projectStatus[entry.data.status] 
       <h1>{entry.data.title}</h1>
       <p class="entry-summary">{entry.data.summary}</p>
       <div class="tag-row">{entry.data.tags.map((tag) => <a href={`/garden/?tag=${tag}`}>#{tag}</a>)}</div>
+      {publicationMeta && <div class="publication-facts"><span>{publicationMeta.platform}</span><span>{publicationMeta.ownership}</span><a href={publicationMeta.sourceUrl}>Открыть оригинал ↗</a></div>}
+      {entry.data.kind === "work" && <dl class="work-facts">
+        <div><dt>Год</dt><dd>{entry.data.year}</dd></div>
+        <div><dt>Роль</dt><dd>{entry.data.role}</dd></div>
+        <div><dt>Для кого</dt><dd>{entry.data.client ?? "Авторская / конкурсная работа"}</dd></div>
+        {entry.data.features.length > 0 && <div class="work-features"><dt>Что сделано лично</dt><dd>{entry.data.features.slice(0,6).map((feature)=><span>{feature}</span>)}</dd></div>}
+      </dl>}
     </header>
+    {embedUrl && <div class="video-stage"><iframe src={embedUrl} title={entry.data.title} loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>}
+    {gallery.length > 0 && <div class="media-gallery" aria-label="Медиа публикации">{gallery.map((item,index)=><a href={item.publicPath}><img src={item.publicPath} alt={`${entry.data.title} · изображение ${index+1}`} loading={index>0?"lazy":"eager"} decoding="async" /></a>)}</div>}
     <div class="entry-grid">
       <div class="prose"><Content /></div>
       <LocalGraph currentId={entry.data.id} nodes={nodes} edges={edges} />

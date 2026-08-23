@@ -27,11 +27,11 @@ for (const publication of archive.publications) {
   const title = clean ? shortened(clean.split(/[.!?\n]/,1)[0],90) : `Медиапубликация · ${dateLabel}`;
   const summary = clean ? shortened(clean,220) : `Публикация без текстовой подписи; в архиве сохранено медиафайлов: ${publication.media.length}.`;
   const relations = publication.relations.map((relation) => ({target:relation.targetId,type:"mentions",evidence:"hyperlink",confidence:relation.confidence}));
-  const media = publication.media.map(({sourcePath,type,messageId}) => ({sourcePath,type,messageId}));
+  const media = publication.media.map(({sourcePath,publicPath,type,messageId}) => ({sourcePath,...publicPath?{publicPath}:{},type,messageId}));
   const frontmatter = [
     "---",
     `id: ${yaml(publication.id)}`,
-    "kind: telegram-post",
+    `kind: ${publication.kind}`,
     `title: ${yaml(title)}`,
     `summary: ${yaml(summary)}`,
     publication.date ? `date: ${yaml(publication.date)}` : undefined,
@@ -48,7 +48,8 @@ for (const publication of archive.publications) {
     "",
   ].filter((line): line is string => line !== undefined).join("\n");
   const sourceLink = `[Оригинал в Telegram](${publication.sourceUrl})`;
-  await writeFile(resolve(destination,`tg-${publication.sourceId}.md`),`${frontmatter}${publication.body ? `${publication.body}\n\n` : ""}${sourceLink}\n`,"utf8");
+  const body=publication.body.replace(/[ \t]+$/gm,"");
+  await writeFile(resolve(destination,`tg-${publication.sourceId}.md`),`${frontmatter}${body ? `${body}\n\n` : ""}${sourceLink}\n`,"utf8");
 }
 
 console.log(JSON.stringify({written:archive.publications.length,output:destination}));

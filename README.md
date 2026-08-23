@@ -18,6 +18,19 @@ npm run build
 npm run test:e2e
 ```
 
+## Корпус сайта
+
+Контент хранится в этом же репозитории в типизированных коллекциях Astro. Сейчас миграция включает 21 работу из канонического опубликованного индекса прежнего сайта, 9 собственных проектов с живыми статусами, 2 полноформатные статьи, 15 YouTube/VK-видео и 744 Telegram-публикации. Работы и собственные проекты намеренно остаются разными сущностями графа.
+
+Повторный перенос старых описаний и обновление видеокаталога:
+
+```powershell
+npm run migrate:legacy
+npm run videos:materialize
+```
+
+Исходные Markdown старого сайта нужны только мигратору; опубликованный сайт от Obsidian и Quartz не зависит.
+
 ## Telegram
 
 Источник — JSON-экспорт Telegram Desktop или совместимый результат API. Текст, entities, цепочки reply, альбомы, ссылки и медиа сначала приводятся к нейтральной модели, затем генерируются страницы Astro:
@@ -27,6 +40,16 @@ npm run telegram:import -- path\to\result.json pipeline\telegram\archive\canonic
 npm run audit:content -- pipeline\telegram\archive\canonical.json path\to\export-folder
 npm run telegram:materialize
 ```
+
+Первая полная выгрузка становится локальным baseline. Следующие полные или частичные выгрузки можно накатывать той же командой: сообщения объединяются по Telegram `message_id`, новые добавляются, отредактированные заменяются, неизменные не дублируются. Структурные Telegram Articles разбираются из `rich_message` без LLM.
+
+```powershell
+npm run telegram:sync -- path\to\ChatExport
+npm run telegram:publish-media
+npm run telegram:materialize
+```
+
+Сырой архив и тяжёлые видео остаются в игнорируемой `pipeline/telegram/archive/source`. Для Pages генерируются WebP-копии изображений; поэтому Git хранит готовую медиавитрину, а не 356 МБ исходного экспорта.
 
 Обычная ссылка на Telegram становится ребром графа, но не склеивает посты. Цепочки объединяются только по `reply_to`, `grouped_id` или явному маркеру продолжения.
 

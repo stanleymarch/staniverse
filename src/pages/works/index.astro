@@ -6,7 +6,7 @@ const entries = (await getCollection("works")).sort((a,b) => Number(b.data.featu
 const genres = [...new Set(entries.flatMap((entry) => entry.data.genres))].sort();
 ---
 <Base title="Работы">
-  <header class="catalog-hero"><div class="section-kicker">Портфолио</div><h1>Работы</h1><p class="hero-lead">Законченные результаты для заказчиков, организаций, конкурсов и внешних задач. Собственные живые проекты находятся отдельно.</p><div class="catalog-controls" data-filter-controls><button class="filter-button active" data-filter="all">Все</button>{genres.map((genre) => <button class="filter-button" data-filter={genre}>{genre}</button>)}</div></header>
+  <header class="catalog-hero"><div class="section-kicker">Портфолио</div><h1>Работы</h1><p class="hero-lead">Реализованные результаты для заказчиков, организаций, конкурсов и внешних задач. Некоторые продолжают развиваться; собственные проекты находятся отдельно.</p><div class="catalog-controls" data-filter-controls><button class="filter-button active" data-filter="all">Все</button>{genres.map((genre) => <button class="filter-button" data-filter={genre}>{genre}</button>)}</div></header>
   <section class="section" style="padding-top:1rem"><div class="card-grid" data-filter-grid>{entries.map((entry) => <ContentCard entry={entry} />)}</div><div class="empty-state">В этом жанре пока нет работ.</div></section>
   <script is:inline src="/scripts/catalog-filter.js"></script>
 </Base>

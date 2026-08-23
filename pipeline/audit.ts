@@ -10,7 +10,7 @@ const publications = archive.publications;
 const ids = new Set(publications.map((publication)=>publication.id));
 const rawIds = publications.flatMap((publication)=>publication.rawMessageIds);
 const duplicateMessages = rawIds.filter((id,index)=>rawIds.indexOf(id)!==index);
-const brokenRelations = publications.flatMap((publication)=>publication.relations.filter((relation)=>!ids.has(relation.targetId)).map((relation)=>`${publication.id} -> ${relation.targetId}`));
+const brokenRelations = publications.flatMap((publication)=>publication.relations.filter((relation)=>relation.targetId.startsWith("publication:")&&!ids.has(relation.targetId)).map((relation)=>`${publication.id} -> ${relation.targetId}`));
 const media = publications.flatMap((publication)=>publication.media);
 let missingMedia = 0;
 if(sourceRoot) for(const item of media){ try { await access(resolve(sourceRoot,item.sourcePath)); } catch { missingMedia++; } }

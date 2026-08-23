@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { buildThreads } from "../pipeline/telegram/threading";
 import { normalizeExport, renderText } from "../pipeline/telegram/normalize";
+import { mergeMessages } from "../pipeline/telegram/incremental";
 
 test("collects explicit reply chains", () => {
   const threads = buildThreads([{id:10,text:"Начало"},{id:11,reply_to_message_id:10,text:"Продолжение"},{id:12,text:"Другой пост"}]);
@@ -52,4 +53,19 @@ test("extracts tags and explicit post references without rewriting text", () => 
   assert.deepEqual(posts[1].tags,["webxr","\u0438\u0441\u043a\u0443\u0441\u0441\u0442\u0432\u043e"]);
   assert.equal(posts[1].links[0].url,"https://t.me/staniverse/50");
   assert.deepEqual(posts[1].relations,[{targetId:"publication:telegram:staniverse:50",type:"references",evidence:"telegram-link",confidence:1}]);
+});
+
+test("renders Telegram rich messages as articles with links and gallery media",()=>{
+  const [article]=normalizeExport({messages:[{id:1115,date:"2026-08-15",rich_message:{blocks:[
+    {type:"heading",level:1,text:{type:"plain",text:"Приключение на час"}},
+    {type:"paragraph",text:{type:"concat",text:[{type:"plain",text:"Открыть "},{type:"text_link",href:"https://nearventure.ru/",text:{type:"plain",text:"Nearventure"}}]}},
+    {type:"slideshow",items:[{type:"photo",photo:"photos/one.jpg"},{type:"photo",photo:"photos/two.jpg"}]},
+  ]}}]});
+  assert.equal(article.kind,"telegram-article");assert.match(article.body,/^# Приключение на час/);assert.match(article.body,/\[Nearventure\]\(https:\/\/nearventure.ru\/\)/);assert.equal(article.media.length,2);assert.equal(article.links[0].url,"https://nearventure.ru/");
+  assert.deepEqual(article.relations,[{targetId:"project:nearventure",type:"references",evidence:"known-public-url",confidence:1}]);
+});
+
+test("incremental merge adds new messages and replaces edited ones by stable id",()=>{
+  const result=mergeMessages([{id:1,text:"original"},{id:2,text:"same"}],[{id:2,text:"same"},{id:1,text:"edited",edited:"now"},{id:3,text:"new"}]);
+  assert.deepEqual({added:result.added,updated:result.updated,unchanged:result.unchanged},{added:1,updated:1,unchanged:1});assert.deepEqual(result.messages.map((item)=>[item.id,item.text]),[[1,"edited"],[2,"same"],[3,"new"]]);
 });

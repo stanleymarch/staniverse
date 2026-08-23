@@ -10,7 +10,7 @@ entities: []
 sourceUrl: "https://t.me/staniverse/8"
 sourceId: "8"
 threadIds: ["8"]
-media: [{"sourcePath":"photos/photo_3@27-09-2023_20-56-49.jpg","type":"image","messageId":8}]
+media: [{"sourcePath":"photos/photo_3@27-09-2023_20-56-49.jpg","publicPath":"/media/telegram/8-8-0.webp","type":"image","messageId":8}]
 featured: false
 relations: []
 ---

@@ -14,21 +14,62 @@ test("homepage presents identity, works, own projects and universe", async ({ pa
 test("works and own projects remain distinct and filterable", async ({ page }) => {
   await page.goto("/works/");
   await expect(page.getByRole("heading", { name: "Работы", exact: true })).toBeVisible();
+  await expect(page.locator("[data-filter-grid] .content-card")).toHaveCount(21);
+  await expect(page.locator('[data-filter-grid] a[href="/works/prodakshn-dlya-staniverse/"] .status')).toHaveText("Продолжается");
   await page.getByRole("button", { name: "xr", exact: true }).click();
-  await expect(page.getByRole("link", { name: /MetaAdvokat/ })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Виртуальный офис адвоката/ })).toBeVisible();
   await expect(page.getByRole("link", { name: /Система сбора/ })).toBeHidden();
   await page.goto("/projects/");
   await expect(page.getByRole("heading", { name: "Собственные проекты" })).toBeVisible();
-  await page.getByRole("button", { name: "На паузе" }).click();
+  await expect(page.locator("[data-project-status]")).toHaveCount(9);
+  await expect(page.locator('[data-project-status] a[href="/projects/nearventure/"]')).toBeVisible();
+  await page.getByRole("button", { name: "Архив" }).click();
   await expect(page.locator('[data-filter-grid] a[href="/projects/ya-ty-gorod/"]')).toBeVisible();
   await expect(page.locator('[data-filter-grid] a[href="/projects/albina/"]')).toBeHidden();
 });
 
+test("migrated work keeps role, client, features and full narrative", async ({ page }) => {
+  await page.goto("/works/prodakshn-dlya-staniverse/");
+  await expect(page.getByText("Работа · Продолжается")).toBeVisible();
+  await expect(page.getByText("Что сделано лично")).toBeVisible();
+  await expect(page.locator(".work-features span", { hasText: "Придумывал темы и визуальную подачу" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Контекст" })).toBeVisible();
+  await expect(page.getByRole("complementary", { name: /Что связано/ })).toBeVisible();
+});
+
 test("garden searches across publication formats", async ({ page }) => {
   await page.goto("/garden/");
-  await page.getByRole("searchbox").fill("компаньон");
+  await expect(page.getByRole("button", { name: "YouTube-видео" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Видео", exact: true })).toBeVisible();
+  await page.getByRole("searchbox").fill("виртуальных помощников");
   await expect(page.locator('[data-filter-grid] a[href="/articles/ai-waifu/"]')).toBeVisible();
   await expect(page.locator('[data-filter-grid] a[href="/garden/youtube-cultural-travel/"]')).toBeHidden();
+});
+
+test("long article and its video are first-class connected entries", async ({ page }) => {
+  await page.goto("/articles/ai-waifu/");
+  await expect(page.getByRole("heading", { name: "Оглавление" })).toBeVisible();
+  await expect(page.locator(".prose").getByText(/браки заключаются на небесах/)).toBeVisible();
+  await expect(page.getByRole("complementary", { name: /Что связано/ }).getByText(/Видеоверсия/)).toBeVisible();
+  await page.goto("/garden/video/youtube-ncq31xb3gle/");
+  await expect(page.locator(".video-stage iframe")).toHaveAttribute("src", /youtube\.com\/embed\/ncQ31xB3GLE/);
+  await expect(page.getByText("Авторское видео", { exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Открыть оригинал/ })).toHaveAttribute("href", "https://youtu.be/ncQ31xB3GLE");
+});
+
+test("Telegram Article preserves structured text, media and project causality", async ({ page }) => {
+  await page.goto("/garden/telegram/tg-1115/");
+  await expect(page.getByText("Telegram-статья")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Приключение на час, туда и обратно" }).last()).toBeVisible();
+  await expect(page.locator(".media-gallery img")).toHaveCount(8);
+  await expect(page.getByRole("complementary", { name: /Что связано/ }).getByRole("link", { name: "Nearventure" })).toBeVisible();
+});
+
+test("about and footer expose both media ecosystems", async ({ page }) => {
+  await page.goto("/about/");
+  for (const href of ["https://t.me/staniverse", "https://vk.com/staniverse", "https://www.youtube.com/@staniverse", "https://vk.com/yatygorod", "https://www.youtube.com/@yatygorod"]) {
+    await expect(page.locator(`a[href="${href}"]`).first()).toBeVisible();
+  }
 });
 
 test("content page has compact local graph with universe handoff", async ({ page }) => {

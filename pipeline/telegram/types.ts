@@ -15,15 +15,18 @@ export interface TelegramMessage {
   audio_file?: string;
   voice_message?: string;
   mime_type?: string;
+  rich_message?: TelegramRichMessage;
 }
+export interface TelegramRichNode { type?: string; level?: number; text?: string|TelegramRichNode|TelegramRichNode[]; href?: string; photo?: string; caption?: TelegramRichNode; items?: TelegramRichNode[]; blocks?: TelegramRichNode[]; [key:string]: unknown }
+export interface TelegramRichMessage { rtl?: boolean; part?: boolean; blocks: TelegramRichNode[] }
 export interface TelegramExport { name?: string; id?: number; messages: TelegramMessage[] }
 export interface Thread { rootId: number; messages: TelegramMessage[] }
-export interface CanonicalMedia { sourcePath: string; type: "image"|"video"|"audio"|"document"; order: number; messageId: number }
+export interface CanonicalMedia { sourcePath: string; publicPath?: string; type: "image"|"video"|"audio"|"document"; order: number; messageId: number }
 export interface CanonicalSourceLink { url: string; messageId: number }
-export interface CanonicalRelation { targetId: string; type: "references"; evidence: "telegram-link"; confidence: 1 }
+export interface CanonicalRelation { targetId: string; type: "references"; evidence: "telegram-link"|"known-public-url"; confidence: 1 }
 export interface CanonicalPublication {
   id: string;
-  kind: "telegram-post";
+  kind: "telegram-post"|"telegram-article";
   sourceId: string;
   sourceUrl: string;
   date?: string;

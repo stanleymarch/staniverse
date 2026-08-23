@@ -13,6 +13,7 @@ export const kindLabel: Record<string, string> = {
   "telegram-post": "Telegram-пост",
   "telegram-article": "Telegram-статья",
   "youtube-video": "YouTube-видео",
+  video: "Видео",
 };
 
 export const projectStatus: Record<string, string> = {
@@ -23,6 +24,11 @@ export const projectStatus: Record<string, string> = {
   paused: "На паузе",
   completed: "Завершён",
   archived: "Архив",
+};
+
+export const workStatus: Record<string, string> = {
+  ongoing: "Продолжается",
+  completed: "Завершена",
 };
 
 export function hrefFor(entry: AnyEntry) {

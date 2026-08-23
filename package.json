@@ -10,13 +10,18 @@
     "test": "node --import tsx --test --test-isolation=none tests/*.test.ts",
     "test:e2e": "playwright test",
     "telegram:import": "tsx pipeline/telegram/import-export.ts",
+    "telegram:sync": "tsx pipeline/telegram/sync-export.ts",
     "telegram:materialize": "tsx pipeline/telegram/materialize.ts",
+    "telegram:publish-media": "tsx pipeline/telegram/publish-media.ts",
     "enrichment:prepare": "tsx pipeline/enrichment/prepare.ts",
-    "audit:content": "tsx pipeline/audit.ts"
+    "audit:content": "tsx pipeline/audit.ts",
+    "migrate:legacy": "tsx pipeline/migrate-legacy-content.ts",
+    "videos:materialize": "tsx pipeline/materialize-videos.ts"
   },
   "dependencies": {
     "@astrojs/check": "latest",
     "astro": "latest",
+    "sharp": "^0.35.3",
     "three": "latest",
     "typescript": "latest"
   },

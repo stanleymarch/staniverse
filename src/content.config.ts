@@ -29,7 +29,9 @@ const works = defineCollection({
     genres: z.array(z.string()),
     role: z.string(),
     client: z.string().optional(),
-    status: z.literal("completed"),
+    features: z.array(z.string()).default([]),
+    legacySource: z.string().optional(),
+    status: z.enum(["ongoing", "completed"]),
   }),
 });
 
@@ -40,22 +42,28 @@ const projects = defineCollection({
     status: z.enum(["idea", "planned", "development", "active", "paused", "completed", "archived"]),
     started: z.union([z.number(), z.string()]).optional(),
     domains: z.array(z.string()),
+    legacySource: z.string().optional(),
   }),
 });
 
 const articles = defineCollection({
   loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/articles" }),
-  schema: common.extend({ kind: z.literal("article"), sourceUrl: z.url().optional() }),
+  schema: common.extend({ kind: z.literal("article"), sourceUrl: z.url().optional(), legacySource: z.string().optional() }),
 });
 
 const publications = defineCollection({
   loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/publications" }),
   schema: common.extend({
-    kind: z.enum(["telegram-post", "telegram-article", "youtube-video"]),
+    kind: z.enum(["telegram-post", "telegram-article", "youtube-video", "video"]),
     sourceUrl: z.url(),
     sourceId: z.string(),
     threadIds: z.array(z.string()).default([]),
-    media: z.array(z.object({ sourcePath: z.string(), type: z.enum(["image", "video", "audio", "document"]), messageId: z.number() })).default([]),
+    media: z.array(z.object({ sourcePath: z.string(), publicPath: z.string().optional(), type: z.enum(["image", "video", "audio", "document"]), messageId: z.number() })).default([]),
+    platform: z.enum(["youtube", "vk", "telegram"]).optional(),
+    videoId: z.string().optional(),
+    format: z.enum(["video", "short", "stream", "embed"]).optional(),
+    embedUrl: z.url().optional(),
+    ownership: z.enum(["own", "external"]).optional(),
   }),
 });
 
