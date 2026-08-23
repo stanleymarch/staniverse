@@ -3,11 +3,11 @@ import type { AnyEntry } from "../lib/content";
 import type { GraphEdge, GraphNode } from "../lib/graph";
 import Base from "../layouts/Base.astro";
 import LocalGraph from "./LocalGraph.astro";
-import { kindLabel, projectStatus, workStatus } from "../lib/content";
+import { hrefFor, kindLabel, projectStatus, workStatus } from "../lib/content";
 import { topicSlug } from "../lib/topics";
 import { render } from "astro:content";
-interface Props { entry: AnyEntry; nodes: GraphNode[]; edges: GraphEdge[] }
-const { entry, nodes, edges } = Astro.props;
+interface Props { entry: AnyEntry; nodes: GraphNode[]; edges: GraphEdge[]; chapters?: AnyEntry[] }
+const { entry, nodes, edges, chapters=[] } = Astro.props;
 const { Content } = await render(entry);
 const status = entry.data.kind === "project" ? projectStatus[entry.data.status] : entry.data.kind === "work" ? workStatus[entry.data.status] : undefined;
 const embedUrl = entry.collection === "publications" ? entry.data.embedUrl : undefined;
@@ -36,7 +36,9 @@ const gallery = entry.collection === "publications" && entry.data.kind !== "tele
     {embedUrl && <div class="video-stage"><iframe src={embedUrl} title={entry.data.title} loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>}
     {gallery.length > 0 && <div class="media-gallery" aria-label="Медиа публикации">{gallery.map((item,index)=><a href={item.publicPath}><img src={item.publicPath} alt={`${entry.data.title} · изображение ${index+1}`} loading={index>0?"lazy":"eager"} decoding="async" /></a>)}</div>}
     <div class="entry-grid">
-      <div class="prose"><Content /></div>
+      <div class="prose"><Content />
+        {chapters.length>0&&<section class="project-chapters" aria-labelledby="project-chapters-title"><h2 id="project-chapters-title">Главы и результаты проекта</h2><p>Материалы собраны здесь в контексте собственной инициативы, а не среди заказных работ.</p><div>{chapters.map((chapter)=><a href={hrefFor(chapter)}><small>{chapter.data.kind==="work"?chapter.data.year:""}</small><strong>{chapter.data.title}</strong><span>{chapter.data.summary}</span></a>)}</div></section>}
+      </div>
       <LocalGraph currentId={entry.data.id} nodes={nodes} edges={edges} />
     </div>
   </article>

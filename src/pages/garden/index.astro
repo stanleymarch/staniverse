@@ -17,6 +17,6 @@ const records=entries.map((entry)=>({id:entry.data.id,href:hrefFor(entry),title:
     <main class="garden-results" aria-live="polite"><div class="garden-result-head"><p data-result-count>{entries.length} материалов</p><p data-active-filters>Все темы и форматы</p></div><div class="garden-list" data-garden-list></div><div class="garden-empty" data-garden-empty hidden>Ничего не найдено. Уберите часть фильтров или измените запрос.</div><button class="garden-more" type="button" data-garden-more>Показать ещё</button></main>
     <aside class="garden-map-panel" data-garden-map hidden><div class="section-kicker">Карта контекста</div><h2>Связи выбранного набора</h2><p>Сплошные линии означают доказанные связи. Пунктиром показаны смысловые рекомендации.</p><div class="garden-map-placeholder" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div><p class="garden-map-note">Выберите материал, чтобы раскрыть локальный граф. Для пространственного путешествия существует отдельная Вселенная.</p></aside>
   </div>
-  <script type="application/json" id="garden-records" set:html={JSON.stringify(records).replace(/</g,"\\u003c")} />
+  <script is:inline type="application/json" id="garden-records" set:html={JSON.stringify(records).replace(/</g,"\\u003c")} />
   <script is:inline src="/scripts/garden-catalog.js"></script>
 </Base>

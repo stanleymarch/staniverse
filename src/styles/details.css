@@ -52,6 +52,16 @@
   .work-features { grid-column: auto; }
 }
 
+.project-chapters{margin-top:clamp(4rem,9vw,8rem);padding-top:2rem;border-top:1px solid var(--line)}
+.project-chapters>p{color:var(--muted)}
+.project-chapters>div{display:grid}
+.project-chapters a{display:grid;grid-template-columns:5rem minmax(0,1fr);gap:.35rem 1rem;padding:1rem 0;border-bottom:1px solid var(--line);color:inherit;text-decoration:none}
+.project-chapters a small{grid-row:1/span 2;color:var(--accent)}
+.project-chapters a strong{font-size:1.05rem}
+.project-chapters a span{color:var(--muted);font-size:.88rem}
+.project-chapters a:hover strong,.project-chapters a:focus-visible strong{color:var(--accent)}
+@media(max-width:600px){.project-chapters a{grid-template-columns:1fr}.project-chapters a small{grid-row:auto}}
+
 .video-stage {
   width: min(1120px, calc(100vw - 2rem));
   max-width: 100%;

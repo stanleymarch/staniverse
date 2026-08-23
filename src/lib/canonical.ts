@@ -8,6 +8,14 @@ const ownedProjectClients = new Set([
   "проект: я.ты.город",
 ]);
 
+const projectByClient = new Map([
+  ["проект: albina", "project:albina"],
+  ["проект: metavyatka", "project:metavyatka"],
+  ["проект: omnipub", "project:omnipub"],
+  ["проект: staniverse", "project:staniverse"],
+  ["проект: я.ты.город", "project:ya-ty-gorod"],
+]);
+
 /**
  * The legacy corpus stored some chapters of owned projects in `works`.
  * Keep those records addressable for old links and graph evidence, but never
@@ -22,3 +30,7 @@ export function isOwnedProjectChapter(entry: CollectionEntry<"works">) {
   return !isCommissionedWork(entry);
 }
 
+export function ownedProjectId(entry: CollectionEntry<"works">) {
+  const client = entry.data.client?.trim().toLocaleLowerCase("ru-RU") ?? "";
+  return projectByClient.get(client);
+}

@@ -14,5 +14,5 @@ export const legacyRedirects = new Map<string, string>([
   ...workIds.map((id) => [`works/cases/${id}`, `/works/${id}/`] as const),
   ["articles/ii-vayfu-na-14-fevralya-instruktsiya-po-primeneniyu-i-sozdaniyu", "/articles/ai-waifu/"],
   ["articles/index", "/garden/"], ["works/index", "/works/"], ["garden/index", "/garden/"],
-  ["contacts", "/about/"], ["profile", "/about/"], ["manifesto", "/articles/manifesto/"],
+    ["contacts", "/about/"], ["profile", "/about/"], ["manifesto", "/about/#manifesto"],
 ]);

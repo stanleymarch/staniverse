@@ -5,6 +5,6 @@ import { collectTopics } from "../../lib/topics";
 const topics = collectTopics(await allEntries(), true);
 ---
 <Base title="Темы">
-  <header class="catalog-hero"><div class="section-kicker">Карта опыта</div><h1>Темы</h1><p class="hero-lead">Автоматически собранные маршруты через работы, собственные проекты, статьи, видео и Telegram-архив. Это не отдельная рубрикация: одна публикация может жить сразу в нескольких контекстах.</p></header>
+  <header class="catalog-hero"><div class="section-kicker">Карта опыта</div><h1>Темы</h1><p class="hero-lead">Контролируемые маршруты через работы, собственные проекты, статьи, видео и Telegram-архив. Один материал может одновременно относиться к IoT, XR и открытому коду.</p></header>
   <section class="section" style="padding-top:1rem"><div class="topic-cloud">{topics.map((topic) => <a href={`/topics/${topic.slug}/`}><strong>{topic.name}</strong><span>{topic.entries.length}</span></a>)}</div></section>
 </Base>

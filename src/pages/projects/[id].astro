@@ -3,8 +3,10 @@ import { getCollection } from "astro:content";
 import EntryPage from "../../components/EntryPage.astro";
 import { allEntries } from "../../lib/content";
 import { buildGraph } from "../../lib/graph";
+import { ownedProjectId } from "../../lib/canonical";
 export async function getStaticPaths(){ return (await getCollection("projects")).map((entry)=>({params:{id:entry.id},props:{entry}})); }
 const { entry } = Astro.props;
 const graph = buildGraph(await allEntries());
+const chapters=(await getCollection("works")).filter((work)=>ownedProjectId(work)===entry.data.id);
 ---
-<EntryPage entry={entry} nodes={graph.nodes} edges={graph.edges} />
+<EntryPage entry={entry} nodes={graph.nodes} edges={graph.edges} chapters={chapters} />

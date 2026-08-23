@@ -5,7 +5,7 @@ import { allEntries } from "../../lib/content";
 import { collectTopics } from "../../lib/topics";
 
 export async function getStaticPaths() {
-  return collectTopics(await allEntries()).map((topic) => ({ params: { slug: topic.slug }, props: { topic } }));
+  return collectTopics(await allEntries(), true).map((topic) => ({ params: { slug: topic.slug }, props: { topic } }));
 }
 const { topic } = Astro.props;
 ---

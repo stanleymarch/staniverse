@@ -47,7 +47,7 @@ export function collectTopics(entries: AnyEntry[], catalogOnly = false): TopicGr
       family: definition?.family,
       related: relations.related,
       companions: relations.companions,
-      catalog: !blocked.has(id) && /[a-zа-яё]/iu.test(name) && (topicEntries.length >= 3 || topicEntries.some((entry) => entry.collection !== "publications")),
+      catalog: Boolean(definition) && !blocked.has(id) && /[a-zа-яё]/iu.test(name),
     };
   });
   return topics.filter((topic) => !catalogOnly || topic.catalog)

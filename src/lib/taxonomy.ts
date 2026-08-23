@@ -182,7 +182,7 @@ export const topicRegistry = [
   }),
   topic({
     id: "companions",
-    label: "близость и компаньоны",
+    label: "близость, отношения и компаньоны",
     family: "life",
     aliases: ["ai/companions", "компаньоны", "компаньон", "ai companions", "эмоциональные компаньоны", "близость", "отношения", "виртуальные персонажи", "intimacy", "sexuality", "интимность", "сексуальность", "этика"],
     closeness: { ai: 0.78, xr: 0.86, iot: 0.82, games: 0.7, culture: 0.62 },
