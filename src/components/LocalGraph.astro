@@ -1,32 +1,265 @@
 ---
 import type { GraphEdge, GraphNode } from "../lib/graph";
-interface Props { currentId: string; nodes: GraphNode[]; edges: GraphEdge[] }
+import { buildLocalGraph } from "./localGraph";
+
+interface Props {
+  currentId: string;
+  nodes: GraphNode[];
+  edges: GraphEdge[];
+}
+
 const { currentId, nodes, edges } = Astro.props;
-const relevantEdges = edges.filter((edge) => edge.source === currentId || edge.target === currentId).sort((a,b) => b.confidence - a.confidence).slice(0, 7);
-const ids = new Set(relevantEdges.flatMap((edge) => [edge.source, edge.target]));
-const relevantNodes = nodes.filter((node) => ids.has(node.id));
-const current = relevantNodes.find((node) => node.id === currentId);
-const others = relevantNodes.filter((node) => node.id !== currentId);
+const graph = buildLocalGraph(currentId, nodes, edges, 3);
+const connected = graph.nodes.some((node) => node.depth > 0);
+const depthWord = (depth: number) => depth === 1 ? "уровень" : "уровня";
+const nodeLabel = (node: typeof graph.nodes[number]) => node.depth === 0 ? "текущий материал" : `${node.depth} ${depthWord(node.depth)}`;
 ---
-<aside class="local-graph" aria-labelledby="local-graph-title">
-  <div class="section-kicker">Ближайший контекст</div>
-  <h2 id="local-graph-title">Что связано с этим материалом</h2>
-  {current ? (
-    <div class="local-map" data-current={currentId}>
-      <a class="local-node current" href={current.href} style="--x:50%;--y:50%">{current.title}</a>
-      {others.map((node, index) => {
-        const angle = (Math.PI * 2 * index) / Math.max(others.length, 1) - Math.PI / 2;
-        const x = 50 + Math.cos(angle) * 36;
-        const y = 50 + Math.sin(angle) * 34;
-        return <a class={`local-node kind-${node.kind}`} href={node.href} style={`--x:${x}%;--y:${y}%`}>{node.title}</a>;
-      })}
-      <svg class="local-lines" aria-hidden="true" viewBox="0 0 100 100" preserveAspectRatio="none">
-        {others.map((_, index) => {
-          const angle = (Math.PI * 2 * index) / Math.max(others.length, 1) - Math.PI / 2;
-          return <line x1="50" y1="50" x2={50 + Math.cos(angle) * 36} y2={50 + Math.sin(angle) * 34} />;
-        })}
-      </svg>
+
+<aside class="local-graph local-graph-v2" aria-labelledby="local-graph-title" data-local-graph data-current-id={currentId}>
+  <header class="local-graph__header">
+    <p class="local-graph__kicker">Локальный граф</p>
+    <h2 id="local-graph-title">Связи рядом</h2>
+    <p class="local-graph__intro">Один шаг показывает прямой контекст. Увеличьте глубину, чтобы увидеть соседние слои.</p>
+  </header>
+
+  <div class="local-graph__controls" role="group" aria-label="Глубина графа">
+    <span class="local-graph__controls-label">Глубина</span>
+    {[1, 2, 3].map((depth) => (
+      <button type="button" class="local-graph__depth-button" data-depth-button={depth} aria-pressed={depth === 1 ? "true" : "false"}>
+        {depth} <span>{depthWord(depth)}</span>
+      </button>
+    ))}
+  </div>
+
+  {connected ? (
+    <>
+      <div class="local-graph__legend" aria-label="Легенда связей">
+        <span class="local-graph__legend-item"><i class="local-graph__legend-line is-solid" aria-hidden="true"></i>Подтверждённая связь</span>
+        <span class="local-graph__legend-item"><i class="local-graph__legend-line is-dotted" aria-hidden="true"></i>Тема или семантика</span>
+      </div>
+
+      <div class="local-graph__stage" data-depth="1" aria-describedby="local-graph-keyboard-help">
+        <svg class="local-graph__edges" aria-hidden="true" viewBox="0 0 100 100" preserveAspectRatio="none">
+          {graph.edges.map((edge) => {
+            const source = graph.nodes.find((node) => node.id === edge.source);
+            const target = graph.nodes.find((node) => node.id === edge.target);
+            return source && target ? (
+              <line
+                class={`local-graph__edge ${edge.dotted ? "is-dotted" : "is-solid"}`}
+                data-edge-depth={edge.depth}
+                x1={source.x}
+                y1={source.y}
+                x2={target.x}
+                y2={target.y}
+              />
+            ) : null;
+          })}
+        </svg>
+        <div class="local-graph__nodes" role="list" aria-label="Узлы локального графа">
+          {graph.nodes.map((node) => (
+            <a
+              class:list={["local-graph__node", node.depth === 0 && "is-current", node.kind === "topic" && "is-topic"]}
+              data-node-depth={node.depth}
+              data-node-id={node.id}
+              data-focus-node
+              href={node.href}
+              aria-current={node.depth === 0 ? "page" : undefined}
+              aria-label={`${node.title}, ${nodeLabel(node)}`}
+              style={`--node-x:${node.x}%;--node-y:${node.y}%`}
+            >
+              <span>{node.title}</span>
+              <small>{node.depth === 0 ? "сейчас" : node.kind === "topic" ? "тема" : `шаг ${node.depth}`}</small>
+            </a>
+          ))}
+        </div>
+      </div>
+      <p class="local-graph__keyboard-help" id="local-graph-keyboard-help">Клавиши стрелок переходят между узлами. Enter открывает выбранный материал.</p>
+
+      <details class="local-graph__disclosure">
+        <summary>Показать список узлов</summary>
+        <ol class="local-graph__list" aria-label="Список узлов локального графа">
+          {graph.nodes.map((node) => (
+            <li data-list-depth={node.depth}>
+              <a href={node.href} aria-current={node.depth === 0 ? "page" : undefined}>{node.title}</a>
+              <span>{nodeLabel(node)}</span>
+            </li>
+          ))}
+        </ol>
+      </details>
+
+      <details class="local-graph__disclosure local-graph__evidence">
+        <summary>Показать доказательства связей</summary>
+        <ol class="local-graph__relations" aria-label="Доказательства связей">
+          {graph.edges.map((edge) => (
+            <li data-relation-depth={edge.depth}>
+              <details>
+                <summary>
+                  <span>{edge.sourceNode?.title ?? edge.source} → {edge.targetNode?.title ?? edge.target}</span>
+                  <span class="local-graph__relation-confidence">{Math.round(edge.confidence * 100)}%</span>
+                </summary>
+                <dl>
+                  <div><dt>Тип</dt><dd>{edge.type}</dd></div>
+                  <div><dt>Основание</dt><dd>{edge.evidence}</dd></div>
+                  <div><dt>Уверенность</dt><dd>{Math.round(edge.confidence * 100)}%</dd></div>
+                </dl>
+              </details>
+            </li>
+          ))}
+        </ol>
+      </details>
+    </>
+  ) : (
+    <div class="local-graph__empty" role="status">
+      <span class="local-graph__empty-mark" aria-hidden="true">∅</span>
+      <h3>{graph.current ? "У этого материала пока нет соседей" : "Материал не найден в графе"}</h3>
+      <p>{graph.current ? "Связи появятся, когда для записи будет добавлено подтверждённое отношение или общая тема." : "Попробуйте открыть материал из каталога или вернуться к карте вселенной."}</p>
     </div>
-  ) : <p>Связи появятся после следующей индексации.</p>}
-  <a class="text-link" href={`/universe/?focus=${encodeURIComponent(currentId)}`}>Открыть во вселенной →</a>
+  )}
+
+  <a class="local-graph__universe-link" href={`/universe/?focus=${encodeURIComponent(currentId)}`}>Открыть во Вселенной <span aria-hidden="true">↗</span></a>
+  <p class="local-graph__status" data-graph-status aria-live="polite"></p>
 </aside>
+
+<script>
+  const roots = document.querySelectorAll<HTMLElement>("[data-local-graph]");
+
+  roots.forEach((root) => {
+    const stage = root.querySelector<HTMLElement>(".local-graph__stage");
+    const depthButtons = [...root.querySelectorAll<HTMLButtonElement>("[data-depth-button]")];
+    const visualNodes = [...root.querySelectorAll<HTMLElement>("[data-focus-node]")];
+    const status = root.querySelector<HTMLElement>("[data-graph-status]");
+    let selectedDepth = 1;
+
+    const sync = () => {
+      stage?.setAttribute("data-depth", String(selectedDepth));
+      depthButtons.forEach((button) => {
+        const active = Number(button.dataset.depthButton) === selectedDepth;
+        button.setAttribute("aria-pressed", String(active));
+      });
+      root.querySelectorAll<HTMLElement>("[data-node-depth]").forEach((node) => {
+        node.hidden = Number(node.dataset.nodeDepth) > selectedDepth;
+      });
+      root.querySelectorAll<HTMLElement>("[data-list-depth]").forEach((node) => {
+        node.hidden = Number(node.dataset.listDepth) > selectedDepth;
+      });
+      root.querySelectorAll<HTMLElement>("[data-edge-depth], [data-relation-depth]").forEach((edge) => {
+        edge.hidden = Number(edge.dataset.edgeDepth ?? edge.dataset.relationDepth) > selectedDepth;
+      });
+      const count = visualNodes.filter((node) => !node.hidden).length;
+      if (status) status.textContent = `${count} ${count === 1 ? "узел" : count < 5 ? "узла" : "узлов"} · глубина ${selectedDepth}`;
+    };
+
+    depthButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        selectedDepth = Number(button.dataset.depthButton) || 1;
+        sync();
+      });
+    });
+
+    root.addEventListener("keydown", (event) => {
+      if (!(event.target instanceof HTMLElement) || !event.target.matches("[data-focus-node]")) return;
+      const currentIndex = visualNodes.filter((node) => !node.hidden).indexOf(event.target);
+      if (currentIndex < 0) return;
+      const visibleNodes = visualNodes.filter((node) => !node.hidden);
+      const forward = event.key === "ArrowRight" || event.key === "ArrowDown";
+      const backward = event.key === "ArrowLeft" || event.key === "ArrowUp";
+      const targetIndex = forward ? (currentIndex + 1) % visibleNodes.length : backward ? (currentIndex - 1 + visibleNodes.length) % visibleNodes.length : event.key === "Home" ? 0 : event.key === "End" ? visibleNodes.length - 1 : -1;
+      if (targetIndex < 0) return;
+      event.preventDefault();
+      visibleNodes[targetIndex]?.focus();
+    });
+
+    sync();
+  });
+</script>
+
+<style>
+  .local-graph-v2 {
+    --local-bg: #0b1320;
+    --local-surface: #101c2c;
+    --local-surface-raised: #15243a;
+    --local-line: #29405a;
+    --local-muted: #95a8bf;
+    --local-text: #e8f3fb;
+    --local-cyan: #66dff4;
+    --local-cyan-soft: rgba(102, 223, 244, .2);
+    position: sticky;
+    top: 7rem;
+    min-width: 0;
+    padding: clamp(1rem, 2vw, 1.35rem);
+    border: 1px solid var(--local-line);
+    border-radius: 1rem;
+    background: var(--local-bg);
+    color: var(--local-text);
+  }
+
+  .local-graph-v2 :where(a, button, summary):focus-visible {
+    outline: 2px solid var(--local-cyan);
+    outline-offset: 3px;
+  }
+
+  .local-graph__header { display: grid; gap: .45rem; }
+  .local-graph__kicker { margin: 0; color: var(--local-cyan); font: 600 .65rem/1.2 ui-monospace, SFMono-Regular, monospace; letter-spacing: .14em; text-transform: uppercase; }
+  .local-graph__header h2 { margin: 0; color: var(--local-text); font: 600 clamp(1.15rem, 2vw, 1.45rem)/1.15 Unbounded, system-ui, sans-serif; overflow-wrap: anywhere; }
+  .local-graph__intro { margin: 0; color: var(--local-muted); font-size: .82rem; line-height: 1.5; }
+
+  .local-graph__controls { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; margin: 1rem 0 .75rem; }
+  .local-graph__controls-label { margin-right: .2rem; color: var(--local-muted); font-size: .72rem; }
+  .local-graph__depth-button { padding: .4rem .62rem; border: 1px solid var(--local-line); border-radius: .55rem; background: transparent; color: var(--local-muted); font: inherit; font-size: .72rem; cursor: pointer; transition: background .2s ease, border-color .2s ease, color .2s ease, transform .2s ease; }
+  .local-graph__depth-button:hover { border-color: var(--local-cyan); color: var(--local-text); }
+  .local-graph__depth-button:active { transform: translateY(1px); }
+  .local-graph__depth-button[aria-pressed="true"] { border-color: var(--local-cyan); background: var(--local-cyan); color: #07151c; }
+  .local-graph__depth-button span { display: none; }
+
+  .local-graph__legend { display: flex; flex-wrap: wrap; gap: .75rem; margin: .45rem 0 .7rem; color: var(--local-muted); font-size: .68rem; }
+  .local-graph__legend-item { display: inline-flex; align-items: center; gap: .35rem; }
+  .local-graph__legend-line { display: inline-block; width: 1.4rem; border-top: 2px solid var(--local-cyan); }
+  .local-graph__legend-line.is-dotted { border-top-style: dotted; border-top-color: #8094ac; }
+
+  .local-graph__stage { position: relative; min-height: 320px; margin: 0 -.15rem .75rem; overflow: hidden; border: 1px solid rgba(102, 223, 244, .16); border-radius: .8rem; background: linear-gradient(145deg, #101e2e, #0a121f 72%); }
+  .local-graph__stage::before { position: absolute; inset: 12%; border: 1px solid rgba(102, 223, 244, .08); border-radius: 50%; content: ""; }
+  .local-graph__edges { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .local-graph__edge { stroke-width: .45; vector-effect: non-scaling-stroke; }
+  .local-graph__edge.is-solid { stroke: #63b9cf; }
+  .local-graph__edge.is-dotted { stroke: #7289a3; stroke-dasharray: 1.4 2.2; }
+  .local-graph__nodes { position: absolute; inset: 0; }
+  .local-graph__node { position: absolute; z-index: 1; top: var(--node-y); left: var(--node-x); display: grid; gap: .16rem; width: min(9.2rem, 26%); min-width: 4.5rem; padding: .42rem .5rem; transform: translate(-50%, -50%); border: 1px solid #38516c; border-radius: .6rem; background: var(--local-surface); color: var(--local-text); font-size: .68rem; line-height: 1.25; text-align: center; text-decoration: none; overflow-wrap: anywhere; transition: border-color .2s ease, background .2s ease, transform .2s ease; }
+  .local-graph__node:hover { border-color: var(--local-cyan); background: var(--local-surface-raised); transform: translate(-50%, calc(-50% - 2px)); }
+  .local-graph__node.is-current { border-color: var(--local-cyan); background: #132f3b; color: var(--local-cyan); }
+  .local-graph__node.is-topic { border-style: dashed; }
+  .local-graph__node small { color: var(--local-muted); font-size: .58rem; }
+  .local-graph__node.is-current small { color: #9de9f7; }
+  .local-graph__keyboard-help { margin: 0 0 .75rem; color: var(--local-muted); font-size: .68rem; line-height: 1.45; }
+
+  .local-graph__disclosure { border-top: 1px solid rgba(102, 223, 244, .16); }
+  .local-graph__disclosure summary { padding: .7rem 0; color: var(--local-text); font-size: .78rem; cursor: pointer; }
+  .local-graph__list, .local-graph__relations { display: grid; gap: .3rem; margin: 0 0 .8rem; padding-left: 1.2rem; color: var(--local-muted); font-size: .72rem; }
+  .local-graph__list li { display: flex; justify-content: space-between; gap: .7rem; padding: .2rem 0; }
+  .local-graph__list a { color: var(--local-text); }
+  .local-graph__list span { white-space: nowrap; }
+  .local-graph__relations { gap: .45rem; }
+  .local-graph__relations details { margin-left: -.2rem; }
+  .local-graph__relations summary { display: flex; justify-content: space-between; gap: .5rem; color: var(--local-text); cursor: pointer; }
+  .local-graph__relation-confidence { color: var(--local-cyan); white-space: nowrap; }
+  .local-graph__relations dl { display: grid; gap: .25rem; margin: .45rem 0 .25rem; padding: .5rem; border-left: 1px solid var(--local-cyan-soft); color: var(--local-muted); }
+  .local-graph__relations dl div { display: flex; justify-content: space-between; gap: .6rem; }
+  .local-graph__relations dt { color: #7790aa; }
+  .local-graph__relations dd { margin: 0; color: var(--local-text); text-align: right; overflow-wrap: anywhere; }
+  .local-graph__universe-link { display: inline-flex; align-items: center; gap: .35rem; margin-top: .7rem; color: var(--local-cyan); font-size: .78rem; text-underline-offset: .2em; }
+  .local-graph__status { min-height: 1em; margin: .5rem 0 0; color: var(--local-muted); font-size: .65rem; }
+
+  .local-graph__empty { margin: 1rem 0; padding: 1.2rem; border: 1px dashed #3c526b; border-radius: .8rem; background: var(--local-surface); }
+  .local-graph__empty-mark { display: block; margin-bottom: .5rem; color: var(--local-cyan); font-size: 1.6rem; }
+  .local-graph__empty h3 { margin: 0 0 .35rem; color: var(--local-text); font-size: .9rem; }
+  .local-graph__empty p { margin: 0; color: var(--local-muted); font-size: .78rem; line-height: 1.5; }
+
+  @media (max-width: 1050px) { .local-graph-v2 { position: static; } }
+  @media (max-width: 620px) {
+    .local-graph__stage { min-height: 285px; }
+    .local-graph__node { width: min(8rem, 31%); font-size: .64rem; }
+    .local-graph__list li { align-items: flex-start; flex-direction: column; gap: .1rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .local-graph__depth-button, .local-graph__node { transition: none; }
+  }
+</style>
