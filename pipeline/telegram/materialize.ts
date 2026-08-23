@@ -25,6 +25,15 @@ const plain = (value: string) => value
 const shortened = (value: string, length: number) => value.length <= length ? value : `${value.slice(0,length-1).trimEnd()}…`;
 const yaml = (value: unknown) => JSON.stringify(value);
 
+function inlineMedia(body:string, publication:CanonicalPublication){
+  const bySource=new Map(publication.media.filter((item)=>item.publicPath).map((item)=>[item.sourcePath,item.publicPath!]));
+  return body.replace(/<!--telegram-media:([^>]+)-->/g,(_match,encoded:string)=>{
+    const sourcePath=decodeURIComponent(encoded);
+    const publicPath=bySource.get(sourcePath);
+    return publicPath?`![Иллюстрация из Telegram Article](${publicPath})`:"";
+  });
+}
+
 await rm(destination, {recursive:true,force:true});
 await mkdir(destination, {recursive:true});
 
@@ -56,7 +65,7 @@ for (const publication of archive.publications) {
     "",
   ].filter((line): line is string => line !== undefined).join("\n");
   const sourceLink = `[Оригинал в Telegram](${publication.sourceUrl})`;
-  const body=publication.body.replace(/[ \t]+$/gm,"");
+  const body=inlineMedia(publication.body,publication).replace(/[ \t]+$/gm,"");
   await writeFile(resolve(destination,`tg-${publication.sourceId}.md`),`${frontmatter}${body ? `${body}\n\n` : ""}${sourceLink}\n`,"utf8");
 }
 

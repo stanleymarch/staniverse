@@ -12770,7 +12770,7 @@
     },
     {
       "id": "publication:telegram:staniverse:1115",
-      "textHash": "1d8fdfca03bd25307d48d8ee988de903a158af0634f8385d931ab95d1a6c8f68",
+      "textHash": "3be1aabc6b76f26ec363b2be49b1719ad02e8b0959a573e6e49247f80a903869",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",

@@ -31,9 +31,21 @@ export function renderRichText(node: TelegramRichNode|TelegramRichNode[]|string|
   if(node.type==="text_link"&&node.href&&safeUrl(cleanHref(node.href)))return `[${value}](${cleanHref(node.href)})`;
   if(node.type==="mention")return value;return value;
 }
+const mediaMarker = (sourcePath: string) => `<!--telegram-media:${encodeURIComponent(sourcePath)}-->`;
+
 export function renderRichBlocks(blocks:TelegramRichNode[]):string{return blocks.flatMap((block)=>{
   if(block.type==="heading")return [`${"#".repeat(Math.max(1,Math.min(6,block.level??2)))} ${renderRichText(block.text)}`];
   if(block.type==="paragraph")return [renderRichText(block.text)];
+  if(block.type==="photo"&&block.photo){
+    const caption=renderRichText(block.caption);
+    return [mediaMarker(block.photo),caption].filter(Boolean);
+  }
+  if(["slideshow","collage"].includes(block.type??"")&&block.items){
+    return block.items.flatMap((item)=>{
+      if(item.photo)return [mediaMarker(item.photo),renderRichText(item.caption)].filter(Boolean);
+      return renderRichBlocks([item]);
+    });
+  }
   return [];
 }).filter(Boolean).join("\n\n")}
 

@@ -67,6 +67,15 @@ test("renders Telegram rich messages as articles with links and gallery media",(
   assert.deepEqual(article.relations,[{targetId:"project:nearventure",type:"references",evidence:"known-public-url",confidence:1}]);
 });
 
+test("preserves the position of photos inside Telegram Articles",()=>{
+  const [article]=normalizeExport({messages:[{id:12,date:"2026-08-23",rich_message:{blocks:[
+    {type:"paragraph",text:"До фотографии"},
+    {type:"photo",photo:"photos/inside.jpg",caption:{type:"plain",text:"Подпись"}},
+    {type:"paragraph",text:"После фотографии"},
+  ]}}]});
+  assert.match(article.body,/До фотографии[\s\S]*telegram-media:photos%2Finside\.jpg[\s\S]*Подпись[\s\S]*После фотографии/);
+});
+
 test("incremental merge adds new messages and replaces edited ones by stable id",()=>{
   const result=mergeMessages([{id:1,text:"original"},{id:2,text:"same"}],[{id:2,text:"same"},{id:1,text:"edited",edited:"now"},{id:3,text:"new"}]);
   assert.deepEqual({added:result.added,updated:result.updated,unchanged:result.unchanged},{added:1,updated:1,unchanged:1});assert.deepEqual(result.messages.map((item)=>[item.id,item.text]),[[1,"edited"],[2,"same"],[3,"new"]]);
