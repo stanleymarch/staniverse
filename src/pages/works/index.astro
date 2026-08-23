@@ -2,7 +2,10 @@
 import Base from "../../layouts/Base.astro";
 import ContentCard from "../../components/ContentCard.astro";
 import { getCollection } from "astro:content";
-const entries = (await getCollection("works")).sort((a,b) => Number(b.data.featured)-Number(a.data.featured));
+import { isCommissionedWork } from "../../lib/canonical";
+const entries = (await getCollection("works"))
+  .filter(isCommissionedWork)
+  .sort((a,b) => Number(b.data.featured)-Number(a.data.featured));
 const genres = [...new Set(entries.flatMap((entry) => entry.data.genres))].sort();
 ---
 <Base title="Работы">
