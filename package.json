@@ -1,0 +1,29 @@
+{
+  "name": "staniverse",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro check && astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "test": "node --import tsx --test --test-isolation=none tests/*.test.ts",
+    "test:e2e": "playwright test",
+    "telegram:import": "tsx pipeline/telegram/import-export.ts",
+    "telegram:materialize": "tsx pipeline/telegram/materialize.ts",
+    "enrichment:prepare": "tsx pipeline/enrichment/prepare.ts",
+    "audit:content": "tsx pipeline/audit.ts"
+  },
+  "dependencies": {
+    "@astrojs/check": "latest",
+    "astro": "latest",
+    "three": "latest",
+    "typescript": "latest"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.62.1",
+    "@types/node": "^26.2.0",
+    "@types/three": "^0.185.4",
+    "tsx": "latest"
+  }
+}

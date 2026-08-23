@@ -1,0 +1,16 @@
+---
+import type { AnyEntry } from "../lib/content";
+import { hrefFor, kindLabel, projectStatus } from "../lib/content";
+interface Props { entry: AnyEntry; large?: boolean }
+const { entry, large = false } = Astro.props;
+const status = entry.data.kind === "project" ? projectStatus[entry.data.status] : undefined;
+const extraFilters = entry.data.kind === "work" ? entry.data.genres : entry.data.kind === "project" ? [entry.data.status, ...entry.data.domains] : [];
+---
+<a class:list={["content-card", `kind-${entry.data.kind}`, { large }]} href={hrefFor(entry)} data-kind={entry.data.kind} data-tags={[...entry.data.tags, ...extraFilters].join(" ")} data-search={`${entry.data.title} ${entry.data.summary} ${entry.data.tags.join(" ")} ${extraFilters.join(" ")}`.toLowerCase()}>
+  <div class="card-meta"><span>{kindLabel[entry.data.kind]}</span>{status && <span class="status">{status}</span>}{entry.data.featured && <span class="featured">Избранное</span>}</div>
+  <div class="card-orbit" aria-hidden="true"><i></i><i></i><i></i></div>
+  <h3>{entry.data.title}</h3>
+  <p>{entry.data.summary}</p>
+  <div class="tag-row">{entry.data.tags.slice(0, 4).map((tag) => <span>#{tag}</span>)}</div>
+  <span class="card-arrow" aria-hidden="true">↗</span>
+</a>

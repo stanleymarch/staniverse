@@ -1,0 +1,9 @@
+---
+import { getCollection } from "astro:content";
+import EntryPage from "../../components/EntryPage.astro";
+import { getSiteGraph } from "../../lib/site-graph";
+export async function getStaticPaths(){ return (await getCollection("publications")).map((entry)=>({params:{id:entry.id},props:{entry}})); }
+const { entry } = Astro.props;
+const graph = await getSiteGraph();
+---
+<EntryPage entry={entry} nodes={graph.nodes} edges={graph.edges} />

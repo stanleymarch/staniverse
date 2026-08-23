@@ -1,0 +1,32 @@
+---
+import type { GraphEdge, GraphNode } from "../lib/graph";
+interface Props { currentId: string; nodes: GraphNode[]; edges: GraphEdge[] }
+const { currentId, nodes, edges } = Astro.props;
+const relevantEdges = edges.filter((edge) => edge.source === currentId || edge.target === currentId).sort((a,b) => b.confidence - a.confidence).slice(0, 7);
+const ids = new Set(relevantEdges.flatMap((edge) => [edge.source, edge.target]));
+const relevantNodes = nodes.filter((node) => ids.has(node.id));
+const current = relevantNodes.find((node) => node.id === currentId);
+const others = relevantNodes.filter((node) => node.id !== currentId);
+---
+<aside class="local-graph" aria-labelledby="local-graph-title">
+  <div class="section-kicker">Ближайший контекст</div>
+  <h2 id="local-graph-title">Что связано с этим материалом</h2>
+  {current ? (
+    <div class="local-map" data-current={currentId}>
+      <a class="local-node current" href={current.href} style="--x:50%;--y:50%">{current.title}</a>
+      {others.map((node, index) => {
+        const angle = (Math.PI * 2 * index) / Math.max(others.length, 1) - Math.PI / 2;
+        const x = 50 + Math.cos(angle) * 36;
+        const y = 50 + Math.sin(angle) * 34;
+        return <a class={`local-node kind-${node.kind}`} href={node.href} style={`--x:${x}%;--y:${y}%`}>{node.title}</a>;
+      })}
+      <svg class="local-lines" aria-hidden="true" viewBox="0 0 100 100" preserveAspectRatio="none">
+        {others.map((_, index) => {
+          const angle = (Math.PI * 2 * index) / Math.max(others.length, 1) - Math.PI / 2;
+          return <line x1="50" y1="50" x2={50 + Math.cos(angle) * 36} y2={50 + Math.sin(angle) * 34} />;
+        })}
+      </svg>
+    </div>
+  ) : <p>Связи появятся после следующей индексации.</p>}
+  <a class="text-link" href={`/universe/?focus=${encodeURIComponent(currentId)}`}>Открыть во вселенной →</a>
+</aside>

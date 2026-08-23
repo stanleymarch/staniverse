@@ -1,0 +1,12 @@
+---
+import Base from "../../layouts/Base.astro";
+import ContentCard from "../../components/ContentCard.astro";
+import { getCollection } from "astro:content";
+const entries = [...await getCollection("articles"), ...await getCollection("publications")].sort((a,b) => (b.data.date?.getTime() ?? 0)-(a.data.date?.getTime() ?? 0));
+const kinds = [...new Set(entries.map((entry) => entry.data.kind))];
+---
+<Base title="Сад опыта">
+  <header class="catalog-hero"><div class="section-kicker">Публикации</div><h1>Сад опыта</h1><p class="hero-lead">Посты, Telegram-статьи, большие материалы и видео. Не отдельные медиаполки, а разные формы одного опыта.</p><div class="catalog-controls" data-filter-controls><button class="filter-button active" data-filter="all">Всё</button>{kinds.map((kind) => <button class="filter-button" data-filter={kind}>{kind}</button>)}<input class="search-input" type="search" placeholder="Тема, проект, технология…" aria-label="Поиск по саду" /></div></header>
+  <section class="section" style="padding-top:1rem"><div class="card-grid" data-filter-grid>{entries.map((entry) => <ContentCard entry={entry} />)}</div><div class="empty-state">Ничего не найдено. Попробуйте убрать часть фильтров.</div></section>
+  <script is:inline src="/scripts/catalog-filter.js"></script>
+</Base>

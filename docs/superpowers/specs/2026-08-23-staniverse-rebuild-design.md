@@ -46,7 +46,7 @@ The fullscreen graph and compact local graph are separate components with separa
 
 ## Technology
 
-- Astro 6, TypeScript, static output for GitLab Pages.
+- Astro 7, TypeScript, static output for GitLab Pages.
 - Typed Astro content collections.
 - Client-side islands only for filtering, graph interaction, sound, and WebXR.
 - A neutral build-generated graph artifact; no runtime database is required.

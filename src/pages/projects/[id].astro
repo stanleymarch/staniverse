@@ -1,0 +1,10 @@
+---
+import { getCollection } from "astro:content";
+import EntryPage from "../../components/EntryPage.astro";
+import { allEntries } from "../../lib/content";
+import { buildGraph } from "../../lib/graph";
+export async function getStaticPaths(){ return (await getCollection("projects")).map((entry)=>({params:{id:entry.id},props:{entry}})); }
+const { entry } = Astro.props;
+const graph = buildGraph(await allEntries());
+---
+<EntryPage entry={entry} nodes={graph.nodes} edges={graph.edges} />

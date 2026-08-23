@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.astro/
+.superpowers/
+staniverse-skills-search.json
+pipeline/telegram/archive/
+pipeline/enrichment/jobs/
+public/media/telegram/
+test-results/
+playwright-report/

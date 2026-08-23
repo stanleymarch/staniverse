@@ -1,0 +1,39 @@
+---
+import Base from "../layouts/Base.astro";
+import ContentCard from "../components/ContentCard.astro";
+import { getCollection } from "astro:content";
+
+const works = (await getCollection("works")).filter((entry) => entry.data.featured).slice(0, 4);
+const projects = (await getCollection("projects")).filter((entry) => entry.data.featured).slice(0, 4);
+const stars = Array.from({ length: 22 }, (_, i) => ({ left: `${8 + ((i * 37) % 88)}%`, top: `${7 + ((i * 53) % 82)}%`, opacity: .35 + (i % 5) * .13 }));
+---
+<Base title="Staniverse">
+  <section class="hero">
+    <div class="hero-space" aria-hidden="true">{stars.map((star) => <i class="star" style={`left:${star.left};top:${star.top};opacity:${star.opacity}`}></i>)}</div>
+    <div class="hero-copy">
+      <div class="section-kicker">Станислав Ермоленко · Вятка</div>
+      <h1 class="display">Соединяю<br />вещи и смотрю,<br />что получится</h1>
+      <p class="hero-lead">XR, AI, медиа и цифровые продукты. Здесь собраны мои работы, собственные проекты, публикации и связи, которые показывают, как один опыт приводит к следующему.</p>
+      <div class="hero-actions"><a class="button primary" href="/works/">Смотреть работы</a><a class="button" href="/about/">Опыт и CV</a><a class="button cosmic" href="/universe/">Войти во вселенную ↗</a></div>
+    </div>
+  </section>
+  <nav class="signal-strip" aria-label="Основные разделы">
+    <a href="/works/"><strong>Работы</strong><span>реализовано для других</span></a>
+    <a href="/projects/"><strong>Проекты</strong><span>собственные живые системы</span></a>
+    <a href="/garden/"><strong>Сад</strong><span>публикации и темы</span></a>
+    <a href="/about/"><strong>Обо мне</strong><span>опыт, навыки и контакты</span></a>
+  </nav>
+  <section class="section">
+    <div class="section-head"><div><div class="section-kicker">Избранные работы</div><h2>То, что стало реальным</h2></div><a class="text-link" href="/works/">Все работы →</a></div>
+    <div class="card-grid">{works.map((entry, i) => <ContentCard entry={entry} large={i === 0} />)}</div>
+  </section>
+  <section class="section" style="background:#0a0f1a">
+    <div class="section-head"><div><div class="section-kicker">Собственные проекты</div><h2>То, что продолжает двигаться</h2></div><a class="text-link" href="/projects/">Все проекты →</a></div>
+    <p class="section-copy">Идеи, исследования и системы не обязаны быть законченными. У них есть статус, история и следующее действие.</p>
+    <div class="card-grid" style="margin-top:2rem">{projects.map((entry) => <ContentCard entry={entry} />)}</div>
+  </section>
+  <section class="section">
+    <div class="section-head"><div><div class="section-kicker">Карта опыта</div><h2>Не лента, а система связей</h2></div></div>
+    <div class="about-grid"><div class="fact-panel"><h2>Сад</h2><p>Telegram-посты, статьи и видео можно фильтровать по темам, сущностям и типам. Текст сохраняет авторский голос, а связи живут отдельным вычисляемым слоем.</p><a class="text-link" href="/garden/">Исследовать каталог →</a></div><div class="fact-panel"><h2>Вселенная</h2><p>Полноэкранный кинематографический граф с генеративным звуком — самостоятельный режим исследования. Локальные графы на страницах решают другую задачу: объясняют ближайший контекст.</p><a class="text-link" href="/universe/">Начать полёт →</a></div></div>
+  </section>
+</Base>

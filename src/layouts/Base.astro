@@ -1,0 +1,38 @@
+---
+import "../styles/global.css";
+
+interface Props { title: string; description?: string; immersive?: boolean }
+const { title, description = "Staniverse — работы, собственные проекты, публикации и карта опыта Станислава Ермоленко.", immersive = false } = Astro.props;
+---
+<!doctype html>
+<html lang="ru" class:list={{ immersive }}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#070a12" />
+    <title>{title === "Staniverse" ? title : `${title} · Staniverse`}</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#content">К содержанию</a>
+    {!immersive && (
+      <header class="site-header">
+        <a class="brand" href="/" aria-label="Staniverse, на главную"><span class="brand-mark">s</span><span>staniverse</span></a>
+        <nav aria-label="Основная навигация">
+          <a href="/works/">Работы</a>
+          <a href="/projects/">Проекты</a>
+          <a href="/garden/">Сад</a>
+          <a href="/about/">Обо мне</a>
+        </nav>
+        <a class="universe-link" href="/universe/">Вселенная <span aria-hidden="true">↗</span></a>
+      </header>
+    )}
+    <main id="content"><slot /></main>
+    {!immersive && (
+      <footer class="site-footer">
+        <div><strong>Staniverse</strong><p>Связи между технологиями, памятью, медиа и местом.</p></div>
+        <div class="footer-links"><a href="mailto:stas@staniverse.xyz">Почта</a><a href="https://t.me/staniverse">Telegram</a><a href="https://www.youtube.com/@staniverse">YouTube</a><a href="https://www.youtube.com/@yatygorod">я.ты.город.</a></div>
+      </footer>
+    )}
+  </body>
+</html>

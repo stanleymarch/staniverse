@@ -1,0 +1,15 @@
+.universe-canvas {
+  position: relative;
+  z-index: 0;
+}
+
+.universe-ui {
+  z-index: 1;
+}
+
+.universe-intro {
+  padding: 1.25rem;
+  margin: -1.25rem;
+  border-radius: 1.25rem;
+  background: radial-gradient(circle at 20% 50%, rgba(3, 5, 11, 0.92), rgba(3, 5, 11, 0.68) 62%, transparent 100%);
+}

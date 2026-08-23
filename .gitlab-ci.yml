@@ -1,0 +1,16 @@
+image: node:24
+
+cache:
+  paths:
+    - .npm/
+
+deploy-pages:
+  stage: deploy
+  script:
+    - npm ci --cache .npm --prefer-offline
+    - npm test
+    - npm run build
+  pages:
+    publish: dist
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
