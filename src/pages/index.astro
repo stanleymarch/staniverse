@@ -1,39 +1,267 @@
 ---
 import Base from "../layouts/Base.astro";
-import ContentCard from "../components/ContentCard.astro";
 import { getCollection } from "astro:content";
+import { hrefFor } from "../lib/content";
+import { isCommissionedWork } from "../lib/canonical";
 
-const works = (await getCollection("works")).filter((entry) => entry.data.featured).slice(0, 4);
-const projects = (await getCollection("projects")).filter((entry) => entry.data.featured).slice(0, 4);
-const stars = Array.from({ length: 22 }, (_, i) => ({ left: `${8 + ((i * 37) % 88)}%`, top: `${7 + ((i * 53) % 82)}%`, opacity: .35 + (i % 5) * .13 }));
+const cleanText = (value: string) => value.replace(/[—–]/g, "-");
+
+const commissionedWorks = (await getCollection("works")).filter(isCommissionedWork);
+const workById = new Map(commissionedWorks.map((entry) => [entry.data.id, entry]));
+const featuredWorkIds = [
+  "work:virtualnyy-ofis-advokata",
+  "work:tsifrovaya-stsenografiya-dlya-nomera-na-artmasters",
+  "work:otborochnaya-rabota-artmasters",
+  "work:arka-vyatskogo-kremlya",
+];
+const works = featuredWorkIds.flatMap((id) => {
+  const entry = workById.get(id);
+  return entry ? [entry] : [];
+});
+
+const projectsById = new Map((await getCollection("projects")).map((entry) => [entry.data.id, entry]));
+const projectIds = ["project:metavyatka", "project:albina", "project:omnipub", "project:mnemoform"];
+const projects = projectIds.flatMap((id) => {
+  const entry = projectsById.get(id);
+  return entry ? [entry] : [];
+});
+
+const publicationIds = [
+  "publication:youtube:U_kap319J-U",
+  "publication:youtube:VlHe-lVKQ1A",
+  "publication:youtube:1Q6KahaYrPA",
+];
+const publicationsById = new Map((await getCollection("publications")).map((entry) => [entry.data.id, entry]));
+const publications = publicationIds.flatMap((id) => {
+  const entry = publicationsById.get(id);
+  return entry?.data.ownership === "own" ? [entry] : [];
+});
+
+const workImages: Record<string, string> = {
+  "work:virtualnyy-ofis-advokata": "https://staniverse.xyz/works/cases/virtualnyy-ofis-advokata-og-image.webp",
+  "work:tsifrovaya-stsenografiya-dlya-nomera-na-artmasters": "https://staniverse.xyz/works/cases/ya-obmanyvat-sebya-ne-stanu-og-image.webp",
+  "work:otborochnaya-rabota-artmasters": "https://staniverse.xyz/works/cases/dver-kotoraya-zhdyot-og-image.webp",
+  "work:arka-vyatskogo-kremlya": "https://staniverse.xyz/works/cases/arka-vyatskogo-kremlya-og-image.webp",
+};
 ---
-<Base title="Staniverse">
-  <section class="hero">
-    <div class="hero-space" aria-hidden="true">{stars.map((star) => <i class="star" style={`left:${star.left};top:${star.top};opacity:${star.opacity}`}></i>)}</div>
-    <div class="hero-copy">
-      <div class="section-kicker">Станислав Ермоленко · Вятка</div>
-      <h1 class="display">Соединяю<br />вещи и смотрю,<br />что получится</h1>
-      <p class="hero-lead">XR, AI, медиа и цифровые продукты. Здесь собраны мои работы, собственные проекты, публикации и связи, которые показывают, как один опыт приводит к следующему.</p>
-      <div class="hero-actions"><a class="button primary" href="/works/">Смотреть работы</a><a class="button" href="/about/">Опыт и CV</a><a class="button cosmic" href="/universe/">Войти во вселенную ↗</a></div>
-    </div>
-  </section>
-  <nav class="signal-strip" aria-label="Основные разделы">
-    <a href="/works/"><strong>Работы</strong><span>реализовано для других</span></a>
-    <a href="/projects/"><strong>Проекты</strong><span>собственные живые системы</span></a>
-    <a href="/garden/"><strong>Сад</strong><span>публикации и темы</span></a>
-    <a href="/about/"><strong>Обо мне</strong><span>опыт, навыки и контакты</span></a>
-  </nav>
-  <section class="section">
-    <div class="section-head"><div><div class="section-kicker">Избранные работы</div><h2>То, что стало реальным</h2></div><a class="text-link" href="/works/">Все работы →</a></div>
-    <div class="card-grid">{works.map((entry, i) => <ContentCard entry={entry} large={i === 0} />)}</div>
-  </section>
-  <section class="section" style="background:#0a0f1a">
-    <div class="section-head"><div><div class="section-kicker">Собственные проекты</div><h2>То, что продолжает двигаться</h2></div><a class="text-link" href="/projects/">Все проекты →</a></div>
-    <p class="section-copy">Идеи, исследования и системы не обязаны быть законченными. У них есть статус, история и следующее действие.</p>
-    <div class="card-grid" style="margin-top:2rem">{projects.map((entry) => <ContentCard entry={entry} />)}</div>
-  </section>
-  <section class="section">
-    <div class="section-head"><div><div class="section-kicker">Карта опыта</div><h2>Не лента, а система связей</h2></div></div>
-    <div class="about-grid"><div class="fact-panel"><h2>Сад</h2><p>Telegram-посты, статьи и видео можно фильтровать по темам, сущностям и типам. Текст сохраняет авторский голос, а связи живут отдельным вычисляемым слоем.</p><a class="text-link" href="/garden/">Исследовать каталог →</a></div><div class="fact-panel"><h2>Вселенная</h2><p>Полноэкранный кинематографический граф с генеративным звуком — самостоятельный режим исследования. Локальные графы на страницах решают другую задачу: объясняют ближайший контекст.</p><a class="text-link" href="/universe/">Начать полёт →</a></div></div>
-  </section>
+
+<Base title="Staniverse" description="Портфолио и цифровой сад Станислава Ермоленко: XR, AI, медиа и собственные цифровые проекты.">
+  <div class="home-page">
+    <section class="hero home-hero">
+      <div class="hero-copy">
+        <div class="section-kicker">Станислав Ермоленко · Вятка</div>
+        <h1 class="display">Соединяю<br />технологии,<br />медиа и место</h1>
+        <p class="hero-lead">Режиссёр цифровых опытов, исследователь и разработчик. Работаю на стыке XR, AI, веба и документального медиа.</p>
+        <div class="hero-actions">
+          <a class="button primary" href="/works/">Работы</a>
+          <a class="button" href="/projects/">Проекты</a>
+          <a class="hero-email" href="mailto:stas@staniverse.xyz">stas@staniverse.xyz</a>
+        </div>
+      </div>
+      <figure class="hero-visual">
+        <img src="/assets/diplom-25-webxr-space.jpg" alt="Кадр из XR-проекта Staniverse: световой маршрут в космическом пространстве" width="1400" height="788" loading="eager" decoding="async" />
+        <span class="hero-orbit hero-orbit-one" aria-hidden="true"></span>
+        <span class="hero-orbit hero-orbit-two" aria-hidden="true"></span>
+        <figcaption><span>Кадр из XR-исследования</span><a href="/universe/">Войти во Вселенную <span aria-hidden="true">↗</span></a></figcaption>
+      </figure>
+    </section>
+
+    <section class="section capabilities" aria-labelledby="capabilities-title">
+      <div class="section-head"><div><div class="section-kicker">Что я делаю</div><h2 id="capabilities-title">Четыре способа<br />собрать опыт</h2></div></div>
+      <div class="capability-grid">
+        <article><span class="capability-index">01</span><h3>XR и виртуальные пространства</h3><p>Придумываю и строю миры, в которые можно войти и с которыми можно взаимодействовать.</p></article>
+        <article><span class="capability-index">02</span><h3>AI-агенты и автоматизация</h3><p>Настраиваю системы, которые освобождают время для живого и сложного.</p></article>
+        <article><span class="capability-index">03</span><h3>Медиа и документальные истории</h3><p>Снимаю, монтирую и собираю материалы так, чтобы важное не исчезало.</p></article>
+        <article><span class="capability-index">04</span><h3>Веб и цифровые продукты</h3><p>Перевожу задачу в понятный интерфейс, сервис или устойчивую рабочую систему.</p></article>
+      </div>
+    </section>
+
+    <section class="section works-section" aria-labelledby="works-title">
+      <div class="section-head"><div><div class="section-kicker">Избранные работы</div><h2 id="works-title">Внешние задачи,<br />которые стали реальными</h2></div><a class="text-link" href="/works/">Все работы <span aria-hidden="true">↗</span></a></div>
+      <div class="home-work-grid">
+        {works.map((entry, index) => (
+          <a class:list={["home-work", { "home-work-featured": index === 0 }]} href={hrefFor(entry)}>
+            <div class="home-work-image">
+              <img src={workImages[entry.data.id]} alt={entry.data.title} width="1200" height="760" loading={index > 1 ? "lazy" : "eager"} decoding="async" />
+            </div>
+            <div class="home-work-meta"><span>{entry.data.year}</span><span>{entry.data.client ?? "Внешняя задача"}</span></div>
+            <h3>{entry.data.title}</h3>
+            <p>{cleanText(entry.data.summary)}</p>
+            <span class="home-work-arrow" aria-hidden="true">↗</span>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <section class="section lab-section" aria-labelledby="lab-title">
+      <div class="lab-intro"><div class="section-kicker">Лаборатория</div><h2 id="lab-title">Собственные проекты<br />живут отдельно</h2><p>Это не клиентские кейсы, а инициативы, которые продолжаются, меняют форму и собирают новый опыт.</p><a class="text-link" href="/projects/">Все проекты <span aria-hidden="true">↗</span></a></div>
+      <div class="project-list">
+        {projects.map((entry) => (
+          <a class="project-row" href={hrefFor(entry)}>
+            <span class="project-status">{entry.data.status}</span>
+            <span><strong>{entry.data.title}</strong><small>{cleanText(entry.data.summary)}</small></span>
+            <span class="project-arrow" aria-hidden="true">↗</span>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <section class="section path-section" aria-labelledby="path-title">
+      <div class="section-head"><div><div class="section-kicker">Путь</div><h2 id="path-title">Опыт, который<br />переходит из формы в форму</h2></div></div>
+      <div class="path-grid">
+        <ol class="timeline">
+          <li><time>2015 - 2023</time><strong>Медиацентр ВятГУ</strong><span>Куратор проектов</span></li>
+          <li><time>2023 - сейчас</time><strong>Фриланс</strong><span>Автоматизация, GenAI, XR, Web, Media</span></li>
+          <li><time>2023 - 2025</time><strong>«Цифровые кафедры» ВятГУ</strong><span>Преподаватель и методист</span></li>
+          <li><time>2025 - сейчас</time><strong>АНО</strong><span>Специалист по информационным системам</span></li>
+        </ol>
+        <div class="path-notes">
+          <article><span class="section-kicker">Образование</span><h3>ИТМО, с сентября 2026</h3><p>Магистратура «Цифровые методы в гуманитарных исследованиях», направление 45.04.04 «Интеллектуальные системы в гуманитарной среде».</p></article>
+          <article><span class="section-kicker">Достижения</span><h3>От тележурналистики<br />до виртуальных миров</h3><p>Призёр XV Молодёжных Дельфийских игр России, победитель «МедиаМастер-2019», финалист ArtMasters-2025.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section media-section" aria-labelledby="media-title">
+      <div class="section-head"><div><div class="section-kicker">Авторские медиа</div><h2 id="media-title">Истории продолжаются<br />на своих площадках</h2></div></div>
+      <div class="media-grid">
+        {publications.map((entry) => (
+          <a class="media-tile" href={entry.data.sourceUrl} target="_blank" rel="noreferrer">
+            <img src={`https://i.ytimg.com/vi/${entry.data.sourceId}/hqdefault.jpg`} alt={cleanText(entry.data.title)} width="480" height="270" loading="lazy" decoding="async" />
+            <span class="media-platform">{entry.data.platform === "youtube" ? "YouTube · staniverse" : "Авторское видео"}</span>
+            <h3>{cleanText(entry.data.title)}</h3>
+          </a>
+        ))}
+      </div>
+      <div class="channel-links"><a href="https://t.me/staniverse" target="_blank" rel="noreferrer">Telegram @staniverse <span aria-hidden="true">↗</span></a><a href="https://www.youtube.com/@staniverse" target="_blank" rel="noreferrer">YouTube @staniverse <span aria-hidden="true">↗</span></a><a href="https://www.youtube.com/@yatygorod" target="_blank" rel="noreferrer">YouTube @yatygorod <span aria-hidden="true">↗</span></a></div>
+    </section>
+
+    <section class="manifesto-section" aria-labelledby="manifesto-title">
+      <div class="manifesto-copy"><div class="section-kicker">Манифест</div><h2 id="manifesto-title">Как технологии помогают человеку помнить, понимать, присутствовать и не теряться.</h2><a class="text-link" href="/articles/manifesto/">Читать манифест <span aria-hidden="true">↗</span></a></div>
+      <div class="manifesto-side"><p>Я из тех, кто не умеет быть человеком одной кнопки. В три года разобрал магнитофон «Маяк» и с тех пор примерно так и работаю: соединяю вещи, смотрю, что получится, и ищу подводные камни.</p><p>Хочу делать то, что кажется правильным и резонирует. А что не кажется, не делать.</p></div>
+    </section>
+
+    <section class="home-doors" aria-label="Другие разделы">
+      <a href="/garden/"><span>01</span><strong>Цифровой сад</strong><small>Публикации, темы и связи</small><span aria-hidden="true">↗</span></a>
+      <a href="/universe/"><span>02</span><strong>Вселенная</strong><small>Кинематографическая карта опыта</small><span aria-hidden="true">↗</span></a>
+    </section>
+  </div>
 </Base>
+
+<style>
+  .home-page { --home-cyan: #74d9f4; --home-ink: #f1f4fb; --home-muted: #9aa8c0; --home-line: rgba(145, 165, 198, .22); }
+  .home-page .hero { min-height: auto; max-width: 1440px; margin: 0 auto; padding: clamp(2.5rem, 5vw, 4.5rem) clamp(1rem, 4vw, 3.5rem) clamp(4rem, 8vw, 7rem); display: grid; grid-template-columns: minmax(0, .86fr) minmax(420px, 1.14fr); align-items: center; gap: clamp(2rem, 5vw, 5.5rem); }
+  .home-page .hero-space { display: none; }
+  .home-page .hero-copy { max-width: 650px; }
+  .home-page .section-kicker { color: var(--home-muted); }
+  .home-page .display { max-width: 9ch; margin: .45rem 0 1.5rem; color: var(--home-ink); font-size: clamp(3.2rem, 6.3vw, 7rem); line-height: .94; letter-spacing: -.055em; text-wrap: balance; }
+  .home-page .hero-lead { max-width: 32rem; margin: 0; color: var(--home-muted); font-size: clamp(1rem, 1.35vw, 1.2rem); line-height: 1.55; }
+  .home-page .hero-actions { align-items: center; margin-top: 2.2rem; }
+  .home-page .button { min-height: 44px; border-radius: 0; transition: transform .25s ease, border-color .25s ease, background-color .25s ease; }
+  .home-page .button.primary { background: var(--home-cyan); border-color: var(--home-cyan); color: #07101a; }
+  .home-page .button.cosmic { background: transparent; border-color: var(--home-line); }
+  .home-page .button:hover, .home-page .button:focus-visible { transform: translateY(-2px); border-color: var(--home-cyan); }
+  .hero-email { color: var(--home-muted); font-size: .82rem; text-decoration: underline; text-decoration-color: rgba(154, 168, 192, .42); text-underline-offset: .25rem; }
+  .hero-email:hover, .hero-email:focus-visible { color: var(--home-cyan); }
+  .hero-visual { position: relative; min-height: clamp(360px, 48vw, 680px); margin: 0; overflow: hidden; border: 1px solid var(--home-line); background: #0b111e; }
+  .hero-visual::after { position: absolute; inset: 0; content: ""; background: linear-gradient(90deg, rgba(7, 10, 18, .65), transparent 32%), linear-gradient(0deg, rgba(7, 10, 18, .68), transparent 38%); pointer-events: none; }
+  .hero-visual img { width: 100%; height: 100%; min-height: inherit; display: block; object-fit: cover; filter: saturate(.72) contrast(1.06); }
+  .hero-orbit { position: absolute; z-index: 1; border: 1px solid rgba(116, 217, 244, .55); border-radius: 50%; transform: rotate(-28deg); pointer-events: none; }
+  .hero-orbit-one { width: 42%; aspect-ratio: 1; right: 13%; top: 18%; }
+  .hero-orbit-two { width: 64%; height: 20%; right: -8%; top: 42%; }
+  .hero-visual figcaption { position: absolute; z-index: 2; left: 1.2rem; right: 1.2rem; bottom: 1.1rem; display: flex; justify-content: space-between; align-items: end; gap: 1rem; color: var(--home-muted); font-size: .74rem; }
+  .hero-visual figcaption a { color: var(--home-cyan); font-size: .9rem; }
+  .section { max-width: 1440px; margin: 0 auto; padding: clamp(4.5rem, 8vw, 8rem) clamp(1rem, 4vw, 3.5rem); }
+  .section-head { align-items: end; border-bottom: 1px solid var(--home-line); padding-bottom: 1.4rem; margin-bottom: 2rem; }
+  .section-head h2, .lab-intro h2, .manifesto-copy h2 { margin: .4rem 0 0; color: var(--home-ink); font: 500 clamp(2rem, 4.2vw, 4.5rem)/.98 Unbounded; letter-spacing: -.045em; text-wrap: balance; }
+  .home-page .text-link { color: var(--home-cyan); font-size: .82rem; white-space: nowrap; }
+  .capability-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-bottom: 1px solid var(--home-line); }
+  .capability-grid article { min-height: 14rem; padding: 1.35rem 1.4rem 1.8rem 0; border-right: 1px solid var(--home-line); }
+  .capability-grid article + article { padding-left: 1.4rem; }
+  .capability-grid article:last-child { border-right: 0; }
+  .capability-index { color: var(--home-cyan); font: .7rem Geologica, sans-serif; }
+  .capability-grid h3 { max-width: 15rem; margin: 2.4rem 0 .7rem; color: var(--home-ink); font-size: 1rem; line-height: 1.2; }
+  .capability-grid p { max-width: 16rem; margin: 0; color: var(--home-muted); font-size: .82rem; line-height: 1.55; }
+  .home-work-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; }
+  .home-work { position: relative; min-width: 0; color: inherit; }
+  .home-work-image { aspect-ratio: 1.45; overflow: hidden; background: #0e1624; }
+  .home-work-image img { display: block; width: 100%; height: 100%; object-fit: cover; filter: saturate(.62); transition: transform .45s ease, filter .45s ease; }
+  .home-work:hover .home-work-image img, .home-work:focus-visible .home-work-image img { transform: scale(1.04); filter: saturate(.95); }
+  .home-work-meta { display: flex; justify-content: space-between; gap: .7rem; margin-top: .8rem; color: var(--home-muted); font-size: .68rem; }
+  .home-work h3 { max-width: 18rem; margin: .55rem 0 .35rem; color: var(--home-ink); font-size: 1.05rem; line-height: 1.2; }
+  .home-work p { max-width: 22rem; margin: 0; color: var(--home-muted); font-size: .78rem; line-height: 1.5; }
+  .home-work-arrow { position: absolute; top: .7rem; right: .7rem; display: grid; width: 2rem; height: 2rem; place-items: center; background: rgba(7, 10, 18, .72); color: var(--home-cyan); }
+  .lab-section { display: grid; grid-template-columns: minmax(250px, .74fr) minmax(0, 1.26fr); gap: clamp(2.5rem, 8vw, 9rem); border-top: 1px solid var(--home-line); }
+  .lab-intro p { max-width: 26rem; margin: 1.6rem 0; color: var(--home-muted); }
+  .project-list { border-top: 1px solid var(--home-line); }
+  .project-row { display: grid; grid-template-columns: 8rem 1fr auto; gap: 1rem; align-items: start; padding: 1.2rem 0; border-bottom: 1px solid var(--home-line); }
+  .project-status { color: var(--home-cyan); font-size: .68rem; text-transform: uppercase; letter-spacing: .08em; }
+  .project-row strong { display: block; margin-bottom: .35rem; color: var(--home-ink); font-size: 1rem; }
+  .project-row small { display: block; max-width: 36rem; color: var(--home-muted); font-size: .78rem; line-height: 1.45; }
+  .project-arrow { color: var(--home-cyan); }
+  .path-grid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(280px, .85fr); gap: clamp(2rem, 8vw, 8rem); }
+  .timeline { position: relative; display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
+  .timeline::before { position: absolute; top: .4rem; bottom: .4rem; left: .22rem; width: 1px; content: ""; background: var(--home-line); }
+  .timeline li { position: relative; display: grid; grid-template-columns: 8rem 1fr; gap: 1rem; padding: 0 0 2rem 1.25rem; }
+  .timeline li::before { position: absolute; top: .3rem; left: 0; width: .5rem; height: .5rem; content: ""; border: 1px solid var(--home-cyan); border-radius: 50%; background: var(--bg); }
+  .timeline time { color: var(--home-cyan); font-size: .72rem; }
+  .timeline strong, .timeline span { display: block; }
+  .timeline strong { color: var(--home-ink); font-size: .95rem; }
+  .timeline span { margin-top: .25rem; color: var(--home-muted); font-size: .78rem; }
+  .path-notes { display: grid; gap: 2rem; }
+  .path-notes article { border-top: 1px solid var(--home-line); padding-top: 1rem; }
+  .path-notes h3 { margin: 1rem 0 .5rem; color: var(--home-ink); font-size: 1rem; }
+  .path-notes p { max-width: 30rem; margin: 0; color: var(--home-muted); font-size: .82rem; line-height: 1.55; }
+  .media-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+  .media-tile { color: inherit; }
+  .media-tile img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; filter: saturate(.7); transition: filter .3s ease; }
+  .media-tile:hover img, .media-tile:focus-visible img { filter: saturate(1); }
+  .media-platform { display: block; margin-top: .75rem; color: var(--home-cyan); font-size: .68rem; }
+  .media-tile h3 { margin: .45rem 0 0; color: var(--home-ink); font-size: .95rem; line-height: 1.25; }
+  .channel-links { display: flex; flex-wrap: wrap; gap: 1.5rem; margin-top: 2.2rem; padding-top: 1rem; border-top: 1px solid var(--home-line); }
+  .channel-links a { color: var(--home-muted); font-size: .8rem; }
+  .channel-links a:hover, .channel-links a:focus-visible { color: var(--home-cyan); }
+  .manifesto-section { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(280px, .8fr); gap: clamp(2rem, 8vw, 8rem); max-width: 1440px; margin: 0 auto; padding: clamp(4.5rem, 8vw, 8rem) clamp(1rem, 4vw, 3.5rem); border-top: 1px solid var(--home-line); }
+  .manifesto-copy h2 { max-width: 18ch; font-size: clamp(2rem, 4vw, 4rem); }
+  .manifesto-copy .text-link { display: inline-block; margin-top: 2rem; }
+  .manifesto-side { align-self: end; max-width: 32rem; color: var(--home-muted); font-size: 1rem; line-height: 1.6; }
+  .manifesto-side p { margin: 0 0 1rem; }
+  .home-doors { display: grid; grid-template-columns: 1fr 1fr; max-width: 1440px; margin: 0 auto; border-top: 1px solid var(--home-line); }
+  .home-doors a { display: grid; grid-template-columns: 2.5rem 1fr auto; gap: .75rem; align-items: center; padding: 1.35rem clamp(1rem, 4vw, 3.5rem); color: var(--home-ink); }
+  .home-doors a + a { border-left: 1px solid var(--home-line); }
+  .home-doors a:hover, .home-doors a:focus-visible { background: rgba(116, 217, 244, .06); }
+  .home-doors span { color: var(--home-cyan); font-size: .7rem; }
+  .home-doors strong { font-size: 1rem; }
+  .home-doors small { grid-column: 2; color: var(--home-muted); font-size: .74rem; }
+  .home-doors a > span:last-child { grid-column: 3; grid-row: 1 / span 2; }
+  @media (max-width: 900px) {
+    .home-page .hero { grid-template-columns: 1fr; }
+    .home-page .hero-copy { max-width: 42rem; }
+    .hero-visual { min-height: min(74vw, 520px); }
+    .capability-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .capability-grid article:nth-child(2) { border-right: 0; }
+    .capability-grid article:nth-child(n+3) { border-top: 1px solid var(--home-line); }
+    .home-work-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .home-work-featured { grid-column: span 2; }
+    .home-work-featured .home-work-image { aspect-ratio: 1.8; }
+    .lab-section, .path-grid, .manifesto-section { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 600px) {
+    .home-page .hero { padding-top: 2rem; }
+    .home-page .display { max-width: 10ch; font-size: clamp(3rem, 15vw, 5rem); }
+    .hero-visual { min-height: 68vw; }
+    .hero-visual figcaption { align-items: start; flex-direction: column; gap: .4rem; }
+    .capability-grid, .home-work-grid, .media-grid, .home-doors { grid-template-columns: 1fr; }
+    .capability-grid article, .capability-grid article + article { padding: 1.2rem 0; border-right: 0; }
+    .capability-grid article:first-child { border-top: 0; }
+    .home-work-featured { grid-column: auto; }
+    .home-work-featured .home-work-image { aspect-ratio: 1.45; }
+    .project-row { grid-template-columns: 1fr auto; }
+    .project-status { grid-column: 1 / -1; }
+    .timeline li { grid-template-columns: 1fr; gap: .3rem; }
+    .home-doors a + a { border-top: 1px solid var(--home-line); border-left: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .home-page .button, .home-work-image img, .media-tile img { transition: none; }
+  }
+</style>
