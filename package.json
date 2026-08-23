@@ -22,7 +22,8 @@
     "content:refresh": "npm run enrichment:local && npm run telegram:materialize",
     "audit:content": "tsx pipeline/audit.ts",
     "migrate:legacy": "tsx pipeline/migrate-legacy-content.ts",
-    "videos:materialize": "tsx pipeline/materialize-videos.ts"
+    "videos:materialize": "tsx pipeline/materialize-videos.ts",
+    "videos:verify": "tsx pipeline/verify-videos.ts"
   },
   "dependencies": {
     "@astrojs/check": "latest",

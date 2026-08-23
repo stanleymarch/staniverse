@@ -1,0 +1,42 @@
+[
+  {
+    "key": "staniverse",
+    "platform": "youtube",
+    "label": "Staniverse",
+    "handle": "@staniverse",
+    "channelUrl": "https://www.youtube.com/@staniverse",
+    "channelId": null,
+    "evidence": [
+      {
+        "kind": "channel-page",
+        "path": "src/content/projects/staniverse.md",
+        "url": "https://www.youtube.com/@staniverse"
+      },
+      {
+        "kind": "channel-page",
+        "path": "src/content/works/prodakshn-dlya-staniverse.md",
+        "url": "https://www.youtube.com/@staniverse"
+      }
+    ]
+  },
+  {
+    "key": "ya-ty-gorod",
+    "platform": "youtube",
+    "label": "я.ты.город.",
+    "handle": "@yatygorod",
+    "channelUrl": "https://www.youtube.com/@yatygorod",
+    "channelId": null,
+    "evidence": [
+      {
+        "kind": "channel-page",
+        "path": "src/content/projects/ya-ty-gorod.md",
+        "url": "https://www.youtube.com/@yatygorod"
+      },
+      {
+        "kind": "channel-page",
+        "path": "src/content/works/prodakshn-dlya-ya-ty-gorod.md",
+        "url": "https://www.youtube.com/@yatygorod"
+      }
+    ]
+  }
+]

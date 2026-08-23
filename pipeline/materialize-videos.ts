@@ -1,6 +1,75 @@
+import { fileURLToPath } from "node:url";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
-interface Video {id:string;title:string;platform:"youtube"|"vk";format:string;ownership:"own"|"external";sourceUrl:string;embedUrl?:string;target:string}
-const videos=JSON.parse(await readFile(resolve("pipeline/video-manifest.json"),"utf8")) as Video[];const output=resolve("src/content/publications/video");await rm(output,{recursive:true,force:true});await mkdir(output,{recursive:true});
-for(const video of videos){const kind=video.platform==="youtube"?"youtube-video":"video";const stable=`publication:${video.platform}:${video.id}`;const summary=video.ownership==="own"?`Авторское видео, связанное с ${video.target}.`:`Контекстный внешний материал, связанный с ${video.target}.`;const data={id:stable,kind,title:video.title,summary,tags:[video.platform,"video"],entities:[],featured:false,sourceUrl:video.sourceUrl,sourceId:video.id,threadIds:[],media:[],platform:video.platform,videoId:video.id,format:video.format,...video.embedUrl?{embedUrl:video.embedUrl}:{},ownership:video.ownership,relations:[{target:video.target,type:"part-of",evidence:"editorial",confidence:1}]};const front=`---\n${Object.entries(data).map(([key,value])=>`${key}: ${JSON.stringify(value)}`).join("\n")}\n---\n\n[Открыть на платформе](${video.sourceUrl})\n`;const filename=video.id.startsWith(`${video.platform}-`)?video.id:`${video.platform}-${video.id}`;await writeFile(resolve(output,`${filename}.md`),front,"utf8")}
-console.log(JSON.stringify({videos:videos.length,output}));
+import {
+  type AllowlistedChannel,
+  type VideoManifestEntry,
+  verifyVideoOwnership,
+  youtubeThumbnailUrl,
+} from "./video-manifest";
+
+export interface MaterializedVideo extends VideoManifestEntry {
+  ownership: "verified" | "pending" | "external";
+  verification: ReturnType<typeof verifyVideoOwnership>["verification"];
+}
+
+export function materializeVideo(video: VideoManifestEntry, channels: AllowlistedChannel[]): MaterializedVideo {
+  const result = verifyVideoOwnership(video, channels);
+  return { ...video, ownership: result.ownership, verification: result.verification };
+}
+
+export function materializedFrontmatter(video: MaterializedVideo) {
+  const kind = video.ownership === "verified" && video.platform === "youtube" ? "youtube-video" : "video";
+  const channel = video.channelKey ? { key: video.channelKey, handle: video.channelHandle, platform: video.platform } : undefined;
+  const summary = video.ownership === "verified"
+    ? `Авторское видео, связанное с ${video.target}.`
+    : video.ownership === "external"
+      ? `Внешний видеоисточник, сохранённый как reference для ${video.target}.`
+      : `Видео, связанное с ${video.target}; принадлежность каналу ожидает проверки.`;
+  const data = {
+    id: `publication:${video.platform}:${video.id}`,
+    kind,
+    title: video.title,
+    summary,
+    tags: [video.platform, "video"],
+    entities: [],
+    featured: false,
+    sourceUrl: video.sourceUrl,
+    sourceId: video.id,
+    threadIds: [],
+    media: [],
+    platform: video.platform,
+    videoId: video.id,
+    format: video.format,
+    ...(video.platform === "youtube" ? { thumbnailUrl: youtubeThumbnailUrl(video.id) } : {}),
+    ...(video.embedUrl ? { embedUrl: video.embedUrl } : {}),
+    ...(channel ? { channel } : {}),
+    ...(video.channelId ? { channelId: video.channelId } : {}),
+    ownership: video.ownership,
+    verification: video.verification,
+    relations: [{ target: video.target, type: "part-of", evidence: "editorial", confidence: 1 }],
+  };
+  const frontmatter = Object.entries(data).map(([key, value]) => `${key}: ${JSON.stringify(value)}`).join("\n");
+  return `---\n${frontmatter}\n---\n\n[Открыть на платформе](${video.sourceUrl})\n`;
+}
+
+export async function materializeVideos(options: { manifestPath?: string; channelsPath?: string; outputDir?: string } = {}) {
+  const manifestPath = options.manifestPath ?? resolve("pipeline/video-manifest.json");
+  const channelsPath = options.channelsPath ?? resolve("pipeline/video-channels.json");
+  const output = options.outputDir ?? resolve("src/content/publications/video");
+  const videos = JSON.parse(await readFile(manifestPath, "utf8")) as VideoManifestEntry[];
+  const channels = JSON.parse(await readFile(channelsPath, "utf8")) as AllowlistedChannel[];
+  await rm(output, { recursive: true, force: true });
+  await mkdir(output, { recursive: true });
+  for (const rawVideo of videos) {
+    const video = materializeVideo(rawVideo, channels);
+    const filename = video.id.startsWith(`${video.platform}-`) ? video.id : `${video.platform}-${video.id}`;
+    await writeFile(resolve(output, `${filename}.md`), materializedFrontmatter(video), "utf8");
+  }
+  return { videos: videos.length, output };
+}
+
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  const result = await materializeVideos();
+  console.log(JSON.stringify(result));
+}

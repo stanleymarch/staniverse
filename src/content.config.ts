@@ -126,7 +126,16 @@ const publications = defineCollection({
     videoId: z.string().optional(),
     format: z.enum(["video", "short", "stream", "embed"]).optional(),
     embedUrl: z.url().optional(),
-    ownership: z.enum(["own", "external"]).optional(),
+    thumbnailUrl: z.url().optional(),
+    channel: z.object({ key: z.string(), handle: z.string().optional(), platform: z.enum(["youtube", "vk"]) }).optional(),
+    channelId: z.string().optional(),
+    verification: z.object({
+      status: z.enum(["verified", "pending", "external"]),
+      reason: z.string(),
+      evidence: z.array(z.object({ kind: z.enum(["local-link", "channel-page", "manifest"]), path: z.string(), url: z.url() })),
+    }).optional(),
+    // `own` is accepted only for legacy entries; the verifier/materializer never emits it.
+    ownership: z.enum(["verified", "pending", "external", "own"]).optional(),
   }),
 });
 

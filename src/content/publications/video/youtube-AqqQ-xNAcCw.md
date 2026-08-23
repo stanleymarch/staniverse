@@ -1,8 +1,8 @@
 ---
 id: "publication:youtube:AqqQ-xNAcCw"
-kind: "youtube-video"
+kind: "video"
 title: "Дополнение к статье об ИИ-компаньонах"
-summary: "Контекстный внешний материал, связанный с article:ai-waifu."
+summary: "Внешний видеоисточник, сохранённый как reference для article:ai-waifu."
 tags: ["youtube","video"]
 entities: []
 featured: false
@@ -13,8 +13,10 @@ media: []
 platform: "youtube"
 videoId: "AqqQ-xNAcCw"
 format: "video"
+thumbnailUrl: "https://i.ytimg.com/vi/AqqQ-xNAcCw/hqdefault.jpg"
 embedUrl: "https://www.youtube.com/embed/AqqQ-xNAcCw"
 ownership: "external"
+verification: {"status":"external","reason":"external-source","evidence":[]}
 relations: [{"target":"article:ai-waifu","type":"part-of","evidence":"editorial","confidence":1}]
 ---
 

@@ -1,8 +1,8 @@
 ---
 id: "publication:youtube:rAzT5lcezPs"
-kind: "youtube-video"
+kind: "video"
 title: "Релиз Odysseus"
-summary: "Контекстный внешний материал, связанный с article:ai-diploma."
+summary: "Внешний видеоисточник, сохранённый как reference для article:ai-diploma."
 tags: ["youtube","video"]
 entities: []
 featured: false
@@ -13,8 +13,10 @@ media: []
 platform: "youtube"
 videoId: "rAzT5lcezPs"
 format: "video"
+thumbnailUrl: "https://i.ytimg.com/vi/rAzT5lcezPs/hqdefault.jpg"
 embedUrl: "https://www.youtube.com/embed/rAzT5lcezPs"
 ownership: "external"
+verification: {"status":"external","reason":"external-source","evidence":[]}
 relations: [{"target":"article:ai-diploma","type":"part-of","evidence":"editorial","confidence":1}]
 ---
 
