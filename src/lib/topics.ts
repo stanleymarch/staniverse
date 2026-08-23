@@ -1,4 +1,5 @@
 import type { AnyEntry } from "./content";
+import { getTopicDefinition, normalizeTopics, topicRelations } from "./taxonomy";
 
 const transliteration: Record<string, string> = {
   а:"a", б:"b", в:"v", г:"g", д:"d", е:"e", ё:"e", ж:"zh", з:"z", и:"i", й:"i", к:"k", л:"l", м:"m",
@@ -10,22 +11,45 @@ export function topicSlug(topic: string) {
   return transliterated.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "topic";
 }
 
-export interface TopicGroup { name: string; slug: string; entries: AnyEntry[]; catalog: boolean }
+export interface TopicGroup {
+  /** Stable canonical ID (or a normalized legacy label for unknown tags). */
+  id: string;
+  /** Display label retained for compatibility with existing topic routes. */
+  name: string;
+  slug: string;
+  entries: AnyEntry[];
+  catalog: boolean;
+  family?: string;
+  related: string[];
+  companions: string[];
+}
 
 export function collectTopics(entries: AnyEntry[], catalogOnly = false): TopicGroup[] {
   const groups = new Map<string, AnyEntry[]>();
   for (const entry of entries) for (const tag of entry.data.tags) {
-    const name = tag.trim().toLocaleLowerCase("ru-RU");
-    if (!name) continue;
-    groups.set(name, [...(groups.get(name) ?? []), entry]);
+    const ids = normalizeTopics([tag]);
+    for (const id of ids) {
+      if (!id) continue;
+      const topicEntries = groups.get(id) ?? [];
+      if (!topicEntries.includes(entry)) groups.set(id, [...topicEntries, entry]);
+    }
   }
   const blocked = new Set(["instructions", "answering"]);
-  const topics = [...groups].map(([name, topicEntries]) => ({
-    name,
-    slug: topicSlug(name),
-    entries: topicEntries,
-    catalog: !blocked.has(name) && /[a-zа-яё]/iu.test(name) && (topicEntries.length >= 3 || topicEntries.some((entry) => entry.collection !== "publications")),
-  }));
+  const topics = [...groups].map(([id, topicEntries]) => {
+    const definition = getTopicDefinition(id);
+    const name = definition?.label ?? id;
+    const relations = topicRelations(id);
+    return {
+      id,
+      name,
+      slug: topicSlug(name),
+      entries: topicEntries,
+      family: definition?.family,
+      related: relations.related,
+      companions: relations.companions,
+      catalog: !blocked.has(id) && /[a-zа-яё]/iu.test(name) && (topicEntries.length >= 3 || topicEntries.some((entry) => entry.collection !== "publications")),
+    };
+  });
   return topics.filter((topic) => !catalogOnly || topic.catalog)
     .sort((a, b) => b.entries.length - a.entries.length || a.name.localeCompare(b.name, "ru"));
 }

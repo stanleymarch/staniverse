@@ -1,7 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { buildGraph } from "../src/lib/graph";
-import { topicSlug } from "../src/lib/topics";
+import { collectTopics, topicSlug } from "../src/lib/topics";
+import { normalizeTopics, topicCloseness, topicRelations } from "../src/lib/taxonomy";
 
 const entry = (id:string, kind:string, tags:string[], relations:any[]=[]) => ({ collection: kind === "project" ? "projects" : "works", id:id.split(":").at(-1), data:{id,kind,title:id,summary:id,tags,featured:false,relations,status:kind==="project"?"active":"completed",domains:[],genres:[],role:"",year:2026}, body:"" }) as any;
 
@@ -24,4 +25,20 @@ test("rejects relations to absent targets", () => {
 test("creates stable readable slugs for Russian topic routes",()=>{
   assert.equal(topicSlug("Искусственный интеллект"),"iskusstvennyi-intellekt");
   assert.equal(topicSlug("3D и пространственные медиа"),"3d-i-prostranstvennye-media");
+});
+
+test("normalizes aliases into canonical multi-label topics", () => {
+  assert.deepEqual(normalizeTopics(["AI/LLM", "WebXR", "IoT", "opensource"]), ["ai", "llm", "xr", "iot", "open-source"]);
+});
+
+test("keeps IoT, XR and open source as coexisting labels", () => {
+  const topics = collectTopics([entry("project:lab", "project", ["WebXR", "IoT", "open source"])]);
+  assert.deepEqual(topics.filter((topic) => topic.catalog).map((topic) => topic.id).sort(), ["iot", "open-source", "xr"]);
+  assert.equal(topics.find((topic) => topic.id === "xr")?.family, "xr");
+});
+
+test("exposes curated closeness and companion routes", () => {
+  assert.equal(topicCloseness("xr", "IoT"), 0.64);
+  assert.ok(topicRelations("xr").companions.includes("iot"));
+  assert.ok(topicRelations("companions").related.includes("ai"));
 });

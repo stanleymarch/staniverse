@@ -2,11 +2,72 @@ import { defineCollection } from "astro:content";
 import { glob } from "astro/loaders";
 import { z } from "astro/zod";
 
+const relationType = z.enum([
+  "mentions",
+  "references",
+  "documents",
+  "develops",
+  "inspired",
+  "uses",
+  "uses-result",
+  "part-of",
+  "contains-video",
+  "client",
+  "grew-from",
+  "continues",
+  "reply-to",
+  "derived-from",
+  "supports",
+  "contradicts",
+  "related",
+]);
+
+const relationEvidence = z.enum([
+  "editorial",
+  "hyperlink",
+  "telegram-reply",
+  "telegram-link",
+  "continuation",
+  "embed",
+  "known-public-url",
+  "entity",
+  "topic",
+  "semantic",
+  "temporal",
+  "manual",
+  "frontmatter",
+  "source-id",
+  "computed",
+  "enrichment",
+]);
+
+const relationProvenance = z.union([
+  z.enum(["manual", "imported", "deterministic", "enrichment", "inferred"]),
+  z.object({
+    kind: z.enum(["manual", "imported", "deterministic", "enrichment", "inferred"]).optional(),
+    source: z.string().optional(),
+    sourceId: z.string().optional(),
+    messageId: z.union([z.number(), z.string()]).optional(),
+    url: z.string().optional(),
+    field: z.string().optional(),
+    method: z.string().optional(),
+    extractor: z.string().optional(),
+    version: z.string().optional(),
+  }),
+]);
+
+const relationReviewStatus = z.enum(["proposed", "accepted", "rejected", "needs-review", "pending", "confirmed", "inferred"]);
+
 const relation = z.object({
   target: z.string(),
-  type: z.enum(["mentions", "documents", "develops", "inspired", "uses", "part-of", "related"]),
-  evidence: z.enum(["editorial", "hyperlink", "telegram-reply", "entity", "topic", "semantic", "temporal"]),
+  type: relationType,
+  evidence: relationEvidence,
+  provenance: relationProvenance.optional(),
   confidence: z.number().min(0).max(1).default(1),
+  /** Review state is separate from evidence: an inferred edge may be accepted. */
+  reviewStatus: relationReviewStatus.default("accepted"),
+  /** `status` is retained as an input alias for older review exports. */
+  status: relationReviewStatus.optional(),
 });
 
 const common = z.object({
@@ -14,6 +75,8 @@ const common = z.object({
   title: z.string(),
   summary: z.string(),
   tags: z.array(z.string()).default([]),
+  sourceTags: z.array(z.string()).optional(),
+  topics: z.array(z.string()).default([]),
   entities: z.array(z.string()).default([]),
   relations: z.array(relation).default([]),
   featured: z.boolean().default(false),
