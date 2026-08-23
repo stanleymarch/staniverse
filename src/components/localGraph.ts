@@ -1,4 +1,5 @@
 import type { GraphEdge, GraphNode } from "../lib/graph";
+import { isCausalRelation, isInferredGraphEdge, relationLabel } from "../lib/graph-visuals";
 
 export interface LocalGraphNode extends GraphNode {
   depth: number;
@@ -9,6 +10,8 @@ export interface LocalGraphNode extends GraphNode {
 export interface LocalGraphEdge extends GraphEdge {
   depth: number;
   dotted: boolean;
+  causal: boolean;
+  label: string;
   sourceNode?: GraphNode;
   targetNode?: GraphNode;
 }
@@ -21,9 +24,7 @@ export interface LocalGraphData {
 
 /** Topic and semantic edges are useful context, but are not direct proof. */
 export function isDottedLocalEdge(edge: GraphEdge) {
-  const evidence = edge.evidence.toLowerCase();
-  const type = edge.type.toLowerCase();
-  return evidence.includes("topic") || evidence.includes("semantic") || type.includes("topic") || type.includes("semantic") || type === "part-of";
+  return isInferredGraphEdge(edge);
 }
 
 function positionFor(depth: number, index: number, count: number) {
@@ -92,6 +93,8 @@ export function buildLocalGraph(currentId: string, nodes: GraphNode[], edges: Gr
       ...edge,
       depth: Math.max(depthById.get(edge.source) ?? maxDepth, depthById.get(edge.target) ?? maxDepth),
       dotted: isDottedLocalEdge(edge),
+      causal: isCausalRelation(edge),
+      label: relationLabel(edge.type),
       sourceNode: nodeById.get(edge.source),
       targetNode: nodeById.get(edge.target),
     }))

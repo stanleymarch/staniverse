@@ -17,6 +17,13 @@ test("treats topic and semantic edges as dotted context", () => {
   assert.equal(isDottedLocalEdge(edge("a", "b", "topic")), true);
   assert.equal(isDottedLocalEdge(edge("a", "b", "semantic-match")), true);
   assert.equal(isDottedLocalEdge(edge("a", "b", "editorial")), false);
+  assert.equal(isDottedLocalEdge(edge("a", "b", "editorial", "part-of")), false);
+});
+
+test("keeps causal direction and a readable relation label in the local projection", () => {
+  const graph = buildLocalGraph("a", [node("a"), node("b")], [edge("a", "b", "editorial", "develops")]);
+  assert.equal(graph.edges[0]?.causal, true);
+  assert.equal(graph.edges[0]?.label, "развивает");
 });
 
 test("returns an empty neighbourhood for an unknown stable id", () => {

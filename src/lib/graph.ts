@@ -15,12 +15,29 @@ export interface GraphNode {
   featured: boolean;
 }
 
+export interface GraphEdgeProvenance {
+  kind?: "manual" | "imported" | "deterministic" | "enrichment" | "inferred";
+  source?: string;
+  sourceId?: string;
+  messageId?: number | string;
+  url?: string;
+  field?: string;
+  method?: string;
+  extractor?: string;
+  version?: string;
+}
+
 export interface GraphEdge {
   source: string;
   target: string;
   type: string;
   evidence: string;
   confidence: number;
+  provenance?: string | GraphEdgeProvenance;
+  explanation?: string;
+  reviewStatus?: "proposed" | "accepted" | "rejected" | "needs-review" | "pending" | "confirmed" | "inferred";
+  /** Legacy alias retained for imported review exports. */
+  status?: "proposed" | "accepted" | "rejected" | "needs-review" | "pending" | "confirmed" | "inferred";
 }
 
 export function buildGraph(entries: AnyEntry[]) {

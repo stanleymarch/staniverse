@@ -116,6 +116,16 @@
 .node-neighbor-list { display: flex; flex-wrap: wrap; gap: .35rem; max-height: 6rem; overflow: auto; }
 .node-neighbor-list button { max-width: 100%; padding: .26rem .4rem; border: 1px solid rgba(141, 169, 196, .24); border-radius: .3rem; background: rgba(130, 159, 190, .08); color: #dce8f4; font-size: .68rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
 .node-neighbor-list button:hover, .node-neighbor-list button:focus-visible { border-color: var(--cyan); color: var(--cyan); }
+.node-evidence { margin-top: .75rem; border-top: 1px solid rgba(141, 169, 196, .16); padding-top: .7rem; }
+.node-evidence[hidden] { display: none; }
+.node-evidence-list { display: grid; gap: .35rem; max-height: 9rem; overflow: auto; }
+.node-evidence-list details { border: 1px solid rgba(141, 169, 196, .16); border-radius: .35rem; background: rgba(130, 159, 190, .06); }
+.node-evidence-list summary { padding: .3rem .4rem; color: #dce8f4; font-size: .66rem; cursor: pointer; }
+.node-evidence-list summary:hover, .node-evidence-list summary:focus-visible { color: var(--cyan); }
+.node-evidence-list dl { display: grid; gap: .25rem; margin: 0; padding: .35rem .45rem .45rem; color: #aabbd0; font-size: .61rem; }
+.node-evidence-list dl div { display: grid; grid-template-columns: max-content 1fr; gap: .4rem; }
+.node-evidence-list dt { color: #7892ad; }
+.node-evidence-list dd { min-width: 0; margin: 0; overflow-wrap: anywhere; }
 .node-link { display: inline-block; margin-top: 1rem; color: var(--cyan); font-size: .75rem; }
 .node-link:hover { text-decoration: underline; text-underline-offset: .2em; }
 

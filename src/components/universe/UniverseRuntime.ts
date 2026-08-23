@@ -1,4 +1,5 @@
 import type { GraphEdge, GraphNode } from "../../lib/graph";
+import { isCausalRelation, isInferredGraphEdge, provenanceField, relationLabel, selectVisualEdges } from "../../lib/graph-visuals";
 
 type GraphPayload = { nodes: GraphNode[]; edges: GraphEdge[] };
 type ThreeModule = typeof import("three");
@@ -13,6 +14,7 @@ type EdgeVisual = {
   edge: GraphEdge;
   line: import("three").Line;
   material: import("three").LineBasicMaterial | import("three").LineDashedMaterial;
+  arrow?: import("three").ArrowHelper;
   source: NodeVisual;
   target: NodeVisual;
 };
@@ -56,6 +58,44 @@ function cleanTitle(value: string, limit = 34) {
   return value.length > limit ? `${value.slice(0, limit - 1)}…` : value;
 }
 
+function renderEdgeEvidence(root: HTMLElement, records: Array<{ node: GraphNode; edge: GraphEdge; outgoing: boolean }>) {
+  const container = root.querySelector<HTMLElement>("[data-node-evidence]");
+  const list = root.querySelector<HTMLElement>("[data-node-evidence-list]");
+  if (!container || !list) return;
+  const details = records.map(({ node: neighbor, edge, outgoing }) => {
+    const item = document.createElement("details");
+    const summary = document.createElement("summary");
+    const label = relationLabel(edge.type);
+    summary.textContent = `${outgoing ? `${label} →` : `← ${label}`} ${neighbor.title}`;
+    item.append(summary);
+    const fields: Array<[string, string | number | undefined]> = [
+      ["Связь", label],
+      ["Тип", edge.type],
+      ["Основание", edge.evidence],
+      ["Уверенность", `${Math.round(edge.confidence * 100)}%`],
+      ["Объяснение", edge.explanation],
+      ["Статус проверки", edge.reviewStatus ?? edge.status],
+      ["Источник", provenanceField(edge.provenance, "source")],
+      ["Метод", provenanceField(edge.provenance, "method")],
+      ["Извлекатель", provenanceField(edge.provenance, "extractor")],
+    ];
+    const dl = document.createElement("dl");
+    fields.filter(([, value]) => value).forEach(([key, value]) => {
+      const row = document.createElement("div");
+      const term = document.createElement("dt");
+      const description = document.createElement("dd");
+      term.textContent = key;
+      description.textContent = String(value);
+      row.append(term, description);
+      dl.append(row);
+    });
+    item.append(dl);
+    return item;
+  });
+  list.replaceChildren(...details);
+  container.hidden = records.length === 0;
+}
+
 function mountFallback(root: HTMLElement, graph: GraphPayload) {
   const byId = new Map(graph.nodes.map((node) => [node.id, node]));
   const list = root.querySelector<HTMLElement>("[data-node-list]");
@@ -65,13 +105,13 @@ function mountFallback(root: HTMLElement, graph: GraphPayload) {
   const kind = root.querySelector<HTMLElement>("[data-node-kind]");
   const tags = root.querySelector<HTMLElement>("[data-node-tags]");
   const link = root.querySelector<HTMLAnchorElement>("[data-node-link]");
-  const adjacent = new Map<string, GraphNode[]>();
+  const adjacent = new Map<string, Array<{ node: GraphNode; edge: GraphEdge; outgoing: boolean }>>();
   graph.edges.forEach((edge) => {
     const source = byId.get(edge.source);
     const target = byId.get(edge.target);
     if (!source || !target) return;
-    adjacent.set(source.id, [...(adjacent.get(source.id) ?? []), target]);
-    adjacent.set(target.id, [...(adjacent.get(target.id) ?? []), source]);
+    adjacent.set(source.id, [...(adjacent.get(source.id) ?? []), { node: target, edge, outgoing: true }]);
+    adjacent.set(target.id, [...(adjacent.get(target.id) ?? []), { node: source, edge, outgoing: false }]);
   });
 
   const updateCard = (node: GraphNode) => {
@@ -85,12 +125,30 @@ function mountFallback(root: HTMLElement, graph: GraphPayload) {
       return span;
     }));
     link.href = node.href;
+    const neighborsList = root.querySelector<HTMLElement>("[data-node-neighbor-list]");
+    neighborsList?.replaceChildren(...(adjacent.get(node.id) ?? [])
+      .sort((a, b) => Number(isCausalRelation(b.edge)) - Number(isCausalRelation(a.edge)) || b.edge.confidence - a.edge.confidence)
+      .map(({ node: neighbor, edge, outgoing }) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.dataset.neighborId = neighbor.id;
+        const label = relationLabel(edge.type);
+        button.textContent = `${outgoing ? `${label} →` : `← ${label}`} ${neighbor.title}`;
+        button.title = `${outgoing ? `${node.title} ${label} ${neighbor.title}` : `${neighbor.title} ${label} ${node.title}`}`;
+        return button;
+      }));
+    renderEdgeEvidence(root, adjacent.get(node.id) ?? []);
     if (announcer) announcer.textContent = `Выбран узел: ${node.title}.`;
   };
   const controller = new AbortController();
   list?.addEventListener("click", (event) => {
     const button = (event.target as HTMLElement).closest<HTMLButtonElement>("[data-node-id]");
     const node = button ? byId.get(button.dataset.nodeId ?? "") : undefined;
+    if (node) updateCard(node);
+  }, { signal: controller.signal });
+  root.querySelector<HTMLElement>("[data-node-neighbor-list]")?.addEventListener("click", (event) => {
+    const button = (event.target as HTMLElement).closest<HTMLButtonElement>("[data-neighbor-id]");
+    const node = button ? byId.get(button.dataset.neighborId ?? "") : undefined;
     if (node) updateCard(node);
   }, { signal: controller.signal });
   root.querySelector<HTMLInputElement>("[data-node-search]")?.addEventListener("change", (event) => {
@@ -170,12 +228,15 @@ export async function mountUniverse() {
 
   const dataById = new Map(graph.nodes.map((node) => [node.id, node]));
   const neighbors = new Map<string, Set<string>>();
+  const edgesByNode = new Map<string, Array<{ edge: GraphEdge; outgoing: boolean }>>();
   graph.edges.forEach((edge) => {
     if (!dataById.has(edge.source) || !dataById.has(edge.target)) return;
     if (!neighbors.has(edge.source)) neighbors.set(edge.source, new Set());
     if (!neighbors.has(edge.target)) neighbors.set(edge.target, new Set());
     neighbors.get(edge.source)!.add(edge.target);
     neighbors.get(edge.target)!.add(edge.source);
+    edgesByNode.set(edge.source, [...(edgesByNode.get(edge.source) ?? []), { edge, outgoing: true }]);
+    edgesByNode.set(edge.target, [...(edgesByNode.get(edge.target) ?? []), { edge, outgoing: false }]);
   });
   const nodeDegree = (id: string) => neighbors.get(id)?.size ?? 0;
   const focusFromUrl = () => new URLSearchParams(window.location.search).get("focus");
@@ -283,23 +344,35 @@ export async function mountUniverse() {
 
     const edgeVisuals: EdgeVisual[] = [];
     const lineBudget = 180;
-    graph.edges
-      .filter((edge) => edge.confidence >= .55)
-      .sort((a, b) => Number(b.evidence === "topic") - Number(a.evidence === "topic") || b.confidence - a.confidence)
-      .slice(0, lineBudget)
+    selectVisualEdges(graph.edges, lineBudget, .55)
       .forEach((edge) => {
         const source = nodeVisuals.get(edge.source);
         const target = nodeVisuals.get(edge.target);
         if (!source || !target) return;
         const geometry = new THREE.BufferGeometry().setFromPoints([source.mesh.position, target.mesh.position]);
-        const topicEdge = edge.evidence === "topic" || edge.type === "part-of";
+        const topicEdge = isInferredGraphEdge(edge);
         const material = topicEdge
           ? new THREE.LineDashedMaterial({ color: 0x6de1f4, transparent: true, opacity: 0, dashSize: .32, gapSize: .22 })
-          : new THREE.LineBasicMaterial({ color: 0x8ea6c0, transparent: true, opacity: 0 });
+          : new THREE.LineBasicMaterial({ color: isCausalRelation(edge) ? 0xf1b7dd : 0x8ea6c0, transparent: true, opacity: 0 });
         const line = new THREE.Line(geometry, material);
         if (topicEdge) line.computeLineDistances();
         field.add(line);
-        edgeVisuals.push({ edge, line, material, source, target });
+        let arrow: import("three").ArrowHelper | undefined;
+        if (isCausalRelation(edge)) {
+          const direction = new THREE.Vector3().subVectors(target.mesh.position, source.mesh.position);
+          const length = direction.length();
+          if (length > 0) {
+            arrow = new THREE.ArrowHelper(direction.normalize(), source.mesh.position, length, 0xf1b7dd, .7, .35);
+            const arrowLine = arrow.line.material as import("three").LineBasicMaterial;
+            const arrowCone = arrow.cone.material as import("three").MeshBasicMaterial;
+            arrowLine.transparent = true;
+            arrowLine.opacity = 0;
+            arrowCone.transparent = true;
+            arrowCone.opacity = 0;
+            field.add(arrow);
+          }
+        }
+        edgeVisuals.push({ edge, line, material, arrow, source, target });
       });
 
     const dustPositions: number[] = [];
@@ -345,11 +418,22 @@ export async function mountUniverse() {
         material.opacity = visual.layer === "archive" ? (isPath ? .7 : .18) : (selectedId && !isPath ? .48 : 1);
         visual.mesh.scale.setScalar(selectedId === visual.node.id ? 1.42 : direct.has(visual.node.id) ? 1.15 : 1);
       });
-      edgeVisuals.forEach(({ edge, line, material, source, target }) => {
+      edgeVisuals.forEach(({ edge, line, material, arrow, source, target }) => {
         const active = Boolean(selectedId && (edge.source === selectedId || edge.target === selectedId));
         line.visible = source.revealed && target.revealed;
-        material.opacity = selectedId ? (active ? .92 : .1) : (source.layer === "core" && target.layer === "core" ? .38 : .13);
-        material.color.set(active ? 0x6de1f4 : edge.evidence === "topic" ? 0x6d9eb8 : 0x8ea6c0);
+        const opacity = selectedId ? (active ? .92 : .1) : (source.layer === "core" && target.layer === "core" ? .38 : .13);
+        material.opacity = opacity;
+        const color = active ? 0x6de1f4 : isCausalRelation(edge) ? 0xf1b7dd : isInferredGraphEdge(edge) ? 0x6d9eb8 : 0x8ea6c0;
+        material.color.set(color);
+        if (arrow) {
+          const arrowLine = arrow.line.material as import("three").LineBasicMaterial;
+          const arrowCone = arrow.cone.material as import("three").MeshBasicMaterial;
+          arrowLine.opacity = opacity;
+          arrowCone.opacity = opacity;
+          arrowLine.color.set(color);
+          arrowCone.color.set(color);
+          arrow.visible = line.visible;
+        }
       });
     };
     const setCard = (node: GraphNode) => {
@@ -365,15 +449,24 @@ export async function mountUniverse() {
       title.textContent = node.title;
       tags.replaceChildren(...node.tags.slice(0, 8).map((tag) => { const span = document.createElement("span"); span.textContent = `#${tag}`; return span; }));
       link.href = node.href;
-      neighborsList.replaceChildren(...[...(neighbors.get(node.id) ?? [])].map((id) => {
-        const neighbor = dataById.get(id);
-        const button = document.createElement("button");
-        button.type = "button";
-        button.dataset.neighborId = id;
-        button.textContent = neighbor?.title ?? id;
-        button.title = neighbor?.title ?? id;
-        return button;
-      }));
+      neighborsList.replaceChildren(...(edgesByNode.get(node.id) ?? [])
+        .sort((a, b) => Number(isCausalRelation(b.edge)) - Number(isCausalRelation(a.edge)) || b.edge.confidence - a.edge.confidence)
+        .map(({ edge, outgoing }) => {
+          const neighborId = outgoing ? edge.target : edge.source;
+          const neighbor = dataById.get(neighborId);
+          const label = relationLabel(edge.type);
+          const button = document.createElement("button");
+          button.type = "button";
+          button.dataset.neighborId = neighborId;
+          button.textContent = `${outgoing ? `${label} →` : `← ${label}`} ${neighbor?.title ?? neighborId}`;
+          button.title = `${outgoing ? `${node.title} ${label} ${neighbor?.title ?? neighborId}` : `${neighbor?.title ?? neighborId} ${label} ${node.title}`}`;
+          return button;
+        }));
+      renderEdgeEvidence(root, (edgesByNode.get(node.id) ?? []).map(({ edge, outgoing }) => ({
+        node: dataById.get(outgoing ? edge.target : edge.source)!,
+        edge,
+        outgoing,
+      })));
     };
     const pushFocus = (id: string | null) => {
       const params = new URLSearchParams(window.location.search);
