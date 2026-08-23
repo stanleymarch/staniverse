@@ -41,3 +41,15 @@ export interface EnrichmentProvider {
   readonly model: string;
   enrich(job: EnrichmentJob): Promise<EnrichmentResult>;
 }
+
+export interface ReviewDecision {
+  key: string;
+  status: "accepted" | "rejected";
+  reviewedAt: string;
+  note?: string;
+}
+
+export interface ReviewBundle {
+  version: 1;
+  decisions: ReviewDecision[];
+}

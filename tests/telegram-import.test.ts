@@ -104,3 +104,22 @@ test("stale enrichment is ignored when Telegram source text changes",()=>{
   assert.deepEqual(merged.entities,[]);
   assert.deepEqual(merged.relations,[]);
 });
+
+test("non-local enrichment remains a proposal until reviewed",()=>{
+  const publication=normalizeExport({messages:[{id:92,text:"Nearventure и XR"}]})[0];
+  const result=enrichLocally(publication,new Set(["project:nearventure"]));
+  result.topics=["xr"];
+  result.provider="openrouter";result.model="cheap-model";result.needsReview=true;
+  const pending=mergeEnrichment(publication,result);
+  const proposedTopic=result.topics[0];
+  const proposedRelation=result.relations[0];
+  assert.ok(proposedTopic);assert.ok(proposedRelation);
+  assert.equal(pending.tags.includes(proposedTopic),false);
+  assert.equal(pending.relations.length,0);
+  const reviewed=mergeEnrichment(publication,result,[
+    {key:`${result.id}::topic::${proposedTopic}`,status:"accepted",reviewedAt:"2026-08-23"},
+    {key:`${result.id}::relation::${proposedRelation.targetId}|${proposedRelation.type}`,status:"accepted",reviewedAt:"2026-08-23"},
+  ]);
+  assert.equal(reviewed.tags.includes(proposedTopic),true);
+  assert.equal(reviewed.relations[0]?.target,"project:nearventure");
+});

@@ -1,18 +1,19 @@
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import type { CanonicalPublication } from "./types";
-import type { EnrichmentBundle } from "../enrichment/types";
+import type { EnrichmentBundle, ReviewBundle, ReviewDecision } from "../enrichment/types";
 import { mergeEnrichment } from "../enrichment/merge";
 
 interface Archive { version: number; channel: string; publications: CanonicalPublication[] }
 
-const [input = "pipeline/telegram/archive/canonical.json", output = "src/content/publications/telegram", enrichmentInput = "pipeline/enrichment/generated/telegram.json"] = process.argv.slice(2);
+const [input = "pipeline/telegram/archive/canonical.json", output = "src/content/publications/telegram", enrichmentInput = "pipeline/enrichment/generated/telegram.json",reviewInput="pipeline/enrichment/review/decisions.json"] = process.argv.slice(2);
 const archive = JSON.parse(await readFile(resolve(input), "utf8")) as Archive;
 let enrichment = new Map<string, EnrichmentBundle["results"][number]>();
 try {
   const bundle = JSON.parse(await readFile(resolve(enrichmentInput), "utf8")) as EnrichmentBundle;
   enrichment = new Map(bundle.results.map((result) => [result.id, result]));
 } catch {}
+let reviews:ReviewDecision[]=[];try{const bundle=JSON.parse(await readFile(resolve(reviewInput),"utf8")) as ReviewBundle;reviews=bundle.decisions}catch{}
 const destination = resolve(output);
 
 const plain = (value: string) => value
@@ -38,7 +39,7 @@ await rm(destination, {recursive:true,force:true});
 await mkdir(destination, {recursive:true});
 
 for (const publication of archive.publications) {
-  const enriched = mergeEnrichment(publication, enrichment.get(publication.id));
+  const enriched = mergeEnrichment(publication, enrichment.get(publication.id),reviews);
   const articleHeading=publication.kind==="telegram-article"?publication.body.match(/^#{1,6}\s+(.+)$/m)?.[1]?.trim():undefined;
   const canonicalBody=articleHeading?publication.body.replace(/^#{1,6}\s+.+(?:\r?\n){1,2}/,""):publication.body;
   const clean = plain(canonicalBody);

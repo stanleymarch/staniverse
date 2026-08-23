@@ -19,6 +19,7 @@
     "enrichment:prepare": "tsx pipeline/enrichment/prepare.ts",
     "enrichment:local": "tsx pipeline/enrichment/local.ts",
     "enrichment:openai": "tsx pipeline/enrichment/openai.ts",
+    "enrichment:review": "tsx pipeline/enrichment/review.ts",
     "content:refresh": "npm run enrichment:local && npm run telegram:materialize",
     "audit:content": "tsx pipeline/audit.ts",
     "migrate:legacy": "tsx pipeline/migrate-legacy-content.ts",
