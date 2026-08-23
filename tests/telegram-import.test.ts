@@ -3,6 +3,8 @@ import assert from "node:assert/strict";
 import { buildThreads } from "../pipeline/telegram/threading";
 import { normalizeExport, renderText } from "../pipeline/telegram/normalize";
 import { mergeMessages } from "../pipeline/telegram/incremental";
+import { enrichLocally } from "../pipeline/enrichment/catalog";
+import { mergeEnrichment } from "../pipeline/enrichment/merge";
 
 test("collects explicit reply chains", () => {
   const threads = buildThreads([{id:10,text:"Начало"},{id:11,reply_to_message_id:10,text:"Продолжение"},{id:12,text:"Другой пост"}]);
@@ -68,4 +70,28 @@ test("renders Telegram rich messages as articles with links and gallery media",(
 test("incremental merge adds new messages and replaces edited ones by stable id",()=>{
   const result=mergeMessages([{id:1,text:"original"},{id:2,text:"same"}],[{id:2,text:"same"},{id:1,text:"edited",edited:"now"},{id:3,text:"new"}]);
   assert.deepEqual({added:result.added,updated:result.updated,unchanged:result.unchanged},{added:1,updated:1,unchanged:1});assert.deepEqual(result.messages.map((item)=>[item.id,item.text]),[[1,"edited"],[2,"same"],[3,"new"]]);
+});
+
+test("local enrichment classifies topics and exact project mentions without rewriting source",()=>{
+  const publication = normalizeExport({messages:[{id:90,text:"Собираю Nearventure на Astro: маршруты, город и WebXR."}]})[0];
+  const original = publication.body;
+  const result = enrichLocally(publication,new Set(["project:nearventure"]));
+  assert.equal(publication.body,original);
+  assert.ok(result.topics.includes("xr"));
+  assert.ok(result.topics.includes("веб-разработка"));
+  assert.ok(result.entities.includes("Nearventure"));
+  assert.equal(result.relations[0].targetId,"project:nearventure");
+  const merged=mergeEnrichment(publication,result);
+  assert.ok(merged.tags.includes("xr"));
+  assert.deepEqual(merged.entities,["Nearventure"]);
+});
+
+test("stale enrichment is ignored when Telegram source text changes",()=>{
+  const publication = normalizeExport({messages:[{id:91,text:"Nearventure"}]})[0];
+  const result = enrichLocally(publication,new Set(["project:nearventure"]));
+  publication.body="Отредактированный текст";
+  const merged=mergeEnrichment(publication,result);
+  assert.deepEqual(merged.tags,publication.tags);
+  assert.deepEqual(merged.entities,[]);
+  assert.deepEqual(merged.relations,[]);
 });

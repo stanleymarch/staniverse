@@ -13,3 +13,7 @@
   border-radius: 1.25rem;
   background: radial-gradient(circle at 20% 50%, rgba(3, 5, 11, 0.92), rgba(3, 5, 11, 0.68) 62%, transparent 100%);
 }
+
+.xr-status { align-self: center; color: #95a4be; font-size: .68rem; }
+.xr-button { position: static !important; inset: auto !important; width: auto !important; opacity: 1 !important; }
+@media (max-width: 720px) { .xr-status { display: none; } }

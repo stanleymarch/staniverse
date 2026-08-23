@@ -1,4 +1,5 @@
 import type { AnyEntry } from "./content";
+import { collectTopics } from "./topics";
 
 function entryHref(entry: AnyEntry) {
   const base = entry.collection === "works" ? "works" : entry.collection === "projects" ? "projects" : entry.collection === "articles" ? "articles" : "garden";
@@ -26,7 +27,7 @@ export function buildGraph(entries: AnyEntry[]) {
   const ids = new Set(entries.map((entry) => entry.data.id));
   const missing = entries.flatMap((entry) => entry.data.relations.filter((relation) => !ids.has(relation.target)).map((relation) => `${entry.data.id} -> ${relation.target}`));
   if (missing.length) throw new Error(`Graph contains relations to missing targets:\n${missing.join("\n")}`);
-  const nodes: GraphNode[] = entries.map((entry) => ({
+  const entryNodes: GraphNode[] = entries.map((entry) => ({
     id: entry.data.id,
     title: entry.data.title,
     kind: entry.data.kind,
@@ -34,28 +35,24 @@ export function buildGraph(entries: AnyEntry[]) {
     tags: entry.data.tags,
     featured: entry.data.featured,
   }));
+  const topics = collectTopics(entries, true);
+  const topicNodes: GraphNode[] = topics.map((topic) => ({
+    id: `topic:${topic.name}`,
+    title: topic.name,
+    kind: "topic",
+    href: `/topics/${topic.slug}/`,
+    tags: [],
+    featured: topic.entries.length >= 20,
+  }));
   const explicit: GraphEdge[] = entries.flatMap((entry) =>
     entry.data.relations.map((relation) => ({ source: entry.data.id, ...relation })),
   );
-  const seen = new Set(explicit.map((edge) => `${edge.source}|${edge.target}`));
-  const inferred: GraphEdge[] = [];
-  for (let i = 0; i < entries.length; i++) {
-    for (let j = i + 1; j < entries.length; j++) {
-      const a = entries[i];
-      const b = entries[j];
-      const overlap = a.data.tags.filter((tag) => b.data.tags.includes(tag));
-      if (!overlap.length) continue;
-      const key = `${a.data.id}|${b.data.id}`;
-      const reverse = `${b.data.id}|${a.data.id}`;
-      if (seen.has(key) || seen.has(reverse)) continue;
-      inferred.push({
-        source: a.data.id,
-        target: b.data.id,
-        type: "related",
-        evidence: "topic",
-        confidence: Math.min(0.9, 0.45 + overlap.length * 0.12),
-      });
-    }
-  }
-  return { nodes, edges: [...explicit, ...inferred] };
+  const topicEdges: GraphEdge[] = topics.flatMap((topic) => topic.entries.map((entry) => ({
+    source: entry.data.id,
+    target: `topic:${topic.name}`,
+    type: "part-of",
+    evidence: "topic",
+    confidence: 0.82,
+  })));
+  return { nodes: [...entryNodes, ...topicNodes], edges: [...explicit, ...topicEdges] };
 }

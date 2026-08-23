@@ -46,6 +46,16 @@ test("garden searches across publication formats", async ({ page }) => {
   await expect(page.locator('[data-filter-grid] a[href="/garden/youtube-cultural-travel/"]')).toBeHidden();
 });
 
+test("automatic topics are browsable and connect different content formats",async({page})=>{
+  await page.goto("/topics/");
+  await expect(page.getByRole("heading",{name:"Темы",exact:true})).toBeVisible();
+  const topic=page.getByRole("link",{name:/искусственный интеллект/}).first();
+  await expect(topic).toBeVisible();
+  await topic.click();
+  await expect(page.getByRole("heading",{name:"#искусственный интеллект"})).toBeVisible();
+  await expect(page.locator(".content-card").first()).toBeVisible();
+});
+
 test("long article and its video are first-class connected entries", async ({ page }) => {
   await page.goto("/articles/ai-waifu/");
   await expect(page.getByRole("heading", { name: "Оглавление" })).toBeVisible();
@@ -85,6 +95,9 @@ test("fullscreen universe is separate, interactive and sound is opt-in", async (
   await page.goto("/universe/");
   await expect(page.locator("canvas.universe-canvas")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Летай между идеями" })).toBeVisible();
+  await expect(page.locator("[data-xr-status]")).toContainText(/режим|устройстве/);
+  const graph=await page.locator("[data-universe]").getAttribute("data-graph");
+  expect(graph).toContain('"kind":"topic"');
   const sound = page.locator("[data-sound]");
   await expect(sound).toHaveAttribute("aria-pressed", "false");
   await sound.click();

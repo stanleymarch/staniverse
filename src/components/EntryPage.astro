@@ -4,6 +4,7 @@ import type { GraphEdge, GraphNode } from "../lib/graph";
 import Base from "../layouts/Base.astro";
 import LocalGraph from "./LocalGraph.astro";
 import { kindLabel, projectStatus, workStatus } from "../lib/content";
+import { topicSlug } from "../lib/topics";
 import { render } from "astro:content";
 interface Props { entry: AnyEntry; nodes: GraphNode[]; edges: GraphEdge[] }
 const { entry, nodes, edges } = Astro.props;
@@ -23,7 +24,7 @@ const gallery = entry.collection === "publications" ? entry.data.media.filter((i
       <div class="section-kicker">{kindLabel[entry.data.kind]}{status && ` · ${status}`}</div>
       <h1>{entry.data.title}</h1>
       <p class="entry-summary">{entry.data.summary}</p>
-      <div class="tag-row">{entry.data.tags.map((tag) => <a href={`/garden/?tag=${tag}`}>#{tag}</a>)}</div>
+      <div class="tag-row">{entry.data.tags.map((tag) => <a href={`/topics/${topicSlug(tag)}/`}>#{tag}</a>)}</div>
       {publicationMeta && <div class="publication-facts"><span>{publicationMeta.platform}</span><span>{publicationMeta.ownership}</span><a href={publicationMeta.sourceUrl}>Открыть оригинал ↗</a></div>}
       {entry.data.kind === "work" && <dl class="work-facts">
         <div><dt>Год</dt><dd>{entry.data.year}</dd></div>

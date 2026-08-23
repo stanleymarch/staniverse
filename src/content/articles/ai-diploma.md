@@ -284,7 +284,7 @@ LLM сама по себе ничего не помнит. На первый в�
 
 Работа во время прогулки по парку — вполне рабочая история. Если вас не смущает идея отвлекаться на работу во время отвлечения от работы. С другой стороны может вам настолько хочется трогать траву, что для связи со своими агентами вопреки собираешь и настраиваешь [Meshtastic](https://meshtastic.org) — open-source мессенджер, работающий вообще без интернета и вышек.
 
-Есть и протоколы, по которым агенты разговаривают друг с другом, — [A2A]https://a2a-protocol.org/latest/) и [ACP](https://www.ibm.com/think/topics/agent-communication-protocol). A2A пришёл от Google, ACP — от IBM/BeeAI. В августе 2025-го они свелись под одним зонтиком [Linux Foundation](https://lfaidata.foundation/communityblog/2025/08/29/acp-joins-forces-with-a2a-under-the-linux-foundations-lf-ai-data/).
+Есть и протоколы, по которым агенты разговаривают друг с другом, — [A2A](https://a2a-protocol.org/latest/) и [ACP](https://www.ibm.com/think/topics/agent-communication-protocol). A2A пришёл от Google, ACP — от IBM/BeeAI. В августе 2025-го они свелись под одним зонтиком [Linux Foundation](https://lfaidata.foundation/communityblog/2025/08/29/acp-joins-forces-with-a2a-under-the-linux-foundations-lf-ai-data/).
 
 Есть на GitHub репозиторий проекта в помощь исследователю [AutoResearchClaw](https://github.com/aiming-lab/AutoResearchClaw). В нём идея проходит через пайплайн из 23-х стадий до готовой статьи с LaTeX. Работает и автоматически, и с человеком в петле (когда на ключевых шагах можно утвердить, поправить или откатиться). Так вот через этот самый ACP он подключается к любому агенту.
 

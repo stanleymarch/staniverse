@@ -65,3 +65,21 @@
 .media-gallery { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,280px),1fr)); gap: .75rem; margin: 0 0 3rem; }
 .media-gallery a { display: block; overflow: hidden; border: 1px solid var(--line); border-radius: 1rem; background: var(--panel); }
 .media-gallery img { display: block; width: 100%; height: min(56vw,520px); object-fit: cover; }
+
+.topic-cloud {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: .75rem;
+}
+.topic-cloud a {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.1rem;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  background: color-mix(in srgb, var(--panel) 88%, transparent);
+}
+.topic-cloud span { color: var(--muted); font-variant-numeric: tabular-nums; }

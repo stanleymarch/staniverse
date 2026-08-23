@@ -43,6 +43,17 @@ npm run telegram:materialize
 
 Первая полная выгрузка становится локальным baseline. Следующие полные или частичные выгрузки можно накатывать той же командой: сообщения объединяются по Telegram `message_id`, новые добавляются, отредактированные заменяются, неизменные не дублируются. Структурные Telegram Articles разбираются из `rich_message` без LLM.
 
+После baseline Desktop больше не нужен для обычных обновлений. Однократно установите Telethon, задайте ключи приложения с `my.telegram.org` и авторизуйте локальную сессию:
+
+```powershell
+python -m pip install -r requirements-telegram.txt
+$env:TELEGRAM_API_ID="..."
+$env:TELEGRAM_API_HASH="..."
+npm run telegram:update
+```
+
+Команда читает `lastMessageId` из baseline, забирает через MTProto только более новые сообщения, скачивает их медиа, объединяет архив, оптимизирует изображения, заново применяет автоматическую разметку и материализует страницы. Сессия хранится в `pipeline/telegram/private/` и исключена из Git. Cached-page блоки Telegram Articles преобразуются в заголовки, абзацы, ссылки и галереи; исходный текст не рерайтится.
+
 ```powershell
 npm run telegram:sync -- path\to\ChatExport
 npm run telegram:publish-media

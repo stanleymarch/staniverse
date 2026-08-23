@@ -30,6 +30,12 @@ export interface EnrichmentResult {
   needsReview: boolean;
 }
 
+export interface EnrichmentBundle {
+  version: 1;
+  generatedAt: string;
+  results: EnrichmentResult[];
+}
+
 export interface EnrichmentProvider {
   readonly name: string;
   readonly model: string;
