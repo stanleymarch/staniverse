@@ -39,9 +39,11 @@ await mkdir(destination, {recursive:true});
 
 for (const publication of archive.publications) {
   const enriched = mergeEnrichment(publication, enrichment.get(publication.id));
-  const clean = plain(publication.body);
+  const articleHeading=publication.kind==="telegram-article"?publication.body.match(/^#{1,6}\s+(.+)$/m)?.[1]?.trim():undefined;
+  const canonicalBody=articleHeading?publication.body.replace(/^#{1,6}\s+.+(?:\r?\n){1,2}/,""):publication.body;
+  const clean = plain(canonicalBody);
   const dateLabel = publication.date ? new Intl.DateTimeFormat("ru-RU",{dateStyle:"medium"}).format(new Date(publication.date)) : publication.sourceId;
-  const title = clean ? shortened(clean.split(/[.!?\n]/,1)[0],90) : `Медиапубликация · ${dateLabel}`;
+  const title = articleHeading ?? (clean ? shortened(clean.split(/[.!?\n]/,1)[0],90) : `Медиапубликация · ${dateLabel}`);
   const summary = clean ? shortened(clean,220) : `Публикация без текстовой подписи; в архиве сохранено медиафайлов: ${publication.media.length}.`;
   const relations = enriched.relations;
   const media = publication.media.map(({sourcePath,publicPath,type,messageId}) => ({sourcePath,...publicPath?{publicPath}:{},type,messageId}));
@@ -65,7 +67,7 @@ for (const publication of archive.publications) {
     "",
   ].filter((line): line is string => line !== undefined).join("\n");
   const sourceLink = `[Оригинал в Telegram](${publication.sourceUrl})`;
-  const body=inlineMedia(publication.body,publication).replace(/[ \t]+$/gm,"");
+  const body=inlineMedia(canonicalBody,publication).replace(/[ \t]+$/gm,"");
   await writeFile(resolve(destination,`tg-${publication.sourceId}.md`),`${frontmatter}${body ? `${body}\n\n` : ""}${sourceLink}\n`,"utf8");
 }
 

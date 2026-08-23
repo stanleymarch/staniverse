@@ -16,7 +16,7 @@ const publicationMeta = entry.collection === "publications" && entry.data.platfo
   ownership: entry.data.ownership === "external" ? "Внешний материал" : "Авторское видео",
   sourceUrl: entry.data.sourceUrl,
 } : undefined;
-const gallery = entry.collection === "publications" ? entry.data.media.filter((item) => item.type === "image" && item.publicPath) : [];
+const gallery = entry.collection === "publications" && entry.data.kind !== "telegram-article" ? entry.data.media.filter((item) => item.type === "image" && item.publicPath) : [];
 ---
 <Base title={entry.data.title} description={entry.data.summary}>
   <article class="entry-shell">
