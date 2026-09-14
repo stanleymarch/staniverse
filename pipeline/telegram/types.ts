@@ -20,16 +20,33 @@ export interface TelegramMessage {
 export interface TelegramRichNode { type?: string; level?: number; text?: string|TelegramRichNode|TelegramRichNode[]; href?: string; photo?: string; caption?: TelegramRichNode; items?: TelegramRichNode[]; blocks?: TelegramRichNode[]; [key:string]: unknown }
 export interface TelegramRichMessage { rtl?: boolean; part?: boolean; blocks: TelegramRichNode[] }
 export interface TelegramExport { name?: string; id?: number; messages: TelegramMessage[] }
-export interface Thread { rootId: number; messages: TelegramMessage[] }
+/** One publication and the Telegram messages it owns: a single post, or an album. */
+export interface PublicationGroup { rootId: number; messages: TelegramMessage[] }
 export interface CanonicalMedia { sourcePath: string; publicPath?: string; type: "image"|"video"|"audio"|"document"; order: number; messageId: number }
 export interface CanonicalSourceLink { url: string; messageId: number }
-export interface CanonicalRelation { targetId: string; type: "references"; evidence: "telegram-link"|"known-public-url"; confidence: 1 }
+/** Materialized frontmatter can carry reviewed relation metadata in addition
+ * to the raw Telegram import fields. */
+export interface CanonicalRelationProvenance {
+  kind?: string;
+  [key: string]: unknown;
+}
+export interface CanonicalRelation {
+  targetId: string;
+  type: string;
+  evidence: string;
+  confidence: number;
+  explanation?: string;
+  reviewStatus?: string;
+  status?: string;
+  provenance?: string | CanonicalRelationProvenance;
+}
 export interface CanonicalPublication {
   id: string;
   kind: "telegram-post"|"telegram-article";
   sourceId: string;
   sourceUrl: string;
   date?: string;
+  title?: string;
   editedDate?: string;
   threadIds: string[];
   body: string;

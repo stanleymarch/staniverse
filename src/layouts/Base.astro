@@ -2,26 +2,83 @@
 import "../styles/global.css";
 import "../styles/details.css";
 
-interface Props { title: string; description?: string; immersive?: boolean }
-const { title, description = "Staniverse — работы, собственные проекты, публикации и карта опыта Станислава Ермоленко.", immersive = false } = Astro.props;
-const pageTitle = title === "Staniverse" ? title : `${title} · Staniverse`;
+interface Props {
+  title: string;
+  description?: string;
+  immersive?: boolean;
+  ogImage?: string;
+  jsonLd?: Record<string, unknown>;
+}
+const {
+  title,
+  description = "Станивёрс — портфолио Станислава Ермоленко: XR и WebXR, AI-агенты, сайты, цифровые продукты и медиа.",
+  immersive = false,
+  ogImage,
+  jsonLd,
+} = Astro.props;
+const siteName = "станивёрс";
+const brandOnly = title.toLocaleLowerCase("ru-RU") === siteName;
+const pageTitle = brandOnly ? siteName : `${title} · ${siteName}`;
+// The share card is already branded, so a brand-only title must not repeat itself in the alt text.
+const imageAlt = brandOnly ? siteName : `станивёрс — ${title}`;
 const canonical = new URL(Astro.url.pathname, Astro.site);
+const personId = new URL("/#stanislav-ermolenko", Astro.site).href;
+const websiteId = new URL("/#website", Astro.site).href;
+const baseGraph: Record<string, unknown>[] = [
+  {
+    "@type": "WebSite",
+    "@id": websiteId,
+    url: new URL("/", Astro.site).href,
+    name: siteName,
+    alternateName: "Staniverse",
+    inLanguage: "ru-RU",
+    creator: { "@id": personId },
+  },
+  {
+    "@type": "Person",
+    "@id": personId,
+    name: "Станислав Ермоленко",
+    alternateName: "Стас Ермоленко",
+    url: new URL("/", Astro.site).href,
+    jobTitle: "Специалист по AI-автоматизации и XR-разработчик",
+    homeLocation: { "@type": "Place", name: "Санкт-Петербург, Россия" },
+    knowsAbout: ["AI-автоматизация бизнес-процессов", "CRM-интеграции", "AI-агенты", "OpenClaw", "Hermes", "PicoClaw", "XR", "WebXR", "контентные системы", "прикладные исследования", "разработка программ ДПО"],
+    sameAs: ["https://t.me/staniverse", "https://vk.com/staniverse", "https://www.youtube.com/@staniverse"],
+  },
+  ...(jsonLd ? [jsonLd] : []),
+];
+const structuredData = { "@context": "https://schema.org", "@graph": baseGraph };
+const sectionImages: Record<string, string> = { works: "/og/works.png", projects: "/og/projects.png", garden: "/og/garden.png", videos: "/og/videos.png", topics: "/og/topics.png", articles: "/og/articles.png", about: "/og/about.png", universe: "/og/universe.png", donate: "/og/donate.png" };
+const segment = Astro.url.pathname.split("/")[1] ?? "";
+const image = new URL(ogImage ?? sectionImages[segment] ?? "/og/staniverse.png", Astro.site);
+const articleLike = ["works", "projects", "garden", "articles", "topics"].includes(segment) && Astro.url.pathname.split("/").filter(Boolean).length > 1;
 ---
 <!doctype html>
 <html lang="ru" class:list={{ immersive }}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="author" content="Станислав Ермоленко" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <meta name="description" content={description} />
     <meta name="theme-color" content="#070a12" />
     <link rel="canonical" href={canonical} />
-    <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="Staniverse" />
+    <meta property="og:type" content={articleLike ? "article" : "website"} />
+    <meta property="og:site_name" content="станивёрс" />
     <meta property="og:locale" content="ru_RU" />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
-    <meta name="twitter:card" content="summary" />
+    <meta property="og:image" content={image} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={imageAlt} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={image} />
+    <meta name="twitter:image:alt" content={imageAlt} />
+    <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
     <title>{pageTitle}</title>
   </head>
   <body>
@@ -33,9 +90,12 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
           <a href="/works/">Работы</a>
           <a href="/projects/">Проекты</a>
           <a href="/garden/">Сад</a>
-          <a href="/topics/">Темы</a>
+          <a href="/videos/">Видео</a>
           <a href="/about/">Обо мне</a>
+          <a href="mailto:stas@staniverse.xyz">Контакты</a>
+          <a href="/donate/">Поддержать</a>
         </nav>
+        <button class="site-search-open" type="button" data-search-open aria-haspopup="dialog" aria-label="Поиск по сайту (Ctrl+K)">Поиск</button>
         <a class="universe-link" href="/universe/">Вселенная <span aria-hidden="true">↗</span></a>
         <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-navigation">
           <span class="menu-toggle-label">Меню</span>
@@ -50,6 +110,19 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
         <div class="footer-links"><a href="/about/#manifesto">Манифест</a><a href="/donate/">Поддержать</a><a href="mailto:stas@staniverse.xyz">Почта</a><a href="https://t.me/staniverse">Telegram</a><a href="https://vk.com/staniverse">VK</a><a href="https://www.youtube.com/@staniverse">YouTube</a><a href="https://vk.com/yatygorod">VK я.ты.город.</a><a href="https://www.youtube.com/@yatygorod">YouTube я.ты.город.</a></div>
       </footer>
     )}
+    {!immersive && (
+      <div class="site-search" data-search-panel role="dialog" aria-modal="true" aria-label="Поиск по сайту" hidden>
+        <div class="site-search-box">
+          <div class="site-search-head">
+            <input data-search-input type="search" placeholder="Тема, проект, технология, место…" autocomplete="off" aria-label="Поисковый запрос" />
+            <button type="button" data-search-close aria-label="Закрыть поиск">×</button>
+          </div>
+          <p class="site-search-status" data-search-status>Введите запрос: тема, проект, технология, место…</p>
+          <ul class="site-search-results" data-search-results></ul>
+        </div>
+      </div>
+    )}
+    <script is:inline type="module" src="/scripts/site-search.js"></script>
   </body>
 </html>
 
@@ -75,4 +148,14 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
       }
     });
   });
+
+  // One reveal system for the whole site: every section and catalogue hero rises in once,
+  // as a unit, with the same timing everywhere; nothing moves when the visitor asked for calm.
+  if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    const targets = document.querySelectorAll("main .section, main .catalog-hero");
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) if (entry.isIntersecting) { entry.target.setAttribute("data-revealed", "true"); observer.unobserve(entry.target); }
+    }, { rootMargin: "0px 0px -12% 0px" });
+    targets.forEach((target) => observer.observe(target));
+  }
 </script>

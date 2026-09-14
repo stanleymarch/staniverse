@@ -10,7 +10,7 @@ entities: []
 featured: true
 updated: "2026-04-15"
 legacySource: "F:/Code/active/sverseq/content/lab/mnemoform.md"
-relations: [{"target":"project:albina","type":"related","evidence":"editorial","confidence":0.8},{"target":"project:staniverse","type":"related","evidence":"editorial","confidence":0.8}]
+relations: [{"target":"publication:telegram:staniverse:1031","type":"documents","evidence":"editorial","confidence":0.9},{"target":"project:albina","type":"related","evidence":"editorial","confidence":0.8},{"target":"project:staniverse","type":"related","evidence":"editorial","confidence":0.8}]
 ---
 ## Суть
 `Mnemoform` — это проект о переводе воспоминаний, телесных сигналов и личных историй в осязаемые формы — не только физические объекты, но и генеративную графику и звук. Меня здесь интересует не абстрактная арт-метафора, а рабочий пайплайн: как переживание, голос, пульс, спектр аудиосигнала или другой биодатчик становятся формой, которую можно напечатать, использовать и хранить — или пережить через генеративную визуализацию в `TouchDesigner` и `MIDI`-сигналы для музыки в `Ableton`.

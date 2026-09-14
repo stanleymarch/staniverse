@@ -1,5 +1,6 @@
-import type { CanonicalMedia, CanonicalPublication, CanonicalRelation, CanonicalSourceLink, TelegramExport, TelegramMessage, TelegramRichNode, TelegramTextEntity } from "./types";
-import { buildThreads } from "./threading";
+import { messageMedia } from "./media";
+import { buildPublications, continuationSource, telegramPostIdForHandle } from "./threading";
+import type { CanonicalPublication, CanonicalRelation, CanonicalSourceLink, TelegramExport, TelegramMessage, TelegramRichNode, TelegramTextEntity } from "./types";
 
 const escapeMarkdown = (value: string) => value.replace(/([\\`*_[\]<>])/g, "\\$1");
 const safeUrl = (url: string) => /^https?:\/\//i.test(url) ? url : "";
@@ -49,16 +50,9 @@ export function renderRichBlocks(blocks:TelegramRichNode[]):string{return blocks
   return [];
 }).filter(Boolean).join("\n\n")}
 
-function richPhotos(node:unknown,result:string[]=[]):string[]{if(!node||typeof node!=="object")return result;const value=node as Record<string,unknown>;if(typeof value.photo==="string")result.push(value.photo);for(const child of Object.values(value)){if(Array.isArray(child))child.forEach((item)=>richPhotos(item,result));else if(child&&typeof child==="object")richPhotos(child,result)}return result}
-function mediaFor(message: TelegramMessage, order: number): CanonicalMedia[] {
-  const sourcePath = message.photo ?? message.video_file ?? message.audio_file ?? message.voice_message ?? message.file;
-  const valid=(value:string|undefined):value is string=>Boolean(value&&!value.startsWith("("));
-  const primary=valid(sourcePath)?[{ sourcePath, type:message.photo ? "image" as const : message.video_file || message.mime_type?.startsWith("video/") ? "video" as const : message.audio_file || message.voice_message || message.mime_type?.startsWith("audio/") ? "audio" as const : "document" as const, order, messageId: message.id }]:[];
-  return [...primary,...richPhotos(message.rich_message).filter(valid).map((photo,index)=>({sourcePath:photo,type:"image" as const,order:order+index+primary.length,messageId:message.id}))];
-}
-
 const urlPattern = /https?:\/\/[^\s<>)\]]+/giu;
 const hashtagPattern = /#[\p{L}\p{N}_-]+/gu;
+const nearventureUrl = /https?:\/\/(?:www\.)?nearventure\.ru(?:\/|$)/iu;
 
 function rawText(message: TelegramMessage): string {
   if(message.rich_message)return renderRichBlocks(message.rich_message.blocks);
@@ -74,37 +68,63 @@ function linksFor(message: TelegramMessage): CanonicalSourceLink[] {
   return [...new Map([...entityLinks,...textLinks,...richLinks.map((url)=>({url,messageId:message.id}))].map((link) => [link.url,link])).values()];
 }
 
+/** Evidence strength for one source-target pair, so a link that the author also marks as
+ * a continuation is recorded as a continuation instead of two competing edges. */
+const relationStrength: Record<string, number> = { references: 0, "reply-to": 1, continues: 2 };
+
+/**
+ * Relations a publication earns from its own messages: the posts it links to, the post it
+ * answers, and the post it explicitly continues. Nothing here is inferred from adjacency —
+ * a neighbouring message without a reply link or a continuation phrase stays unrelated.
+ */
+function relationsFor(group: { rootId: number; messages: TelegramMessage[] }, handle: string, publicationByRoot: Map<number, number>, knownIds: Set<number>): CanonicalRelation[] {
+  const byTarget = new Map<string, CanonicalRelation>();
+  const add = (relation: CanonicalRelation) => {
+    const current = byTarget.get(relation.targetId);
+    if (current && relationStrength[current.type] >= relationStrength[relation.type]) return;
+    byTarget.set(relation.targetId, relation);
+  };
+  const publicationOf = (messageId: number | undefined) => {
+    const root = messageId === undefined ? undefined : publicationByRoot.get(messageId);
+    return root === undefined || root === group.rootId ? undefined : `publication:telegram:${handle}:${root}`;
+  };
+  for (const message of group.messages) {
+    for (const link of linksFor(message)) {
+      if (nearventureUrl.test(link.url)) { add({targetId:"project:nearventure",type:"references",evidence:"known-public-url",confidence:1}); continue; }
+      const targetId = publicationOf(telegramPostIdForHandle(link.url, handle));
+      if (targetId) add({targetId,type:"references",evidence:"telegram-link",confidence:1});
+    }
+    const replyTarget = publicationOf(message.reply_to_message_id);
+    if (replyTarget) add({targetId:replyTarget,type:"reply-to",evidence:"telegram-reply",confidence:1});
+    const continuation = publicationOf(continuationSource(message, knownIds, handle));
+    if (continuation) add({targetId:continuation,type:"continues",evidence:"continuation",confidence:1});
+  }
+  return [...byTarget.values()];
+}
+
 export function normalizeExport(data: TelegramExport, handle = "staniverse"): CanonicalPublication[] {
-  const threads = buildThreads(data.messages);
-  const rootByMessage = new Map(threads.flatMap((thread) => thread.messages.map((message) => [message.id,thread.rootId] as const)));
-  return threads.map((thread) => {
-    const bodyParts = thread.messages.map(renderText).filter(Boolean);
-    const media = thread.messages.flatMap(mediaFor);
-    const root = thread.messages[0];
-    const links = thread.messages.flatMap(linksFor);
-    const tags = [...new Set(thread.messages.flatMap((message) => [...rawText(message).matchAll(hashtagPattern)].map((match) => match[0].slice(1).toLocaleLowerCase("ru"))))];
-    const relationMap=new Map<string,CanonicalRelation>();for(const link of links){
-      const match = link.url.match(/(?:https?:\/\/)?t\.me\/[\w-]+\/(\d+)/iu);
-      const targetRoot = match ? rootByMessage.get(Number(match[1])) : undefined;
-      const knownTarget=/https?:\/\/(?:www\.)?nearventure\.ru(?:\/|$)/iu.test(link.url)?"project:nearventure":undefined;
-      if(knownTarget){relationMap.set(knownTarget,{targetId:knownTarget,type:"references",evidence:"known-public-url",confidence:1});continue}
-      if (targetRoot === undefined || targetRoot === thread.rootId) continue;
-      const targetId=`publication:telegram:${handle}:${targetRoot}`;relationMap.set(targetId,{targetId,type:"references",evidence:"telegram-link",confidence:1});
-    }const relations=[...relationMap.values()];
+  const groups = buildPublications(data.messages);
+  const publicationByRoot = new Map(groups.flatMap((group) => group.messages.map((message) => [message.id, group.rootId] as const)));
+  const knownIds = new Set(publicationByRoot.keys());
+  return groups.map((group) => {
+    const anchor = group.messages.find((message) => message.id === group.rootId) ?? group.messages[0];
+    const bodyParts = group.messages.map(renderText).filter(Boolean);
+    const media = group.messages.flatMap(messageMedia);
+    const tags = [...new Set(group.messages.flatMap((message) => [...rawText(message).matchAll(hashtagPattern)].map((match) => match[0].slice(1).toLocaleLowerCase("ru"))))];
     return {
-      id: `publication:telegram:${handle}:${thread.rootId}`,
-      kind: root.rich_message ? "telegram-article" : "telegram-post",
-      sourceId: String(thread.rootId),
-      sourceUrl: `https://t.me/${handle}/${thread.rootId}`,
-      date: root.date,
-      editedDate: thread.messages.map((message) => message.edited).filter(Boolean).at(-1),
-      threadIds: thread.messages.map((message) => String(message.id)),
+      id: `publication:telegram:${handle}:${group.rootId}`,
+      kind: anchor.rich_message ? "telegram-article" : "telegram-post",
+      sourceId: String(group.rootId),
+      sourceUrl: `https://t.me/${handle}/${group.rootId}`,
+      date: anchor.date,
+      editedDate: group.messages.map((message) => message.edited).filter(Boolean).at(-1),
+      threadIds: group.messages.map((message) => String(message.id)),
       body: bodyParts.join("\n\n"),
       tags,
-      links,
-      relations,
+      links: group.messages.flatMap(linksFor),
+      relations: relationsFor(group, handle, publicationByRoot, knownIds),
       media,
-      rawMessageIds: thread.messages.map((message) => message.id),
+      rawMessageIds: group.messages.map((message) => message.id),
     };
   });
 }

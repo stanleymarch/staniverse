@@ -10,7 +10,7 @@ entities: []
 featured: false
 updated: "2026-04-13"
 legacySource: "F:/Code/active/sverseq/content/lab/staniverse.md"
-relations: [{"target":"work:prodakshn-dlya-staniverse","type":"related","evidence":"editorial","confidence":0.8},{"target":"publication:telegram:staniverse:1013","type":"documents","evidence":"editorial","confidence":1},{"target":"project:albina","type":"related","evidence":"editorial","confidence":0.8},{"target":"project:omnipub","type":"related","evidence":"editorial","confidence":0.8},{"target":"project:metavyatka","type":"related","evidence":"editorial","confidence":0.8},{"target":"project:zapovednaya-vyatka-360","type":"related","evidence":"editorial","confidence":0.8}]
+relations: [{"target":"publication:telegram:staniverse:1013","type":"documents","evidence":"editorial","confidence":1},{"target":"work:prepodavanie-metodicheskaya-rabota-i-prodakshn-v-tsifrovykh-kafedrakh","type":"related","evidence":"editorial","confidence":0.8},{"target":"project:albina","type":"related","evidence":"editorial","confidence":0.8},{"target":"project:omnipub","type":"related","evidence":"editorial","confidence":0.8},{"target":"project:metavyatka","type":"related","evidence":"editorial","confidence":0.8},{"target":"project:zapovednaya-vyatka-360","type":"related","evidence":"editorial","confidence":0.8}]
 ---
 ## Суть
 `staniverse` — это мой авторский медиаконтур про GenAI, XR, автоматизацию и цифровую культуру. По сути это уже не просто канал, а инфраструктура: Telegram для живого потока, YouTube для длинных форматов и цифровой сад на Markdown/Quartz, где контент не растворяется в ленте, а продолжает жить и связываться с проектами.
@@ -37,6 +37,9 @@ relations: [{"target":"work:prodakshn-dlya-staniverse","type":"related","evidenc
 - Собрать стабильную структуру цифрового сада
 - Подтянуть лучшие материалы в формат долгоживущих статей и страниц
 - Ясно описать, что именно получают люди от проекта за пределами личного канала
+- Добавить конкретные примеры сильнейших видео и статей
+- Уточнить, какие форматы были основными: YouTube, Telegram, статьи, вертикальные видео
+- Собрать отдельный блок про AI-пайплайн производства
 
 ## Интерфейсы и платформы
 - Telegram как поток коротких мыслей, наблюдений и быстрых реакций;
@@ -50,12 +53,27 @@ relations: [{"target":"work:prodakshn-dlya-staniverse","type":"related","evidenc
 - long-form статьи
 - цифровой сад / архив
 
+## Продакшн
+Отдельная линия проекта — производство контента: темы и визуальная подача, запись и монтаж материалов, образовательные и объясняющие форматы, эксперименты с GenAI, виртуальными персонажами и XR-инструментами, технический пайплайн записи и производства. Продюсерский кейс датирован 2023 годом и в портфолио отдельно больше не живёт: он описывает саму работу внутри `staniverse`.
+
+Контент строится вокруг нескольких линий: техноблог о GenAI и XR, объясняющие материалы и туториалы, авторские эксперименты с виртуальными персонажами, видео, звукогенерацией и автоматизациями. Внутри этого контура я не просто записываю и монтирую ролики, а проектирую воркфлоу под конкретный формат.
+
+Для части материалов использовался полный стек GenAI-инструментов: сценарий, графика, видеофрагменты, голос, музыка и монтажная доработка. Это не просто интерес к технологиям, а умение превращать их в медиаформат: не «рассказать новость», а показать, как это работает в реальном пайплайне.
+
 ## Стек и инструменты
 - Telegram
 - YouTube
 - Obsidian
 - Quartz
 - AI-инструменты для ресёрча и производства
+- OBS
+- Unity
+- VRChat SDK
+- ChatGPT
+- Flux
+- Minimax
+- ElevenLabs
+- Suno
 
 ## Что нужно дальше
 - стабилизировать архитектуру цифрового сада;
@@ -68,6 +86,11 @@ relations: [{"target":"work:prodakshn-dlya-staniverse","type":"related","evidenc
 - авторское медиа
 - образование через контент
 - построение собственной knowledge system
+- техноблогинг
+- образовательный видеопродакшн
+- гибридное использование AI-инструментов
+- разработка авторских форматов вокруг сложных технологий
+- монтаж и упаковка цифровых экспериментов в понятный контент
 
 ## Общественная польза
 - Бесплатные гайды и объяснения сложных технологий для широкой аудитории

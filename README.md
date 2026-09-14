@@ -31,6 +31,16 @@ npm run videos:materialize
 
 Исходные Markdown старого сайта нужны только мигратору; опубликованный сайт от Obsidian и Quartz не зависит.
 
+Старые адреса Quartz (`works/cases`, `lab`, `articles`, 594 адреса `/garden/posts/*` и 190 адресов `/tags/*`) обслуживает карта `src/lib/legacy-redirects.ts`; сгенерированная часть лежит в `src/lib/legacy-post-redirects.ts`. Она привязана к снимку опубликованного индекса `pipeline/legacy/content-index.json`, поэтому пересборка не требует сети:
+
+```powershell
+npx tsx scripts/build-legacy-redirects.ts --check
+npx tsx scripts/build-legacy-redirects.ts --snapshot path\to\contentIndex.json --write-snapshot
+npx tsx scripts/build-legacy-redirects.ts
+```
+
+Первый запуск падает, если карта разошлась со снимком; второй обновляет снимок из живого `https://staniverse.xyz/static/contentIndex.json`; третий пересобирает карту из снимка.
+
 ## Telegram
 
 Источник — JSON-экспорт Telegram Desktop или совместимый результат API. Текст, entities, цепочки reply, альбомы, ссылки и медиа сначала приводятся к нейтральной модели, затем генерируются страницы Astro:

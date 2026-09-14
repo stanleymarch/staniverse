@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import type { GraphEdge } from "../src/lib/graph";
 import { isCausalRelation, isInferredGraphEdge, provenanceField, relationLabel, selectVisualEdges } from "../src/lib/graph-visuals";
+import { nodeProminenceScale } from "../src/components/universe/UniverseWorld";
 
 const edge = (type: string, evidence = "editorial", confidence = .8): GraphEdge => ({
   source: `${type}:source`,
@@ -60,4 +61,16 @@ test("relation metadata remains readable in graph evidence views", () => {
   assert.equal(provenanceField(relation.provenance, "source"), "local-rules");
   assert.equal(provenanceField(relation.provenance, "method"), "entity-match");
   assert.equal(provenanceField(relation.provenance, "extractor"), "topology-v1");
+});
+
+test("marks inferred status and provenance as inferred visual context", () => {
+  assert.equal(isInferredGraphEdge({...edge("mentions"), reviewStatus:"inferred"}), true);
+  assert.equal(isInferredGraphEdge({...edge("mentions"), provenance:{kind:"deterministic"}}), true);
+});
+
+test("star prominence reflects directed degree without letting hubs swallow the field", () => {
+  assert.equal(nodeProminenceScale(0, 0), 1);
+  assert.ok(nodeProminenceScale(1, 0) > nodeProminenceScale(0, 1), "an inbound reference carries slightly more visual weight");
+  assert.ok(nodeProminenceScale(4, 3) > nodeProminenceScale(1, 1));
+  assert.equal(nodeProminenceScale(10_000, 10_000), 1.85);
 });

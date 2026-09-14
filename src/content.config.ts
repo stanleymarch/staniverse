@@ -67,7 +67,7 @@ const relation = z.object({
   /** Human-readable reason retained from deterministic or reviewed enrichment. */
   explanation: z.string().optional(),
   /** Review state is separate from evidence: an inferred edge may be accepted. */
-  reviewStatus: relationReviewStatus.default("accepted"),
+  reviewStatus: relationReviewStatus.optional(),
   /** `status` is retained as an input alias for older review exports. */
   status: relationReviewStatus.optional(),
 });

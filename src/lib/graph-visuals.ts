@@ -44,10 +44,12 @@ export function provenanceField(provenance: GraphEdge["provenance"], field: keyo
 }
 
 /** Topic/semantic edges are contextual and should be rendered after evidence edges. */
-export function isInferredGraphEdge(edge: Pick<GraphEdge, "type" | "evidence">) {
+export function isInferredGraphEdge(edge: Pick<GraphEdge, "type" | "evidence" | "reviewStatus" | "status" | "provenance">) {
   const evidence = edge.evidence.toLowerCase();
   const type = edge.type.toLowerCase();
-  return evidence.includes("topic") || evidence.includes("semantic") || type.includes("topic") || type.includes("semantic");
+  const status = edge.reviewStatus ?? edge.status;
+  const provenanceKind = provenanceField(edge.provenance, "kind");
+  return evidence.includes("topic") || evidence.includes("semantic") || type.includes("topic") || type.includes("semantic") || status === "inferred" || provenanceKind === "inferred" || provenanceKind === "deterministic";
 }
 
 /**

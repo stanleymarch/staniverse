@@ -1,17 +1,25 @@
 import type { AnyEntry } from "./content";
 import { collectTopics } from "./topics";
+import { getTopicDefinition, normalizeTopics } from "./taxonomy";
 
 function entryHref(entry: AnyEntry) {
   const base = entry.collection === "works" ? "works" : entry.collection === "projects" ? "projects" : entry.collection === "articles" ? "articles" : "garden";
   return `/${base}/${entry.id}/`;
 }
+function summaryExcerpt(value: string, limit = 240) {
+  return value.length > limit ? `${value.slice(0, limit - 1).trimEnd()}…` : value;
+}
 
 export interface GraphNode {
   id: string;
   title: string;
+  summary: string;
   kind: string;
   href: string;
-  tags: string[];
+  /** Canonical taxonomy labels, never raw source hashtags. */
+  topics: string[];
+  /** Verbatim author or editorial tags kept as provenance. */
+  sourceTags: string[];
   featured: boolean;
 }
 
@@ -42,38 +50,58 @@ export interface GraphEdge {
 
 export function buildGraph(entries: AnyEntry[]) {
   const ids = new Set(entries.map((entry) => entry.data.id));
-  const missing = entries.flatMap((entry) => entry.data.relations.filter((relation) => !ids.has(relation.target)).map((relation) => `${entry.data.id} -> ${relation.target}`));
+  const hiddenStatuses = new Set(["rejected", "proposed", "pending", "needs-review"]);
+  const visibleRelations = (entry: AnyEntry) => entry.data.relations.filter((relation) => {
+    const status = relation.status === "rejected" || relation.reviewStatus === "rejected"
+      ? "rejected"
+      : relation.reviewStatus ?? relation.status;
+    return !status || !hiddenStatuses.has(status);
+  });
+  const missing = entries.flatMap((entry) => visibleRelations(entry).filter((relation) => !ids.has(relation.target)).map((relation) => `${entry.data.id} -> ${relation.target}`));
   if (missing.length) throw new Error(`Graph contains relations to missing targets:\n${missing.join("\n")}`);
-  const entryNodes: GraphNode[] = entries.map((entry) => ({
-    id: entry.data.id,
-    title: entry.data.title,
-    kind: entry.data.kind,
-    href: entryHref(entry),
-    tags: [...new Set([...entry.data.tags, ...(entry.data.topics ?? [])])],
-    featured: entry.data.featured,
-  }));
+  const entryNodes: GraphNode[] = entries.map((entry) => {
+    const sourceTags = entry.data.sourceTags ?? entry.data.tags;
+    const topicValues = entry.collection === "publications"
+      ? entry.data.topics ?? []
+      : [...entry.data.tags, ...(entry.data.topics ?? [])];
+    return {
+      id: entry.data.id,
+      title: entry.data.title,
+      summary: summaryExcerpt(entry.data.summary),
+      kind: entry.data.kind,
+      href: entryHref(entry),
+      topics: normalizeTopics(topicValues).filter((topic) => Boolean(getTopicDefinition(topic))),
+      sourceTags: [...new Set(sourceTags)],
+      featured: entry.data.featured,
+    };
+  });
   const topics = collectTopics(entries, true);
   const topicNodes: GraphNode[] = topics.map((topic) => ({
-    id: `topic:${topic.name}`,
+    id: `topic:${topic.id}`,
     title: topic.name,
+    summary: `${topic.entries.length} материалов по теме «${topic.name}».`,
     kind: "topic",
     href: `/topics/${topic.slug}/`,
-    tags: [],
+    topics: [],
+    sourceTags: [],
     featured: topic.entries.length >= 20,
   }));
   const explicit: GraphEdge[] = entries.flatMap((entry) =>
-    entry.data.relations.map((relation) => ({ source: entry.data.id, ...relation })),
+    visibleRelations(entry).map((relation) => ({ source: entry.data.id, ...relation })),
   );
   const topicEdges: GraphEdge[] = topics.flatMap((topic) => topic.entries.map((entry) => {
-    const isSource = new Set(entry.data.sourceTags ?? entry.data.tags).has(topic.id) || new Set(entry.data.sourceTags ?? entry.data.tags).has(topic.name);
+    const sourceTags = entry.collection === "publications"
+      ? []
+      : normalizeTopics(entry.data.sourceTags ?? entry.data.tags);
+    const isSource = sourceTags.includes(topic.id);
     return {
       source: entry.data.id,
-      target: `topic:${topic.name}`,
+      target: `topic:${topic.id}`,
       type: "part-of",
       evidence: "topic",
       confidence: isSource ? 1 : .62,
       reviewStatus: isSource ? "confirmed" as const : "inferred" as const,
-      provenance: { kind: isSource ? "imported" as const : "deterministic" as const, field: isSource ? "sourceTags" : "topics", method: isSource ? "telegram hashtag or curated tag" : "automatic topic rule" },
+      provenance: { kind: isSource ? "imported" as const : "deterministic" as const, field: isSource ? "sourceTags" : "topics", method: isSource ? "curated tag" : "automatic topic rule" },
     };
   }));
   return { nodes: [...entryNodes, ...topicNodes], edges: [...explicit, ...topicEdges] };

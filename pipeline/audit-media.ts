@@ -1,9 +1,9 @@
-import { readFile, readdir, stat } from "node:fs/promises";
+import { readdir, stat } from "node:fs/promises";
 import { resolve } from "node:path";
-import type { CanonicalPublication } from "./telegram/types";
+import { readPublications } from "./enrichment/prepare";
 
 const root = resolve(process.argv[2] ?? "public/media/telegram");
-const archivePath = resolve(process.argv[3] ?? "pipeline/telegram/archive/canonical.json");
+const archivePath = process.argv[3] ?? "pipeline/telegram/archive/canonical.json";
 const maxFileBytes = Number(process.env.MEDIA_MAX_FILE_MB ?? 9.5) * 1024 * 1024;
 const maxTotalBytes = Number(process.env.MEDIA_MAX_TOTAL_MB ?? 250) * 1024 * 1024;
 const files = await readdir(root);
@@ -11,8 +11,8 @@ const sizes = await Promise.all(files.map(async (name) => ({ name, bytes: (await
 const totalBytes = sizes.reduce((sum, file) => sum + file.bytes, 0);
 const largest = sizes.sort((a, b) => b.bytes - a.bytes)[0];
 const oversized = sizes.filter((file) => file.bytes > maxFileBytes);
-const archive = JSON.parse(await readFile(archivePath, "utf8")) as { publications: CanonicalPublication[] };
-const expected = new Set(archive.publications.flatMap((publication) => publication.media.map((media) => media.publicPath?.split("/").pop()).filter((name): name is string => Boolean(name))));
+const records = (await readPublications(archivePath)).flatMap((publication) => publication.media);
+const expected = new Set(records.map((media) => media.publicPath?.split("/").pop()).filter((name): name is string => Boolean(name)));
 const actual = new Set(files);
 const missing = [...expected].filter((name) => !actual.has(name));
 const orphaned = [...actual].filter((name) => !expected.has(name));
@@ -22,6 +22,9 @@ const report = {
   largest: largest ? { name: largest.name, MB: Number((largest.bytes / 1048576).toFixed(2)) } : null,
   limits: { fileMB: maxFileBytes / 1048576, totalMB: maxTotalBytes / 1048576 },
   referenced: expected.size,
+  // Media the publisher skipped (too large, failed conversion): the record stays in the
+  // corpus without a public path and the entry page must not pretend it is available.
+  unpublished: records.filter((media) => !media.publicPath).length,
   missing: missing.length,
   orphaned: orphaned.length,
 };

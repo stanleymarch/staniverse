@@ -11,6 +11,17 @@ export function topicSlug(topic: string) {
   return transliterated.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "topic";
 }
 
+/**
+ * Topic route for a canonical ID, a stored tag or a display label — or undefined when
+ * the value is not part of the vocabulary and therefore has no `/topics/` page.
+ * Callers must not build the path with `topicSlug(value)` themselves: routes are keyed
+ * by the canonical label, while stored values are IDs and aliases.
+ */
+export function topicRoute(topicIdOrAlias: string) {
+  const definition = getTopicDefinition(topicIdOrAlias);
+  return definition ? `/topics/${topicSlug(definition.label)}/` : undefined;
+}
+
 export interface TopicGroup {
   /** Stable canonical ID (or a normalized legacy label for unknown tags). */
   id: string;
@@ -26,12 +37,17 @@ export interface TopicGroup {
 
 export function collectTopics(entries: AnyEntry[], catalogOnly = false): TopicGroup[] {
   const groups = new Map<string, AnyEntry[]>();
-  for (const entry of entries) for (const tag of [...entry.data.tags, ...(entry.data.topics ?? [])]) {
-    const ids = normalizeTopics([tag]);
-    for (const id of ids) {
-      if (!id) continue;
-      const topicEntries = groups.get(id) ?? [];
-      if (!topicEntries.includes(entry)) groups.set(id, [...topicEntries, entry]);
+  for (const entry of entries) {
+    const values = entry.collection === "publications"
+      ? entry.data.topics ?? []
+      : [...entry.data.tags, ...(entry.data.topics ?? [])];
+    for (const value of values) {
+      const ids = normalizeTopics([value]);
+      for (const id of ids) {
+        if (!getTopicDefinition(id)) continue;
+        const topicEntries = groups.get(id) ?? [];
+        if (!topicEntries.includes(entry)) groups.set(id, [...topicEntries, entry]);
+      }
     }
   }
   const blocked = new Set(["instructions", "answering"]);

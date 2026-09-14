@@ -1,16 +1,19 @@
 ---
 import type { AnyEntry } from "../lib/content";
 import { hrefFor, kindLabel, projectStatus, workStatus } from "../lib/content";
-interface Props { entry: AnyEntry; large?: boolean }
-const { entry, large = false } = Astro.props;
+interface Props { entry: AnyEntry; large?: boolean; headingLevel?: "h2" | "h3" }
+const { entry, large = false, headingLevel: Heading = "h3" } = Astro.props;
 const status = entry.data.kind === "project" ? projectStatus[entry.data.status] : entry.data.kind === "work" ? workStatus[entry.data.status] : undefined;
 const extraFilters = entry.data.kind === "work" ? entry.data.genres : entry.data.kind === "project" ? [entry.data.status, ...entry.data.domains] : [];
+// Video publications carry platform labels, not author hashtags; don't show them as tags.
+const showTags = !(entry.collection === "publications" && ["video", "youtube-video"].includes(entry.data.kind));
+const keepShortWords = (value: string) => value.replace(/(^|\s)(а|без|в|во|для|до|за|и|из|к|ко|на|не|но|о|об|от|по|с|со|у|я)\s+(?=\S)/giu, "$1$2\u00a0");
 ---
 <a class:list={["content-card", `kind-${entry.data.kind}`, { large }]} href={hrefFor(entry)} data-kind={entry.data.kind} data-tags={[...entry.data.tags, ...extraFilters].join(" ")} data-search={`${entry.data.title} ${entry.data.summary} ${entry.data.tags.join(" ")} ${extraFilters.join(" ")}`.toLowerCase()}>
   <div class="card-meta"><span>{kindLabel[entry.data.kind]}</span>{status && <span class="status">{status}</span>}{entry.data.featured && <span class="featured">Избранное</span>}</div>
   <div class="card-orbit" aria-hidden="true"><i></i><i></i><i></i></div>
-  <h3>{entry.data.title}</h3>
-  <p>{entry.data.summary}</p>
-  <div class="tag-row">{entry.data.tags.slice(0, 4).map((tag) => <span>#{tag}</span>)}</div>
+  <Heading>{keepShortWords(entry.data.title)}</Heading>
+  <p>{keepShortWords(entry.data.summary)}</p>
+  {showTags && <div class="tag-row">{entry.data.tags.slice(0, 4).map((tag) => <span>#{tag}</span>)}</div>}
   <span class="card-arrow" aria-hidden="true">↗</span>
 </a>

@@ -82,13 +82,49 @@ export const topicRegistry = [
     companions: ["ai", "llm", "web", "open-source", "iot"],
   }),
   topic({
+    id: "embodied-ai",
+    label: "воплощённый интеллект",
+    family: "ai",
+    aliases: ["embodied-ai", "embodied ai", "воплощённый интеллект", "воплощенный интеллект", "роботы и интеллект"],
+    closeness: { ai: 0.86, iot: 0.78, xr: 0.68, "agents-automation": 0.76 },
+    related: ["ai", "iot", "agents-automation", "xr"],
+    companions: ["ai", "iot", "xr", "open-source"],
+  }),
+  topic({
     id: "xr",
     label: "xr",
     family: "xr",
-    aliases: ["xr", "webxr", "vr", "ar", "mr", "метавселенная", "3d и пространственные медиа", "пространственные медиа", "xr/avatars"],
-    closeness: { "ai": 0.62, companions: 0.86, iot: 0.64, web: 0.72, culture: 0.68 },
-    related: ["web", "companions", "iot", "culture"],
-    companions: ["ai", "iot", "web", "companions", "video", "open-source"],
+    aliases: ["xr", "webxr", "vr", "ar", "mr", "3d и пространственные медиа", "пространственные медиа", "xr/avatars"],
+    closeness: { "ai": 0.62, companions: 0.86, iot: 0.64, web: 0.72, culture: 0.68, "gaussian-splatting": 0.88 },
+    related: ["web", "companions", "iot", "culture", "gaussian-splatting"],
+    companions: ["ai", "iot", "web", "companions", "video", "open-source", "gaussian-splatting"],
+  }),
+  topic({
+    id: "gaussian-splatting",
+    label: "Gaussian Splatting",
+    family: "xr",
+    aliases: ["gaussian splatting", "gaussian splat", "gaussian splats", "3d gaussian splatting", "сплаты", "гауссианы", "гауссовы сплаты"],
+    closeness: { xr: 0.88, "place-heritage": 0.82, web: 0.7, "social-vr": 0.76, "open-source": 0.66 },
+    related: ["xr", "place-heritage", "social-vr", "web"],
+    companions: ["xr", "place-heritage", "social-vr", "web", "open-source", "video"],
+  }),
+  topic({
+    id: "metaverse",
+    label: "метавселенные",
+    family: "xr",
+    aliases: ["метавселенная", "метавселенные", "metaverse"],
+    closeness: { xr: 0.85, "social-vr": 0.7, culture: 0.6 },
+    related: ["xr", "social-vr", "culture"],
+    companions: ["xr", "social-vr", "games", "culture"],
+  }),
+  topic({
+    id: "social-vr",
+    label: "социальный vr",
+    family: "xr",
+    aliases: ["social-vr", "social vr", "социальный vr", "социальная виртуальная реальность", "virtual social worlds"],
+    closeness: { xr: 0.9, culture: 0.74, companions: 0.72, "place-heritage": 0.58 },
+    related: ["xr", "culture", "companions"],
+    companions: ["xr", "culture", "companions", "video"],
   }),
   topic({
     id: "iot",
@@ -103,7 +139,7 @@ export const topicRegistry = [
     id: "open-source",
     label: "open source",
     family: "open-source",
-    aliases: ["open source", "open-source", "opensource", "oss", "открытый код", "с открытым исходным кодом", "самохостинг", "self-hosting"],
+    aliases: ["open source", "open-source", "opensource", "oss", "открытый код", "с открытым исходным кодом"],
     closeness: { ai: 0.72, llm: 0.76, iot: 0.76, xr: 0.72, web: 0.8 },
     related: ["ai", "iot", "xr", "web"],
     companions: ["ai", "llm", "iot", "xr", "web", "agents-automation"],
@@ -121,8 +157,8 @@ export const topicRegistry = [
     id: "video",
     label: "видео и продакшн",
     family: "media",
-    aliases: ["video", "видео", "видео и продакшн", "видеопродакшн", "медиапроизводство", "documentary"],
-    closeness: { sound: 0.82, xr: 0.72, culture: 0.68, place: 0.64 },
+    aliases: ["video", "видео", "видео и продакшн", "видеопродакшн", "медиапроизводство", "documentary", "animation", "анимация", "motion"],
+    closeness: { sound: 0.82, xr: 0.72, culture: 0.68, "place-heritage": 0.64 },
     related: ["sound", "xr", "culture", "place"],
     companions: ["xr", "sound", "culture", "place", "web"],
   }),
@@ -139,7 +175,7 @@ export const topicRegistry = [
     id: "place-heritage",
     label: "город и наследие",
     family: "place",
-    aliases: ["город и наследие", "город", "территория", "heritage", "cultural-memory", "киров", "вятка"],
+    aliases: ["город и наследие", "город", "place", "территория", "heritage", "cultural-memory", "киров", "вятка"],
     closeness: { culture: 0.86, travel: 0.78, xr: 0.66, video: 0.64 },
     related: ["culture", "travel", "xr", "video"],
     companions: ["culture", "travel", "xr", "video", "web"],
@@ -148,7 +184,7 @@ export const topicRegistry = [
     id: "culture",
     label: "цифровая культура",
     family: "culture",
-    aliases: ["цифровая культура", "culture", "культура", "исследования", "research", "общество", "social", "community"],
+    aliases: ["цифровая культура", "culture", "культура", "исследования", "research", "community"],
     closeness: { "place-heritage": 0.86, education: 0.7, video: 0.68, companions: 0.62 },
     related: ["place-heritage", "education", "video", "companions"],
     companions: ["place-heritage", "video", "sound", "xr", "web", "education"],
@@ -182,12 +218,68 @@ export const topicRegistry = [
   }),
   topic({
     id: "companions",
-    label: "близость, отношения и компаньоны",
+    label: "ai-компаньоны",
     family: "life",
-    aliases: ["ai/companions", "компаньоны", "компаньон", "ai companions", "эмоциональные компаньоны", "близость", "отношения", "виртуальные персонажи", "intimacy", "sexuality", "интимность", "сексуальность", "этика"],
+    // Human intimacy belongs to intimate-tech; companions is machine-companionship only.
+    aliases: ["ai/companions", "компаньоны", "компаньон", "ai companions", "эмоциональные компаньоны", "ии-компаньон", "ии-вайфу", "близость, отношения и компаньоны"],
     closeness: { ai: 0.78, xr: 0.86, iot: 0.82, games: 0.7, culture: 0.62 },
     related: ["ai", "xr", "iot", "games", "culture"],
     companions: ["ai", "xr", "iot", "open-source", "games", "culture"],
+  }),
+  topic({
+    id: "intimate-tech",
+    label: "интим и близость",
+    family: "life",
+    // One intimacy theme for every medium: ERP in social VR, teledildonics, human or AI closeness.
+    aliases: ["intimate-tech", "intimate tech", "интимные технологии", "интимные устройства", "sexual technology", "близость", "отношения", "интимность", "сексуальность", "intimacy", "sexuality", "erp"],
+    closeness: { companions: 0.84, iot: 0.74, xr: 0.7, "social-vr": 0.78, culture: 0.6 },
+    related: ["companions", "iot", "xr", "social-vr", "culture"],
+    companions: ["companions", "iot", "xr", "social-vr", "ai"],
+  }),
+  topic({
+    id: "vtubing",
+    label: "втюбинг и виртуальные персонажи",
+    family: "media",
+    aliases: ["vtubing", "vtuber", "втюбер", "втюбинг", "витюбер", "виртуальный ютубер", "virtual youtuber", "виртуальные персонажи"],
+    closeness: { xr: 0.8, ai: 0.68, companions: 0.66, video: 0.72, culture: 0.62 },
+    related: ["xr", "ai", "companions", "video"],
+    companions: ["xr", "ai", "companions", "video", "sound"],
+  }),
+  topic({
+    id: "lifestyle",
+    label: "повседневность и личный опыт",
+    family: "life",
+    aliases: ["lifestyle", "лайфстайл", "быт", "повседневность", "личное", "личный опыт", "личный дневник"],
+    closeness: { travel: 0.64, "place-heritage": 0.6, culture: 0.62, companions: 0.5 },
+    related: ["place-heritage", "culture", "travel"],
+    companions: ["place-heritage", "culture", "travel", "sound"],
+  }),
+  topic({
+    id: "writing",
+    label: "тексты и письмо",
+    family: "media",
+    aliases: ["writing", "тексты", "письмо", "копирайтинг", "журналистика"],
+    closeness: { media: 0.8, culture: 0.66, "agents-automation": 0.6 },
+    related: ["media", "culture", "education"],
+    companions: ["media", "video", "culture", "education"],
+  }),
+  topic({
+    id: "art",
+    label: "арт и сценография",
+    family: "culture",
+    aliases: ["art", "арт", "сценография", "искусство", "digital art"],
+    closeness: { culture: 0.82, xr: 0.7, video: 0.6 },
+    related: ["culture", "xr", "video"],
+    companions: ["culture", "xr", "video", "sound"],
+  }),
+  topic({
+    id: "kirov",
+    label: "киров",
+    family: "place",
+    aliases: ["kirov", "киров", "вятка", "vyatka", "слободской", "slobodskoy"],
+    closeness: { "place-heritage": 0.9, culture: 0.64, travel: 0.6 },
+    related: ["place-heritage", "culture", "travel"],
+    companions: ["place-heritage", "culture", "video", "travel"],
   }),
 ] as const satisfies readonly TopicDefinition[];
 
@@ -204,7 +296,7 @@ const multiAliases: Record<string, readonly string[]> = {
   "ai/llm": ["ai", "llm"],
   "ai/agents": ["ai", "agents-automation"],
   "ai/companions": ["ai", "companions"],
-  "xr/avatars": ["xr", "companions"],
+  "xr/avatars": ["xr", "vtubing"],
 };
 
 function normalizeAlias(value: string) {
@@ -241,7 +333,7 @@ export function topicCloseness(first: string, second: string) {
   if (a === b) return 1;
   const firstDefinition = definitions.get(a);
   const secondDefinition = definitions.get(b);
-  return firstDefinition?.closeness[b] ?? secondDefinition?.closeness[a] ?? (firstDefinition?.family === secondDefinition?.family ? 0.5 : 0);
+  return firstDefinition?.closeness[b] ?? secondDefinition?.closeness[a] ?? (firstDefinition && secondDefinition && firstDefinition.family === secondDefinition.family ? 0.5 : 0);
 }
 
 export function topicRelations(topicIdOrAlias: string) {

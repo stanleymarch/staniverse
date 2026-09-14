@@ -13,7 +13,7 @@ entities: []
 featured: true
 features: ["Разработал концепцию и визуальную метафору","Реализовал интерактивный опыт на p5.js","Сгенерировал звуковой ряд средствами p5.js","Использовал Claude как помощника в коде"]
 legacySource: "F:/Code/active/sverseq#published:tyaga"
-relations: [{"target":"project:staniverse","type":"related","evidence":"editorial","confidence":0.8}]
+relations: [{"target":"publication:telegram:staniverse:1025","type":"documents","evidence":"editorial","confidence":1},{"target":"project:staniverse","type":"related","evidence":"editorial","confidence":0.8}]
 ---
 ## Задача
 Создать веб-опыт на p5.js, визуализирующий борьбу с зависимостью — момент, когда ты держишься, держишься, но если в какой-то миг не отпустишь мысль, то проигрываешь.

@@ -27,6 +27,28 @@ export function isDottedLocalEdge(edge: GraphEdge) {
   return isInferredGraphEdge(edge);
 }
 
+/** An edge paired with the title of the node it connects to, for stable ordering. */
+interface EdgeOrder {
+  edge: GraphEdge;
+  title: string;
+}
+
+/** A one-hop neighbour: where the edge leads, the edge itself, and its title. */
+interface Neighbour extends EdgeOrder {
+  id: string;
+}
+
+/**
+ * Significance order shared by the spatial projection and the direction lists:
+ * causal, then explicit evidence, then topic/semantic context, with confidence
+ * and title as tie-breakers so both views lead with the same relation.
+ */
+function compareEdgeOrder(a: EdgeOrder, b: EdgeOrder) {
+  const rankA = isCausalRelation(a.edge) ? 0 : isInferredGraphEdge(a.edge) ? 2 : 1;
+  const rankB = isCausalRelation(b.edge) ? 0 : isInferredGraphEdge(b.edge) ? 2 : 1;
+  return rankA - rankB || b.edge.confidence - a.edge.confidence || a.title.localeCompare(b.title, "ru");
+}
+
 function positionFor(index: number) {
   // These are labelled cards, not mathematical points. A deterministic field
   // gives each node a real hit target without collisions at narrow widths.
@@ -41,25 +63,30 @@ function positionFor(index: number) {
  */
 export function buildLocalGraph(currentId: string, nodes: GraphNode[], edges: GraphEdge[], maxDepth = 3, maxNodes = 14): LocalGraphData {
   const nodeById = new Map(nodes.map((node) => [node.id, node]));
-  const adjacent = new Map<string, Array<{ id: string; edge: GraphEdge }>>();
+  const adjacent = new Map<string, Neighbour[]>();
+  const link = (from: string, node: GraphNode, edge: GraphEdge) => {
+    const entry: Neighbour = { id: node.id, edge, title: node.title };
+    const bucket = adjacent.get(from);
+    if (bucket) bucket.push(entry);
+    else adjacent.set(from, [entry]);
+  };
 
   for (const edge of edges) {
-    if (!nodeById.has(edge.source) || !nodeById.has(edge.target)) continue;
-    adjacent.get(edge.source)?.push({ id: edge.target, edge }) ?? adjacent.set(edge.source, [{ id: edge.target, edge }]);
-    adjacent.get(edge.target)?.push({ id: edge.source, edge }) ?? adjacent.set(edge.target, [{ id: edge.source, edge }]);
+    const source = nodeById.get(edge.source);
+    const target = nodeById.get(edge.target);
+    if (!source || !target) continue;
+    link(source.id, target, edge);
+    link(target.id, source, edge);
   }
 
-  const edgeRank = (edge: GraphEdge) => isCausalRelation(edge) ? 0 : isInferredGraphEdge(edge) ? 2 : 1;
-  for (const neighbours of adjacent.values()) {
-    neighbours.sort((a, b) => edgeRank(a.edge) - edgeRank(b.edge) || b.edge.confidence - a.edge.confidence || (nodeById.get(a.id)?.title ?? a.id).localeCompare(nodeById.get(b.id)?.title ?? b.id, "ru"));
-  }
+  for (const neighbours of adjacent.values()) neighbours.sort(compareEdgeOrder);
 
   const depthById = new Map<string, number>();
   if (nodeById.has(currentId)) depthById.set(currentId, 0);
   let frontier = [currentId];
   let topicCount = 0;
   for (let depth = 1; depth <= maxDepth && frontier.length > 0 && depthById.size < maxNodes; depth += 1) {
-    const candidates = new Map<string, { id: string; edge: GraphEdge }>();
+    const candidates = new Map<string, Neighbour>();
     for (const id of frontier) {
       // A topic is useful local context, but traversing through a topic hub
       // turns a neighbourhood into almost the complete archive.
@@ -67,12 +94,12 @@ export function buildLocalGraph(currentId: string, nodes: GraphNode[], edges: Gr
       for (const candidate of adjacent.get(id) ?? []) {
         if (depthById.has(candidate.id)) continue;
         const previous = candidates.get(candidate.id);
-        if (!previous || edgeRank(candidate.edge) < edgeRank(previous.edge) || candidate.edge.confidence > previous.edge.confidence) candidates.set(candidate.id, candidate);
+        if (!previous || compareEdgeOrder(candidate, previous) < 0) candidates.set(candidate.id, candidate);
       }
     }
     const perDepthBudget = Math.min(5, maxNodes - depthById.size);
     const selected = [...candidates.values()]
-      .sort((a, b) => edgeRank(a.edge) - edgeRank(b.edge) || b.edge.confidence - a.edge.confidence || (nodeById.get(a.id)?.title ?? a.id).localeCompare(nodeById.get(b.id)?.title ?? b.id, "ru"))
+      .sort(compareEdgeOrder)
       .filter(({ id }) => {
         if (nodeById.get(id)?.kind !== "topic") return true;
         if (topicCount >= 3) return false;
@@ -105,4 +132,78 @@ export function buildLocalGraph(currentId: string, nodes: GraphNode[], edges: Gr
     }));
 
   return { current: nodeById.get(currentId), nodes: localNodes, edges: localEdges };
+}
+
+export type RelationDirectionId = "outgoing" | "incoming";
+
+/** One end of a directed edge, resolved to the node a reader can open. */
+export interface LocalRelation {
+  /** Identity of the directed edge inside its direction list. */
+  key: string;
+  edge: GraphEdge;
+  node: GraphNode;
+  href: string;
+  title: string;
+  label: string;
+  evidence: string;
+  confidence: number;
+  causal: boolean;
+  /** Topic, semantic, or otherwise inferred context rather than direct proof. */
+  inferred: boolean;
+  /** Review state carried by the edge, when the data provides one. */
+  status?: string;
+}
+
+export interface LocalDirection {
+  id: RelationDirectionId;
+  heading: string;
+  /** How to read the arrow inside this direction. */
+  hint: string;
+  /** Replaces the list when the direction has no relations. */
+  emptyText: string;
+  relations: LocalRelation[];
+}
+
+const DIRECTIONS: Array<Pick<LocalDirection, "id" | "heading" | "hint" | "emptyText">> = [
+  { id: "outgoing", heading: "Исходящие", hint: "к соседям", emptyText: "Исходящих связей пока нет: материал ни на что не ссылается." },
+  { id: "incoming", heading: "Входящие", hint: "от соседей", emptyText: "Входящих связей пока нет: на этот материал ещё не ссылаются." },
+];
+
+/**
+ * Splits every directed edge that touches one material into outgoing and
+ * incoming relations. Unlike the spatial projection this is neither depth- nor
+ * budget-bounded, and a neighbour keeps the href the graph already resolved.
+ */
+export function buildDirectedRelations(currentId: string, nodes: GraphNode[], edges: GraphEdge[]): LocalDirection[] {
+  const nodeById = new Map(nodes.map((node) => [node.id, node]));
+  const outgoing = new Map<string, LocalRelation>();
+  const incoming = new Map<string, LocalRelation>();
+
+  for (const edge of edges) {
+    // A self-edge has no direction to show, so it belongs in neither list.
+    if (edge.source === edge.target) continue;
+    const outgoingEnd = edge.source === currentId ? nodeById.get(edge.target) : undefined;
+    const incomingEnd = edge.target === currentId ? nodeById.get(edge.source) : undefined;
+    const node = outgoingEnd ?? incomingEnd;
+    if (!node) continue;
+    const key = `${edge.source}→${edge.target}|${edge.type}|${edge.evidence}`;
+    (outgoingEnd ? outgoing : incoming).set(key, {
+      key,
+      edge,
+      node,
+      href: node.href,
+      title: node.title,
+      label: relationLabel(edge.type),
+      evidence: edge.evidence,
+      confidence: edge.confidence,
+      causal: isCausalRelation(edge),
+      inferred: isInferredGraphEdge(edge),
+      status: edge.reviewStatus ?? edge.status,
+    });
+  }
+
+  return DIRECTIONS.map((direction) => ({
+    ...direction,
+    relations: [...(direction.id === "outgoing" ? outgoing : incoming).values()].sort(compareEdgeOrder),
+  }));
 }

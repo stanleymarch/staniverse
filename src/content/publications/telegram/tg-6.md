@@ -7,8 +7,8 @@ date: "2023-09-25T20:32:59"
 updated: "2023-09-25T20:36:12"
 tags: []
 sourceTags: []
-topics: ["музыка и звук"]
-entities: []
+topics: ["sound","culture","lifestyle"]
+entities: ["VK Музыка","Spotify","Яндекс.Музыка","Собор Парижской Богоматери"]
 sourceUrl: "https://t.me/staniverse/6"
 sourceId: "6"
 threadIds: ["6"]

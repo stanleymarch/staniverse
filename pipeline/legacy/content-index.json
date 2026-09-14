@@ -1,0 +1,3169 @@
+{
+ "source": "https://staniverse.xyz/static/contentIndex.json",
+ "capturedAt": "2026-09-13",
+ "entries": 633,
+ "tags": [
+  "360video",
+  "3d",
+  "3d-printing",
+  "Answering",
+  "FreeDurov",
+  "GenAI",
+  "INSTRUCTIONS",
+  "MadeByGoogle",
+  "ableton",
+  "advice",
+  "ai",
+  "ai-agents",
+  "ai-companions",
+  "ai-image",
+  "ai-video",
+  "ai-voice",
+  "ai/agents",
+  "ai/companions",
+  "ai/llm",
+  "ai/voice",
+  "aiart",
+  "animation",
+  "api",
+  "apple",
+  "ar",
+  "art",
+  "article",
+  "articles",
+  "astro",
+  "audio",
+  "audio-reactive",
+  "audiovisual",
+  "automation",
+  "aviation",
+  "avito",
+  "basisvr",
+  "blender",
+  "blogging",
+  "books",
+  "business",
+  "calligraphy",
+  "career",
+  "censorship",
+  "chatgpt",
+  "chernobyl",
+  "cinema",
+  "claude",
+  "commentary",
+  "community",
+  "contacts",
+  "crypto",
+  "culture",
+  "dating",
+  "deepresearch",
+  "deepseek",
+  "design",
+  "digital-humans",
+  "digitalization",
+  "diploma",
+  "diy",
+  "donate",
+  "ecology",
+  "education",
+  "ethics",
+  "exhibition",
+  "fabrication",
+  "festivals",
+  "football",
+  "future",
+  "game-dev",
+  "gaming",
+  "garden",
+  "gaussiansplatting",
+  "gemini",
+  "genai",
+  "gesture",
+  "google",
+  "guides",
+  "haptics",
+  "hardware",
+  "health",
+  "heritage",
+  "home",
+  "hosting",
+  "humor",
+  "immersive",
+  "interactive_experience",
+  "internet",
+  "interview",
+  "intimate-tech",
+  "ios",
+  "iot",
+  "itmo",
+  "jazz",
+  "kirov",
+  "lab",
+  "linux",
+  "llm",
+  "localai",
+  "manifesto",
+  "mcp",
+  "me",
+  "mediapipe",
+  "memes",
+  "memory",
+  "meta",
+  "metaverse",
+  "migration",
+  "mobile",
+  "moderation",
+  "moscow",
+  "moving",
+  "museum",
+  "music",
+  "neurotech",
+  "news",
+  "nft",
+  "note-taking",
+  "nvidia",
+  "obsidian",
+  "open-source",
+  "openai",
+  "opensource",
+  "performance",
+  "perplexity",
+  "personal",
+  "photogrammetry",
+  "podcasts",
+  "policy",
+  "portfolio",
+  "privacy",
+  "productivity",
+  "projects",
+  "prompting",
+  "rag",
+  "raindance",
+  "research",
+  "resonite",
+  "retro",
+  "robotics",
+  "school",
+  "security",
+  "self-development",
+  "sensors",
+  "shaders",
+  "smart-home",
+  "social",
+  "social-vr",
+  "somniumspace",
+  "sound",
+  "space",
+  "spatial",
+  "sports",
+  "staniverse",
+  "storytelling",
+  "streaming",
+  "support",
+  "techniques",
+  "telegram",
+  "theater",
+  "tools",
+  "travel",
+  "trends",
+  "unity",
+  "unreal",
+  "urbanism",
+  "vibecoding",
+  "vibes",
+  "video",
+  "vinyl",
+  "virtual_art",
+  "visualise",
+  "vps",
+  "vr",
+  "vrchat",
+  "vtuber",
+  "web",
+  "webxr",
+  "windows",
+  "wordpress",
+  "workflow",
+  "works",
+  "writing",
+  "xr",
+  "xr/avatars",
+  "yandex",
+  "youtube",
+  "Китай",
+  "ХищныеВещиВека",
+  "ЭмоциональныеКомпаньоны"
+ ],
+ "posts": [
+  {
+   "slug": "garden/posts/2023-09-05_privetstvie-i-start-kanala",
+   "messageId": 3,
+   "title": "Приветствие и старт канала"
+  },
+  {
+   "slug": "garden/posts/2023-09-22_krizis-doveriya-k-unity-iz-za-fee-policy",
+   "messageId": 4,
+   "title": "Кризис доверия к Unity из-за Fee policy"
+  },
+  {
+   "slug": "garden/posts/2023-09-23_illyuziya-pobedy-i-stavki-na-sport",
+   "messageId": 5,
+   "title": "Иллюзия победы и ставки на спорт"
+  },
+  {
+   "slug": "garden/posts/2023-09-25_zachem-nuzhna-podpiska-na-vk-muzyku",
+   "messageId": 6,
+   "title": "Зачем нужна подписка на VK Музыку"
+  },
+  {
+   "slug": "garden/posts/2023-09-27_ai-npc-dlya-metavyorsov-v-ploskom-vebe",
+   "messageId": 9,
+   "title": "AI-NPC для метавёрсов в плоском вебе"
+  },
+  {
+   "slug": "garden/posts/2023-09-27_alternativy-horizon-world-dlya-keynouta",
+   "messageId": 7,
+   "title": "Альтернативы Horizon World для кейноута"
+  },
+  {
+   "slug": "garden/posts/2023-09-28_nizkiy-onlayn-meta-connect",
+   "messageId": 10,
+   "title": "Низкий онлайн Meta Connect"
+  },
+  {
+   "slug": "garden/posts/2023-10-02_nostalgiya-po-moskve-spustya-2-goda",
+   "messageId": 11,
+   "title": "Ностальгия по Москве спустя 2 года"
+  },
+  {
+   "slug": "garden/posts/2023-10-03_ea-fc-kak-terapiya-ot-boley-za-myu",
+   "messageId": 12,
+   "title": "EA FC как терапия от болей за МЮ"
+  },
+  {
+   "slug": "garden/posts/2023-10-05_kviz-na-luchshuyu-formu-i-bol-fanata-myu",
+   "messageId": 13,
+   "title": "Квиз на лучшую форму и боль фаната МЮ"
+  },
+  {
+   "slug": "garden/posts/2023-10-12_neyroseti-adobe-generiruyut-video",
+   "messageId": 15,
+   "title": "Нейросети Adobe генерируют видео"
+  },
+  {
+   "slug": "garden/posts/2023-10-13_razbor-gadzhetov-ot-ifixit-i-vozmuscheniya",
+   "messageId": 16,
+   "title": "Разбор гаджетов от iFixit и возмущения"
+  },
+  {
+   "slug": "garden/posts/2023-10-23_premiya-kuryokhina-odnovremenno-v-teatre-i",
+   "messageId": 17,
+   "title": "Премия Курёхина одновременно в театре и VRChat"
+  },
+  {
+   "slug": "garden/posts/2023-10-27_vrchat-perekhodit-na-novyy-unity",
+   "messageId": 18,
+   "title": "VRChat переходит на новый Unity"
+  },
+  {
+   "slug": "garden/posts/2023-11-22_buduschee-oslepitelnee-nauchnoy-fantastiki",
+   "messageId": 20,
+   "title": "Будущее ослепительнее научной фантастики"
+  },
+  {
+   "slug": "garden/posts/2024-04-12_neyroset-ozhivila-stikhi-pro-slobodskoy",
+   "messageId": 24,
+   "title": "Нейросеть оживила стихи про Слободской"
+  },
+  {
+   "slug": "garden/posts/2024-04-24_virtualnoe-predstavitelstvo-v-spatial",
+   "messageId": 28,
+   "title": "Виртуальное представительство в Spatial"
+  },
+  {
+   "slug": "garden/posts/2024-04-27_sorevnovanie-bespilotnykh-bolidov-v-abu-d",
+   "messageId": 29,
+   "title": "Соревнование беспилотных болидов в Абу-Даби"
+  },
+  {
+   "slug": "garden/posts/2024-04-28_vr-opyt-sergeya-kuryokhina-v-metavyorsuse",
+   "messageId": 33,
+   "title": "VR-опыт Сергея Курёхина в метавёрсусе"
+  },
+  {
+   "slug": "garden/posts/2024-05-02_brauzer-arc-vyshel-na-windows",
+   "messageId": 39,
+   "title": "Браузер Arc вышел на Windows"
+  },
+  {
+   "slug": "garden/posts/2024-05-04_ferma-klarksona-vyshla-bez-russkikh-subtit",
+   "messageId": 43,
+   "title": "Ферма Кларксона вышла без русских субтитров"
+  },
+  {
+   "slug": "garden/posts/2024-05-13_novyy-anons-openai-cherez-7-minut",
+   "messageId": 44,
+   "title": "Новый анонс OpenAI через 7 минут"
+  },
+  {
+   "slug": "garden/posts/2024-05-14_apple-intelligence-openai-i-vybor-smartf",
+   "messageId": 48,
+   "title": "Apple Intelligence, OpenAI и выбор смартфона"
+  },
+  {
+   "slug": "garden/posts/2024-05-14_bolshoe-kontekstnoe-okno-v-gigachate",
+   "messageId": 47,
+   "title": "Большое контекстное окно в ГигаЧате"
+  },
+  {
+   "slug": "garden/posts/2024-05-14_google-io-bingo-na-slovo-ai-i-121-shot",
+   "messageId": 46,
+   "title": "Google I/O: Бинго на слово AI и 121 шот"
+  },
+  {
+   "slug": "garden/posts/2024-05-14_o-vot-eto-smeshno-bylo",
+   "messageId": 49,
+   "title": "О, вот это смешно было."
+  },
+  {
+   "slug": "garden/posts/2024-05-16_vzlom-google-gemini-15-cherez-trigger-pro",
+   "messageId": 50,
+   "title": "Взлом Google Gemini 1.5 через триггер про GPT-4"
+  },
+  {
+   "slug": "garden/posts/2024-05-17_ai-mozgi-dlya-npc-v-spatial",
+   "messageId": 60,
+   "title": "AI-мозги для NPC в Spatial"
+  },
+  {
+   "slug": "garden/posts/2024-05-17_neyroseti-ozhivlyayut-novosti-rodnogo-gorod",
+   "messageId": 61,
+   "title": "Нейросети оживляют новости родного города"
+  },
+  {
+   "slug": "garden/posts/2024-05-17_test-besplatnoy-ii-modeli-na-novostyakh",
+   "messageId": 63,
+   "title": "Тест бесплатной ИИ-модели на новостях"
+  },
+  {
+   "slug": "garden/posts/2024-05-18_lyublyu-goly-v-nachale-tayma",
+   "messageId": 64,
+   "title": "Люблю голы в начале тайма"
+  },
+  {
+   "slug": "garden/posts/2024-05-20_openai-udalyaet-golos-sky-iz-chatgpt",
+   "messageId": 65,
+   "title": "OpenAI удаляет голос Sky из ChatGPT"
+  },
+  {
+   "slug": "garden/posts/2024-05-20_vayby-30-letnikh-vmesto-starykh-serialov",
+   "messageId": 66,
+   "title": "Вайбы 30-летних вместо старых сериалов"
+  },
+  {
+   "slug": "garden/posts/2024-05-21_skvosh-vmesto-kardio-sport-s-geymifikatsie",
+   "messageId": 67,
+   "title": "Сквош вместо кардио: спорт с геймификацией"
+  },
+  {
+   "slug": "garden/posts/2024-05-22_metavdnkh-ozhidaniya-i-unreal-engine-5",
+   "messageId": 68,
+   "title": "МетаВДНХ: ожидания и Unreal Engine 5"
+  },
+  {
+   "slug": "garden/posts/2024-05-24_farming-simulator-2022-besplatno-v-egs",
+   "messageId": 69,
+   "title": "Farming Simulator 2022 бесплатно в EGS"
+  },
+  {
+   "slug": "garden/posts/2024-05-25_besplatnye-kursy-po-ai-ot-nvidia",
+   "messageId": 72,
+   "title": "Бесплатные курсы по AI от NVIDIA"
+  },
+  {
+   "slug": "garden/posts/2024-05-25_pobeda-myu-i-vykhod-v-ligu-chempionov",
+   "messageId": 71,
+   "title": "Победа МЮ и выход в Лигу Чемпионов"
+  },
+  {
+   "slug": "garden/posts/2024-05-25_razdrazhenie-ot-matcha-v-krasnodare",
+   "messageId": 70,
+   "title": "Раздражение от матча в Краснодаре"
+  },
+  {
+   "slug": "garden/posts/2024-05-26_geymifikatsiya-v-duolingo-i-buduschee-ii-rep",
+   "messageId": 73,
+   "title": "Геймификация в Duolingo и будущее ИИ-репетиторов"
+  },
+  {
+   "slug": "garden/posts/2024-05-29_obratnyy-test-tyuringa-chelovek-pryachetcya",
+   "messageId": 74,
+   "title": "Обратный тест Тьюринга: человек прячетcя от ИИ"
+  },
+  {
+   "slug": "garden/posts/2024-05-30_besplatnye-gpt-pomoschniki-i-riski-privatn",
+   "messageId": 75,
+   "title": "Бесплатные GPT-помощники и риски приватности"
+  },
+  {
+   "slug": "garden/posts/2024-05-31_obnovlennye-kastomnye-instruktsii-dlya-cha",
+   "messageId": 76,
+   "title": "Обновленные кастомные инструкции для ChatGPT"
+  },
+  {
+   "slug": "garden/posts/2024-06-04_neyroseti-ne-zamenyat-nas-iz-za-etogo-fot",
+   "messageId": 78,
+   "title": "Нейросети не заменят нас из-за этого фото"
+  },
+  {
+   "slug": "garden/posts/2024-06-04_vozvraschenie-jamie-xx-i-novyy-albom",
+   "messageId": 77,
+   "title": "Возвращение Jamie xx и новый альбом"
+  },
+  {
+   "slug": "garden/posts/2024-06-05_nvidia-obgonyaet-apple-s-kapitalizatsiey-3",
+   "messageId": 79,
+   "title": "NVIDIA обгоняет Apple с капитализацией $3 трлн"
+  },
+  {
+   "slug": "garden/posts/2024-06-06_zamena-rgb-kulerov-na-pwm-ventilyatory",
+   "messageId": 80,
+   "title": "Замена RGB-кулеров на PWM-вентиляторы"
+  },
+  {
+   "slug": "garden/posts/2024-06-07_khomyak-kombat-geymifikatsiya-kripty",
+   "messageId": 81,
+   "title": "Хомяк Комбат: геймификация крипты"
+  },
+  {
+   "slug": "garden/posts/2024-06-10_a-zadruzhilis-oni-taki-s-openai",
+   "messageId": 82,
+   "title": "А задружились они таки с OpenAI!"
+  },
+  {
+   "slug": "garden/posts/2024-06-10_apple-intelligence-i-porog-vkhoda-v-ii",
+   "messageId": 83,
+   "title": "Apple Intelligence и порог входа в ИИ"
+  },
+  {
+   "slug": "garden/posts/2024-06-10_krasivaya-vyorstka-apple-intelligence",
+   "messageId": 86,
+   "title": "Красивая вёрстка Apple Intelligence"
+  },
+  {
+   "slug": "garden/posts/2024-06-11_lokalnye-neyroseti-dzhoystik-i-tsessna",
+   "messageId": 87,
+   "title": "Локальные нейросети, джойстик и Цессна"
+  },
+  {
+   "slug": "garden/posts/2024-06-12_ai-kaver-pro-vyatku-k-650-letiyu",
+   "messageId": 91,
+   "title": "AI-кавер про Вятку к 650-летию"
+  },
+  {
+   "slug": "garden/posts/2024-06-13_vvedenie-v-lokalnye-llm-bez-vody",
+   "messageId": 92,
+   "title": "Введение в локальные LLM без воды"
+  },
+  {
+   "slug": "garden/posts/2024-06-18_deyting-bot-v-seti-ton-stoit-li-platit",
+   "messageId": 93,
+   "title": "Дейтинг-бот в сети TON: стоит ли платить?"
+  },
+  {
+   "slug": "garden/posts/2024-06-20_anthropic-vypustila-claude-35",
+   "messageId": 94,
+   "title": "Anthropic выпустила Claude 3.5"
+  },
+  {
+   "slug": "garden/posts/2024-06-20_chto-ranshe-999-ili-novye-benchi",
+   "messageId": 95,
+   "title": "Что раньше: 99.9% или новые бенчи?"
+  },
+  {
+   "slug": "garden/posts/2024-06-21_podkast-studiya-v-metavselennoy",
+   "messageId": 96,
+   "title": "Подкаст-студия в метавселенной"
+  },
+  {
+   "slug": "garden/posts/2024-06-22_mira-murati-i-tone-deaf-tsitaty-ob-ii",
+   "messageId": 100,
+   "title": "Мира Мурати и tone-deaf цитаты об ИИ"
+  },
+  {
+   "slug": "garden/posts/2024-06-24_itogi-meta-konferentsii-sense-tower",
+   "messageId": 101,
+   "title": "Итоги мета-конференции SENSE Tower"
+  },
+  {
+   "slug": "garden/posts/2024-06-26_vyvod-notkoinov-posle-steykinga",
+   "messageId": 102,
+   "title": "Вывод ноткоинов после стейкинга"
+  },
+  {
+   "slug": "garden/posts/2024-06-27_google-vypustila-legkovesnuyu-llm-gemma-2",
+   "messageId": 103,
+   "title": "Google выпустила легковесную LLM Gemma 2"
+  },
+  {
+   "slug": "garden/posts/2024-06-28_affirmatsiya-dlya-kirova-ot-neyrosetey",
+   "messageId": 106,
+   "title": "Аффирмация для Кирова от нейросетей"
+  },
+  {
+   "slug": "garden/posts/2024-06-30_prodlenie-ten-khaga-v-myu-oblegchenie",
+   "messageId": 107,
+   "title": "Продление Тен Хага в МЮ — облегчение"
+  },
+  {
+   "slug": "garden/posts/2024-07-02_ot-it-k-biokhakingu-gamk-ratsetamy-i-dispa",
+   "messageId": 108,
+   "title": "От ИТ к биохакингу: ГАМК, рацетамы и диспансеризация"
+  },
+  {
+   "slug": "garden/posts/2024-07-03_perplexity-pro-search-mnogoetapnye-zapro",
+   "messageId": 110,
+   "title": "Perplexity Pro Search: многоэтапные запросы и Wolfram"
+  },
+  {
+   "slug": "garden/posts/2024-07-03_v-kontekste-goda-semi-etot-i-nekotorye",
+   "messageId": 109,
+   "title": "В контексте Года семьи, этот и некоторые другие будущие пост…"
+  },
+  {
+   "slug": "garden/posts/2024-07-04_generatsiya-bukv-iz-chego-ugodno-ot-google",
+   "messageId": 111,
+   "title": "Генерация букв из чего угодно от Google"
+  },
+  {
+   "slug": "garden/posts/2024-07-12_bot-dogs-nachislyaet-monety-za-vozrast-akk",
+   "messageId": 112,
+   "title": "Бот $DOGS начисляет монеты за возраст аккаунта"
+  },
+  {
+   "slug": "garden/posts/2024-07-14_arkh-linuks-tayling-i-sukhie-glaza",
+   "messageId": 113,
+   "title": "Арх Линукс, тайлинг и сухие глаза"
+  },
+  {
+   "slug": "garden/posts/2024-07-14_kapitan-v-fentezi-dlya-yunogo-darovaniya",
+   "messageId": 114,
+   "title": "Капитан в Фэнтези для юного дарования"
+  },
+  {
+   "slug": "garden/posts/2024-07-14_razocharovanie-v-ozhidaniyakh",
+   "messageId": 115,
+   "title": "Разочарование в ожиданиях"
+  },
+  {
+   "slug": "garden/posts/2024-07-15_sbornaya-rossii-v-ea-fc-vyklyuchil-playstat",
+   "messageId": 116,
+   "title": "Сборная России в EA FC: выключил PlayStation"
+  },
+  {
+   "slug": "garden/posts/2024-07-17_mass-adopshn-ii-v-rossii-i-risk-privatnos",
+   "messageId": 118,
+   "title": "Масс-адопшн ИИ в России и риск приватности"
+  },
+  {
+   "slug": "garden/posts/2024-07-18_mechty-o-pilotirovanii-vmesto-pervogo-vid",
+   "messageId": 119,
+   "title": "Мечты о пилотировании вместо первого видео"
+  },
+  {
+   "slug": "garden/posts/2024-07-19_globalnyy-sboy-ib-i-khrupkost-it-mira",
+   "messageId": 130,
+   "title": "Глобальный сбой ИБ и хрупкость IT-мира"
+  },
+  {
+   "slug": "garden/posts/2024-07-19_mudbord-na-segodnya",
+   "messageId": 120,
+   "title": "Мудборд на сегодня"
+  },
+  {
+   "slug": "garden/posts/2024-07-20_konets-zabav-s-prompt-inektsiyami-v-kommen",
+   "messageId": 131,
+   "title": "Конец забав с промпт-инъекциями в комментариях"
+  },
+  {
+   "slug": "garden/posts/2024-07-20_rufery-nft-i-pochemu-ya-kupil-vr-shlem",
+   "messageId": 132,
+   "title": "Руферы, NFT и почему я купил VR-шлем"
+  },
+  {
+   "slug": "garden/posts/2024-07-25_evolyutsiya-llm-i-konkurentsiya-api-provayder",
+   "messageId": 133,
+   "title": "Эволюция LLM и конкуренция API-провайдеров"
+  },
+  {
+   "slug": "garden/posts/2024-07-26_razbor-obyavleniya-ob-otsifrovke-diskov",
+   "messageId": 134,
+   "title": "Разбор объявления об оцифровке дисков"
+  },
+  {
+   "slug": "garden/posts/2024-07-30_krizis-mcu-smena-kangi-na-duma",
+   "messageId": 137,
+   "title": "Кризис MCU, смена Канги на Дума"
+  },
+  {
+   "slug": "garden/posts/2024-07-31_dialog-khuanga-i-tsukerberga-ob-ii",
+   "messageId": 138,
+   "title": "Диалог Хуанга и Цукерберга об ИИ"
+  },
+  {
+   "slug": "garden/posts/2024-08-01_vk-youtube-i-tsennost-videoekspertizy",
+   "messageId": 139,
+   "title": "ВК, YouTube и ценность видеоэкспертизы"
+  },
+  {
+   "slug": "garden/posts/2024-08-03_podkast-fridmana-obkhodit-rogana",
+   "messageId": 140,
+   "title": "Подкаст Фридмана обходит Рогана"
+  },
+  {
+   "slug": "garden/posts/2024-08-05_dedpul-i-rosomakha-3d-ne-stoit-deneg",
+   "messageId": 141,
+   "title": "Дэдпул и Росомаха: 3D не стоит денег"
+  },
+  {
+   "slug": "garden/posts/2024-08-08_opyt-ii-vzloma-ot-uchenogo-deepmind",
+   "messageId": 143,
+   "title": "Опыт ИИ-взлома от ученого DeepMind"
+  },
+  {
+   "slug": "garden/posts/2024-08-08_tsenovaya-voyna-na-rynke-llm",
+   "messageId": 142,
+   "title": "Ценовая война на рынке LLM"
+  },
+  {
+   "slug": "garden/posts/2024-08-11_feykovyy-tekhnosuverenitet-i-vr-ochki",
+   "messageId": 144,
+   "title": "Фейковый техносуверенитет и VR-очки"
+  },
+  {
+   "slug": "garden/posts/2024-08-13_neyroseti-v-smartfonakh-i-etiket-perepisk",
+   "messageId": 145,
+   "title": "Нейросети в смартфонах и этикет переписки"
+  },
+  {
+   "slug": "garden/posts/2024-08-14_blokirovka-akkauntov-i-emigratsiya-it",
+   "messageId": 155,
+   "title": "Блокировка аккаунтов и эмиграция IT"
+  },
+  {
+   "slug": "garden/posts/2024-08-14_bytovye-nablyudeniya-i-zhiznennyy-vypusk",
+   "messageId": 154,
+   "title": "Бытовые наблюдения и жизненный выпуск"
+  },
+  {
+   "slug": "garden/posts/2024-08-14_shkola-ai-redaktorov-ot-yandeksa",
+   "messageId": 153,
+   "title": "Школа AI-редакторов от Яндекса"
+  },
+  {
+   "slug": "garden/posts/2024-08-15_pervoe-video-sozdanie-mirov-v-metavselen",
+   "messageId": 156,
+   "title": "Первое видео: создание миров в метавселенных"
+  },
+  {
+   "slug": "garden/posts/2024-08-16_astrologiya-cherez-chatgpt-i-zagadka-dlya-zh",
+   "messageId": 159,
+   "title": "Астрология через ChatGPT и загадка для жены"
+  },
+  {
+   "slug": "garden/posts/2024-08-20_ot-samokatov-k-elektrolongbordu-v-kirove",
+   "messageId": 160,
+   "title": "От самокатов к электролонгборду в Кирове"
+  },
+  {
+   "slug": "garden/posts/2024-08-23_aga-yasno-vsyo-s-toboy-stanislav-sergeevich",
+   "messageId": 162,
+   "title": "Ага, ясно всё с тобой, Станислав Сергеевич"
+  },
+  {
+   "slug": "garden/posts/2024-08-23_zumery-plachut-ot-otvetov-chatgpt",
+   "messageId": 161,
+   "title": "Зумеры плачут от ответов ChatGPT"
+  },
+  {
+   "slug": "garden/posts/2024-08-24_tekhnologii-v-bolnichnoy-palate-chego-ne-kh",
+   "messageId": 167,
+   "title": "Технологии в больничной палате: чего не хватает"
+  },
+  {
+   "slug": "garden/posts/2024-08-24_travma-zhivota-i-bolnichnaya-noch",
+   "messageId": 165,
+   "title": "Травма живота и больничная ночь"
+  },
+  {
+   "slug": "garden/posts/2024-08-25_sudba-svobodnykh-ploschadok",
+   "messageId": 168,
+   "title": "Судьба свободных площадок"
+  },
+  {
+   "slug": "garden/posts/2024-08-26_chto-to-ya-tam-pro-udobstva-servis-i-borb",
+   "messageId": 170,
+   "title": "Что-то я там про удобства, сервис и борьбу со скукой, а важн…"
+  },
+  {
+   "slug": "garden/posts/2024-08-27_notion-ukhodit-iz-rf-migratsiya-na-obsidian",
+   "messageId": 171,
+   "title": "Notion уходит из РФ: миграция на Obsidian"
+  },
+  {
+   "slug": "garden/posts/2024-09-01_7-nablyudeniy-iz-travmatologii",
+   "messageId": 173,
+   "title": "7 наблюдений из травматологии"
+  },
+  {
+   "slug": "garden/posts/2024-09-08_bolnitsa-kak-chistilische-dante",
+   "messageId": 174,
+   "title": "Больница как Чистилище Данте"
+  },
+  {
+   "slug": "garden/posts/2024-09-10_vypiska-iz-travmatologii-i-progress",
+   "messageId": 175,
+   "title": "Выписка из травматологии и прогресс"
+  },
+  {
+   "slug": "garden/posts/2024-09-16_eksperiment-s-lotereyami-vmesto-dzhekpota",
+   "messageId": 176,
+   "title": "Эксперимент с лотереями вместо джекпота"
+  },
+  {
+   "slug": "garden/posts/2024-09-17_chelovechnost-ii-i-grabli-meditatsii",
+   "messageId": 177,
+   "title": "Человечность, ИИ и грабли медитации"
+  },
+  {
+   "slug": "garden/posts/2024-09-18_problemy-s-yandexgpt",
+   "messageId": 178,
+   "title": "Проблемы с YandexGPT"
+  },
+  {
+   "slug": "garden/posts/2024-09-19_xiaomi-ax3000t-lovushka-novogo-chipa",
+   "messageId": 179,
+   "title": "Xiaomi AX3000T: ловушка нового чипа"
+  },
+  {
+   "slug": "garden/posts/2024-09-20_stas-chto-po-zdorovyu-rasskazyvayu-chto-byl",
+   "messageId": 180,
+   "title": "Стас, что по здоровью? Рассказываю «Что было дальше»"
+  },
+  {
+   "slug": "garden/posts/2024-09-21_nasledstvennost-i-den-betmena",
+   "messageId": 182,
+   "title": "Наследственность и День Бэтмена"
+  },
+  {
+   "slug": "garden/posts/2024-09-21_novyy-albom-jamie-xx-spustya-9-let",
+   "messageId": 181,
+   "title": "Новый альбом Jamie XX спустя 9 лет"
+  },
+  {
+   "slug": "garden/posts/2024-09-24_tsifrovoe-mesto-vazhnee-kopii-bazy",
+   "messageId": 183,
+   "title": "Цифровое место важнее копии базы"
+  },
+  {
+   "slug": "garden/posts/2024-09-25_meta-connect-2024-shlemy-gologrammy-i-lla",
+   "messageId": 201,
+   "title": "Meta Connect 2024: шлемы, голограммы и LLama"
+  },
+  {
+   "slug": "garden/posts/2024-09-25_rynok-pozitivno-reagiruet",
+   "messageId": 211,
+   "title": "Рынок позитивно реагирует!"
+  },
+  {
+   "slug": "garden/posts/2024-09-26_vybor-elektronnoy-knigi-spasenie-ot-ekra",
+   "messageId": 212,
+   "title": "Выбор электронной книги: спасение от экранов"
+  },
+  {
+   "slug": "garden/posts/2024-09-27_i-ved-na-90-ponyatno-pochemu-mne-ne-dali",
+   "messageId": 213,
+   "title": "И ведь на 90% понятно почему мне не дали доступ к новым моде…"
+  },
+  {
+   "slug": "garden/posts/2024-09-28_valve-budet-podderzhivat-arch-linux",
+   "messageId": 214,
+   "title": "Valve будет поддерживать Arch Linux"
+  },
+  {
+   "slug": "garden/posts/2024-10-01_ne-zakazyvayte-etot-router-poka-chto",
+   "messageId": 215,
+   "title": "Не заказывайте этот роутер (пока что)!"
+  },
+  {
+   "slug": "garden/posts/2024-10-02_protivorechiya-ot-tesly-do-telegram",
+   "messageId": 216,
+   "title": "Противоречия: от Теслы до Telegram"
+  },
+  {
+   "slug": "garden/posts/2024-10-03_testirovanie-kastomnogo-prompta-na-benchm",
+   "messageId": 218,
+   "title": "Тестирование кастомного промпта на бенчмарке MMLU"
+  },
+  {
+   "slug": "garden/posts/2024-10-04_pravila-igry-otoplenie-bez-schyotchika",
+   "messageId": 219,
+   "title": "Правила игры: отопление без счётчика"
+  },
+  {
+   "slug": "garden/posts/2024-10-05_ratsionalnaya-meditatsiya-bez-ezoteriki",
+   "messageId": 220,
+   "title": "Рациональная медитация без эзотерики"
+  },
+  {
+   "slug": "garden/posts/2024-10-07_3d-skanirovanie-obektov-dlya-muzeev",
+   "messageId": 222,
+   "title": "3D-сканирование объектов для музеев"
+  },
+  {
+   "slug": "garden/posts/2024-10-08_virtualnyy-sobesednik-na-gpt-4o-v-teleg",
+   "messageId": 223,
+   "title": "Виртуальный собеседник на GPT-4o в Telegram"
+  },
+  {
+   "slug": "garden/posts/2024-10-09_discord-kak-zamena-tg-chatov-dlya-soobschest",
+   "messageId": 224,
+   "title": "Discord как замена тг-чатов для сообществ"
+  },
+  {
+   "slug": "garden/posts/2024-10-10_semka-video-po-ii-net-magii",
+   "messageId": 225,
+   "title": "Съемка видео по ИИ: нет магии"
+  },
+  {
+   "slug": "garden/posts/2024-10-13_myuzikl-poslednee-ispytanie-v-moskve",
+   "messageId": 228,
+   "title": "Мюзикл «Последнее испытание» в Москве"
+  },
+  {
+   "slug": "garden/posts/2024-10-13_strimy-spacex-kak-vera-v-buduschee",
+   "messageId": 226,
+   "title": "Стримы SpaceX как вера в будущее"
+  },
+  {
+   "slug": "garden/posts/2024-10-14_adobe-max-ii-montazh-i-shkolnyy-rep",
+   "messageId": 229,
+   "title": "Adobe MAX, ИИ-монтаж и школьный рэп"
+  },
+  {
+   "slug": "garden/posts/2024-10-14_predvkushaya-voprosy-nekropol-tekh-vremyon",
+   "messageId": 232,
+   "title": "Предвкушая вопросы: некрополь тех времён водится на саундкла…"
+  },
+  {
+   "slug": "garden/posts/2024-10-15_adobe-firefly-video-teper-v-premiere",
+   "messageId": 233,
+   "title": "Adobe Firefly Video теперь в Premiere"
+  },
+  {
+   "slug": "garden/posts/2024-10-15_oplata-chlenstva-v-komyuniti-za-2k",
+   "messageId": 234,
+   "title": "Оплата членства в комьюнити за 2к"
+  },
+  {
+   "slug": "garden/posts/2024-10-16_profil-polzovatelya-stanley-ii-linux-i",
+   "messageId": 236,
+   "title": "Профиль пользователя Stanley: ИИ, Linux и консоли"
+  },
+  {
+   "slug": "garden/posts/2024-10-16_virtualnyy-uchastnik-chata-obo-mne",
+   "messageId": 235,
+   "title": "Виртуальный участник чата обо мне"
+  },
+  {
+   "slug": "garden/posts/2024-10-16_vlog-s-matcha-shutki-pro-kholostyaka",
+   "messageId": 237,
+   "title": "Влог с матча: шутки про Холостяка"
+  },
+  {
+   "slug": "garden/posts/2024-10-17_film-anora-dostupen-na-kinopoiske",
+   "messageId": 241,
+   "title": "Фильм «Анора» доступен на Кинопоиске"
+  },
+  {
+   "slug": "garden/posts/2024-10-17_nfc-avtomatizatsii-v-ios-protiv-android",
+   "messageId": 238,
+   "title": "NFC-автоматизации в iOS против Android"
+  },
+  {
+   "slug": "garden/posts/2024-10-18_kurs-unity-ii-pomoschniki-i-zayavka-na-digi",
+   "messageId": 242,
+   "title": "Курс Unity, ИИ-помощники и заявка на Digital Autumn"
+  },
+  {
+   "slug": "garden/posts/2024-10-18_promo-vps-v-shvetsii-na-aeza-za-698",
+   "messageId": 244,
+   "title": "Промо VPS в Швеции на Aeza за 698₽"
+  },
+  {
+   "slug": "garden/posts/2024-10-19_slozhnye-temy-v-ulitse-sezam",
+   "messageId": 245,
+   "title": "Сложные темы в «Улице Сезам»"
+  },
+  {
+   "slug": "garden/posts/2024-10-20_dinamo-kirov-chempion-pyatogo-urovnya",
+   "messageId": 246,
+   "title": "Динамо Киров — чемпион пятого уровня"
+  },
+  {
+   "slug": "garden/posts/2024-10-20_montazh-27-minutnogo-video-za-den",
+   "messageId": 247,
+   "title": "Монтаж 27-минутного видео за день"
+  },
+  {
+   "slug": "garden/posts/2024-10-21_sgeneriroval-video-iz-izobrazheniy-kotory",
+   "messageId": 249,
+   "title": "Сгенерировал видео из изображений, которые сгенерировал для …"
+  },
+  {
+   "slug": "garden/posts/2024-10-21_tsifrovoy-dvoynik-ot-idei-do-video",
+   "messageId": 248,
+   "title": "Цифровой двойник: от идеи до видео"
+  },
+  {
+   "slug": "garden/posts/2024-10-22_pesni-kak-marker-rasstoyaniya-mezhdu-lyudmi",
+   "messageId": 253,
+   "title": "Песни как маркер расстояния между людьми"
+  },
+  {
+   "slug": "garden/posts/2024-10-22_post-v-kanale-staniverse",
+   "messageId": 254,
+   "title": "Пост в канале Staniverse"
+  },
+  {
+   "slug": "garden/posts/2024-10-23_samoubiystvo-podrostka-iz-za-chatbota-cha",
+   "messageId": 255,
+   "title": "Самоубийство подростка из-за чатбота Character.AI"
+  },
+  {
+   "slug": "garden/posts/2024-10-23_ya-taki-reshilsya-poprobovat-vletet-na-ob",
+   "messageId": 256,
+   "title": "Я таки решился попробовать влететь на образовательную програ…"
+  },
+  {
+   "slug": "garden/posts/2024-10-24_virtualnye-baryshni-vmesto-bystrykh-svida",
+   "messageId": 257,
+   "title": "Виртуальные барышни вместо быстрых свиданий"
+  },
+  {
+   "slug": "garden/posts/2024-10-25_chelovechnoe-video-o-rabote-musorovozov",
+   "messageId": 259,
+   "title": "Человечное видео о работе мусоровозов"
+  },
+  {
+   "slug": "garden/posts/2024-10-25_iot-zadatki-v-knige-professora-fortran",
+   "messageId": 258,
+   "title": "IoT-задатки в книге Профессора Фортран"
+  },
+  {
+   "slug": "garden/posts/2024-10-27_lego-sobor-i-pokhod-za-tsikoriem",
+   "messageId": 260,
+   "title": "LEGO-собор и поход за цикорием"
+  },
+  {
+   "slug": "garden/posts/2024-10-27_somneniya-v-dobre-posle-krusheniya-sanaviats",
+   "messageId": 261,
+   "title": "Сомнения в добре после крушения санавиации"
+  },
+  {
+   "slug": "garden/posts/2024-10-28_notebooklm-i-ego-otkrytyy-analog-ot-meta",
+   "messageId": 262,
+   "title": "NotebookLM и его открытый аналог от Meta"
+  },
+  {
+   "slug": "garden/posts/2024-10-31_apdeyt-telegram-i-k-pop-prodakshen",
+   "messageId": 263,
+   "title": "Апдейт Telegram и K-pop продакшен"
+  },
+  {
+   "slug": "garden/posts/2024-11-03_pryzhok-v-metavyorsy-i-ue5-do-kontsa-goda",
+   "messageId": 264,
+   "title": "Прыжок в метавёрсы и UE5 до конца года"
+  },
+  {
+   "slug": "garden/posts/2024-11-04_pristupayu-k-realizatsii-etoy-spornoy-no-i",
+   "messageId": 265,
+   "title": "Приступаю к реализации этой спорной, но интригующей стратеги…"
+  },
+  {
+   "slug": "garden/posts/2024-11-05_kinect-za-1500-dlya-zakhvata-dvizheniya",
+   "messageId": 267,
+   "title": "Kinect за 1500₽ для захвата движения"
+  },
+  {
+   "slug": "garden/posts/2024-11-05_smert-kuinsi-dzhonsa-i-ego-nasledie",
+   "messageId": 266,
+   "title": "Смерть Куинси Джонса и его наследие"
+  },
+  {
+   "slug": "garden/posts/2024-11-06_ustanovka-arch-linux-kazhdyy-den-radi-gyo",
+   "messageId": 268,
+   "title": "Установка Arch Linux каждый день ради гёрлфренда"
+  },
+  {
+   "slug": "garden/posts/2024-11-06_vybory-v-ssha-mir-maska-protiv-soevosti",
+   "messageId": 269,
+   "title": "Выборы в США: мир Маска против соевости"
+  },
+  {
+   "slug": "garden/posts/2024-11-08_ot-sovetskogo-elektrofona-k-kitayskomu-v",
+   "messageId": 270,
+   "title": "От советского электрофона к китайскому винилу"
+  },
+  {
+   "slug": "garden/posts/2024-11-09_eta-shtuka-voobsche-interesnaya",
+   "messageId": 274,
+   "title": "Эта штука вообще интересная"
+  },
+  {
+   "slug": "garden/posts/2024-11-09_psikhotip-i-profil-stanley",
+   "messageId": 273,
+   "title": "Психотип и профиль Stanley"
+  },
+  {
+   "slug": "garden/posts/2024-11-09_razbor-tipazhey-po-mbti-i-ii-zhenschiny",
+   "messageId": 272,
+   "title": "Разбор типажей по MBTI и ИИ-женщины"
+  },
+  {
+   "slug": "garden/posts/2024-11-10_chto-za-shtuka-a",
+   "messageId": 276,
+   "title": "Что за штука, а!"
+  },
+  {
+   "slug": "garden/posts/2024-11-11_boli-tvorcheskikh-spetsialnostey-i-pobeg-v",
+   "messageId": 278,
+   "title": "Боли творческих специальностей и побег в электрики"
+  },
+  {
+   "slug": "garden/posts/2024-11-12_esli-chto-tak-mozhno-uzhe-segodnya",
+   "messageId": 280,
+   "title": "Если что, так можно УЖЕ СЕГОДНЯ"
+  },
+  {
+   "slug": "garden/posts/2024-11-13_domashniy-kiberpank-po-kirovski",
+   "messageId": 281,
+   "title": "Домашний киберпанк по-Кировски"
+  },
+  {
+   "slug": "garden/posts/2024-11-14_neyrozhenschiny-i-quest-3-na-tamozhne",
+   "messageId": 282,
+   "title": "Нейроженщины и Quest 3 на таможне"
+  },
+  {
+   "slug": "garden/posts/2024-11-15_zamena-kofe-i-alkogolya-chaem",
+   "messageId": 286,
+   "title": "Замена кофе и алкоголя чаем"
+  },
+  {
+   "slug": "garden/posts/2024-11-16_tsifrovizatsiya-meditsiny-svyazat-bazy",
+   "messageId": 287,
+   "title": "Цифровизация медицины: связать базы"
+  },
+  {
+   "slug": "garden/posts/2024-11-17_20-letie-half-life-2-i-besplatnaya-razdach",
+   "messageId": 288,
+   "title": "20-летие Half-Life 2 и бесплатная раздача"
+  },
+  {
+   "slug": "garden/posts/2024-11-18_mem-pro-upuschennye-vozmozhnosti",
+   "messageId": 289,
+   "title": "Мем про упущенные возможности"
+  },
+  {
+   "slug": "garden/posts/2024-11-20_metavyatka-na-biennale-shag-blizhe",
+   "messageId": 291,
+   "title": "МетаВятка на Биеннале: шаг ближе"
+  },
+  {
+   "slug": "garden/posts/2024-11-20_proklyatie-ii-generatsiy",
+   "messageId": 290,
+   "title": "Проклятие ИИ-генераций"
+  },
+  {
+   "slug": "garden/posts/2024-11-23_xr-intensiv-vrchat-i-ukhod-iz-videoproizv",
+   "messageId": 292,
+   "title": "XR-интенсив, VRChat и уход из видеопроизводства"
+  },
+  {
+   "slug": "garden/posts/2024-11-25_immersivnye-miry-vrchat-i-dostupnost-vr",
+   "messageId": 293,
+   "title": "Иммерсивные миры VRChat и доступность VR"
+  },
+  {
+   "slug": "garden/posts/2024-11-26_vyzovy-metavselennoy-itogi-immersive-x",
+   "messageId": 301,
+   "title": "Вызовы метавселенной: итоги Immersive X"
+  },
+  {
+   "slug": "garden/posts/2024-11-27_prompt-robovayb-i-etika-ii-agentov",
+   "messageId": 310,
+   "title": "Промпт, робовайб и этика ИИ-агентов"
+  },
+  {
+   "slug": "garden/posts/2024-11-29_progulki-po-trevel-video-s-multipleerom",
+   "messageId": 325,
+   "title": "Прогулки по трэвел-видео с мультиплеером"
+  },
+  {
+   "slug": "garden/posts/2024-11-29_tri-chasa-za-tostom-v-atlantide-i-istoriya",
+   "messageId": 315,
+   "title": "Три часа за тостом в Атлантиде и история Resonite"
+  },
+  {
+   "slug": "garden/posts/2024-12-01_sozdateli-mirov-vrchat-na-digital-autumn",
+   "messageId": 326,
+   "title": "Создатели миров VRChat на Digital Autumn"
+  },
+  {
+   "slug": "garden/posts/2024-12-03_meditativnoe-modelirovanie-v-smeshannoy-r",
+   "messageId": 331,
+   "title": "Медитативное моделирование в смешанной реальности"
+  },
+  {
+   "slug": "garden/posts/2024-12-04_immersivnyy-teatr-i-perfomansy-v-vrchat",
+   "messageId": 332,
+   "title": "Иммерсивный театр и перфомансы в VRChat"
+  },
+  {
+   "slug": "garden/posts/2024-12-07_pro-tants-perfomansy-v-fizicheskom-i-virtu",
+   "messageId": 336,
+   "title": "Про танц-перфомансы в физическом и виртуальном мирах"
+  },
+  {
+   "slug": "garden/posts/2024-12-08_generatsiya-3d-modeley-iz-kartinok",
+   "messageId": 341,
+   "title": "Генерация 3D-моделей из картинок"
+  },
+  {
+   "slug": "garden/posts/2024-12-08_itogi-2024-mezhdu-adom-i-purgatoriem",
+   "messageId": 339,
+   "title": "Итоги 2024: между Адом и Пургаторием"
+  },
+  {
+   "slug": "garden/posts/2024-12-08_plany-biennale-i-fizicheskoe-suschestvovani",
+   "messageId": 340,
+   "title": "Планы, Биеннале и физическое существование"
+  },
+  {
+   "slug": "garden/posts/2024-12-10_kakova-tolschina-i-ves-a",
+   "messageId": 342,
+   "title": "Какова толщина и вес, а!"
+  },
+  {
+   "slug": "garden/posts/2024-12-11_khotel-zaplatit-za-mr-opyt-pro-sdvg",
+   "messageId": 344,
+   "title": "Хотел заплатить за MR-опыт про СДВГ"
+  },
+  {
+   "slug": "garden/posts/2024-12-11_pervaya-ekranizatsiya-sta-let-odinochestva",
+   "messageId": 343,
+   "title": "Первая экранизация «Ста лет одиночества»"
+  },
+  {
+   "slug": "garden/posts/2024-12-12_koshmar-ob-idealnoy-studii-v-kirove",
+   "messageId": 345,
+   "title": "Кошмар об идеальной студии в Кирове"
+  },
+  {
+   "slug": "garden/posts/2024-12-13_nativnaya-reklama-v-nyt-uroven-skrolltel",
+   "messageId": 346,
+   "title": "Нативная реклама в NYT: уровень скроллтеллинга"
+  },
+  {
+   "slug": "garden/posts/2024-12-17_ii-ekskursovod-po-kirovu-ot-rag-do-avito",
+   "messageId": 347,
+   "title": "ИИ-экскурсовод по Кирову: от RAG до Авито"
+  },
+  {
+   "slug": "garden/posts/2024-12-18_upd-v-itoge-smog-kupit-sam-khvala-turetsk",
+   "messageId": 348,
+   "title": "Upd. В итоге смог купить сам, хвала турецким виртуалкам, сис…"
+  },
+  {
+   "slug": "garden/posts/2024-12-19_buduschee-chelovechestva-optimizm-ili-krizis",
+   "messageId": 349,
+   "title": "Будущее человечества: оптимизм или кризис"
+  },
+  {
+   "slug": "garden/posts/2024-12-19_evolyutsiya-3d-video-i-kamery-dlya-immersiva",
+   "messageId": 350,
+   "title": "Эволюция 3D-видео и камеры для иммерсива"
+  },
+  {
+   "slug": "garden/posts/2024-12-19_roskomnadzor-ugrozhaet-youtube-blokirovko",
+   "messageId": 351,
+   "title": "Роскомнадзор угрожает YouTube блокировкой"
+  },
+  {
+   "slug": "garden/posts/2024-12-20_konvertatsiya-2d-video-v-stereoskopicheskoe",
+   "messageId": 353,
+   "title": "Конвертация 2D-видео в стереоскопическое"
+  },
+  {
+   "slug": "garden/posts/2024-12-21_itogi-dekabrya-openai-vs-google",
+   "messageId": 356,
+   "title": "Итоги декабря: OpenAI vs Google"
+  },
+  {
+   "slug": "garden/posts/2024-12-24_itogi-goda-ot-vastrika-i-tsennost-komyun",
+   "messageId": 359,
+   "title": "Итоги года от Вастрика и ценность комьюнити"
+  },
+  {
+   "slug": "garden/posts/2024-12-24_video-pro-sortirovku-i-pauza-v-syomkakh",
+   "messageId": 358,
+   "title": "Видео про сортировку и пауза в съёмках"
+  },
+  {
+   "slug": "garden/posts/2024-12-26_opyt-ponchika-i-tsennost-vybora-kontenta",
+   "messageId": 360,
+   "title": "Опыт «пончика» и ценность выбора контента"
+  },
+  {
+   "slug": "garden/posts/2024-12-27_stas-ne-ponimayu-ya-etu-zhenskuyu-lyubov-k-b",
+   "messageId": 361,
+   "title": "Стас: не понимаю я эту женскую любовь к BTS и другим подобны…"
+  },
+  {
+   "slug": "garden/posts/2024-12-28_pokeristy-otsenivayut-shansy-otnosheniy",
+   "messageId": 362,
+   "title": "Покеристы оценивают шансы отношений"
+  },
+  {
+   "slug": "garden/posts/2024-12-29_puteshestvie-v-chyornuyu-dyru-za-700-v-space",
+   "messageId": 363,
+   "title": "Путешествие в чёрную дыру за 700₽ в SpaceEngine"
+  },
+  {
+   "slug": "garden/posts/2024-12-31_plany-na-2025-ii-agenty-xr-i-uchebniki",
+   "messageId": 365,
+   "title": "Планы на 2025: ИИ-агенты, XR и учебники"
+  },
+  {
+   "slug": "garden/posts/2024-12-31_posledniy-chas-dekabrya",
+   "messageId": 366,
+   "title": "Последний час декабря"
+  },
+  {
+   "slug": "garden/posts/2025-01-01_gaussian-splatting-v-resonite-i-skany-iz",
+   "messageId": 367,
+   "title": "Gaussian Splatting в Resonite и сканы из телефона"
+  },
+  {
+   "slug": "garden/posts/2025-01-02_video-vdokhnovenie-i-alternativy-youtube",
+   "messageId": 368,
+   "title": "Видео-вдохновение и альтернативы YouTube"
+  },
+  {
+   "slug": "garden/posts/2025-01-06_multiyazychnyy-podkast-fridmana-i-ii-ozvu",
+   "messageId": 369,
+   "title": "Мультиязычный подкаст Фридмана и ИИ-озвучка"
+  },
+  {
+   "slug": "garden/posts/2025-01-07_anoru-teper-mozhno-legalno-posmotret-d",
+   "messageId": 374,
+   "title": "«Анору» теперь можно легально посмотреть дома"
+  },
+  {
+   "slug": "garden/posts/2025-01-07_kazhetsya-tot-paren-sdalsya-posle-100-dnya",
+   "messageId": 370,
+   "title": "Кажется, тот парень сдался после 100 дня :("
+  },
+  {
+   "slug": "garden/posts/2025-01-07_nvidia-na-ces-2025-vybor-videokarty-i-ii",
+   "messageId": 372,
+   "title": "NVIDIA на CES 2025: выбор видеокарты и ИИ"
+  },
+  {
+   "slug": "garden/posts/2025-01-07_tsifrovoy-chek-list-na-sluchay-kontsa",
+   "messageId": 371,
+   "title": "Цифровой чек-лист на случай конца"
+  },
+  {
+   "slug": "garden/posts/2025-01-08_generatsiya-realnykh-gorodov-v-minecraft",
+   "messageId": 375,
+   "title": "Генерация реальных городов в Minecraft"
+  },
+  {
+   "slug": "garden/posts/2025-01-08_manipulyatsii-v-novostyakh-pro-ii",
+   "messageId": 380,
+   "title": "Манипуляции в новостях про ИИ"
+  },
+  {
+   "slug": "garden/posts/2025-01-09_nochnye-pokatushki-po-tokio-iz-sredney-pol",
+   "messageId": 381,
+   "title": "Ночные покатушки по Токио из средней полосы"
+  },
+  {
+   "slug": "garden/posts/2025-01-10_kak-llm-pomogayut-napisat-kursovuyu",
+   "messageId": 382,
+   "title": "Как LLM помогают написать курсовую"
+  },
+  {
+   "slug": "garden/posts/2025-01-10_kstati-pro-lateks-kotoryy-yazyk-razmetki",
+   "messageId": 383,
+   "title": "Кстати, про латекс. Который язык разметки LaTeX (лейтек)"
+  },
+  {
+   "slug": "garden/posts/2025-01-11_sborka-virtualnoy-vayfu-dlya-kvartiry",
+   "messageId": 384,
+   "title": "Сборка виртуальной вайфу для квартиры"
+  },
+  {
+   "slug": "garden/posts/2025-01-12_okh-kazhetsya-doshutilsya",
+   "messageId": 385,
+   "title": "Ох, кажется, дошутился"
+  },
+  {
+   "slug": "garden/posts/2025-01-12_otvet-na",
+   "messageId": 386,
+   "title": "Ответ на:"
+  },
+  {
+   "slug": "garden/posts/2025-01-14_anime-empatiya-i-bekapy-tsifrovykh-dush",
+   "messageId": 389,
+   "title": "Аниме, эмпатия и бэкапы цифровых душ"
+  },
+  {
+   "slug": "garden/posts/2025-01-14_sborka-ai-assistenta-lokalno-ili-v-aren",
+   "messageId": 388,
+   "title": "Сборка AI-ассистента: локально или в аренду"
+  },
+  {
+   "slug": "garden/posts/2025-01-15_operatsiya-na-nosu-i-tsifrovizatsiya-bolnits",
+   "messageId": 390,
+   "title": "Операция на носу и цифровизация больниц"
+  },
+  {
+   "slug": "garden/posts/2025-01-16_vsyo-sluchilos",
+   "messageId": 391,
+   "title": "Всё случилось"
+  },
+  {
+   "slug": "garden/posts/2025-01-17_sosed-po-palate-i-anime-pro-yakudza",
+   "messageId": 392,
+   "title": "Сосед по палате и аниме про якудза"
+  },
+  {
+   "slug": "garden/posts/2025-01-18_otoplenie-doma-i-bani-mayningom-kripty",
+   "messageId": 393,
+   "title": "Отопление дома и бани майнингом крипты"
+  },
+  {
+   "slug": "garden/posts/2025-01-20_vrchat-s-telefona-i-borba-s-nasmorkom",
+   "messageId": 394,
+   "title": "VRChat с телефона и борьба с насморком"
+  },
+  {
+   "slug": "garden/posts/2025-01-21_deepseek-kak-side-project-vstryakhnul-ii-i",
+   "messageId": 395,
+   "title": "DeepSeek: как side-project встряхнул ИИ-индустрию"
+  },
+  {
+   "slug": "garden/posts/2025-01-21_zaglushka-sayta-belogo-doma",
+   "messageId": 396,
+   "title": "Заглушка сайта Белого Дома"
+  },
+  {
+   "slug": "garden/posts/2025-01-22_altman-kstati-otvechal-eschyo-na-vykhod-deep",
+   "messageId": 398,
+   "title": "Альтман, кстати, отвечал ещё на выход DeepSeek v3 перед Новы…"
+  },
+  {
+   "slug": "garden/posts/2025-01-22_vot-nastolko-skoro-otvetili",
+   "messageId": 397,
+   "title": "Вот настолько скоро ответили"
+  },
+  {
+   "slug": "garden/posts/2025-01-22_vyshel-spustya-nedelyu-kak-zashyol",
+   "messageId": 399,
+   "title": "Вышел спустя неделю, как зашёл"
+  },
+  {
+   "slug": "garden/posts/2025-01-23_ii-agenty-nauchilis-sidet-v-brauzere",
+   "messageId": 401,
+   "title": "ИИ-агенты научились сидеть в браузере"
+  },
+  {
+   "slug": "garden/posts/2025-01-23_open-sors-dlya-vzroslykh-igrushek-i-vzlom-ch",
+   "messageId": 400,
+   "title": "Опен-сорс для взрослых игрушек и взлом через Flipper Zero"
+  },
+  {
+   "slug": "garden/posts/2025-01-24_meta-stroit-datatsentr-razmerom-s-mankhett",
+   "messageId": 404,
+   "title": "Мета строит датацентр размером с Манхэттен"
+  },
+  {
+   "slug": "garden/posts/2025-01-24_opyat-propuschu-bystrye-svidaniya-khakha",
+   "messageId": 403,
+   "title": "Опять пропущу Быстрые свидания, хаха"
+  },
+  {
+   "slug": "garden/posts/2025-01-24_sozdateli-biblioteki-browser-use-ponimayu",
+   "messageId": 402,
+   "title": "Создатели библиотеки Browser Use понимают возможность исполь…"
+  },
+  {
+   "slug": "garden/posts/2025-01-25_kak-ustroen-mir-vtuber-i-ii-strimery",
+   "messageId": 405,
+   "title": "Как устроен мир VTuber и ИИ-стримеры"
+  },
+  {
+   "slug": "garden/posts/2025-01-26_razbor-gtd-i-vybor-task-trekera",
+   "messageId": 406,
+   "title": "Разбор GTD и выбор таск-трекера"
+  },
+  {
+   "slug": "garden/posts/2025-01-27_avtomatizatsiya-obscheniya-kogda-llm-slishkom",
+   "messageId": 407,
+   "title": "Автоматизация общения: когда LLM слишком много"
+  },
+  {
+   "slug": "garden/posts/2025-01-27_kak-dvarkesh-ispolzuet-neyronki-dlya-podg",
+   "messageId": 409,
+   "title": "Как Дваркеш использует нейронки для подготовки"
+  },
+  {
+   "slug": "garden/posts/2025-01-27_popravlyus-v-singularity-mozhno-zakidyvat",
+   "messageId": 408,
+   "title": "Поправлюсь: в Singularity можно закидывать входящие задачи ч…"
+  },
+  {
+   "slug": "garden/posts/2025-01-28_deepseek-generit-krinzh-pro-mediatsiyu",
+   "messageId": 412,
+   "title": "DeepSeek генерит кринж про медиацию"
+  },
+  {
+   "slug": "garden/posts/2025-01-28_deepseek-is-a-side-project-chto-bylo-dal",
+   "messageId": 411,
+   "title": "DeepSeek is a side project: что было дальше"
+  },
+  {
+   "slug": "garden/posts/2025-01-28_memy-pro-otnosheniya-s-ai-waifu",
+   "messageId": 410,
+   "title": "Мемы про отношения с AI Waifu"
+  },
+  {
+   "slug": "garden/posts/2025-01-28_opasnyy-khayp-banki-i-deepseek",
+   "messageId": 413,
+   "title": "Опасный хайп: банки и DeepSeek"
+  },
+  {
+   "slug": "garden/posts/2025-01-29_vrconf-omi-tsifrovoe-bessmertie-i-otkryty",
+   "messageId": 414,
+   "title": "VRConf OMI: цифровое бессмертие и открытые миры"
+  },
+  {
+   "slug": "garden/posts/2025-01-30_eschyo-yaransk-pokazal-kstati",
+   "messageId": 419,
+   "title": "Ещё Яранск показал, кстати!"
+  },
+  {
+   "slug": "garden/posts/2025-01-30_final-kursa-po-xr-i-vtuber-zhuki",
+   "messageId": 418,
+   "title": "Финал курса по XR и VTuber-жуки"
+  },
+  {
+   "slug": "garden/posts/2025-01-30_ii-romantika-trendy-i-opasnosti-tsifrovykh",
+   "messageId": 416,
+   "title": "ИИ-романтика: тренды и опасности цифровых связей"
+  },
+  {
+   "slug": "garden/posts/2025-01-30_prodolzhaem-serial-na-radost-altmanu",
+   "messageId": 415,
+   "title": "Продолжаем сериал. На радость Альтману"
+  },
+  {
+   "slug": "garden/posts/2025-01-30_statistika-porokov-i-privychek-v-vr",
+   "messageId": 417,
+   "title": "Статистика пороков и привычек в VR"
+  },
+  {
+   "slug": "garden/posts/2025-01-31_neyro-sama-konechno-velikaya-i-master-ozvu",
+   "messageId": 420,
+   "title": "Нейро-Сама, конечно, великая. И мастер озвучки партнёров стр…"
+  },
+  {
+   "slug": "garden/posts/2025-01-31_potestiroval-hunyuan3d-2",
+   "messageId": 421,
+   "title": "Потестировал Hunyuan3D-2"
+  },
+  {
+   "slug": "garden/posts/2025-02-01_elizaos-dlya-ai-agentov-i-kiberekonomika",
+   "messageId": 422,
+   "title": "ElizaOS для AI-агентов и киберэкономика"
+  },
+  {
+   "slug": "garden/posts/2025-02-01_put-v-vr-razrabotku-i-otbor-artmasters",
+   "messageId": 423,
+   "title": "Путь в VR-разработку и отбор ArtMasters"
+  },
+  {
+   "slug": "garden/posts/2025-02-02_voskresene-den-neobyazatelnykh-faktov",
+   "messageId": 424,
+   "title": "Воскресенье — день необязательных фактов"
+  },
+  {
+   "slug": "garden/posts/2025-02-02_vypusknoy-v-vr-i-proekt-metavyatka",
+   "messageId": 425,
+   "title": "Выпускной в VR и проект МетаВятка"
+  },
+  {
+   "slug": "garden/posts/2025-02-03_nashyol-idealnoe-dopolnenie-k-rasskazu-o",
+   "messageId": 433,
+   "title": "Нашёл идеальное дополнение к рассказу о том фреймворке созда…"
+  },
+  {
+   "slug": "garden/posts/2025-02-04_politicheskie-mitingi-v-opensimulator",
+   "messageId": 435,
+   "title": "Политические митинги в OpenSimulator"
+  },
+  {
+   "slug": "garden/posts/2025-02-04_velikoe-viralnoe-foto-kendrika-lamara",
+   "messageId": 434,
+   "title": "Великое виральное фото Кендрика Ламара"
+  },
+  {
+   "slug": "garden/posts/2025-02-05_gonka-ii-fich-deepresearch-i-otvety",
+   "messageId": 439,
+   "title": "Гонка ИИ-фич: DeepResearch и ответы"
+  },
+  {
+   "slug": "garden/posts/2025-02-05_vr-meditatsii-za-3k-i-biznes-na-wellness",
+   "messageId": 436,
+   "title": "VR-медитации за 3к и бизнес на wellness"
+  },
+  {
+   "slug": "garden/posts/2025-02-07_proshyol-kurs-po-vr-razrabotke-na-33",
+   "messageId": 441,
+   "title": "Прошёл курс по VR-разработке на 33%"
+  },
+  {
+   "slug": "garden/posts/2025-02-07_syuzhetnoe-dlc-dlya-atomic-heart",
+   "messageId": 440,
+   "title": "Сюжетное DLC для Atomic Heart"
+  },
+  {
+   "slug": "garden/posts/2025-02-08_neyro-sama-ii-s-utrennim-nastroeniem",
+   "messageId": 442,
+   "title": "Нейро-Сама: ИИ с утренним настроением"
+  },
+  {
+   "slug": "garden/posts/2025-02-08_pauza-payplayn-v-obsidian-i-plany-na-tsif",
+   "messageId": 443,
+   "title": "Пауза, пайплайн в Obsidian и планы на Цифровой сад"
+  },
+  {
+   "slug": "garden/posts/2025-02-11_put-k-youtube-avatary-vrm-i-ii-vayfu",
+   "messageId": 444,
+   "title": "Путь к YouTube: аватары, VRM и ИИ-вайфу"
+  },
+  {
+   "slug": "garden/posts/2025-02-13_do-pervogo-video-ostalos-vsego-nichego-p",
+   "messageId": 447,
+   "title": "До первого видео осталось всего ничего — перекрыть 35 минут …"
+  },
+  {
+   "slug": "garden/posts/2025-02-14_blokirovki-youtube-i-magiya-subtitle-edit",
+   "messageId": 450,
+   "title": "Блокировки YouTube и магия Subtitle Edit"
+  },
+  {
+   "slug": "garden/posts/2025-02-14_ostalos-render-i-zalit",
+   "messageId": 449,
+   "title": "Осталось рендер и залить 🎆"
+  },
+  {
+   "slug": "garden/posts/2025-02-14_rukovodstvo-po-sozdaniyu-ii-kompanonov",
+   "messageId": 451,
+   "title": "Руководство по созданию ИИ-компаньонов"
+  },
+  {
+   "slug": "garden/posts/2025-02-14_statya-pro-ii-agentov-s-lichnostyu-na-vas",
+   "messageId": 448,
+   "title": "Статья про ИИ-агентов с личностью на Вастрик.Клубе"
+  },
+  {
+   "slug": "garden/posts/2025-02-15_ura-nakonets-i-v-youtube",
+   "messageId": 454,
+   "title": "Ура, наконец и в YouTube!"
+  },
+  {
+   "slug": "garden/posts/2025-02-15_v-kopilku-ocherednogo-esli-u-nas-ne-zapre",
+   "messageId": 453,
+   "title": "В копилку очередного «Если у нас не запрещают, то там запрещ…"
+  },
+  {
+   "slug": "garden/posts/2025-02-15_znakomstvo-i-arkhiv-postov-kanala",
+   "messageId": 456,
+   "title": "Знакомство и архив постов канала"
+  },
+  {
+   "slug": "garden/posts/2025-02-16_ozhivlenie-robota-anki-vector-cherez-llm",
+   "messageId": 458,
+   "title": "Оживление робота Anki Vector через LLM"
+  },
+  {
+   "slug": "garden/posts/2025-02-17_kak-v-2025-m-mogut-preobrazitsya-open-so",
+   "messageId": 459,
+   "title": "Как в 2025-м могут преобразиться опен-сорсные штуки из 2009-…"
+  },
+  {
+   "slug": "garden/posts/2025-02-17_oni-nastolko-khorosho-ponimayut-svoyu-audit",
+   "messageId": 460,
+   "title": "Они настолько хорошо понимают свою аудиторию, что записывают…"
+  },
+  {
+   "slug": "garden/posts/2025-02-19_rasskazyvayu-pro-proekt-metavyatka",
+   "messageId": 462,
+   "title": "Рассказываю про проект «МетаВятка»"
+  },
+  {
+   "slug": "garden/posts/2025-02-21_samyy-prostoy-vkhod-v-fotoskany",
+   "messageId": 463,
+   "title": "Самый простой вход в фотосканы"
+  },
+  {
+   "slug": "garden/posts/2025-02-22_ideya-ii-radio-i-gotovoe-reshenie",
+   "messageId": 464,
+   "title": "Идея ИИ-радио и готовое решение"
+  },
+  {
+   "slug": "garden/posts/2025-02-24_zaderzhan-khaker-atakovavshiy-nato-i-armiyu",
+   "messageId": 465,
+   "title": "Задержан хакер, атаковавший НАТО и Армию США"
+  },
+  {
+   "slug": "garden/posts/2025-02-25_2-e-mesto-v-konkurse-advokatskikh-pabliko",
+   "messageId": 466,
+   "title": "2-е место в конкурсе адвокатских пабликов"
+  },
+  {
+   "slug": "garden/posts/2025-02-25_pravilo-odnogo-protsenta",
+   "messageId": 467,
+   "title": "Правило одного процента"
+  },
+  {
+   "slug": "garden/posts/2025-02-26_vayb-koding-na-c-besplatno-cherez-roo-cod",
+   "messageId": 468,
+   "title": "Вайб-кодинг на C# бесплатно через Roo Code"
+  },
+  {
+   "slug": "garden/posts/2025-02-27_geymdizayn-fortnite-i-doklad-selii-khoden",
+   "messageId": 469,
+   "title": "Геймдизайн, Fortnite и доклад Селии Ходент"
+  },
+  {
+   "slug": "garden/posts/2025-02-27_gpt-45-dostupen-po-api",
+   "messageId": 470,
+   "title": "GPT-4.5 доступен по API"
+  },
+  {
+   "slug": "garden/posts/2025-02-28_scaniverse-vr-teper-ne-tolko-v-brauzer",
+   "messageId": 472,
+   "title": "Scaniverse VR теперь не только в браузере, но и приложением …"
+  },
+  {
+   "slug": "garden/posts/2025-03-01_vayb-vykhodnykh-i-razmyshleniya-o-buduschem",
+   "messageId": 473,
+   "title": "Вайб выходных и размышления о будущем"
+  },
+  {
+   "slug": "garden/posts/2025-03-03_keysy-dlya-operator-i-zakaz-edy-iz-ide",
+   "messageId": 474,
+   "title": "Кейсы для Operator и заказ еды из IDE"
+  },
+  {
+   "slug": "garden/posts/2025-03-03_krizis-srednego-vzroslogo-i-smena-puti",
+   "messageId": 475,
+   "title": "Кризис среднего взрослого и смена пути"
+  },
+  {
+   "slug": "garden/posts/2025-03-04_zakaz-edy-iz-ide-chto",
+   "messageId": 476,
+   "title": "Заказ еды из IDE, что?"
+  },
+  {
+   "slug": "garden/posts/2025-03-05_gaussian-splating-zavezli-v-resonite",
+   "messageId": 477,
+   "title": "Gaussian Splating завезли в Resonite"
+  },
+  {
+   "slug": "garden/posts/2025-03-05_idealnyy-mac-dlya-lokalnoy-ii-vayfu",
+   "messageId": 479,
+   "title": "Идеальный Mac для локальной ИИ-вайфу"
+  },
+  {
+   "slug": "garden/posts/2025-03-05_potestil-nauchilsya-importirovat-pokazyva",
+   "messageId": 478,
+   "title": "Потестил, научился импортировать, показываю"
+  },
+  {
+   "slug": "garden/posts/2025-03-06_vystavka-tsifrovaya-mekhanika-v-spatialio",
+   "messageId": 480,
+   "title": "Выставка Цифровая механика в spatial.io"
+  },
+  {
+   "slug": "garden/posts/2025-03-07_prinyos-krasivykh-skrinshotov-s-tsifrovoy-me",
+   "messageId": 482,
+   "title": "Принёс красивых скриншотов с Цифровой механики"
+  },
+  {
+   "slug": "garden/posts/2025-03-07_prompt-inzhener-kak-kompetentsiya-artmaster",
+   "messageId": 481,
+   "title": "Промпт-инженер как компетенция ArtMasters"
+  },
+  {
+   "slug": "garden/posts/2025-03-09_manus-ai-agent-iz-kitaya-s-dostupom-k-ter",
+   "messageId": 490,
+   "title": "Manus: AI-агент из Китая с доступом к терминалу"
+  },
+  {
+   "slug": "garden/posts/2025-03-10_ii-ne-zamenit-dizaynera-bez-ekspertizy",
+   "messageId": 491,
+   "title": "ИИ не заменит дизайнера без экспертизы"
+  },
+  {
+   "slug": "garden/posts/2025-03-11_test-noutbuka-do-40k-lokalnye-llm-i-spl",
+   "messageId": 494,
+   "title": "Тест ноутбука до 40к: локальные LLM и сплаты"
+  },
+  {
+   "slug": "garden/posts/2025-03-12_openai-agents-sdk-gemma-3-i-r1-na-mac",
+   "messageId": 495,
+   "title": "OpenAI Agents SDK, Gemma 3 и R1 на Mac"
+  },
+  {
+   "slug": "garden/posts/2025-03-13_claude-mozhet-sobrat-stsenu-v-blender-no",
+   "messageId": 496,
+   "title": "Claude может собрать сцену в Blender. Но есть нюанс"
+  },
+  {
+   "slug": "garden/posts/2025-03-13_post-iz-staniverse",
+   "messageId": 498,
+   "title": "Пост из Staniverse"
+  },
+  {
+   "slug": "garden/posts/2025-03-13_syuzhet-pro-menya-i-oksyumoron-kirovskaya-obl",
+   "messageId": 499,
+   "title": "Сюжет про меня и оксюморон «Кировская область и Биеннале»"
+  },
+  {
+   "slug": "garden/posts/2025-03-13_tipazh-vlyublennost-i-diy-elektronika",
+   "messageId": 497,
+   "title": "Типаж, влюбленность и DIY-электроника"
+  },
+  {
+   "slug": "garden/posts/2025-03-15_avtomatizatsiya-korotkikh-video-i-sinty",
+   "messageId": 501,
+   "title": "Автоматизация коротких видео и синты"
+  },
+  {
+   "slug": "garden/posts/2025-03-15_smert-ininal-i-poisk-zameny-dlya-oplat",
+   "messageId": 500,
+   "title": "Смерть Ininal и поиск замены для оплат"
+  },
+  {
+   "slug": "garden/posts/2025-03-17_moi-11-dollarov-izvinite-chem-bogaty-ne-u",
+   "messageId": 502,
+   "title": "Мои 11 долларов (извините, чем богаты) не ушли в донат :("
+  },
+  {
+   "slug": "garden/posts/2025-03-17_odin-iz-primer-togo-chto-nuzhno-sokhranyat",
+   "messageId": 504,
+   "title": "Один из пример того, что нужно сохранять, даже если VRChat з…"
+  },
+  {
+   "slug": "garden/posts/2025-03-20_itogi-gtc-token-fabriki-i-roboty",
+   "messageId": 505,
+   "title": "Итоги GTC: токен-фабрики и роботы"
+  },
+  {
+   "slug": "garden/posts/2025-03-20_samoe-ono-kupit-detroit-become-human-na",
+   "messageId": 514,
+   "title": "Самое оно купить Detroit: Become Human на распродаже"
+  },
+  {
+   "slug": "garden/posts/2025-03-22_chem-zanyatsya-vecherom-s-pyatnitsy-na-subbot",
+   "messageId": 516,
+   "title": "Чем заняться вечером с пятницы на субботу, если уже сходил в…"
+  },
+  {
+   "slug": "garden/posts/2025-03-23_navaybkodil-servis-za-polchasa-i-mysli-o",
+   "messageId": 518,
+   "title": "Навайбкодил сервис за полчаса и мысли о будущем ИИ"
+  },
+  {
+   "slug": "garden/posts/2025-03-24_coolify-kak-zamena-railway-i-poisk-vps",
+   "messageId": 520,
+   "title": "Coolify как замена Railway и поиск VPS"
+  },
+  {
+   "slug": "garden/posts/2025-03-24_mozhet-khot-tak-smogu-ponimat-rilsy",
+   "messageId": 519,
+   "title": "Может хоть так смогу понимать рилсы"
+  },
+  {
+   "slug": "garden/posts/2025-03-25_rils-pro-znachimost-resyorchey-i-poisk-del",
+   "messageId": 521,
+   "title": "Рилс про значимость ресёрчей и поиск дела"
+  },
+  {
+   "slug": "garden/posts/2025-03-27_generatsiya-kartinok-v-chatgpt-i-konets-sots",
+   "messageId": 522,
+   "title": "Генерация картинок в ChatGPT и конец соцсетей"
+  },
+  {
+   "slug": "garden/posts/2025-03-30_zayavka-na-raindance-i-razbor-venice-imme",
+   "messageId": 526,
+   "title": "Заявка на Raindance и разбор Venice Immersive"
+  },
+  {
+   "slug": "garden/posts/2025-03-31_den-rozhdeniya-ii-agenty-i-vrchat",
+   "messageId": 527,
+   "title": "День рождения, ИИ-агенты и VRChat"
+  },
+  {
+   "slug": "garden/posts/2025-03-31_lap-dance-v-vrchat-kak-eto-ustroeno",
+   "messageId": 528,
+   "title": "Lap dance в VRChat: как это устроено"
+  },
+  {
+   "slug": "garden/posts/2025-03-31_menya-poslaliv-2026-y",
+   "messageId": 529,
+   "title": "Меня послали...в 2026-й"
+  },
+  {
+   "slug": "garden/posts/2025-04-01_iskusstvo-nedostupnoe-poka-ii",
+   "messageId": 531,
+   "title": "Искусство, недоступное пока ИИ"
+  },
+  {
+   "slug": "garden/posts/2025-04-01_klyuchevye-momenty-so-vstrechi-s-kuratorami",
+   "messageId": 532,
+   "title": "Ключевые моменты со встречи с кураторами Venice Immersive 20…"
+  },
+  {
+   "slug": "garden/posts/2025-04-01_mcp-dobavili-v-agent-sdk-ot-openai",
+   "messageId": 530,
+   "title": "MCP добавили в Agent SDK от OpenAI"
+  },
+  {
+   "slug": "garden/posts/2025-04-02_dengi-v-metavyorse-ot-gpt-4o-do-vroid",
+   "messageId": 533,
+   "title": "Деньги в метавёрсе: от GPT-4o до VRoid"
+  },
+  {
+   "slug": "garden/posts/2025-04-02_poproboval-navaybkodit-servis",
+   "messageId": 535,
+   "title": "Попробовал навайбкодить сервис"
+  },
+  {
+   "slug": "garden/posts/2025-04-02_post-iz-staniverse",
+   "messageId": 534,
+   "title": "Пост из Staniverse"
+  },
+  {
+   "slug": "garden/posts/2025-04-03_bogateyu-na-usdt-cherez-vps-keshbek",
+   "messageId": 537,
+   "title": "Богатею на USDT через VPS-кэшбек"
+  },
+  {
+   "slug": "garden/posts/2025-04-03_vdokhnovilsya-kupil-sebe-rasshirennyy-kurs",
+   "messageId": 536,
+   "title": "Вдохновился, купил себе расширенный курс по Telegram-ботам"
+  },
+  {
+   "slug": "garden/posts/2025-04-05_god-perplexity-pro-za-440-rubley",
+   "messageId": 538,
+   "title": "Год Perplexity Pro за 440 рублей"
+  },
+  {
+   "slug": "garden/posts/2025-04-05_neochevidnoe-video-dlya-subbotnego-vechera",
+   "messageId": 539,
+   "title": "Неочевидное видео для субботнего вечера"
+  },
+  {
+   "slug": "garden/posts/2025-04-05_reliz-llama-4-scout-i-maverick",
+   "messageId": 540,
+   "title": "Релиз Llama 4: Scout и Maverick"
+  },
+  {
+   "slug": "garden/posts/2025-04-06_pro-prosmotr-sporta-i-sovmestnyy-opyt",
+   "messageId": 546,
+   "title": "Про просмотр спорта и совместный опыт"
+  },
+  {
+   "slug": "garden/posts/2025-04-06_sport-loterei-i-sovmestnyy-prosmotr-v-vr",
+   "messageId": 545,
+   "title": "Спорт, лотереи и совместный просмотр в VR"
+  },
+  {
+   "slug": "garden/posts/2025-04-07_borba-s-filtrami-chatgpt",
+   "messageId": 547,
+   "title": "Борьба с фильтрами ChatGPT"
+  },
+  {
+   "slug": "garden/posts/2025-04-07_ii-koshkodevochki-i-muzhskie-fantazii",
+   "messageId": 548,
+   "title": "ИИ-кошкодевочки и мужские фантазии"
+  },
+  {
+   "slug": "garden/posts/2025-04-07_seks-roboty-s-ii-rynok-vzorvalsya-za-god",
+   "messageId": 549,
+   "title": "Секс-роботы с ИИ: рынок взорвался за год"
+  },
+  {
+   "slug": "garden/posts/2025-04-08_ne-sluchilos-lyubvi-s-lovable",
+   "messageId": 550,
+   "title": "Не случилось любви с Lovable"
+  },
+  {
+   "slug": "garden/posts/2025-04-08_vizualizatsiya-895-shayb-ovechkina",
+   "messageId": 551,
+   "title": "Визуализация 895 шайб Овечкина"
+  },
+  {
+   "slug": "garden/posts/2025-04-09_navigatsiya-po-gorodam-cherez-igry-i-putevo",
+   "messageId": 552,
+   "title": "Навигация по городам через игры и путеводители"
+  },
+  {
+   "slug": "garden/posts/2025-04-11_agentskiy-freymvork-ot-google",
+   "messageId": 553,
+   "title": "Агентский фреймворк от Google"
+  },
+  {
+   "slug": "garden/posts/2025-04-11_elizaos-ii-podruga-dlya-moderatsii-chatov",
+   "messageId": 554,
+   "title": "ElizaOS: ИИ-подруга для модерации чатов"
+  },
+  {
+   "slug": "garden/posts/2025-04-11_prizyv-organizovat-waifucon-v-metavyorse",
+   "messageId": 555,
+   "title": "Призыв организовать Waifucon в метавёрсе"
+  },
+  {
+   "slug": "garden/posts/2025-04-12_generativnoe-zhikle-edem-cherez-vr",
+   "messageId": 557,
+   "title": "Генеративное жикле: Эдем через VR"
+  },
+  {
+   "slug": "garden/posts/2025-04-12_vzhivuyu-byvaet-menee-komfortno",
+   "messageId": 556,
+   "title": "Вживую бывает менее комфортно"
+  },
+  {
+   "slug": "garden/posts/2025-04-13_novyy-sezon-chyornogo-zerkala-eto-nashe-nas",
+   "messageId": 558,
+   "title": "Новый сезон Чёрного зеркала — это наше настоящее"
+  },
+  {
+   "slug": "garden/posts/2025-04-15_genai-instrumenty-v-meta-horizon-worlds",
+   "messageId": 559,
+   "title": "GenAI-инструменты в Meta Horizon Worlds"
+  },
+  {
+   "slug": "garden/posts/2025-04-16_realnye-keysy-ii-v-biznese-ot-google-i",
+   "messageId": 561,
+   "title": "Реальные кейсы ИИ в бизнесе от Google и OpenAI"
+  },
+  {
+   "slug": "garden/posts/2025-04-16_vyshel-kling-20-keysy-ot-profi",
+   "messageId": 560,
+   "title": "Вышел Kling 2.0: кейсы от профи"
+  },
+  {
+   "slug": "garden/posts/2025-04-17_nedelya-eksperimentov-v-odnom-skrinshote",
+   "messageId": 562,
+   "title": "Неделя экспериментов в одном скриншоте"
+  },
+  {
+   "slug": "garden/posts/2025-04-18_nalogovyy-vychet-na-avatar-dlya-vrchat",
+   "messageId": 565,
+   "title": "Налоговый вычет на аватар для VRChat"
+  },
+  {
+   "slug": "garden/posts/2025-04-18_opasnosti-revnivoy-ii-vayfu-i-o3",
+   "messageId": 566,
+   "title": "Опасности ревнивой ИИ-вайфу и o3"
+  },
+  {
+   "slug": "garden/posts/2025-04-19_eksperiment-s-deytingami-i-ii-alternati",
+   "messageId": 567,
+   "title": "Эксперимент с дейтингами и ИИ-альтернатива"
+  },
+  {
+   "slug": "garden/posts/2025-04-19_sryv-posle-goda-bez-sigaret",
+   "messageId": 569,
+   "title": "Срыв после года без сигарет"
+  },
+  {
+   "slug": "garden/posts/2025-04-20_kontrast-irl-i-metaverse-bary-i-glintvey",
+   "messageId": 571,
+   "title": "Контраст IRL и Metaverse: бары и глинтвейн"
+  },
+  {
+   "slug": "garden/posts/2025-04-21_proval-vizualizatsii-planirovki-s-chatgpt",
+   "messageId": 574,
+   "title": "Провал визуализации планировки с ChatGPT"
+  },
+  {
+   "slug": "garden/posts/2025-04-21_utki-poshli-shopping-v-lerua",
+   "messageId": 575,
+   "title": "Утки пошли шоппинг в Леруа"
+  },
+  {
+   "slug": "garden/posts/2025-04-22_reliability-engineering-v-llm-sistemakh",
+   "messageId": 576,
+   "title": "Reliability engineering в LLM-системах"
+  },
+  {
+   "slug": "garden/posts/2025-04-23_kabelnyy-musor-v-spalnom-rayone",
+   "messageId": 577,
+   "title": "Кабельный мусор в спальном районе"
+  },
+  {
+   "slug": "garden/posts/2025-04-24_diy-gadzhety-i-khaptika-dlya-vrchat-avataro",
+   "messageId": 578,
+   "title": "DIY-гаджеты и хаптика для VRChat-аватаров"
+  },
+  {
+   "slug": "garden/posts/2025-04-25_krasnyy-flag-v-deytinge-i-ii-vayfu",
+   "messageId": 579,
+   "title": "Красный флаг в дейтинге и ИИ-вайфу"
+  },
+  {
+   "slug": "garden/posts/2025-04-26_lovable-20-dorozhe-na-5-i-kollektivnyy-ga",
+   "messageId": 580,
+   "title": "Lovable 2.0: дороже на $5 и коллективный гараж"
+  },
+  {
+   "slug": "garden/posts/2025-04-26_psikhanul-i-kupil",
+   "messageId": 581,
+   "title": "Психанул и купил"
+  },
+  {
+   "slug": "garden/posts/2025-04-27_ii-koshko-devochka-uchitsya-u-vtyubera",
+   "messageId": 582,
+   "title": "ИИ-кошко-девочка учится у втюбера"
+  },
+  {
+   "slug": "garden/posts/2025-04-28_chto-ya-vypisyval-v-shkole",
+   "messageId": 584,
+   "title": "Что я выписывал в школе?"
+  },
+  {
+   "slug": "garden/posts/2025-04-28_nostalgiya-po-shkolnym-chteniyam",
+   "messageId": 583,
+   "title": "Ностальгия по школьным чтениям"
+  },
+  {
+   "slug": "garden/posts/2025-04-29_ofitsialnyy-mcp-v-n8n-test-i-nyuansy",
+   "messageId": 585,
+   "title": "Официальный MCP в n8n: тест и нюансы"
+  },
+  {
+   "slug": "garden/posts/2025-04-30_dumat-o-pokupke-3d-printera",
+   "messageId": 589,
+   "title": "Думать о покупке 3D-принтера"
+  },
+  {
+   "slug": "garden/posts/2025-04-30_liga-chempionov-bar-za-million-i-vrchat",
+   "messageId": 590,
+   "title": "Лига Чемпионов, бар за миллион и VRChat"
+  },
+  {
+   "slug": "garden/posts/2025-05-01_amplify-shader-editor-za-2500-rubley",
+   "messageId": 592,
+   "title": "Amplify Shader Editor за 2500 рублей"
+  },
+  {
+   "slug": "garden/posts/2025-05-03_nachalo-v-predyduschem-poste",
+   "messageId": 594,
+   "title": "(начало в предыдущем посте)"
+  },
+  {
+   "slug": "garden/posts/2025-05-03_post-iz-kanala-staniverse",
+   "messageId": 595,
+   "title": "Пост из канала Staniverse"
+  },
+  {
+   "slug": "garden/posts/2025-05-03_raskhlamlenie-kak-psikhoterapiya-s-veschami",
+   "messageId": 593,
+   "title": "Расхламление как психотерапия с вещами"
+  },
+  {
+   "slug": "garden/posts/2025-05-04_ya-teper-chut-bolshe-vr-razrabotchik-na-u",
+   "messageId": 596,
+   "title": "Я теперь чуть больше VR-разработчик на Unity, чем раньше"
+  },
+  {
+   "slug": "garden/posts/2025-05-06_nu-s-video-na-vtoroy-etap-artmasters-got",
+   "messageId": 597,
+   "title": "Ну-с, видео на второй этап ArtMasters готовы"
+  },
+  {
+   "slug": "garden/posts/2025-05-07_post-iz-kanala-staniverse",
+   "messageId": 600,
+   "title": "Пост из канала Staniverse"
+  },
+  {
+   "slug": "garden/posts/2025-05-07_v-notebooklm-dobavili-russkiy-yazyk-dlya-p",
+   "messageId": 599,
+   "title": "В NotebookLM добавили русский язык для подкастов"
+  },
+  {
+   "slug": "garden/posts/2025-05-08_tsifrovye-modeli-relefa-i-ikh-primenenie",
+   "messageId": 602,
+   "title": "Цифровые модели рельефа и их применение"
+  },
+  {
+   "slug": "garden/posts/2025-05-09_pervyy-tv-syuzhet-10-let-nazad",
+   "messageId": 604,
+   "title": "Первый ТВ-сюжет 10 лет назад"
+  },
+  {
+   "slug": "garden/posts/2025-05-11_v-shutkakh-dolya-shutok",
+   "messageId": 607,
+   "title": "В шутках доля шуток"
+  },
+  {
+   "slug": "garden/posts/2025-05-11_zametki-v-obsidian-vmesto-robo-vayfu",
+   "messageId": 606,
+   "title": "Заметки в Obsidian вместо робо-вайфу"
+  },
+  {
+   "slug": "garden/posts/2025-05-12_luchshaya-pevitsa-maya-adel-i-eyo-papa",
+   "messageId": 610,
+   "title": "Лучшая певица мая: Адель и её папа"
+  },
+  {
+   "slug": "garden/posts/2025-05-12_samozanyatost-ot-vr-missiy-do-spaseniya-k",
+   "messageId": 609,
+   "title": "Самозанятость: от VR-миссий до спасения кошек"
+  },
+  {
+   "slug": "garden/posts/2025-05-13_geymifikatsiya-uluchsheniya-openstreetmap",
+   "messageId": 611,
+   "title": "Геймификация улучшения OpenStreetMap"
+  },
+  {
+   "slug": "garden/posts/2025-05-16_smert-saytov-i-perekhod-na-staticheskie-g",
+   "messageId": 612,
+   "title": "Смерть сайтов и переход на статические генераторы"
+  },
+  {
+   "slug": "garden/posts/2025-05-16_vaybkoding-webxr-immersivnyy-veb-iz-brau",
+   "messageId": 613,
+   "title": "Вайбкодинг WebXR: иммерсивный веб из браузера"
+  },
+  {
+   "slug": "garden/posts/2025-05-18_vyvody-posle-eksperimenta-s-deytingami",
+   "messageId": 615,
+   "title": "Выводы после эксперимента с дейтингами"
+  },
+  {
+   "slug": "garden/posts/2025-05-19_navaybkodil-360-galereyu",
+   "messageId": 616,
+   "title": "Навайбкодил 360-галерею"
+  },
+  {
+   "slug": "garden/posts/2025-05-21_android-xr-os-dlya-ochkov-i-buduschee-ar",
+   "messageId": 617,
+   "title": "Android XR: ОС для очков и будущее AR"
+  },
+  {
+   "slug": "garden/posts/2025-05-22_bol-bolelschika-myu-i-novye-trofei-shpor",
+   "messageId": 618,
+   "title": "Боль болельщика МЮ и новые трофеи Шпор"
+  },
+  {
+   "slug": "garden/posts/2025-05-23_meta-testiruet-ii-stereo-dlya-instagram",
+   "messageId": 620,
+   "title": "Meta тестирует ИИ-стерео для Instagram"
+  },
+  {
+   "slug": "garden/posts/2025-05-23_patsanskaya-korzina-na-wb",
+   "messageId": 619,
+   "title": "Пацанская корзина на WB"
+  },
+  {
+   "slug": "garden/posts/2025-05-23_ya-pobeditel-otborochnogo-etapa",
+   "messageId": 621,
+   "title": "Я — Победитель Отборочного этапа"
+  },
+  {
+   "slug": "garden/posts/2025-05-25_tsifrovaya-melankholiya-i-glitch-akseleratsion",
+   "messageId": 623,
+   "title": "Цифровая меланхолия и глитч-акселерационизм"
+  },
+  {
+   "slug": "garden/posts/2025-05-27_ideya-shou-po-vtorsyryu-i-pererabotka-plas",
+   "messageId": 625,
+   "title": "Идея шоу по вторсырью и переработка пластика"
+  },
+  {
+   "slug": "garden/posts/2025-05-27_yeule-moyo-muzykalnoe-otkrytie-etogo-god",
+   "messageId": 626,
+   "title": "yeule — моё музыкальное открытие этого года"
+  },
+  {
+   "slug": "garden/posts/2025-05-29_shtrafy-rkn-za-formy-i-metriku-na-saytakh",
+   "messageId": 628,
+   "title": "Штрафы РКН за формы и Метрику на сайтах"
+  },
+  {
+   "slug": "garden/posts/2025-05-29_umnyy-dom-v-kirove-i-kiberpank-na-raspbe",
+   "messageId": 627,
+   "title": "Умный дом в Кирове и киберпанк на Raspberry Pi"
+  },
+  {
+   "slug": "garden/posts/2025-05-29_vot-stolko-nuzhno-uspet-do-vechera-pyatni",
+   "messageId": 629,
+   "title": "Вот столько нужно успеть до вечера пятницы"
+  },
+  {
+   "slug": "garden/posts/2025-05-30_sborka-stseny-dlya-vrchat-za-minimalnoe-v",
+   "messageId": 632,
+   "title": "Сборка сцены для VRChat за минимальное время"
+  },
+  {
+   "slug": "garden/posts/2025-05-30_sdal-za-15-minut-do-dedlayna-v-polufinal",
+   "messageId": 631,
+   "title": "Сдал за 15 минут до дедлайна. В полуфинал с таким (и уровнем…"
+  },
+  {
+   "slug": "garden/posts/2025-05-31_vystavka-karim-jabbari-fidzhital-v-spatia",
+   "messageId": 637,
+   "title": "Выставка Karim Jabbari: фиджитал в Spatial и VRChat"
+  },
+  {
+   "slug": "garden/posts/2025-06-02_flux1-kontext-redaktura-foto-cherez-neyro",
+   "messageId": 647,
+   "title": "FLUX.1 Kontext: редактура фото через нейросеть"
+  },
+  {
+   "slug": "garden/posts/2025-06-03_poterya-tvortsa-i-tsennost-iskrennosti",
+   "messageId": 648,
+   "title": "Потеря творца и ценность искренности"
+  },
+  {
+   "slug": "garden/posts/2025-06-04_vaybmodelling-ot-foto-do-3d-modeli",
+   "messageId": 649,
+   "title": "Вайбмоделлинг: от фото до 3D-модели"
+  },
+  {
+   "slug": "garden/posts/2025-06-06_uznayote-sebya-v-pyatnitse",
+   "messageId": 654,
+   "title": "Узнаёте себя в пятнице?"
+  },
+  {
+   "slug": "garden/posts/2025-06-09_google-io-poradoval-bolshe-wwdc-2025",
+   "messageId": 655,
+   "title": "Google I/O порадовал больше WWDC 2025"
+  },
+  {
+   "slug": "garden/posts/2025-06-12_muzyka-i-tanets-na-dne-goroda",
+   "messageId": 658,
+   "title": "Музыка и танец на Дне города"
+  },
+  {
+   "slug": "garden/posts/2025-06-12_syomka-i-montazh-vypuska-iz-kotelnicha",
+   "messageId": 656,
+   "title": "Съёмка и монтаж выпуска из Котельнича"
+  },
+  {
+   "slug": "garden/posts/2025-06-12_ya-polufinalist-artmasters",
+   "messageId": 659,
+   "title": "Я полуфиналист ArtMasters"
+  },
+  {
+   "slug": "garden/posts/2025-06-14_blokirovki-rkn-dobralis-do-vrchat",
+   "messageId": 660,
+   "title": "Блокировки РКН добрались до VRChat"
+  },
+  {
+   "slug": "garden/posts/2025-06-17_tryakhnul-starinoy-pomog-so-syomkoy-i-mont",
+   "messageId": 662,
+   "title": "Тряхнул стариной, помог со съёмкой и монтажом туристско-спор…"
+  },
+  {
+   "slug": "garden/posts/2025-06-19_polufinal-chempionata-samokopanie-i-lzheek",
+   "messageId": 663,
+   "title": "Полуфинал чемпионата, самокопание и лжеэксперты"
+  },
+  {
+   "slug": "garden/posts/2025-06-19_v-etom-zhe-mesyatse-vpervye-za-tri-goda-mne",
+   "messageId": 664,
+   "title": "В этом же месяце, впервые за три года, мне стало вот настоль…"
+  },
+  {
+   "slug": "garden/posts/2025-06-20_avtoposting-tovarov-iz-woocommerce-v-tel",
+   "messageId": 666,
+   "title": "Автопостинг товаров из WooCommerce в Telegram"
+  },
+  {
+   "slug": "garden/posts/2025-06-21_bioarte-eeg-i-zhivoy-grib-v-vr",
+   "messageId": 669,
+   "title": "Биоарте, ЭЭГ и живой гриб в VR"
+  },
+  {
+   "slug": "garden/posts/2025-06-21_zhivoy-afro-khaus-i-reyv-v-vrchat",
+   "messageId": 679,
+   "title": "Живой афро-хаус и рейв в VRChat"
+  },
+  {
+   "slug": "garden/posts/2025-06-22_selfi-v-kosmose-cherez-sputnik-sat-gus",
+   "messageId": 689,
+   "title": "Селфи в космосе через спутник Sat Gus"
+  },
+  {
+   "slug": "garden/posts/2025-06-23_aaaaaaaaaaaaaa",
+   "messageId": 691,
+   "title": "Аааааааааааааа"
+  },
+  {
+   "slug": "garden/posts/2025-06-23_igry-siloy-mysli-i-tok-vmesto-ulybki",
+   "messageId": 690,
+   "title": "Игры силой мысли и ток вместо улыбки"
+  },
+  {
+   "slug": "garden/posts/2025-06-26_stakan-napolovinu-tuchi-ili-svet",
+   "messageId": 693,
+   "title": "Стакан наполовину: тучи или свет?"
+  },
+  {
+   "slug": "garden/posts/2025-06-27_post-iz-kanala-staniverse",
+   "messageId": 695,
+   "title": "Пост из канала Staniverse"
+  },
+  {
+   "slug": "garden/posts/2025-06-29_prodazha-kvartiry-pereezd-i-ipoteka-v-202",
+   "messageId": 696,
+   "title": "Продажа квартиры, переезд и ипотека в 2025"
+  },
+  {
+   "slug": "garden/posts/2025-06-30_byudzhetnyy-vkhod-v-stereo-180-video",
+   "messageId": 702,
+   "title": "Бюджетный вход в стерео 180-видео"
+  },
+  {
+   "slug": "garden/posts/2025-07-04_zhizn-na-perspektivu-vs-zhizn-segodnya",
+   "messageId": 704,
+   "title": "Жизнь на перспективу vs жизнь сегодня"
+  },
+  {
+   "slug": "garden/posts/2025-07-10_kulturnyy-eklektizm-ot-gordona-do-holol",
+   "messageId": 706,
+   "title": "Культурный эклектизм: от Гордона до Hololive"
+  },
+  {
+   "slug": "garden/posts/2025-07-13_dokumentalka-pro-druzhbu-i-foto-v-vrchat",
+   "messageId": 707,
+   "title": "Документалка про дружбу и фото в VRChat"
+  },
+  {
+   "slug": "garden/posts/2025-07-14_grok-poluchil-vayfu-i-rezhim-18",
+   "messageId": 708,
+   "title": "Grok получил вайфу и режим 18+"
+  },
+  {
+   "slug": "garden/posts/2025-07-17_vayfu-ot-maska-genai-i-buduschee-odinochest",
+   "messageId": 709,
+   "title": "Вайфу от Маска, GenAI и будущее одиночества"
+  },
+  {
+   "slug": "garden/posts/2025-07-19_problema-biletov-na-iventy-v-social-vr",
+   "messageId": 710,
+   "title": "Проблема билетов на ивенты в Social VR"
+  },
+  {
+   "slug": "garden/posts/2025-07-21_analogovoe-vdokhnovenie-v-virtualnom-isk",
+   "messageId": 711,
+   "title": "Аналоговое вдохновение в виртуальном искусстве"
+  },
+  {
+   "slug": "garden/posts/2025-07-24_istoriya-neuro-car-i-ii-bezumiya",
+   "messageId": 719,
+   "title": "История Neuro Car и ИИ-безумия"
+  },
+  {
+   "slug": "garden/posts/2025-07-24_post-iz-kanala-staniverse",
+   "messageId": 717,
+   "title": "Пост из канала Staniverse"
+  },
+  {
+   "slug": "garden/posts/2025-07-24_vkhod-v-vrpcvr-tseny-i-vybor-garnitury",
+   "messageId": 718,
+   "title": "Вход в VR/PCVR: цены и выбор гарнитуры"
+  },
+  {
+   "slug": "garden/posts/2025-07-26_den-parashyutista-i-obeschanie-proyti-aff",
+   "messageId": 723,
+   "title": "День парашютиста и обещание пройти AFF"
+  },
+  {
+   "slug": "garden/posts/2025-07-26_interesnoe-u-nas-seychas-vremya-konechno",
+   "messageId": 722,
+   "title": "Интересное у нас сейчас время, конечно"
+  },
+  {
+   "slug": "garden/posts/2025-07-28_svyaz-bez-sotovykh-vyshek-cherez-meshtastic",
+   "messageId": 724,
+   "title": "Связь без сотовых вышек через Meshtastic"
+  },
+  {
+   "slug": "garden/posts/2025-07-29_opyt-klininga-kvartiry-k-prodazhe",
+   "messageId": 725,
+   "title": "Опыт клининга квартиры к продаже"
+  },
+  {
+   "slug": "garden/posts/2025-08-02_chto-tam-po-finalu-togo-chego-to-kuda-prosh",
+   "messageId": 726,
+   "title": "Что там по финалу того чего-то, куда прошёл?"
+  },
+  {
+   "slug": "garden/posts/2025-08-05_u-menya-ego-ne-bylo-s-2012-go",
+   "messageId": 727,
+   "title": "У меня его не было с 2012-го!"
+  },
+  {
+   "slug": "garden/posts/2025-08-06_10-let-myuziklu-gamilton",
+   "messageId": 728,
+   "title": "10 лет мюзиклу «Гамильтон»"
+  },
+  {
+   "slug": "garden/posts/2025-08-07_klod-za-20-v-2025-limity-i-alternativy",
+   "messageId": 729,
+   "title": "Клод за $20 в 2025: лимиты и альтернативы"
+  },
+  {
+   "slug": "garden/posts/2025-08-09_chto-nuzhno-znat-pro-klod-za-20-baksov-v",
+   "messageId": 730,
+   "title": "Что нужно знать про Клод за 20 баксов в августе 2025"
+  },
+  {
+   "slug": "garden/posts/2025-08-12_sdal-zaochnyy-modul-finala",
+   "messageId": 731,
+   "title": "Сдал заочный модуль финала"
+  },
+  {
+   "slug": "garden/posts/2025-08-12_vayfu-generatsiya-oura-ring-i-webxr",
+   "messageId": 732,
+   "title": "Вайфу-генерация, Oura Ring и WebXR"
+  },
+  {
+   "slug": "garden/posts/2025-08-13_kulturnyy-start-v-moskve-ges-2-i-garage",
+   "messageId": 734,
+   "title": "Культурный старт в Москве: ГЭС-2 и Garage"
+  },
+  {
+   "slug": "garden/posts/2025-08-13_pervyy-polyot-na-tsessne-bol-i-razocharova",
+   "messageId": 733,
+   "title": "Первый полёт на Цессне: боль и разочарование"
+  },
+  {
+   "slug": "garden/posts/2025-08-14_den-2-imeni-teney-somneniya",
+   "messageId": 744,
+   "title": "День 2 имени «теней» сомнения"
+  },
+  {
+   "slug": "garden/posts/2025-08-15_den-3-v-poiskakh-vdokhnoveniya",
+   "messageId": 746,
+   "title": "День 3: в поисках вдохновения"
+  },
+  {
+   "slug": "garden/posts/2025-08-16_den-4-zaglyadyval-v-zavtra-v-kotorom-vsyo",
+   "messageId": 752,
+   "title": "День 4: заглядывал в завтра, в котором всё хорошо, благо до …"
+  },
+  {
+   "slug": "garden/posts/2025-08-18_den-5-kazhetsya-nachinaetsya",
+   "messageId": 760,
+   "title": "День 5: кажется, начинается"
+  },
+  {
+   "slug": "garden/posts/2025-08-18_den-6-kogda-na-smotrovoy-lish-ty-i-dozhd",
+   "messageId": 761,
+   "title": "День 6: когда на смотровой лишь ты и дождь"
+  },
+  {
+   "slug": "garden/posts/2025-08-19_den-7-novaya-nadezhda",
+   "messageId": 762,
+   "title": "День 7: новая надежда"
+  },
+  {
+   "slug": "garden/posts/2025-08-20_den-8-perenasyschenie",
+   "messageId": 767,
+   "title": "День 8: перенасыщение"
+  },
+  {
+   "slug": "garden/posts/2025-08-21_den-9-mne-b-zdes-uchitsya",
+   "messageId": 771,
+   "title": "День 9: мне б здесь учиться"
+  },
+  {
+   "slug": "garden/posts/2025-08-22_den-10-imeni-chyornoy-korobki",
+   "messageId": 777,
+   "title": "День 10 имени Чёрной коробки"
+  },
+  {
+   "slug": "garden/posts/2025-08-23_den-11-ustav-ot-kuba-konkursno-rabochego",
+   "messageId": 778,
+   "title": "День 11: устав от куба (конкурсно-рабочего) пошёл в Cube.Mos…"
+  },
+  {
+   "slug": "garden/posts/2025-08-23_den-112-tsvetnoy-bulvar",
+   "messageId": 785,
+   "title": "День 11.2: Цветной бульвар"
+  },
+  {
+   "slug": "garden/posts/2025-08-24_den-12-a-finish-to-blizko",
+   "messageId": 793,
+   "title": "День 12: а финиш-то близко"
+  },
+  {
+   "slug": "garden/posts/2025-08-24_primenil-inversiyu-k-kartine-napisannoy-s",
+   "messageId": 792,
+   "title": "Применил инверсию к картине, написанной с инверсией цвета"
+  },
+  {
+   "slug": "garden/posts/2025-08-25_den-13-nakonets-uvidel",
+   "messageId": 794,
+   "title": "День 13: наконец увидел!"
+  },
+  {
+   "slug": "garden/posts/2025-08-26_den-14-otkrytie",
+   "messageId": 798,
+   "title": "День 14: открытие"
+  },
+  {
+   "slug": "garden/posts/2025-08-26_multimediynoe-shou-artmasters-k-yubileyu-e",
+   "messageId": 796,
+   "title": "Мультимедийное шоу ArtMasters к юбилею Есенина"
+  },
+  {
+   "slug": "garden/posts/2025-08-26_o-moyu-avatarku-iz-vk-v-knizhke-napechatali",
+   "messageId": 797,
+   "title": "О, мою аватарку из VK в книжке напечатали 😁"
+  },
+  {
+   "slug": "garden/posts/2025-08-27_den-15-zashli-na-ploschadku",
+   "messageId": 808,
+   "title": "День 15: зашли на площадку"
+  },
+  {
+   "slug": "garden/posts/2025-08-28_den-16-okh-kak-zhe-ya",
+   "messageId": 811,
+   "title": "День 16: ох, как же я"
+  },
+  {
+   "slug": "garden/posts/2025-08-29_den-17-den-kh",
+   "messageId": 819,
+   "title": "День 17: День Х"
+  },
+  {
+   "slug": "garden/posts/2025-08-29_slavnaya-byla-okhota",
+   "messageId": 821,
+   "title": "Славная была охота"
+  },
+  {
+   "slug": "garden/posts/2025-08-30_po-staroy-traditsii-v-dni-podobnye-etomu",
+   "messageId": 822,
+   "title": "По старой традиции, в дни, подобные этому, в голове играет о…"
+  },
+  {
+   "slug": "garden/posts/2025-08-31_samoironiya-mkht-i-zhelanie-v-teatr",
+   "messageId": 823,
+   "title": "Самоирония МХТ и желание в театр"
+  },
+  {
+   "slug": "garden/posts/2025-09-02_deshyovye-kursy-po-real-time-artu-na-udemy",
+   "messageId": 824,
+   "title": "Дешёвые курсы по real-time арту на Udemy"
+  },
+  {
+   "slug": "garden/posts/2025-09-09_solnaya-zapis-video-na-poco-x7-pro",
+   "messageId": 825,
+   "title": "Сольная запись видео на Poco X7 Pro"
+  },
+  {
+   "slug": "garden/posts/2025-09-12_tri-dnya-montirovalos-ukhkh-davno-takikh-pr",
+   "messageId": 826,
+   "title": "Три дня монтировалось, ухх, давно таких проектов не писал/со…"
+  },
+  {
+   "slug": "garden/posts/2025-09-13_vlog-virtualnye-miry-i-art-moskvy",
+   "messageId": 827,
+   "title": "Влог: виртуальные миры и арт Москвы"
+  },
+  {
+   "slug": "garden/posts/2025-09-17_obnovlenie-zakrepa-i-ssylki-na-portfolio",
+   "messageId": 828,
+   "title": "Обновление закрепа и ссылки на портфолио"
+  },
+  {
+   "slug": "garden/posts/2025-09-18_rekomenduyu-kurs-ne-moy-po-xr-interaction",
+   "messageId": 829,
+   "title": "Рекомендую курс (не мой) по XR Interaction Toolkit в Unity"
+  },
+  {
+   "slug": "garden/posts/2025-09-19_itogi-meta-connect-ochki-s-proektsiey-i-sd",
+   "messageId": 830,
+   "title": "Итоги Meta Connect: очки с проекцией и SDK"
+  },
+  {
+   "slug": "garden/posts/2025-09-20_kazhetsya-vkatyvayus-v-metashnyy-mr",
+   "messageId": 837,
+   "title": "Кажется, вкатываюсь в меташный MR"
+  },
+  {
+   "slug": "garden/posts/2025-09-23_sertifikat-v-kopilku-what-for",
+   "messageId": 838,
+   "title": "Сертификат в копилку, what for?"
+  },
+  {
+   "slug": "garden/posts/2025-09-24_kirovskiy-fankom-vybil-klub-iz-llm",
+   "messageId": 839,
+   "title": "Кировский Фанком выбил клуб из ЛЛМ"
+  },
+  {
+   "slug": "garden/posts/2025-09-25_ai-vtubers-parasotsialnost-i-vrchat-vst",
+   "messageId": 841,
+   "title": "AI VTubers: парасоциальность и VRChat-встреча"
+  },
+  {
+   "slug": "garden/posts/2025-09-28_den-0-dumal-o-tache-snizu",
+   "messageId": 842,
+   "title": "День 0: думал о таче снизу"
+  },
+  {
+   "slug": "garden/posts/2025-09-28_nu-s-chto-po-pervomu-dnyu",
+   "messageId": 844,
+   "title": "Ну-с, что по первому дню"
+  },
+  {
+   "slug": "garden/posts/2025-09-29_den-vtoroy-i-vtorogo-kruga",
+   "messageId": 855,
+   "title": "День второй и второго круга"
+  },
+  {
+   "slug": "garden/posts/2025-09-29_samokatnyy-roy-u-mgtu",
+   "messageId": 854,
+   "title": "Самокатный рой у МГТУ"
+  },
+  {
+   "slug": "garden/posts/2025-10-01_den-3-final-pravda",
+   "messageId": 864,
+   "title": "День 3: финал, правда"
+  },
+  {
+   "slug": "garden/posts/2025-10-01_zayavka-na-grant-zapovednaya-vyatka-360",
+   "messageId": 872,
+   "title": "Заявка на грант: Заповедная Вятка 360°"
+  },
+  {
+   "slug": "garden/posts/2025-10-02_den-bez-nomera",
+   "messageId": 873,
+   "title": "День без номера"
+  },
+  {
+   "slug": "garden/posts/2025-10-06_kurs-po-vr-miram-i-okhota-na-3d-printer",
+   "messageId": 878,
+   "title": "Курс по VR-мирам и охота на 3D-принтер"
+  },
+  {
+   "slug": "garden/posts/2025-10-06_ya-tozhe-podalsya-tuda-kstati",
+   "messageId": 879,
+   "title": "Я тоже подался туда, кстати"
+  },
+  {
+   "slug": "garden/posts/2025-10-07_kvartirnyy-vopros-i-otvet",
+   "messageId": 880,
+   "title": "Квартирный вопрос и ответ"
+  },
+  {
+   "slug": "garden/posts/2025-10-08_eee-poekhalo-vsyo-sypatsya",
+   "messageId": 882,
+   "title": "Еее, поехало всё сыпаться?"
+  },
+  {
+   "slug": "garden/posts/2025-10-09_pokhozhe-pozdnim-vecherom-budet-novoe-video",
+   "messageId": 883,
+   "title": "Похоже, поздним вечером будет новое видео"
+  },
+  {
+   "slug": "garden/posts/2025-10-09_proshlyy-vypusk-pro-final-artmasters-neozh",
+   "messageId": 884,
+   "title": "Прошлый выпуск про финал ArtMasters неожиданно стал популярн…"
+  },
+  {
+   "slug": "garden/posts/2025-10-13_blagodarya-etomu-postu-ya-postavil-sebe-v",
+   "messageId": 885,
+   "title": "Благодаря этому посту я поставил себе в Стиме уведомление о …"
+  },
+  {
+   "slug": "garden/posts/2025-10-13_dzhoystik-zakazal-v-polnoy-komplektatsii-s",
+   "messageId": 887,
+   "title": "Джойстик заказал, в полной комплектации с коробкой, хе-хе. У…"
+  },
+  {
+   "slug": "garden/posts/2025-10-13_ura-ya-vremenno-ne-privlekatelnyy-zhenikh",
+   "messageId": 886,
+   "title": "Ура, я временно не привлекательный жених!"
+  },
+  {
+   "slug": "garden/posts/2025-10-15_galaxy-xr-protiv-vision-pro-pochemu-andro",
+   "messageId": 889,
+   "title": "Galaxy XR против Vision Pro: почему Android XR побеждает"
+  },
+  {
+   "slug": "garden/posts/2025-10-15_sedina-prigorod-i-rasteniya-na-arduino",
+   "messageId": 888,
+   "title": "Седина, пригород и растения на Ардуино"
+  },
+  {
+   "slug": "garden/posts/2025-10-20_biosonifikatsiya-griby-kotorye-poyut",
+   "messageId": 892,
+   "title": "Биосонификация: грибы, которые поют"
+  },
+  {
+   "slug": "garden/posts/2025-10-20_govoryat-eto-stokgolmskiy-sindrom",
+   "messageId": 890,
+   "title": "Говорят, это стокгольмский синдром"
+  },
+  {
+   "slug": "garden/posts/2025-10-22_problema-midnights-i-rabota-prodyusera",
+   "messageId": 893,
+   "title": "Проблема Midnights и работа продюсера"
+  },
+  {
+   "slug": "garden/posts/2025-10-23_sovetskaya-posuda-i-knigi-za-60-rubley",
+   "messageId": 894,
+   "title": "Советская посуда и книги за 60 рублей"
+  },
+  {
+   "slug": "garden/posts/2025-10-24_na-nedele-galaxy-xr-poshyol-v-narod",
+   "messageId": 895,
+   "title": "На неделе Galaxy XR пошёл в народ"
+  },
+  {
+   "slug": "garden/posts/2025-10-28_evangelion-ii-kompanony-i-pereezd",
+   "messageId": 896,
+   "title": "Евангелион, ИИ-компаньоны и переезд"
+  },
+  {
+   "slug": "garden/posts/2025-10-29_pervyy-opyt-pokupki-kvartiry",
+   "messageId": 898,
+   "title": "Первый опыт покупки квартиры"
+  },
+  {
+   "slug": "garden/posts/2025-10-29_sovetskie-kompyutery-i-muzyka-s-plastink",
+   "messageId": 897,
+   "title": "Советские компьютеры и музыка с пластинки"
+  },
+  {
+   "slug": "garden/posts/2025-10-30_chego-mozhet-ne-khvatat-v-slobodskom",
+   "messageId": 899,
+   "title": "Чего может не хватать в Слободском"
+  },
+  {
+   "slug": "garden/posts/2025-10-31_pereezd-zavershyon-server-s-llm-na-meste",
+   "messageId": 901,
+   "title": "Переезд завершён, сервер с ЛЛМ на месте"
+  },
+  {
+   "slug": "garden/posts/2025-11-02_obustroystvo-v-slobodskom-byt-i-kinoteat",
+   "messageId": 903,
+   "title": "Обустройство в Слободском: быт и кинотеатр"
+  },
+  {
+   "slug": "garden/posts/2025-11-06_pogryaznut-v-obustroystve",
+   "messageId": 904,
+   "title": "Погрязнуть в обустройстве"
+  },
+  {
+   "slug": "garden/posts/2025-11-08_vybor-3d-printera-na-1111-i-uteplenie-ba",
+   "messageId": 905,
+   "title": "Выбор 3D-принтера на 11.11 и утепление балкона"
+  },
+  {
+   "slug": "garden/posts/2025-11-11_itogi-1111-yandeksshvabra-i-sryv-printera",
+   "messageId": 906,
+   "title": "Итоги 11.11: Яндекс.Швабра и срыв принтера"
+  },
+  {
+   "slug": "garden/posts/2025-11-11_sborka-elektroschita-i-pokupki-na-1111",
+   "messageId": 907,
+   "title": "Сборка электрощита и покупки на 11.11"
+  },
+  {
+   "slug": "garden/posts/2025-11-13_kak-rostelekom-teryaet-abonentov",
+   "messageId": 908,
+   "title": "Как Ростелеком теряет абонентов"
+  },
+  {
+   "slug": "garden/posts/2025-11-13_tem-vremenem-na-etot-zhe-post-vk-prishla-r",
+   "messageId": 909,
+   "title": "Тем временем на этот же пост ВК пришла реакция."
+  },
+  {
+   "slug": "garden/posts/2025-11-14_zavisimost-ot-fitnes-brasleta-i-biodann",
+   "messageId": 910,
+   "title": "Зависимость от фитнес-браслета и биоданные в VR"
+  },
+  {
+   "slug": "garden/posts/2025-11-15_debyut-neyro-samy-v-3d-i-vrchat",
+   "messageId": 911,
+   "title": "Дебют Нейро-Самы в 3D и VRChat"
+  },
+  {
+   "slug": "garden/posts/2025-11-16_paradoks-genai-byvshaya-vs-ushedshiy",
+   "messageId": 912,
+   "title": "Парадокс GenAI: бывшая vs ушедший"
+  },
+  {
+   "slug": "garden/posts/2025-11-17_opyt-vnedreniya-umnogo-doma-ot-yandeksa",
+   "messageId": 914,
+   "title": "Опыт внедрения умного дома от Яндекса"
+  },
+  {
+   "slug": "garden/posts/2025-11-17_pamyati-artyoma-bykova",
+   "messageId": 915,
+   "title": "Памяти Артёма Быкова"
+  },
+  {
+   "slug": "garden/posts/2025-11-17_perekhod-na-makh-administrativnyy-resurs-v",
+   "messageId": 913,
+   "title": "Переход на МАХ: административный ресурс вместо конкуренции"
+  },
+  {
+   "slug": "garden/posts/2025-11-18_tam-proektor-kak-u-menya-otdayut-za-8k-vse",
+   "messageId": 916,
+   "title": "Там проектор как у меня отдают за 8к всего"
+  },
+  {
+   "slug": "garden/posts/2025-11-19_v-etu-akademiyu-odnoy-iz-social-vr-platfo",
+   "messageId": 917,
+   "title": "В эту Академию одной из social vr платформ не прошёл. А ещё …"
+  },
+  {
+   "slug": "garden/posts/2025-11-20_rasprodazha-zakanchivalas-nuzhno-bylo-chto",
+   "messageId": 918,
+   "title": "Распродажа заканчивалась, нужно было что-то решать с покупко…"
+  },
+  {
+   "slug": "garden/posts/2025-11-20_razryv-ozhidaniy-ot-umnoy-kolonki",
+   "messageId": 919,
+   "title": "Разрыв ожиданий от умной колонки"
+  },
+  {
+   "slug": "garden/posts/2025-11-24_kupil-3d-printer-nakonets",
+   "messageId": 920,
+   "title": "Купил 3D-принтер (наконец)"
+  },
+  {
+   "slug": "garden/posts/2025-11-25_sam-3d-ot-foto-k-3d-pechati-lva",
+   "messageId": 921,
+   "title": "SAM 3D: от фото к 3D-печати льва"
+  },
+  {
+   "slug": "garden/posts/2025-11-26_ii-osint-vs-slepoy-marketing-shurupovyorto",
+   "messageId": 924,
+   "title": "ИИ-OSINT vs слепой маркетинг шуруповёртов"
+  },
+  {
+   "slug": "garden/posts/2025-11-27_perestante-vozit-iz-puteshestviy-magnit",
+   "messageId": 925,
+   "title": "Перестаньте возить из путешествий магнитики. Хватит четырёх …"
+  },
+  {
+   "slug": "garden/posts/2025-11-28_mesyats-v-slobodskom-bag-report-pereezda",
+   "messageId": 928,
+   "title": "Месяц в Слободском: баг-репорт переезда"
+  },
+  {
+   "slug": "garden/posts/2025-11-29_self-khosting-na-raspberry-pi-vmesto-stri",
+   "messageId": 930,
+   "title": "Селф-хостинг на Raspberry Pi вместо стримингов"
+  },
+  {
+   "slug": "garden/posts/2025-12-01_fakap-s-dogovorom-i-spasitelnaya-perezag",
+   "messageId": 936,
+   "title": "Факап с договором и спасительная перезагрузка"
+  },
+  {
+   "slug": "garden/posts/2025-12-01_itogi-yandeksmuzyki-i-eyo-bagi",
+   "messageId": 934,
+   "title": "Итоги Яндекс.Музыки и её баги"
+  },
+  {
+   "slug": "garden/posts/2025-12-04_blokirovka-roblox-i-ekonomika-absurda",
+   "messageId": 938,
+   "title": "Блокировка Roblox и экономика абсурда"
+  },
+  {
+   "slug": "garden/posts/2025-12-04_klimaticheskiy-modul-dlya-stantsii-mini-3",
+   "messageId": 937,
+   "title": "Климатический модуль для Станции Мини 3 Про завезли, но хоче…"
+  },
+  {
+   "slug": "garden/posts/2025-12-05_blokirovka-snapchat-i-poterya-ar-instrume",
+   "messageId": 939,
+   "title": "Блокировка Snapchat и потеря AR-инструмента"
+  },
+  {
+   "slug": "garden/posts/2025-12-05_rum-tur-kholostyatsko-svetodiodnyy-vayb",
+   "messageId": 940,
+   "title": "Рум-тур: холостяцко-светодиодный вайб"
+  },
+  {
+   "slug": "garden/posts/2025-12-06_avito-kak-sotsset-dlya-tekhnarey",
+   "messageId": 941,
+   "title": "Авито как соцсеть для технарей"
+  },
+  {
+   "slug": "garden/posts/2025-12-08_prompt-dlya-itogov-goda-v-perplexity",
+   "messageId": 943,
+   "title": "Промпт для итогов года в Perplexity"
+  },
+  {
+   "slug": "garden/posts/2025-12-11_to-chego-ya-zhdal-s-meta-connect-sluchilos",
+   "messageId": 945,
+   "title": "То, чего я ждал с Meta Connect случилось"
+  },
+  {
+   "slug": "garden/posts/2025-12-12_skidki-v-quest-store-i-bol-oplaty",
+   "messageId": 946,
+   "title": "Скидки в Quest Store и боль оплаты"
+  },
+  {
+   "slug": "garden/posts/2025-12-16_apple-sharp-foto-v-3d-za-sekundu",
+   "messageId": 948,
+   "title": "Apple Sharp: фото в 3D за секунду"
+  },
+  {
+   "slug": "garden/posts/2025-12-16_rasskazyval-na-nedele-kakoe-prilozhenie-kh",
+   "messageId": 947,
+   "title": "Рассказывал на неделе какое приложение хочу взять на Quest 3"
+  },
+  {
+   "slug": "garden/posts/2025-12-20_vedal-vstretilsya-s-neuro-sama-v-vrchat",
+   "messageId": 949,
+   "title": "Ведал встретился с Neuro-sama в VRChat"
+  },
+  {
+   "slug": "garden/posts/2025-12-22_itogi-goda-ot-tekstov-do-ii-kompanonov",
+   "messageId": 951,
+   "title": "Итоги года: от текстов до ИИ-компаньонов"
+  },
+  {
+   "slug": "garden/posts/2025-12-22_neyroset-obedinyaet-paskhu-i-kosmonavtik",
+   "messageId": 952,
+   "title": "Нейросеть объединяет Пасху и космонавтику"
+  },
+  {
+   "slug": "garden/posts/2025-12-23_itogi-goda-v-chatgpt-vybor-bez-vybora",
+   "messageId": 953,
+   "title": "Итоги года в ChatGPT: выбор без выбора"
+  },
+  {
+   "slug": "garden/posts/2025-12-24_zapisi-vystupleniy-pro-xr-i-tsifrovoy-tur",
+   "messageId": 954,
+   "title": "Записи выступлений про XR и цифровой туризм"
+  },
+  {
+   "slug": "garden/posts/2025-12-29_itogi-2025-ot-xr-k-3d-pechati-i-pereezd",
+   "messageId": 955,
+   "title": "Итоги 2025: от XR к 3D-печати и переезд"
+  },
+  {
+   "slug": "garden/posts/2025-12-31_itogi-goda-domashniy-internet-vs-mobilny",
+   "messageId": 956,
+   "title": "Итоги года: домашний интернет vs мобильный"
+  },
+  {
+   "slug": "garden/posts/2026-01-01_bitva-novogodnego-kontenta-tri-sily",
+   "messageId": 957,
+   "title": "Битва новогоднего контента: три силы"
+  },
+  {
+   "slug": "garden/posts/2026-01-06_itogi-pervoy-nedeli-goda-igry-vr-i-son",
+   "messageId": 958,
+   "title": "Итоги первой недели года: игры, VR и сон"
+  },
+  {
+   "slug": "garden/posts/2026-01-19_yanvarskiy-tuman-kak-debaff-v-d-d",
+   "messageId": 960,
+   "title": "Январский туман как дебафф в D&D"
+  },
+  {
+   "slug": "garden/posts/2026-01-22_mcp-v-singularity-app-avtomatizatsiya-zadach",
+   "messageId": 962,
+   "title": "MCP в Singularity App: автоматизация задач"
+  },
+  {
+   "slug": "garden/posts/2026-01-23_vr-kardio-vmesto-progulok-v-30",
+   "messageId": 963,
+   "title": "VR-кардио вместо прогулок в −30°"
+  },
+  {
+   "slug": "garden/posts/2026-01-24_sillytavern-kak-zamena-gacha-i-c-ai",
+   "messageId": 964,
+   "title": "SillyTavern как замена гача и c.ai"
+  },
+  {
+   "slug": "garden/posts/2026-01-25_clawd-bot-pereimenovaniya-i-agentschina",
+   "messageId": 965,
+   "title": "Clawd.bot, переименования и агентщина"
+  },
+  {
+   "slug": "garden/posts/2026-01-26_nado-cherez-nedelku-uzhe-prosit-svoego-assistenta",
+   "messageId": 966,
+   "title": "Надо через недельку уже просить своего ассистента собирать п…"
+  },
+  {
+   "slug": "garden/posts/2026-01-27_pokhozhe-clawdbot-pereimnovyvaetsya-v",
+   "messageId": 967,
+   "title": "Похоже, Clawdbot переимновывается в"
+  },
+  {
+   "slug": "garden/posts/2026-01-30_ocherednaya-linka-imeni",
+   "messageId": 973,
+   "title": "Очередная линька имени"
+  },
+  {
+   "slug": "garden/posts/2026-02-01_agenty-alisa-i-strannye-trendy-nedeli",
+   "messageId": 974,
+   "title": "Агенты, Алиса и странные тренды недели"
+  },
+  {
+   "slug": "garden/posts/2026-02-01_chem-zanyatsya-v-gorode-zimoy",
+   "messageId": 975,
+   "title": "Чем заняться в городе зимой"
+  },
+  {
+   "slug": "garden/posts/2026-02-03_spacex-poglotila-xai-kosmos-i-anime",
+   "messageId": 976,
+   "title": "SpaceX поглотила xAI: космос и аниме"
+  },
+  {
+   "slug": "garden/posts/2026-02-04_iz-opyta-s-openclaw",
+   "messageId": 977,
+   "title": "Из опыта с Openclaw"
+  },
+  {
+   "slug": "garden/posts/2026-02-05_obuchenie-detey-ot-arduino-do-llm-saytov",
+   "messageId": 978,
+   "title": "Обучение детей: от Arduino до LLM-сайтов"
+  },
+  {
+   "slug": "garden/posts/2026-06-06_obnovleniya-itmo-somnium-space-video-pro-ii-agentov",
+   "messageId": 1031,
+   "title": "Обновления: ITMO, Somnium Space, видео про ИИ-агентов"
+  },
+  {
+   "slug": "garden/posts/2026-06-08_instrumenty-i-podkhody-k-rabote-nad-diplomom",
+   "messageId": 1032,
+   "title": "Инструменты и подходы к работе над дипломом"
+  },
+  {
+   "slug": "garden/posts/2026-06-10_otkaz-moderatsii-i-perenos-stati-o-zaschite-diploma",
+   "messageId": 1033,
+   "title": "Отказ модерации и перенос статьи о защите диплома с ИИ"
+  },
+  {
+   "slug": "garden/posts/2026-06-13_raindance-immersive-project-latent-archive_",
+   "messageId": 1034,
+   "title": "Raindance Immersive: Project [ latent ] // archive_"
+  },
+  {
+   "slug": "garden/posts/2026-06-14_vr-kalligrafiya-ot-vygoraniya-k-skulpture",
+   "messageId": 1043,
+   "title": "VR-каллиграфия: от выгорания к скульптуре"
+  },
+  {
+   "slug": "garden/posts/2026-06-14_vrchat-performans-neutrino-lightfall-i-magiya-koda",
+   "messageId": 1053,
+   "title": "VRChat: Перформанс «Neutrino Lightfall» и магия кода"
+  },
+  {
+   "slug": "garden/posts/2026-06-15_vr-shou-trippy-dreams-audioreaktivnyy-mir-v-vrchat",
+   "messageId": 1061,
+   "title": "VR-шоу Trippy Dreams: аудиореактивный мир в VRChat"
+  },
+  {
+   "slug": "garden/posts/2026-06-17_sovety-po-podgotovke-k-intervyu-s-chatgpt",
+   "messageId": 1072,
+   "title": "Советы по подготовке к интервью с ChatGPT"
+  },
+  {
+   "slug": "garden/posts/2026-06-17_zavershenie-vtorogo-sezona-akademii-somnium",
+   "messageId": 1071,
+   "title": "Завершение второго сезона Академии Somnium"
+  },
+  {
+   "slug": "garden/posts/2026-06-18_360-ekskursiya-daladala-verse-na-raindance",
+   "messageId": 1073,
+   "title": "360-экскурсия «Daladala Verse» на Raindance"
+  },
+  {
+   "slug": "garden/posts/2026-06-19_basis-vr-prezentuet-freymvork-na-raindance-immersi",
+   "messageId": 1080,
+   "title": "Basis VR презентует фреймворк на Raindance Immersive"
+  },
+  {
+   "slug": "garden/posts/2026-06-19_vrchat-yamaha-syncroom-virtualnyy-dzhaz",
+   "messageId": 1082,
+   "title": "VRChat + Yamaha SYNCROOM: виртуальный джаз"
+  },
+  {
+   "slug": "garden/posts/2026-06-20_3d-kartiny-v-vrchat-gaussian-splatting-i-fotogramm",
+   "messageId": 1083,
+   "title": "3D картины в VRChat: Gaussian Splatting и фотограмметрия"
+  },
+  {
+   "slug": "garden/posts/2026-06-20_opyt-uchastiya-v-vecherinke-basisvr-i-sravnenie-s-vrc",
+   "messageId": 1093,
+   "title": "Опыт участия в вечеринке BasisVR и сравнение с VRChat"
+  },
+  {
+   "slug": "garden/posts/2026-06-24_migratsiya-wordpress-v-astro-bez-plaginov",
+   "messageId": 1098,
+   "title": "Миграция WordPress в Astro без плагинов"
+  },
+  {
+   "slug": "garden/posts/2026-06-25_vr-proekt-ebrd-dlya-demonstratsii-remonta-chernobylya",
+   "messageId": 1099,
+   "title": "VR-проект EBRD для демонстрации ремонта Чернобыля"
+  },
+  {
+   "slug": "garden/posts/2026-07-02_yandeks-vypuskaet-yags-plugin-dlya-unreal-engine-5-7",
+   "messageId": 1100,
+   "title": "Яндекс выпускает YaGS Plugin для Unreal Engine 5.7"
+  },
+  {
+   "slug": "garden/posts/2026-07-03_dataland-pervyy-muzey-ii-iskusstva-s-biometrikami",
+   "messageId": 1101,
+   "title": "DATALAND: первый музей ИИ-искусства с биометриками"
+  },
+  {
+   "slug": "garden/posts/2026-07-06_gesture-based-ableton-live-control-with-mediapipe",
+   "messageId": 1102,
+   "title": "Gesture‑based Ableton Live control with Mediapipe"
+  },
+  {
+   "slug": "garden/posts/2026-07-13_lokalnyy-deep-research-ot-obsidian-do-ldr-i-qwen",
+   "messageId": 1103,
+   "title": "Локальный Deep Research: от Obsidian до LDR и Qwen 3.5"
+  }
+ ]
+}

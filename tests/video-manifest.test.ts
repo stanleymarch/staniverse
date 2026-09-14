@@ -1,12 +1,13 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import test from "node:test";
-import { materializeVideo, materializedFrontmatter } from "../pipeline/materialize-videos";
+import { materializeVideos } from "../pipeline/materialize-videos";
 import {
   type AllowlistedChannel,
   type VideoManifestEntry,
   verifyVideoOwnership,
-  youtubeThumbnailUrl,
 } from "../pipeline/video-manifest";
 
 const channel: AllowlistedChannel = {
@@ -45,12 +46,21 @@ test("external links remain references and can never become owned", () => {
   assert.equal(result.verification.reason, "external-source");
 });
 
-test("thumbnail uses the manifest video ID, including external videos", () => {
-  assert.equal(youtubeThumbnailUrl("abc12345678"), "https://i.ytimg.com/vi/abc12345678/hqdefault.jpg");
-  const frontmatter = materializedFrontmatter(materializeVideo(video({ ownership: "external" }), [channel]));
-  assert.match(frontmatter, /thumbnailUrl: "https:\/\/i\.ytimg\.com\/vi\/abc12345678\/hqdefault\.jpg"/);
-  assert.match(frontmatter, /ownership: "external"/);
-  assert.match(frontmatter, /embedUrl/);
+test("external videos stay contextual and are never materialized as publications", async () => {
+  const root = await mkdtemp(join(tmpdir(), "staniverse-video-"));
+  try {
+    const manifestPath = join(root, "manifest.json");
+    const channelsPath = join(root, "channels.json");
+    const outputDir = join(root, "publications");
+    await writeFile(manifestPath, JSON.stringify([video({ ownership: "external" })]));
+    await writeFile(channelsPath, JSON.stringify([channel]));
+    const result = await materializeVideos({ manifestPath, channelsPath, outputDir });
+    assert.equal(result.videos, 0);
+    assert.equal(result.excludedExternal, 1);
+    assert.deepEqual(await readdir(outputDir), []);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
 });
 
 test("repository manifest contains no unverified own records or placeholder", async () => {

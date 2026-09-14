@@ -11,10 +11,10 @@ const legacyRepo=resolve(legacyRoot,"..");
 // This list comes from the generated index that was actually published, not from
 // whichever drafts happen to be present in the old working tree today.
 const publishedWorkSlugs=[
-  "ai-vayfu-i-virtualnye-pomoschniki","arka-vyatskogo-kremlya","audiospektakl-saltykiada","avtomaticheskiy-kanal-dlya-proekta-chertezhi",
+  "ai-vayfu-i-virtualnye-pomoschniki","arka-vyatskogo-kremlya","audiospektakl-saltykiada",
   "chertezhi-tekhdiplomy","dver-kotoraya-zhdyot","ermil-kostrov","katalog-promyshlennoy-arkhitektury","lending-prilozheniya-logoped-buduschego",
   "maslenitsa-v-slobodskom","prepodavanie-metodicheskaya-rabota-i-prodakshn-v-tsifrovykh-kafedrakh",
-  "prodakshn-dlya-staniverse","prodakshn-dlya-ya-ty-gorod","rabota-k-yubileyu-goroda","sayt-advokata-antona-okulova",
+  "prodakshn-dlya-ya-ty-gorod","rabota-k-yubileyu-goroda","sayt-advokata-antona-okulova",
   "rubyspot",
   "sayt-proekta-ya-ty-gorod","sayt-programmy-razvitiya-vyatgu-na-2021-2030-gody",
   "sayt-regionalnogo-tsentra-finansovoy-gramotnosti-kirovskoy-oblasti",
@@ -25,14 +25,14 @@ const publishedWorkSlugs=[
 const workAliases:Record<string,string>={};
 const projectAliases:Record<string,string>={};
 const curated:Record<string,Relation[]>={
-  "project:staniverse":[{target:"work:prodakshn-dlya-staniverse",type:"develops",evidence:"editorial",confidence:1},{target:"publication:telegram:staniverse:1013",type:"documents",evidence:"editorial",confidence:1}],
+  "project:staniverse":[{target:"publication:telegram:staniverse:1013",type:"documents",evidence:"editorial",confidence:1}],
   "project:albina":[{target:"article:ai-waifu",type:"develops",evidence:"editorial",confidence:1},{target:"publication:telegram:staniverse:566",type:"documents",evidence:"editorial",confidence:1}],
   "project:metavyatka":[{target:"work:arka-vyatskogo-kremlya",type:"develops",evidence:"editorial",confidence:1},{target:"project:ya-ty-gorod",type:"related",evidence:"editorial",confidence:.9}],
   "project:ya-ty-gorod":[{target:"work:sayt-proekta-ya-ty-gorod",type:"develops",evidence:"editorial",confidence:1},{target:"project:nearventure",type:"related",evidence:"editorial",confidence:1}],
   "work:arka-vyatskogo-kremlya":[{target:"project:metavyatka",type:"develops",evidence:"editorial",confidence:1}],
   "work:sistema-sbora-i-analiza-trendov-na-n8n":[{target:"article:ai-diploma",type:"related",evidence:"editorial",confidence:.9}],
-  "article:ai-waifu":[{target:"project:albina",type:"develops",evidence:"editorial",confidence:1},{target:"publication:youtube:ncQ31xB3GLE",type:"related",evidence:"editorial",confidence:1},{target:"publication:youtube:AqqQ-xNAcCw",type:"related",evidence:"editorial",confidence:.9}],
-  "article:ai-diploma":[{target:"work:sistema-sbora-i-analiza-trendov-na-n8n",type:"related",evidence:"editorial",confidence:.9},{target:"publication:telegram:staniverse:1032",type:"documents",evidence:"editorial",confidence:1},{target:"publication:youtube:1Q6KahaYrPA",type:"related",evidence:"editorial",confidence:1},{target:"publication:youtube:rAzT5lcezPs",type:"related",evidence:"editorial",confidence:.8}],
+  "article:ai-waifu":[{target:"project:albina",type:"develops",evidence:"editorial",confidence:1},{target:"publication:youtube:ncQ31xB3GLE",type:"related",evidence:"editorial",confidence:1}],
+  "article:ai-diploma":[{target:"work:sistema-sbora-i-analiza-trendov-na-n8n",type:"related",evidence:"editorial",confidence:.9},{target:"publication:telegram:staniverse:1032",type:"documents",evidence:"editorial",confidence:1},{target:"publication:youtube:1Q6KahaYrPA",type:"related",evidence:"editorial",confidence:1}],
 };
 
 function readPublishedWork(slug:string){

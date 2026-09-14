@@ -9,7 +9,7 @@ export async function getStaticPaths() {
 }
 const { topic } = Astro.props;
 ---
-<Base title={`Тема: ${topic.name}`}>
+<Base title={`Тема: ${topic.name}`} description={`${topic.name}: ${topic.entries.length} материалов Станислава Ермоленко — работы, проекты, статьи, видео и публикации.`}>
   <header class="catalog-hero"><div class="section-kicker"><a href="/topics/">Все темы</a></div><h1>#{topic.name}</h1><p class="hero-lead">{topic.entries.length} материалов разных форматов образуют этот маршрут через опыт.</p></header>
-  <section class="section" style="padding-top:1rem"><div class="card-grid">{topic.entries.map((entry) => <ContentCard entry={entry} />)}</div></section>
+  <section class="section" style="padding-top:1rem"><div class="card-grid">{topic.entries.map((entry) => <ContentCard entry={entry} headingLevel="h2" />)}</div></section>
 </Base>

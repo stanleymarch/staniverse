@@ -60,14 +60,16 @@ export async function materializeVideos(options: { manifestPath?: string; channe
   const output = options.outputDir ?? resolve("src/content/publications/video");
   const videos = JSON.parse(await readFile(manifestPath, "utf8")) as VideoManifestEntry[];
   const channels = JSON.parse(await readFile(channelsPath, "utf8")) as AllowlistedChannel[];
+  const materialized = videos
+    .map((rawVideo) => materializeVideo(rawVideo, channels))
+    .filter((video) => video.ownership !== "external");
   await rm(output, { recursive: true, force: true });
   await mkdir(output, { recursive: true });
-  for (const rawVideo of videos) {
-    const video = materializeVideo(rawVideo, channels);
+  for (const video of materialized) {
     const filename = video.id.startsWith(`${video.platform}-`) ? video.id : `${video.platform}-${video.id}`;
     await writeFile(resolve(output, `${filename}.md`), materializedFrontmatter(video), "utf8");
   }
-  return { videos: videos.length, output };
+  return { videos: materialized.length, excludedExternal: videos.length - materialized.length, output };
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

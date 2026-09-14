@@ -1,0 +1,119 @@
+---
+import Base from "../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+import { hrefFor } from "../../lib/content";
+
+/** The video archive is a thin reading of the publication corpus: every entry
+ * whose platform is YouTube, newest first. Local material pages stay primary. */
+const videos = (await getCollection("publications"))
+  .filter((entry) => entry.data.platform === "youtube")
+  .sort((a, b) => (b.data.date?.getTime() ?? 0) - (a.data.date?.getTime() ?? 0));
+
+/** Allowlisted channel keys carry human labels; handles stay as fallback. */
+const channelNames: Record<string, string> = { staniverse: "Staniverse", "ya-ty-gorod": "я.ты.город." };
+const channelLabel = (channel?: { key: string; handle?: string }) =>
+  channel ? channelNames[channel.key] ?? (channel.handle ? channel.handle.replace(/^@/, "") : channel.key) : "";
+
+const formatDate = (value?: Date) =>
+  value ? new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "long", year: "numeric" }).format(value) : "";
+
+const description = "Видеоархив Staniverse: ролики с YouTube-каналов Staniverse и я.ты.город. со ссылками на связанные материалы сайта и первоисточник.";
+
+const collectionJsonLd: Record<string, unknown> = {
+  "@type": "CollectionPage",
+  "@id": new URL("/videos/#collection", Astro.site).href,
+  url: new URL("/videos/", Astro.site).href,
+  name: "Видеоархив Staniverse",
+  description,
+  inLanguage: "ru-RU",
+  isPartOf: { "@id": new URL("/#website", Astro.site).href },
+  mainEntity: {
+    "@type": "ItemList",
+    numberOfItems: videos.length,
+    itemListOrder: "https://schema.org/ItemListOrderDescending",
+    itemListElement: videos.map((entry, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      url: new URL(hrefFor(entry), Astro.site).href,
+      item: {
+        "@type": "VideoObject",
+        name: entry.data.title,
+        url: new URL(hrefFor(entry), Astro.site).href,
+        inLanguage: "ru-RU",
+        ...(entry.data.thumbnailUrl ? { thumbnailUrl: entry.data.thumbnailUrl } : {}),
+        ...(entry.data.date ? { uploadDate: entry.data.date.toISOString() } : {}),
+        ...(entry.data.embedUrl ? { embedUrl: entry.data.embedUrl } : {}),
+        sameAs: entry.data.sourceUrl,
+        ...(channelLabel(entry.data.channel) ? { publisher: { "@type": "Organization", name: channelLabel(entry.data.channel) } } : {}),
+      },
+    })),
+  },
+};
+---
+<Base title="Видеоархив" description={description} jsonLd={collectionJsonLd}>
+  <header class="catalog-hero">
+    <div class="section-kicker">Видеоархив</div>
+    <h1>Видео</h1>
+    <p class="hero-lead">Ролики с YouTube-каналов <strong>Staniverse</strong> и <strong>я.ты.город.</strong> Здесь видео собраны как часть личного архива: у каждого есть страница на сайте с контекстом и связями, а ссылка на YouTube ведёт к первоисточнику. В списке нет встроенных плееров: видео открываются на своих страницах, а плеер появляется только по вашему действию.</p>
+    {videos.length > 0 && <p class="video-archive-note">{videos.length}{" "}видео · от новых к старым</p>}
+  </header>
+
+  <section class="section video-archive-section">
+    {videos.length === 0 ? (
+      <div class="video-empty">
+        <p>Видео пока не опубликованы. Публикации с YouTube появятся здесь автоматически, как только попадут в архив.</p>
+        <p>Пока посмотрите <a href="/garden/">Сад</a> или <a href="/projects/">проекты</a>.</p>
+      </div>
+    ) : (
+      <div class="video-grid">
+        {videos.map((entry) => (
+          <article class="video-card">
+            <a class="video-card-media" href={hrefFor(entry)} tabindex="-1" aria-hidden="true">
+              {entry.data.thumbnailUrl ? (
+                <img src={entry.data.thumbnailUrl} alt="" width="480" height="360" loading="lazy" decoding="async" />
+              ) : (
+                <span class="video-card-placeholder">{entry.data.title.slice(0, 1)}</span>
+              )}
+              <span class="video-card-play" aria-hidden="true">▶</span>
+            </a>
+            <div class="video-card-body">
+              <div class="video-card-meta">
+                {channelLabel(entry.data.channel) && <span class="video-card-channel">{channelLabel(entry.data.channel)}</span>}
+                {entry.data.date && <time datetime={entry.data.date.toISOString()}>{formatDate(entry.data.date)}</time>}
+              </div>
+              <h2><a href={hrefFor(entry)}>{entry.data.title}</a></h2>
+              <a class="video-card-source" href={entry.data.sourceUrl} target="_blank" rel="noopener">
+                Смотреть на YouTube <span aria-hidden="true">↗</span>
+              </a>
+            </div>
+          </article>
+        ))}
+      </div>
+    )}
+  </section>
+</Base>
+
+<style>
+  .video-archive-note { margin: 1rem 0 0; color: var(--muted); font-size: .82rem; letter-spacing: .06em; text-transform: uppercase; }
+  .video-archive-section { padding-top: 1rem; }
+  .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 1rem; min-width: 0; }
+  .video-card { display: flex; flex-direction: column; min-width: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 1rem; background: var(--panel); container-type: inline-size; transition: transform .25s ease, border-color .25s ease; }
+  .video-card:hover, .video-card:focus-within { border-color: #6375a0; transform: translateY(-4px); }
+  .video-card-media { position: relative; display: block; aspect-ratio: 16 / 9; background: #05070d; }
+  .video-card-media img { display: block; width: 100%; height: 100%; object-fit: cover; opacity: .92; }
+  .video-card:hover .video-card-media img, .video-card:focus-within .video-card-media img { opacity: 1; }
+  .video-card-placeholder { display: grid; place-items: center; width: 100%; height: 100%; color: #7c93bd; font: 600 2rem Unbounded; background: linear-gradient(145deg, #122838, #0b111b); }
+  .video-card-play { position: absolute; top: 50%; left: 50%; display: grid; place-items: center; width: 3.4rem; height: 3.4rem; border: 2px solid rgba(255, 255, 255, .85); border-radius: 50%; background: rgba(5, 7, 13, .55); color: #fff; font-size: 1rem; transform: translate(-50%, -50%); transition: transform .25s ease, background .25s ease; }
+  .video-card:hover .video-card-play, .video-card:focus-within .video-card-play { background: rgba(100, 223, 244, .35); transform: translate(-50%, -50%) scale(1.08); }
+  .video-card-body { display: flex; flex-direction: column; gap: .6rem; padding: 1rem 1.1rem 1.2rem; }
+  .video-card-meta { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; min-width: 0; color: #8fa3c4; font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; }
+  .video-card-channel { max-width: 100%; padding: .24rem .5rem; border: 1px solid #33415d; border-radius: 2rem; overflow-wrap: break-word; }
+  .video-card h2 { margin: 0; font: 500 var(--card-title) / 1.22 Unbounded; overflow-wrap: break-word; hyphens: auto; text-wrap: balance; }
+  .video-card h2 a:hover, .video-card h2 a:focus-visible { color: var(--accent); outline: none; }
+  .video-card-source { margin-top: auto; padding-top: .4rem; color: var(--cyan); font-size: .82rem; }
+  .video-card-source:hover, .video-card-source:focus-visible { text-decoration: underline; text-underline-offset: .18em; }
+  .video-empty { max-width: 46rem; padding: 2.5rem; border: 1px dashed #46536d; border-radius: 1rem; color: var(--muted); }
+  .video-empty p { margin: 0 0 .6rem; }
+  .video-empty p:last-child { margin-bottom: 0; }
+  .video-empty a { color: var(--cyan); text-decoration: underline; text-underline-offset: .18em; }
+</style>

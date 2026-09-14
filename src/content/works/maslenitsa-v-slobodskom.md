@@ -10,7 +10,7 @@ client: "Проект: staniverse"
 status: completed
 tags: ["xr","art","community"]
 entities: []
-featured: false
+featured: true
 features: ["Спроектировал и собрал VR-сцену в Unity для Somnium Space","Воссоздал архитектурный ансамбль Соборной площади Слободского","Выполнил фотограмметрию льва с натуры","Создал 3D-модели в Blender","Генерировал дополнительные модели через Meshy и китайскую модель GLM-5.1","Настроил интерактив: лазание по столбу, поджигание чучела, навигация по лабиринту"]
 legacySource: "F:/Code/active/sverseq#published:maslenitsa-v-slobodskom"
 relations: [{"target":"project:staniverse","type":"related","evidence":"editorial","confidence":0.8},{"target":"work:dver-kotoraya-zhdyot","type":"related","evidence":"editorial","confidence":0.8},{"target":"work:ya-obmanyvat-sebya-ne-stanu","type":"related","evidence":"editorial","confidence":0.8}]

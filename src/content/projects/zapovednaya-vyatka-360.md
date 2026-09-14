@@ -10,7 +10,7 @@ entities: []
 featured: true
 updated: "2026-04-15"
 legacySource: "F:/Code/active/sverseq/content/lab/zapovednaya-vyatka-360.md"
-relations: [{"target":"project:ya-ty-gorod","type":"related","evidence":"editorial","confidence":0.8},{"target":"project:metavyatka","type":"related","evidence":"editorial","confidence":0.8},{"target":"project:albina","type":"related","evidence":"editorial","confidence":0.8}]
+relations: [{"target":"publication:telegram:staniverse:872","type":"documents","evidence":"editorial","confidence":0.9},{"target":"project:ya-ty-gorod","type":"related","evidence":"editorial","confidence":0.8},{"target":"project:metavyatka","type":"related","evidence":"editorial","confidence":0.8},{"target":"project:albina","type":"related","evidence":"editorial","confidence":0.8}]
 ---
 `Заповедная Вятка 360°` — это не медиапроект про природу. Это попытка решить реальную проблему: у охраняемых природных территорий Кировской области почти нет цифрового присутствия, а у инспекторов — ресурсов её защищать.
 

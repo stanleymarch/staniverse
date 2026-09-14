@@ -2,24 +2,52 @@
 
 Telegram text is immutable source data. Enrichment is a separate, replaceable layer keyed by `id + textHash + promptVersion`.
 
-`prepare.ts` creates JSONL jobs. A provider must return `EnrichmentResult`; rejected or uncertain relations stay out of canonical content and go to review. The recommended bulk profile is the Responses API with Structured Outputs and a small current model; reserve a stronger model for long threads and ambiguous cross-project relations.
+`prepare.ts` creates JSONL jobs from the materialized publications. Topic/entity classification and relation classification are deliberately separate:
 
-The deterministic layer is the default and runs without network access:
+- the topic pass sees the controlled taxonomy but cannot propose graph edges;
+- `relations.ts` sees only candidates explicitly named or linked by the source, requires an exact source evidence fragment, and writes proposals to a review bundle;
+- no provider output becomes canonical content until a human accepts it.
+
+The deterministic layer remains available without network access:
 
 ```powershell
 npm run content:refresh
 ```
 
-It recognizes a controlled public taxonomy and exact mentions of known projects. Its generated sidecar is committed, while Telegram wording remains untouched. Stale results are rejected by the source SHA-256.
+It recognizes the controlled public taxonomy and exact mentions of known projects. Its generated sidecar is committed, while Telegram wording remains untouched. Stale results are rejected by the source SHA-256.
 
-The optional OpenAI pass uses the Responses API with strict Structured Outputs. It defaults to `gpt-5.4-mini`, but `OPENAI_ENRICHMENT_MODEL` can pin another compatible model. Results go to the ignored review folder and are never silently published:
+## Bounded OpenRouter pilot
+
+Always prepare and inspect the 30-source tuning/holdout pilot before any paid corpus run:
 
 ```powershell
-npm run enrichment:prepare
-$env:OPENAI_API_KEY="..."
-npm run enrichment:openai -- pipeline/enrichment/jobs/telegram.jsonl pipeline/enrichment/review/openai.json gpt-5.4-mini 10
+npm run enrichment:prepare -- --pilot --split all --limit 30
+npm run enrichment:openrouter -- pipeline/enrichment/jobs/pilot.jsonl pipeline/enrichment/review/pilot-openrouter.json deepseek/deepseek-v4-flash --pilot --split all --limit 30
+npm run enrichment:relations
+npm run enrichment:pilot-report
 ```
 
-The final number limits a paid trial run; `0` processes every job. Candidate relation targets include all works, projects and articles plus recent Telegram context. The runner discards target IDs that were not offered to the model. Causal `inspired` and `develops` proposals require review.
+The pilot contains short and long publications, old and new material, tagged/untagged sources, negative controls, ambiguous sources, and one project source. Long sources are segmented without dropping text and are recombined by source ID.
 
-No API key, unreviewed provider response, or embedding is committed. Re-running the Telegram import never depends on an LLM.
+Candidate retrieval scores the entire archive plus works, projects, and articles; it is never limited to recent posts. Lexical overlap may rank a candidate, but only an exact canonical name, curated name variant, canonical site path, or direct Telegram link authorizes it for relation classification. This keeps topic similarity out of the evidence graph.
+
+Pilot outputs:
+
+- `pipeline/enrichment/review/pilot-openrouter.json` — topics/entities;
+- `pipeline/enrichment/review/pilot-openrouter-with-relations.json` — the same results plus proposed relations;
+- `docs/taxonomy-pilot-results.md` — inspectable source text, labels, evidence, confidence, and explanations.
+
+## Full corpus
+
+`enrichment:prepare-full` and `enrichment:openrouter-full` are explicit opt-in commands. Do not run them before pilot acceptance and a budget check. `content:retag` applies only topic/entity arrays from a completed bundle; source body, media, source hashtags, and editorial relations remain unchanged.
+
+## Pipeline order
+
+The source of truth for publications is the materialized Markdown in `src/content/publications/telegram` (the intermediate `canonical.json` archive is gone). Consequences:
+
+- `content:refresh` (local sidecar + materialize) rewrites frontmatter from the deterministic sidecar and therefore resets `topics:`/`entities:` to local-rule values;
+- run `npm run content:retag` after any refresh to re-apply the reviewed combined topics/entities from `generated/full.json`;
+- the audit pair (`npm run audit:content`, `npm run audit:media`) reads the same loader and fails on stale sidecar hashes, broken relation targets, or missing/orphaned media;
+- body text and media files are never mutated by enrichment: a triple materialize run was verified byte-stable (EOL-normalized) over all 744 publications and 780 media files.
+
+No API key, response cache, unreviewed provider response, or embedding is committed. Re-running the Telegram import never depends on an LLM.

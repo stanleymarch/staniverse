@@ -2,12 +2,12 @@ import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import type { CanonicalPublication } from "./types";
 import type { EnrichmentBundle, ReviewBundle, ReviewDecision } from "../enrichment/types";
+import { publicationDisplay } from "./display";
 import { mergeEnrichment } from "../enrichment/merge";
-
-interface Archive { version: number; channel: string; publications: CanonicalPublication[] }
+import { readPublications } from "../enrichment/prepare";
 
 const [input = "pipeline/telegram/archive/canonical.json", output = "src/content/publications/telegram", enrichmentInput = "pipeline/enrichment/generated/telegram.json",reviewInput="pipeline/enrichment/review/decisions.json"] = process.argv.slice(2);
-const archive = JSON.parse(await readFile(resolve(input), "utf8")) as Archive;
+const publications = await readPublications(input);
 let enrichment = new Map<string, EnrichmentBundle["results"][number]>();
 try {
   const bundle = JSON.parse(await readFile(resolve(enrichmentInput), "utf8")) as EnrichmentBundle;
@@ -16,14 +16,6 @@ try {
 let reviews:ReviewDecision[]=[];try{const bundle=JSON.parse(await readFile(resolve(reviewInput),"utf8")) as ReviewBundle;reviews=bundle.decisions}catch{}
 const destination = resolve(output);
 
-const plain = (value: string) => value
-  .replace(/```[\s\S]*?```/g, " ")
-  .replace(/!\[([^\]]*)\]\([^)]*\)/g, "$1")
-  .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
-  .replace(/[*_`>#]/g, "")
-  .replace(/\s+/g, " ")
-  .trim();
-const shortened = (value: string, length: number) => value.length <= length ? value : `${value.slice(0,length-1).trimEnd()}…`;
 const yaml = (value: unknown) => JSON.stringify(value);
 
 function inlineMedia(body:string, publication:CanonicalPublication){
@@ -42,14 +34,9 @@ function inlineMedia(body:string, publication:CanonicalPublication){
 await rm(destination, {recursive:true,force:true});
 await mkdir(destination, {recursive:true});
 
-for (const publication of archive.publications) {
+for (const publication of publications) {
   const enriched = mergeEnrichment(publication, enrichment.get(publication.id),reviews);
-  const articleHeading=publication.kind==="telegram-article"?publication.body.match(/^#{1,6}\s+(.+)$/m)?.[1]?.trim():undefined;
-  const canonicalBody=articleHeading?publication.body.replace(/^#{1,6}\s+.+(?:\r?\n){1,2}/,""):publication.body;
-  const clean = plain(canonicalBody);
-  const dateLabel = publication.date ? new Intl.DateTimeFormat("ru-RU",{dateStyle:"medium"}).format(new Date(publication.date)) : publication.sourceId;
-  const title = articleHeading ?? (clean ? shortened(clean.split(/[.!?\n]/,1)[0],90) : `Медиапубликация · ${dateLabel}`);
-  const summary = clean ? shortened(clean,220) : `Публикация без текстовой подписи; в архиве сохранено медиафайлов: ${publication.media.length}.`;
+  const { title, summary, body: displayBody } = publicationDisplay(publication);
   const relations = enriched.relations;
   const media = publication.media.map(({sourcePath,publicPath,type,messageId}) => ({sourcePath,...publicPath?{publicPath}:{},type,messageId}));
   const frontmatter = [
@@ -74,8 +61,8 @@ for (const publication of archive.publications) {
     "",
   ].filter((line): line is string => line !== undefined).join("\n");
   const sourceLink = `[Оригинал в Telegram](${publication.sourceUrl})`;
-  const body=inlineMedia(canonicalBody,publication).replace(/[ \t]+$/gm,"");
+  const body=inlineMedia(displayBody,publication).replace(/[ \t]+$/gm,"");
   await writeFile(resolve(destination,`tg-${publication.sourceId}.md`),`${frontmatter}${body ? `${body}\n\n` : ""}${sourceLink}\n`,"utf8");
 }
 
-console.log(JSON.stringify({written:archive.publications.length,output:destination}));
+console.log(JSON.stringify({written:publications.length,output:destination}));

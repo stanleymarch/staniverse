@@ -7,7 +7,9 @@ test("homepage presents identity, works, own projects and universe", async ({ pa
   await expect(page.locator('.hero-actions a[download]')).toHaveAttribute("href", /Stanislav-Ermolenko-CV-RU\.pdf/);
   await expect(page.getByRole("link", { name: /Войти во вселенную/i })).toBeVisible();
   await expect(page.getByRole("heading", { name: /То, что стало реальным/ })).toBeVisible();
-  await expect(page.locator('.card-grid a[href="/works/arka-vyatskogo-kremlya/"]')).toHaveCount(0);
+  await expect(page.locator('.card-grid a[href="/works/virtualnyy-ofis-advokata/"]')).toHaveCount(1);
+  await expect(page.locator('.card-grid a[href="/works/ya-obmanyvat-sebya-ne-stanu/"]')).toHaveCount(1);
+  await expect(page.locator('.card-grid a[href="/works/arka-vyatskogo-kremlya/"]')).toHaveCount(1);
   await expect(page.getByRole("heading", { name: /То, что продолжает двигаться/ })).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath("homepage.png"), fullPage: true });
   await page.getByRole("button", { name: /Обо мне/ }).click();
@@ -17,11 +19,12 @@ test("homepage presents identity, works, own projects and universe", async ({ pa
   await page.screenshot({ path: testInfo.outputPath("profile-dialog.png") });
 });
 
-test("works and own projects remain distinct and filterable", async ({ page }) => {
+test("work entries remain distinct from project records and filterable", async ({ page }) => {
   await page.goto("/works/");
   await expect(page.getByRole("heading", { name: "Работы", exact: true })).toBeVisible();
-  await expect(page.locator("[data-filter-grid] .content-card")).toHaveCount(16);
-  await expect(page.locator('[data-filter-grid] a[href="/works/prodakshn-dlya-staniverse/"]')).toHaveCount(0);
+  await expect(page.locator('[data-filter-grid] a[href="/works/arka-vyatskogo-kremlya/"]')).toBeVisible();
+  await expect(page.locator('[data-filter-grid] a[href="/works/chertezhi-tekhdiplomy/"]')).toBeVisible();
+  await expect(page.locator('[data-filter-grid] a[href="/projects/metavyatka/"]')).toHaveCount(0);
   await page.getByRole("button", { name: "xr", exact: true }).click();
   await expect(page.getByRole("link", { name: /Виртуальный офис адвоката/ })).toBeVisible();
   await expect(page.getByRole("link", { name: /Система сбора/ })).toBeHidden();
@@ -49,7 +52,7 @@ test("garden searches across publication formats", async ({ page }) => {
   await expect(page.getByRole("button", { name: "Каталог" })).toBeVisible();
   if (["tablet", "mobile"].includes(test.info().project.name)) await page.getByRole("button", { name: "Фильтры" }).click();
   await expect(page.getByText("Тип материала")).toBeVisible();
-  await page.getByRole("searchbox").fill("виртуальных помощников");
+  await page.getByRole("searchbox", { name: "Поиск по материалам" }).fill("виртуальных помощников");
   await expect(page.locator('.garden-row[href="/articles/ai-waifu/"]')).toBeVisible();
   await expect(page.locator('[href="/garden/youtube-cultural-travel/"]')).toHaveCount(0);
 });
@@ -63,9 +66,16 @@ test("garden catalog includes projects and commissioned experience without mixin
   await expect(page.locator('.garden-row[href="/works/virtualnyy-ofis-advokata/"]')).toHaveCount(0);
   await page.locator('[data-kind-filter][value="project"]').uncheck();
   await page.locator('[data-kind-filter][value="work"]').check();
-  await expect(page.locator('.garden-row[href="/works/virtualnyy-ofis-advokata/"]')).toBeVisible();
-  await expect(page.locator('.garden-row[href="/projects/mnemoform/"]')).toHaveCount(0);
   await expect(page.locator('[data-topic-filter][value="iot"]')).toBeVisible();
+  if (["tablet", "mobile"].includes(test.info().project.name)) await page.locator("[data-filter-close]").click();
+  const commissionedRow = page.locator('.garden-row[href="/works/virtualnyy-ofis-advokata/"]');
+  for (let expand = 0; !(await commissionedRow.count()) && expand < 4; expand += 1) {
+    const more = page.locator("[data-garden-more]");
+    await expect(more).toBeVisible();
+    await more.click();
+  }
+  await expect(commissionedRow).toBeVisible();
+  await expect(page.locator('.garden-row[href="/projects/mnemoform/"]')).toHaveCount(0);
 });
 
 test("garden exposes removable filter chips and persists filter state", async ({ page }) => {
@@ -94,9 +104,10 @@ test("garden map reflects the currently filtered catalogue", async ({ page }, te
   await page.screenshot({ path: testInfo.outputPath("garden-map.png"), fullPage: true });
 });
 
-test("automatic topics are browsable and connect different content formats",async({page})=>{
+test("topic index explains navigation and connects different content formats",async({page})=>{
   await page.goto("/topics/");
-  await expect(page.getByRole("heading",{name:"Темы",exact:true})).toBeVisible();
+  await expect(page.getByRole("heading",{name:"По темам",exact:true})).toBeVisible();
+  await expect(page.getByRole("link",{name:/Все материалы и фильтры в Саду/})).toHaveAttribute("href","/garden/");
   const topic=page.getByRole("link",{name:/искусственный интеллект/}).first();
   await expect(topic).toBeVisible();
   await topic.click();
@@ -110,9 +121,12 @@ test("long article connects to a channel-verified video", async ({ page }) => {
   await expect(page.locator(".prose").getByText(/браки заключаются на небесах/)).toBeVisible();
   await expect(page.locator('.local-graph a[href="/garden/video/youtube-ncq31xb3gle/"]').first()).toBeVisible();
   await page.goto("/garden/video/youtube-ncq31xb3gle/");
-  await expect(page.locator(".video-stage iframe")).toHaveAttribute("src", /youtube\.com\/embed\/ncQ31xB3GLE/);
+  await expect(page.locator("[data-video-play]")).toBeVisible();
+  await page.click("[data-video-play]");
+  await expect(page.locator(".video-stage iframe")).toHaveAttribute("src", /youtube\.com\/embed\/ncQ31xB3GLE\?autoplay=1/);
   await expect(page.getByText("Проверенное авторское видео", { exact: true })).toBeVisible();
   await expect(page.getByRole("link", { name: /Открыть оригинал/ })).toHaveAttribute("href", "https://www.youtube.com/watch?v=ncQ31xB3GLE");
+  await expect(page.locator(".channel-gallery-grid a").first()).toBeVisible();
 });
 
 test("garden filters verified YouTube feeds by author channel", async ({ page }) => {
@@ -121,6 +135,20 @@ test("garden filters verified YouTube feeds by author channel", async ({ page })
   await page.locator('[data-channel-filter][value="ya-ty-gorod"]').check();
   await expect(page.locator('.garden-row.has-thumbnail').first()).toBeVisible();
   await expect(page.locator('.garden-row-meta').first()).toContainText("я.ты.город.");
+});
+
+test("garden exposes Gaussian Splatting and sorts in both date directions", async ({ page }) => {
+  await page.goto("/garden/");
+  await expect(page.locator('[data-garden-sort]')).toHaveValue("newest");
+  if (["tablet", "mobile"].includes(test.info().project.name)) await page.getByRole("button", { name: "Фильтры" }).click();
+  await expect(page.locator('[data-topic-filter][value="gaussian-splatting"]')).toBeVisible();
+  await page.locator('[data-topic-filter][value="gaussian-splatting"]').check();
+  await expect(page.locator(".garden-row-topics").first()).toContainText("Gaussian Splatting");
+  if (["tablet", "mobile"].includes(test.info().project.name)) await page.getByRole("button", { name: /Закрыть/ }).click();
+  await page.locator('[data-garden-sort]').selectOption("oldest");
+  await expect(page).toHaveURL(/sort=oldest/);
+  const dates = await page.locator(".garden-row-date").evaluateAll((items) => items.map((item) => Date.parse(item.getAttribute("datetime") || "")).filter(Number.isFinite));
+  expect(dates).toEqual([...dates].sort((a, b) => a - b));
 });
 
 test("Telegram mixed-media threads preserve playable videos in order", async ({ page }) => {
@@ -175,6 +203,7 @@ test("fullscreen universe is separate, interactive and sound is opt-in", async (
   const errors: string[] = []; page.on("console", (message) => { if (message.type() === "error") errors.push(message.text()); });
   await page.goto("/universe/");
   await expect(page.locator("canvas.universe-canvas")).toBeVisible();
+  await expect(page.locator("[data-flight-joystick]")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Летай между идеями" })).toBeVisible();
   await expect(page.locator("[data-xr-status]")).toContainText(/режим|устройстве/);
   const graph=await page.locator("[data-universe]").getAttribute("data-graph");
@@ -204,10 +233,26 @@ test("universe supports keyboard navigation and reduced motion", async ({ page }
   }
 });
 
-test("legacy portfolio links preserve canonical works", async ({ page }) => {
+test("legacy portfolio links preserve canonical works and projects", async ({ page }) => {
   await page.goto("/works/cases/virtualnyy-ofis-advokata/");
   await expect(page).toHaveURL(/\/works\/virtualnyy-ofis-advokata\/$/);
   await expect(page.getByRole("heading", { name: "Виртуальный офис адвоката" })).toBeVisible();
+  await page.goto("/lab/metavyatka/");
+  await expect(page).toHaveURL(/\/projects\/metavyatka\/$/);
+  await expect(page.getByRole("heading", { name: "MetaVyatka" })).toBeVisible();
+});
+
+test("merged works redirect to the entity that absorbed them", async ({ page }) => {
+  await page.goto("/works/cases/avtomaticheskiy-kanal-dlya-proekta-chertezhi/");
+  await expect(page).toHaveURL(/\/works\/chertezhi-tekhdiplomy\/$/);
+  await expect(page.getByRole("heading", { name: "Чертежи + Техдипломы" })).toBeVisible();
+  await page.goto("/works/avtomaticheskiy-kanal-dlya-proekta-chertezhi/");
+  await expect(page).toHaveURL(/\/works\/chertezhi-tekhdiplomy\/$/);
+  await page.goto("/works/cases/prodakshn-dlya-staniverse/");
+  await expect(page).toHaveURL(/\/projects\/staniverse\/$/);
+  await page.goto("/works/prodakshn-dlya-staniverse/");
+  await expect(page).toHaveURL(/\/projects\/staniverse\/$/);
+  await expect(page.getByRole("heading", { level: 1, name: "staniverse" })).toBeVisible();
 });
 
 test("layout has no horizontal overflow", async ({ page }) => {

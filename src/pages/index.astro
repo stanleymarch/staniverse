@@ -1,104 +1,249 @@
 ---
+import { existsSync, readdirSync } from "node:fs";
 import Base from "../layouts/Base.astro";
 import ContentCard from "../components/ContentCard.astro";
 import { getCollection } from "astro:content";
-import { isCommissionedWork } from "../lib/canonical";
+import { allEntries } from "../lib/content";
+import { buildGraph } from "../lib/graph";
+import UniverseScene from "../components/universe/UniverseScene.astro";
+import "../styles/universe.css";
 
-const stars = Array.from({ length: 22 }, (_, i) => ({
-  left: `${8 + ((i * 37) % 88)}%`, top: `${7 + ((i * 53) % 82)}%`, opacity: .35 + (i % 5) * .13,
+const stars = Array.from({ length: 96 }, (_, i) => ({
+  left: `${(i * 17.3) % 96}%`, top: `${(i * 29.7) % 88}%`,
+  opacity: .35 + ((i * 7) % 8) * .1,
+  size: 1.2 + ((i * 13) % 7) * .9,
+  delay: `${((i * 11) % 40) / 10}s`, duration: `${2.6 + ((i * 19) % 30) / 10}s`,
 }));
-const workById = new Map((await getCollection("works")).filter(isCommissionedWork).map((entry) => [entry.data.id, entry]));
-const works = ["work:virtualnyy-ofis-advokata", "work:ya-obmanyvat-sebya-ne-stanu", "work:audiospektakl-saltykiada", "work:prepodavanie-metodicheskaya-rabota-i-prodakshn-v-tsifrovykh-kafedrakh"].flatMap((id) => {
+const workById = new Map((await getCollection("works")).map((entry) => [entry.data.id, entry]));
+const works = ["work:virtualnyy-ofis-advokata", "work:maslenitsa-v-slobodskom", "work:ya-obmanyvat-sebya-ne-stanu", "work:arka-vyatskogo-kremlya"].flatMap((id) => {
   const entry = workById.get(id);
   return entry ? [entry] : [];
 });
 const projectById = new Map((await getCollection("projects")).map((entry) => [entry.data.id, entry]));
-const projects = ["project:metavyatka", "project:albina", "project:omnipub", "project:mnemoform", "project:nearventure"].flatMap((id) => {
+const projects = ["project:nearventure", "project:metavyatka", "project:albina", "project:omnipub", "project:mnemoform"].flatMap((id) => {
   const entry = projectById.get(id);
   return entry ? [entry] : [];
 });
+const entries = await allEntries();
+const graph = buildGraph(entries);
+const publicationCount = entries.filter((entry) => entry.collection === "publications").length;
+
+/** Personal photo tile appears only when a real file exists; nothing is faked. */
+const portraitFile = existsSync("public/assets") && readdirSync("public/assets").find((file) => /^stas-portrait\.(jpe?g|png|webp|avif)$/i.test(file));
+const portraitSrc = portraitFile ? `/assets/${portraitFile}` : undefined;
+
+const services = [
+  {
+    title: "AI-автоматизация бизнеса",
+    text: "Встраиваю AI в уже работающие процессы: приём и уточнение заказов, создание сделок в CRM, документы, уведомления и следующие шаги. Человек сохраняет контроль, а рутина перестаёт съедать день.",
+    tags: ["CRM", "n8n", "AI-агенты"],
+    href: "/works/chertezhi-tekhdiplomy/",
+    featured: true,
+  },
+  {
+    title: "XR и пространственные продукты",
+    text: "Собираю WebXR- и Unity-опыты, виртуальные офисы, AR-сцены и цифровые двойники. Могу подключиться к существующему продукту, разобраться в наследстве и довести идею до рабочего прототипа.",
+    tags: ["WebXR", "Unity", "Three.js"],
+    href: "/works/virtualnyy-ofis-advokata/",
+    featured: true,
+  },
+  {
+    title: "Персональные AI-агенты",
+    text: "Настрою OpenClaw, Hermes или PicoClaw под ваши задачи, данные и привычный набор инструментов. А может, отговорю от этих клешней в пользу чего-то более простого и предсказуемого.",
+    tags: ["OpenClaw", "Hermes", "PicoClaw"],
+    href: "/projects/albina/",
+    featured: false,
+  },
+  {
+    title: "Контентные системы",
+    text: "Не просто напишу пачку текстов: выстрою понятный процесс наполнения канала, сайта, каталога или медиатеки. Редакционный план, производство, автоматизация, публикация и передача команде.",
+    tags: ["контент", "продакшн", "автоматизация"],
+    href: "/works/prodakshn-dlya-ya-ty-gorod/",
+    featured: false,
+  },
+  {
+    title: "Исследования и программы ДПО",
+    text: "Проведу прикладное исследование, соберу выводы в решение или разработаю образовательную программу для вуза и компании: учебный план, методички, оценочные средства и документы для согласования.",
+    tags: ["исследования", "методическая работа", "образование"],
+    href: "/works/prepodavanie-metodicheskaya-rabota-i-prodakshn-v-tsifrovykh-kafedrakh/",
+    featured: false,
+  },
+];
+const homepageJsonLd = {
+  "@type": "ProfilePage",
+  "@id": new URL("/#profile", Astro.site).href,
+  url: new URL("/", Astro.site).href,
+  name: "станивёрс — Станислав Ермоленко: AI-автоматизация и XR",
+  description: "Портфолио и услуги Станислава Ермоленко: AI-автоматизация бизнес-процессов и CRM, AI-агенты, XR и WebXR, контентные системы, исследования и разработка ДПО.",
+  inLanguage: "ru-RU",
+  mainEntity: { "@id": new URL("/#stanislav-ermolenko", Astro.site).href },
+};
 ---
 
-<Base title="Staniverse" description="Портфолио и цифровой сад Станислава Ермоленко: XR, AI, медиа и собственные цифровые проекты.">
+<Base title="станивёрс" description="Станислав Ермоленко — AI-автоматизация бизнес-процессов и CRM, персональные AI-агенты, XR и WebXR, контентные системы, исследования и разработка ДПО." jsonLd={homepageJsonLd}>
   <div class="home-page">
-    <section class="hero" aria-labelledby="home-title">
-      <div class="hero-space" aria-hidden="true">{stars.map((star) => <i class="star" style={`left:${star.left};top:${star.top};opacity:${star.opacity}`}></i>)}</div>
+    <section class="hero hero-full" aria-labelledby="home-title">
+      <div class="hero-space" aria-hidden="true">
+        <i class="nebula nebula-a" data-parallax="0.055"></i><i class="nebula nebula-b" data-parallax="0.1"></i>
+        {[0, 1, 2].map((layer) => <div class="star-layer" data-parallax={String(.035 + layer * .035)}>{stars.filter((_, index) => index % 3 === layer).map((star) => <i class="star" style={`left:${star.left};top:${star.top};opacity:${star.opacity};--s:${star.size};--d:${star.delay};--t:${star.duration}`}></i>)}</div>)}
+      </div>
       <div class="hero-copy">
-        <div class="section-kicker">Станислав Ермоленко · Вятка</div>
-        <h1 id="home-title" class="display">Соединяю<br />вещи и смотрю,<br />что получится</h1>
-        <p class="hero-lead">XR, AI, медиа и цифровые продукты. Здесь собраны мои работы, собственные проекты, публикации и связи, которые показывают, как один опыт приводит к следующему.</p>
-        <div class="hero-actions"><a class="button primary" href="/works/">Смотреть работы</a><a class="button" href="/cv/Stanislav-Ermolenko-CV-RU.pdf" download>Скачать CV</a><a class="button cosmic" href="/universe/">Войти во вселенную ↗</a></div>
+        <p class="hero-hello">Всем привет, это Стас!</p>
+        <h1 id="home-title" class="display">Помогаю внедрять<br />AI и XR —<br />без лишней магии</h1>
+        <p class="hero-lead">Подключаю AI-агентов к реальным бизнес-процессам, собираю XR-опыты и сложные контентные системы. Могу войти в работающий проект, разобраться в наследстве и довести до предсказуемого результата — не обязательно начинать всё с нуля.</p>
+        <div class="hero-actions"><a class="button primary" href="/cv/Stanislav-Ermolenko-CV-RU.pdf" download>Скачать CV</a><a class="button" href="/works/">Смотреть работы</a><a class="button" href="mailto:stas@staniverse.xyz?subject=Проект для Стаса">Обсудить проект</a><a class="button cosmic" href="/universe/">Войти во вселенную ↗</a></div>
+      </div>
+      <div class="hero-bento" aria-label="Коротко о сайте">
+        {portraitSrc && <figure class="bento-tile bento-photo"><img src={portraitSrc} alt="Станислав Ермоленко" loading="eager" /></figure>}
+        <div class="bento-tile bento-now"><span class="section-kicker">Сейчас</span><strong>ИТМО · 2026 - н.в.</strong><p>Учусь в магистратуре «Цифровые методы в гуманитарных исследованиях», веду Telegram-канал Staniverse и иногда возвращаюсь к YouTube.</p></div>
+        <div class="bento-tile bento-stats"><span><strong>{workById.size}</strong><small>работ в каталоге</small></span><span><strong>{projectById.size}</strong><small>проектов в каталоге</small></span><span><strong>{publicationCount}</strong><small>публикации в архиве</small></span></div>
+        <a class="bento-tile bento-cta" href="mailto:stas@staniverse.xyz?subject=Консультация"><strong>Начать с разбора?</strong><span>60 минут — 5 000 ₽. Разберём задачу и выберем следующий шаг без продажи лишней технологии →</span></a>
       </div>
     </section>
 
+    <UniverseScene {graph} embedded />
+
     <nav class="signal-strip" aria-label="Основные разделы">
-      <a href="/works/"><strong>Работы</strong><span>реализовано для других</span></a>
+      <a href="/works/"><strong>Работы</strong><span>реализованные работы</span></a>
       <a href="/projects/"><strong>Проекты</strong><span>собственные живые системы</span></a>
       <a href="/garden/"><strong>Сад</strong><span>публикации и темы</span></a>
       <button type="button" data-profile-open><strong>Обо мне</strong><span>опыт, навыки и контакты</span></button>
     </nav>
+
+    <section class="section home-services" aria-labelledby="services-title">
+      <div class="section-head"><div><div class="section-kicker">Работа со мной</div><h2 id="services-title">Чем могу быть полезен</h2></div><a class="text-link" href="mailto:stas@staniverse.xyz?subject=Проект для Стаса">Обсудить проект →</a></div>
+      <div class="services-grid">{services.map((service) => <article class:list={["service-tile", { "is-featured": service.featured }]}><h3>{service.title}</h3><p>{service.text}</p><div class="tag-row">{service.tags.map((tag) => <span>{tag}</span>)}</div><a class="service-proof" href={service.href}>Посмотреть похожий опыт →</a></article>)}</div>
+      <p class="services-note"><strong>Не знаете, с чего начать?</strong> Можно взять отдельный разбор за 5 000 ₽ / 60 минут. За встречу разложим процесс, найдём узкое место и решим, нужен ли здесь AI, XR или обычная надёжная автоматизация. Большие внедрения оцениваю после диагностики и делю на этапы с понятным результатом.</p>
+    </section>
 
     <dialog class="profile-dialog" data-profile-dialog aria-labelledby="profile-title">
       <div class="profile-module">
       <form method="dialog" class="profile-close-form"><button class="profile-close" aria-label="Закрыть профиль">Закрыть ×</button></form>
       <div class="profile-heading"><div><div class="section-kicker">Профиль</div><h2 id="profile-title">Режиссёр цифровых опытов,<br />исследователь и разработчик</h2></div><a class="text-link" href="/cv/Stanislav-Ermolenko-CV-RU.pdf" download>Скачать CV ↗</a></div>
       <div class="profile-grid">
-        <div class="profile-summary"><p>Работаю на стыке XR, AI, веба и документального медиа. Собираю понятные интерфейсы, образовательные продукты и системы, в которых технология помогает человеку помнить, понимать и присутствовать.</p><div class="profile-facts"><span><strong>1994</strong><small>год рождения</small></span><span><strong>11+</strong><small>лет в медиа</small></span><span><strong>XR · AI · Web</strong><small>рабочий фокус</small></span><span><strong>Вятка</strong><small>Киров / Слободской</small></span></div></div>
-        <div class="profile-now"><span class="profile-label">Сейчас</span><strong>Самозанятый · АНО · ИТМО</strong><p>Фриланс, автоматизация, GenAI, XR, веб и медиа. С сентября 2026 года магистратура ИТМО «Цифровые методы в гуманитарных исследованиях».</p></div>
+        <div class="profile-summary"><p>Работаю на стыке XR, AI, веба и документального медиа. Собираю понятные интерфейсы, образовательные продукты и системы, в которых технология помогает человеку помнить, понимать и присутствовать.</p><div class="profile-facts"><span><strong>1994</strong><small>год рождения</small></span><span><strong>11+</strong><small>лет в медиа</small></span><span><strong>XR · AI · Web</strong><small>рабочий фокус</small></span><span><strong>СПб · из Вятки</strong><small>живу в Петербурге</small></span></div></div>
+        <div class="profile-now"><span class="profile-label">Сейчас</span><strong>Самозанятый · АНО · ИТМО</strong><p>Фриланс, автоматизация, GenAI, XR, веб и медиа. Учусь в магистратуре ИТМО «Цифровые методы в гуманитарных исследованиях» (2026 - н.в.).</p></div>
       </div>
       <details class="profile-details"><summary>Развернуть опыт, образование и инструменты <span aria-hidden="true">+</span></summary><div class="profile-details-grid">
-        <div><span class="profile-label">Опыт</span><ul><li><strong>2025 - сейчас</strong> Специалист по информационным системам в АНО</li><li><strong>2023 - сейчас</strong> Самозанятый: автоматизация, GenAI, XR, Web, Media</li><li><strong>2023 - 2025</strong> Преподаватель и методист «Цифровых кафедр» ВятГУ</li><li><strong>2015 - 2023</strong> Оператор ЭВМ и куратор проектов Медиацентра ВятГУ</li></ul></div>
-        <div><span class="profile-label">Образование и курсы</span><ul><li><strong>С сентября 2026</strong> ИТМО, магистратура «Цифровые методы в гуманитарных исследованиях», 45.04.04</li><li><strong>2026</strong> Бакалавр ГМУ, ВятГУ</li><li><strong>2026</strong> Somnium Space Academy</li><li><strong>2026</strong> Agents Week, ШАД Яндекса</li><li><strong>2026</strong> Premasters Art&amp;Science, ИТМО</li><li><strong>2025</strong> VR-разработка на Unity и XR Interaction Toolkit, Stepik</li><li><strong>2024</strong> Интернет-маркетинг и юриспруденция, ДПО ВятГУ</li><li><strong>2024</strong> Digital Autumn: Changing Perspective, интенсив по XR</li><li><strong>2024</strong> Unity Essential Pathway</li><li><strong>2022</strong> «Современные цифровые технологии», ВятГУ</li><li><strong>2021</strong> Цифровые технологии в журналистике и PR, ДПО ВятГУ</li><li><strong>2015</strong> MB110x: Introduction to the Music Business, Berklee via edX</li><li><strong>2015</strong> BMPR365x: Vocal Recording Technology, Berklee via edX</li></ul></div>
-        <div><span class="profile-label">Инструменты</span><p>Unity · Blender · Substance · WebXR · Three.js · n8n · Claude Code · LangChain · Dify · Supabase · Neo4j · ComfyUI · Python · Astro · Tilda · WordPress · Telegram Bot API · Linux · Docker · DaVinci Resolve · Premiere · Photoshop · OBS Studio</p></div>
+        <div><span class="profile-label">Опыт</span><ul><li><strong>2025 - сейчас</strong> Специалист по информационным системам в АНО</li><li><strong>2023 - сейчас</strong> Самозанятый: автоматизация, GenAI, XR, Web, Media</li><li><strong>2023 - 2026</strong> Преподаватель и методист «Цифровых кафедр» ВятГУ; летом 2026 собрал курс «Основы продуктового менеджмента»</li><li><strong>2015 - 2023</strong> Оператор ЭВМ и куратор проектов Медиацентра ВятГУ</li></ul></div>
+        <div><span class="profile-label">Образование и курсы</span><ul><li><strong>2026 - н.в.</strong> ИТМО, магистратура «Цифровые методы в гуманитарных исследованиях» (Digital Humanities), 45.04.04</li><li><strong>2026</strong> Бакалавр ГМУ, ВятГУ</li><li><strong>2026</strong> Somnium Space Academy</li><li><strong>2026</strong> Agents Week, ШАД Яндекса</li><li><strong>2026</strong> Premasters Art&amp;Science, ИТМО</li><li><strong>2025</strong> VR-разработка на Unity и XR Interaction Toolkit, Stepik</li><li><strong>2024</strong> Интернет-маркетинг и юриспруденция, ДПО ВятГУ</li><li><strong>2024</strong> Digital Autumn: Changing Perspective, интенсив по XR</li><li><strong>2024</strong> Unity Essential Pathway</li><li><strong>2022</strong> «Современные цифровые технологии», ВятГУ</li><li><strong>2021</strong> Цифровые технологии в журналистике и PR, ДПО ВятГУ</li><li><strong>2015</strong> MB110x: Introduction to the Music Business</li><li><strong>2015</strong> BMPR365x: Vocal Recording Technology</li></ul></div>
+        <div><span class="profile-label">Инструменты</span><p>XR: Unity · Blender · Substance · WebXR · 8th Wall · Three.js<br />AI: n8n · LangChain · Dify · Supabase · Neo4j · ComfyUI · Python<br />Харнессы и агенты: Claude Code · Codex · OpenCode · OpenClaw · Hermes · Pico Claw · pi<br />Веб: Astro · Tilda · WordPress · Telegram Bot API<br />Инфраструктура: Linux · Docker · Nginx · Home Assistant<br />Медиа: DaVinci Resolve · Premiere · Photoshop · OBS Studio</p></div>
         <div><span class="profile-label">Достижения</span><p>Призёр XV Молодёжных Дельфийских игр России в тележурналистике, победитель «МедиаМастер-2019», финалист конкурса студенческих медиапроектов форума «Пространство Евразии», Топ-10 ArtMasters-2025 в компетенции «Дизайнер виртуальных миров».</p></div>
       </div></details>
       <div class="profile-page-link"><a class="text-link" href="/about/">Открыть отдельную страницу и манифест →</a></div>
       </div>
     </dialog>
 
-    <section class="section" aria-labelledby="works-title"><div class="section-head"><div><div class="section-kicker">Избранные работы</div><h2 id="works-title">То, что стало реальным</h2></div><a class="text-link" href="/works/">Все работы →</a></div><div class="card-grid">{works.map((entry, i) => <ContentCard entry={entry} large={i === 0} />)}</div></section>
+    <section class="section" aria-labelledby="works-title"><div class="section-head"><div><div class="section-kicker">Избранные работы</div><h2 id="works-title">То, что стало реальным</h2></div><a class="text-link" href="/works/">Все работы →</a></div><div class="card-grid">{works.map((entry, i) => <ContentCard entry={entry} large={i === 0 || i === 3} />)}</div></section>
     <section class="section home-projects" aria-labelledby="projects-title"><div class="section-head"><div><div class="section-kicker">Собственные проекты</div><h2 id="projects-title">То, что продолжает двигаться</h2></div><a class="text-link" href="/projects/">Все проекты →</a></div><p class="section-copy">Идеи, исследования и системы не обязаны быть законченными. У них есть статус, история и следующее действие.</p><div class="card-grid">{projects.map((entry) => <ContentCard entry={entry} />)}</div></section>
-    <section class="section" aria-labelledby="path-title"><div class="section-head"><div><div class="section-kicker">Карта опыта</div><h2 id="path-title">Не лента, а система связей</h2></div></div><div class="about-grid"><div class="fact-panel"><h2>Сад</h2><p>Telegram-посты, статьи и видео можно фильтровать по темам, сущностям и типам. Текст сохраняет авторский голос, а связи живут отдельным вычисляемым слоем.</p><a class="text-link" href="/garden/">Исследовать каталог →</a></div><div class="fact-panel"><h2>Вселенная</h2><p>Полноэкранный кинематографический граф с генеративным звуком — самостоятельный режим исследования. Локальные графы на страницах объясняют ближайший контекст.</p><a class="text-link" href="/universe/">Начать полёт →</a></div></div></section>
+    <section class="section" aria-labelledby="path-title"><div class="section-head"><div><div class="section-kicker">Карта опыта</div><h2 id="path-title">Не лента, а система связей</h2></div></div><div class="about-grid"><div class="fact-panel"><h2>Сад</h2><p>Telegram-посты, статьи и видео можно фильтровать по темам, сущностям и типам. Текст сохраняет авторский голос, а связи живут отдельным вычисляемым слоем.</p><a class="text-link" href="/garden/">Исследовать каталог →</a></div><div class="fact-panel"><h2>Вселенная</h2><p>Полноэкранный кинематографический граф с генеративным звуком: самостоятельный режим исследования. Локальные графы на страницах объясняют ближайший контекст.</p><a class="text-link" href="/universe/">Начать полёт →</a></div></div></section>
   </div>
 
   <script>
+    import { mountUniverse } from "../components/universe/UniverseRuntime";
+    mountUniverse();
     const dialog = document.querySelector<HTMLDialogElement>("[data-profile-dialog]");
     const trigger = document.querySelector<HTMLButtonElement>("[data-profile-open]");
     trigger?.addEventListener("click", () => dialog?.showModal());
     dialog?.addEventListener("click", (event) => {
       if (event.target === dialog) dialog.close();
     });
+
+    // Gentle depth on the hero + section reveals; nothing moves when the visitor asked for calm.
+    const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!calm) {
+      const layers = [...document.querySelectorAll<HTMLElement>("[data-parallax]")];
+      let frame = 0;
+      const onScroll = () => {
+        if (frame) return;
+        frame = requestAnimationFrame(() => {
+          frame = 0;
+          const y = scrollY;
+          for (const layer of layers) layer.style.translate = `0 ${(y * Number(layer.dataset.parallax)).toFixed(1)}px`;
+        });
+      };
+      addEventListener("scroll", onScroll, { passive: true });
+      onScroll();
+      // Section reveals live in the shared Base script so every page shares one system.
+    }
   </script>
 </Base>
 
 <style>
   .home-page { --home-accent: #65ddf2; --home-ink: #f1f5ff; --home-muted: #9cafc9; --home-line: rgba(116, 157, 198, .22); }
-  .home-page .hero { min-height: 76vh; }
-  .home-page .hero-space { background: radial-gradient(circle at 76% 35%, rgba(61, 122, 219, .22), transparent 15rem), radial-gradient(circle at 88% 62%, rgba(35, 205, 234, .18), transparent 13rem); }
+
+  /* Desktop hero fills the viewport below the real sticky header, not a second screen. */
+  .home-page .hero-full { min-height: calc(100svh - 4.9rem); display: grid; align-content: center; padding-block: clamp(3rem, 6vh, 4.5rem); }
+  @media (min-width: 1000px) { .home-page .hero-full { grid-template-columns: minmax(0, 1.12fr) minmax(20rem, .88fr); gap: clamp(2rem, 4vw, 4rem); align-items: center; } }
+  .home-page .hero-copy { max-width: 52rem; }
+  .hero-hello { margin: 0 0 .7rem; color: var(--home-accent); font-size: clamp(1rem, 1.4vw, 1.3rem); font-weight: 500; letter-spacing: .01em; }
+  .home-page .display { color: var(--home-ink); max-width: 11ch; font-size: clamp(2.4rem, 4.15vw, 3.6rem); }
+
+  /* Deep-sky backdrop: layered nebulae + a dense twinkling starfield. */
+  .home-page .hero-space { inset: 0; background: radial-gradient(circle at 76% 35%, rgba(61, 122, 219, .2), transparent 26rem), radial-gradient(circle at 88% 62%, rgba(35, 205, 234, .16), transparent 22rem); }
   .home-page .hero-space::before { border-color: rgba(73, 133, 220, .27); } .home-page .hero-space::after { border-color: rgba(100, 223, 244, .25); }
-  .home-page .star { background: #d6f9ff; box-shadow: 0 0 16px 5px rgba(100, 223, 244, .58); }
-  .home-page .section-kicker, .home-page .profile-label { color: var(--home-muted); } .home-page .display { color: var(--home-ink); max-width: 9ch; }
+  .star-layer { position: absolute; inset: 0; will-change: translate; }
+  .nebula { position: absolute; border-radius: 50%; filter: blur(46px); pointer-events: none; }
+  .nebula-a { top: 8%; right: 4%; width: 30rem; height: 22rem; background: rgba(64, 88, 190, .16); }
+  /* Desktop balance: smaller, dimmer rings and a capped portrait keep the copy in charge. */
+  @media (min-width: 1000px) {
+    .home-page .hero-space::before { width: min(34vw, 28rem); border-color: rgba(73, 133, 220, .18); }
+    .home-page .hero-space::after { width: min(23vw, 17rem); border-color: rgba(100, 223, 244, .14); }
+    .bento-photo img { max-height: 11rem; }
+  }
+  .home-page .star { width: calc(var(--s, 2) * 1px); height: calc(var(--s, 2) * 1px); background: #d6f9ff; box-shadow: 0 0 calc(var(--s, 2) * 4px) calc(var(--s, 2) * 1.4px) rgba(100, 223, 244, .5); animation: twinkle var(--t, 3s) ease-in-out var(--d, 0s) infinite alternate; }
+  @keyframes twinkle { from { opacity: .25; } to { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .home-page .star { animation: none; } }
+
+  .hero-bento { display: grid; gap: clamp(.65rem, 1vw, .85rem); }
+  .bento-tile { min-width: 0; padding: clamp(.9rem, 1.25vw, 1.1rem) clamp(1rem, 1.5vw, 1.2rem); border: 1px solid var(--home-line); border-radius: .85rem; background: rgba(10, 15, 26, .72); backdrop-filter: blur(8px); }
+  .bento-now strong { display: block; margin: .4rem 0 .35rem; color: var(--home-ink); font-size: clamp(.95rem, 1.1vw, 1.05rem); }
+  .bento-now p { margin: 0; color: var(--home-muted); font-size: clamp(.78rem, .85vw, .84rem); line-height: 1.5; text-wrap: pretty; }
+  .bento-photo { margin: 0; overflow: hidden; padding: 0; }
+  .bento-photo img { display: block; width: 100%; height: 100%; max-height: 14rem; object-fit: cover; }
+  .bento-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .8rem; }
+  .bento-stats span { display: grid; align-content: start; gap: .2rem; }
+  .bento-stats strong { color: var(--home-ink); font: 500 clamp(1.25rem, 1.7vw, 1.7rem)/1 Unbounded; }
+  .bento-cta { display: grid; gap: .35rem; border-color: rgba(101, 221, 242, .4); background: linear-gradient(140deg, rgba(20, 52, 71, .75), rgba(10, 15, 26, .8)); }
+  .bento-cta strong { color: var(--home-ink); font-size: clamp(.9rem, 1vw, 1rem); }
+  .bento-cta span { color: var(--home-accent); font-size: clamp(.76rem, .85vw, .84rem); line-height: 1.45; text-wrap: pretty; }
+  .bento-cta:hover, .bento-cta:focus-visible { border-color: var(--home-accent); }
+
+  .home-page .section-kicker, .home-page .profile-label { color: var(--home-muted); }
   .home-page .hero-lead, .home-page .section-copy { color: var(--home-muted); }
   .home-page .button.primary, .home-page .profile-facts strong { background: var(--home-accent); border-color: var(--home-accent); color: #06131a; }
   .home-page .button.cosmic { border-color: #426b89; background: #102331; } .home-page .text-link, .home-page .profile-details summary span { color: var(--home-accent); }
-  .home-page .signal-strip > a:hover, .home-page .signal-strip > a:focus-visible { background: #0d1724; }
-  .home-page .signal-strip > button { width: 100%; min-width: 0; padding: 1.25rem clamp(1rem, 3vw, 3rem); border: 0; background: #0a0f1a; color: inherit; font: inherit; text-align: left; cursor: pointer; }
-  .home-page .signal-strip > button:hover, .home-page .signal-strip > button:focus-visible { background: #0d1724; }
+
+  /* Services: concrete offers, no card zoo. */
+  .home-services { background: #0a0f1a; }
+  .services-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 1px; border-block: 1px solid var(--home-line); background: var(--home-line); }
+  .service-tile { container-type: inline-size; grid-column: span 2; min-width: 0; padding: clamp(1.35rem, 2.2vw, 2rem); background: #0a0f1a; }
+  .service-tile.is-featured { grid-column: span 3; background: linear-gradient(145deg, #0d1724, #0a0f1a 72%); }
+  .service-tile h3 { margin: 0 0 .6rem; color: var(--home-ink); font: 500 var(--card-title)/1.25 Unbounded; letter-spacing: -.02em; }
+  .service-tile p { max-width: 46rem; margin: 0 0 1rem; color: var(--home-muted); font-size: var(--card-text); line-height: 1.6; text-wrap: pretty; }
+  .service-proof { display: inline-block; margin-top: 1rem; color: var(--home-accent); font-size: .82rem; text-decoration-thickness: 1px; text-underline-offset: .2em; }
+  .services-note { max-width: 62rem; margin: 1.4rem 0 0; color: var(--home-muted); font-size: .9rem; line-height: 1.6; text-wrap: pretty; }
+  .services-note strong { color: var(--home-ink); }
+  @media (max-width: 1000px) { .services-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .service-tile, .service-tile.is-featured { grid-column: span 1; } .service-tile:last-child:nth-child(odd) { grid-column: 1 / -1; } }
+  @media (max-width: 700px) { .services-grid { grid-template-columns: 1fr; } .service-tile, .service-tile.is-featured, .service-tile:last-child:nth-child(odd) { grid-column: 1; } }
+
+  /* Reveals are owned by one site-wide system in global.css driven by the Base script. */
   .profile-dialog { width: min(92vw, 1400px); max-width: none; max-height: min(90dvh, 980px); margin: auto; padding: 0; overflow: auto; border: 1px solid var(--home-line); background: #080d16; color: var(--home-ink); box-shadow: 0 2rem 8rem rgba(0, 0, 0, .72); }
   .profile-dialog::backdrop { background: rgba(2, 5, 11, .78); backdrop-filter: blur(10px); }
-  .profile-module { position: relative; max-width: 1400px; margin: 0 auto; padding: clamp(3.5rem, 7vw, 6.5rem) clamp(1rem, 7vw, 7rem); }
+  .profile-module { position: relative; max-width: 1400px; margin: 0 auto; padding: clamp(3.5rem, 7vw, 6.5rem) var(--section-inline); }
   .profile-close-form { position: sticky; z-index: 3; top: 0; display: flex; justify-content: flex-end; height: 0; margin: 0; }
   .profile-close { min-height: 44px; padding: .65rem 1rem; border: 1px solid var(--home-line); background: #0d1724; color: var(--home-ink); cursor: pointer; }
   .profile-close:hover, .profile-close:focus-visible { border-color: var(--home-accent); color: var(--home-accent); }
   .profile-page-link { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--home-line); }
-  .profile-heading { display: flex; justify-content: space-between; align-items: end; gap: 2rem; margin-bottom: 2rem; } .profile-heading h2 { margin: .35rem 0 0; color: var(--home-ink); font: 500 clamp(2rem, 4vw, 4rem)/1.05 Unbounded; letter-spacing: -.045em; text-wrap: balance; }
+  .profile-heading { display: flex; justify-content: space-between; align-items: end; gap: 2rem; margin-bottom: 2rem; } .profile-heading h2 { margin: .35rem 0 0; color: var(--home-ink); font: 500 clamp(1.8rem, 3.2vw, 3rem)/1.05 Unbounded; letter-spacing: -.04em; text-wrap: balance; }
   .profile-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(260px, .75fr); gap: clamp(2rem, 7vw, 7rem); padding: 1.5rem 0; border-top: 1px solid var(--home-line); }
   .profile-summary p { max-width: 52rem; margin: 0; color: var(--home-ink); font-size: clamp(1.05rem, 1.7vw, 1.35rem); line-height: 1.45; } .profile-facts { display: flex; flex-wrap: wrap; gap: 2rem; margin-top: 2rem; }
   .profile-facts span { display: grid; gap: .25rem; } .profile-facts strong { width: fit-content; padding: .18rem .45rem; font-size: .9rem; font-weight: 500; } .profile-facts small { color: var(--home-muted); font-size: .72rem; }
   .profile-now { border-left: 1px solid var(--home-line); padding-left: 1.5rem; } .profile-now strong { display: block; margin: .65rem 0 .5rem; color: var(--home-ink); font-size: 1.1rem; } .profile-now p, .profile-details-grid p, .profile-details-grid li { color: var(--home-muted); font-size: .82rem; line-height: 1.55; } .profile-now p { margin: 0; }
   .profile-details { margin-top: 1rem; border-top: 1px solid var(--home-line); } .profile-details summary { display: flex; justify-content: space-between; gap: 1rem; padding: 1rem 0; color: var(--home-ink); cursor: pointer; font-size: .86rem; list-style: none; } .profile-details summary::-webkit-details-marker { display: none; } .profile-details[open] summary { border-bottom: 1px solid var(--home-line); }
   .profile-details-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.5rem; padding-top: 1.5rem; } .profile-details-grid ul { display: grid; gap: .75rem; margin: .8rem 0 0; padding: 0; list-style: none; } .profile-details-grid li strong { display: block; color: var(--home-ink); font-size: .72rem; font-weight: 500; } .profile-details-grid p { margin: .8rem 0 0; }
-  .home-projects { background: #0a0f1a; } .home-page .content-card { border-color: var(--home-line); } .home-page .content-card:hover, .home-page .content-card:focus-visible { border-color: #58739a; }
+  .home-projects { background: transparent; } .home-page .content-card { border-color: var(--home-line); } .home-page .content-card:hover, .home-page .content-card:focus-visible { border-color: #58739a; }
   @media (max-width: 900px) { .profile-heading { align-items: start; flex-direction: column; gap: .8rem; } .profile-heading .text-link { white-space: nowrap; } .profile-grid { grid-template-columns: 1fr; } .profile-now { border-top: 1px solid var(--home-line); border-left: 0; padding: 1.5rem 0 0; } .profile-details-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-  @media (max-width: 700px) { .home-page .hero { min-height: 76vh; } .home-page .display { max-width: 100%; font-size: clamp(2.6rem, 12vw, 4.5rem); } .home-page .signal-strip > button { padding-inline: .8rem; } .profile-dialog { width: calc(100vw - 1rem); max-height: calc(100dvh - 1rem); } .profile-heading { align-items: start; flex-direction: column; gap: .8rem; } .profile-heading h2 { font-size: clamp(1.8rem, 9vw, 2.8rem); } .profile-details-grid { grid-template-columns: 1fr; } .profile-facts { gap: 1rem 1.5rem; } }
+  @media (max-width: 700px) { .home-page .hero-full { min-height: calc(100svh - 4rem); padding-block: clamp(2.75rem, 7vh, 4rem); } .home-page .display { max-width: 100%; font-size: clamp(2.2rem, 10vw, 3.4rem); } .hero-bento { grid-template-columns: 1fr 1fr; } .bento-now { grid-column: 1 / -1; } .home-page .signal-strip > button { padding-inline: .8rem; } .profile-dialog { width: calc(100vw - 1rem); max-height: calc(100dvh - 1rem); } .profile-heading h2 { font-size: clamp(1.6rem, 8vw, 2.4rem); } .profile-details-grid { grid-template-columns: 1fr; } .profile-facts { gap: 1rem 1.5rem; } }
+  @media (max-width: 460px) { .hero-bento { grid-template-columns: 1fr; } .bento-stats { gap: .65rem; } }
 </style>

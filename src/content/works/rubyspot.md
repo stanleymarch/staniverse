@@ -12,7 +12,7 @@ entities: []
 featured: false
 features: ["Спроектировал структуру WebXR-сцены","Собрал сцену на A-Frame","Настроил интеграцию демонстрационного видео","Обеспечил работу в плоском и VR-режиме"]
 legacySource: "F:/Code/active/sverseq#published:rubyspot"
-relations: [{"target":"work:virtualnyy-ofis-advokata","type":"related","evidence":"editorial","confidence":0.8},{"target":"work:prodakshn-dlya-staniverse","type":"related","evidence":"editorial","confidence":0.8}]
+relations: [{"target":"work:virtualnyy-ofis-advokata","type":"related","evidence":"editorial","confidence":0.8},{"target":"project:staniverse","type":"related","evidence":"editorial","confidence":0.8}]
 ---
 ## Задача
 Быстро собрать WebXR-визитку для студии создания иммерсивного контента в игровых движках (Unreal Engine 5). Сцена должна была работать к мероприятию с потенциальными инвесторами и быть доступна как в плоском браузере, так и в VR-режиме на совместимых гарнитурах.

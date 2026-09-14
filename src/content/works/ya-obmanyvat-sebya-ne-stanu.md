@@ -10,10 +10,10 @@ client: "ArtMasters"
 status: completed
 tags: ["xr","video","art"]
 entities: []
-featured: false
+featured: true
 features: ["Придумал авторскую концептуальную рамку номера поверх исходного ТЗ","Разрабатывал сценическое визуальное решение и собирал его в Unity","Работал с логикой двухслойного вывода для LED-экрана и проекционной сетки","Писал и настраивал скрипты для движения объектов, ритма и аудиореактивности","Экспериментировал с шейдерами, материалами и построениями из кубов","Использовал AI-инструменты для ускорения кода, генерации объектов и R&D","Подстраивался под реальные постановочные ограничения площадки и медиума"]
 legacySource: "F:/Code/active/sverseq#published:ya-obmanyvat-sebya-ne-stanu"
-relations: [{"target":"work:dver-kotoraya-zhdyot","type":"related","evidence":"editorial","confidence":0.8}]
+relations: [{"target":"publication:telegram:staniverse:827","type":"documents","evidence":"editorial","confidence":0.9},{"target":"publication:telegram:staniverse:843","type":"documents","evidence":"editorial","confidence":0.9},{"target":"work:dver-kotoraya-zhdyot","type":"related","evidence":"editorial","confidence":0.8}]
 ---
 Финальная работа на ArtMasters (компетенция «Дизайнер виртуальных миров», август 2025). Цифровая сценография для мультимедийного номера к 130-летию Сергея Есенина.
 

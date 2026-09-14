@@ -2,15 +2,16 @@
 id: "project:metavyatka"
 kind: project
 title: "MetaVyatka"
-summary: "MetaVyatka — это цифровой архив Вятки и одновременно XR-форма разговора о регионе. Я собираю здесь локальные места, объекты, звуки и сюжеты в формат, который может жить и как художественный мир, и как архив культурной п…"
+summary: "MetaVyatka — незавершённый цифровой архив и XR-проект о Вятке, уже представленный в фестивальных заявках и отдельных кейсах цифровой консервации. Его дальнейшие направления включают пополнение звукового архива, каталог на Next.js, ИИ-гида с RAG и перенос миров на BasisVR; готовность этих намеченных систем не утверждается."
 status: "planned"
 domains: ["xr","ai","community","audio"]
 tags: ["xr","ai","community","audio"]
-entities: []
+entities: ["MetaVyatka","Вятка","Resonite","BasisVR","Next.js","Scaniverse","Synthetic Memories","Арка Вятского Кремля"]
 featured: true
 updated: "2026-04-15"
 legacySource: "F:/Code/active/sverseq/content/lab/metavyatka.md"
-relations: [{"target":"work:arka-vyatskogo-kremlya","type":"related","evidence":"editorial","confidence":0.8},{"target":"project:ya-ty-gorod","type":"related","evidence":"editorial","confidence":0.8},{"target":"project:zapovednaya-vyatka-360","type":"related","evidence":"editorial","confidence":0.8},{"target":"project:albina","type":"related","evidence":"editorial","confidence":0.8}]
+relations: [{"target":"publication:telegram:staniverse:526","type":"documents","evidence":"editorial","confidence":1},{"target":"publication:telegram:staniverse:242","type":"documents","evidence":"editorial","confidence":0.9},{"target":"publication:telegram:staniverse:292","type":"documents","evidence":"editorial","confidence":0.85},{"target":"work:arka-vyatskogo-kremlya","type":"related","evidence":"editorial","confidence":0.8},{"target":"project:ya-ty-gorod","type":"related","evidence":"editorial","confidence":0.8},{"target":"project:zapovednaya-vyatka-360","type":"related","evidence":"editorial","confidence":0.8},{"target":"project:albina","type":"related","evidence":"editorial","confidence":0.8},{"target":"work:arka-vyatskogo-kremlya","type":"references","evidence":"enrichment","provenance":{"kind":"enrichment","source":"pipeline/enrichment/generated/accepted.json","sourceId":"project:metavyatka","method":"slow-review","version":"7a71e24655d8b8cef4014fdcd97b905fdc700106534a206a0242f69da60e52d9"},"confidence":0.98,"explanation":"Страница проекта называет и связывает отдельную работу как пример кейса, но не документирует здесь подробно её процесс или результат. Принята направленная ссылка project→work вместо прежнего documents; обратная принадлежность не выводится.","reviewStatus":"accepted"},{"target":"project:ya-ty-gorod","type":"uses","evidence":"enrichment","provenance":{"kind":"enrichment","source":"pipeline/enrichment/generated/accepted.json","sourceId":"project:metavyatka","method":"slow-review","version":"7a71e24655d8b8cef4014fdcd97b905fdc700106534a206a0242f69da60e52d9"},"confidence":0.95,"explanation":"В разделе стека прямо указано использование архивных материалов проекта «я.ты.город.» в MetaVyatka; направление зависимости сохранено от использующего проекта к источнику материалов.","reviewStatus":"accepted"}]
+topics: ["ai","llm","xr","gaussian-splatting","place-heritage","culture","sound","web","open-source"]
 ---
 ## Суть
 `MetaVyatka` — это цифровой архив Вятки и одновременно XR-форма разговора о регионе. Я собираю здесь локальные места, объекты, звуки и сюжеты в формат, который может жить и как художественный мир, и как архив культурной памяти, и как материал для фестивальной сцены, музейной экспозиции или чужого проекта, которому внезапно понадобился именно этот кусок Вятки.

@@ -1,0 +1,28 @@
+# станивёрс (Staniverse) — Станислав Ермоленко: XR, AI, digital garden and spatial portfolio
+
+> станивёрс / Staniverse (staniverse.xyz) is the personal site and portfolio of Stanislav Ermolenko (Станислав Ермоленко), born 1994, originally from Vyatka (Kirov region), now based in Saint Petersburg, Russia. He works across XR/virtual worlds (including WebXR and 8th Wall), AI agents and automation (agent harnesses: Claude Code, Codex, OpenCode, OpenClaw, Hermes, Pico Claw, pi), media production, and web products; he offers these as services, including paid consultations. The site is a canonical digital garden: commissioned works, own projects with honest statuses, long-form articles, verified YouTube videos, and a Telegram publication archive (700+ posts) connected by a reviewed topic/relation graph.
+
+## Key facts
+- Author: Stanislav Ermolenko (Станислав Ермоленко); email stas@staniverse.xyz; Telegram @staniverse.
+- Education: bachelor GMU VyatGU (2026); since 2026 — master's at ITMO University, "Digital Methods in Humanities Research" (Digital Humanities), 45.04.04.
+- Teaching: VyatGU "Digital Chairs" methodist and lecturer 2023-2026; built the "Product Management Basics" course in summer 2026.
+- Languages: site content is Russian; this file is English for machine consumers.
+
+## Main sections
+- Home: https://staniverse.xyz/
+- Works (commissioned portfolio): https://staniverse.xyz/works/
+- Projects (own laboratory): https://staniverse.xyz/projects/
+- Garden (catalog of publications, articles, videos, threads): https://staniverse.xyz/garden/
+- Topics index: https://staniverse.xyz/topics/
+- About (bio, education, tools, manifesto): https://staniverse.xyz/about/
+- Support: https://staniverse.xyz/donate/
+- Universe (WebGL/WebXR spatial map of the same graph): https://staniverse.xyz/universe/
+
+## For agents and crawlers
+- Sitemap: https://staniverse.xyz/sitemap.xml
+- Every material page carries a local graph of reviewed relations; automatic topic suggestions are labeled "Автоматически найденные темы" and rendered as hypotheses.
+- Publications keep original Telegram text, media order, author hashtags (# source tags) and source links; they are never rewritten by LLMs.
+- Citation preference: cite the material page URL, not the raw Telegram link, when referring to curated content.
+
+## Change cadence
+Updated incrementally from the Telegram archive and editorial passes; see section pages for per-item dates.

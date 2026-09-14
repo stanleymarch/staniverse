@@ -13,7 +13,7 @@ entities: []
 featured: true
 features: ["Спроектировал архитектуру: Telegram → tgsync → tgparser (LLM-разметка) → Obsidian → syncvault → Quartz → GitLab Pages","Написал пайплайн импорта: tgsync.py, tgparser.py с LLM-генерацией заголовков, тегов, типов, сущностей","Собрал WebXR-граф на Three.js: VR, AR, десктоп, мобильные, полёт, hand tracking","Написал генеративную аудиосцену на Web Audio API: эмбиент на пентатонике с proximity-реактивностью и категорийным микшированием","Настроил CI/CD: deploy.sh, orphan-ветка, pruning ассетов, GitLab Pages","Интегрировал кастомные компоненты Quartz: graph-xr, fluid-bg, garden-filter","Фронтенд написан через вайбкодинг с OpenAI Codex и GLM-5.1"]
 legacySource: "F:/Code/active/sverseq#published:tsifrovoy-sad-staniverse-xyz"
-relations: [{"target":"project:staniverse","type":"related","evidence":"editorial","confidence":0.8},{"target":"work:prodakshn-dlya-staniverse","type":"related","evidence":"editorial","confidence":0.8},{"target":"work:sistema-sbora-i-analiza-trendov-na-n8n","type":"related","evidence":"editorial","confidence":0.8},{"target":"project:metavyatka","type":"related","evidence":"editorial","confidence":0.8},{"target":"project:ya-ty-gorod","type":"related","evidence":"editorial","confidence":0.8}]
+relations: [{"target":"project:staniverse","type":"related","evidence":"editorial","confidence":0.8},{"target":"work:sistema-sbora-i-analiza-trendov-na-n8n","type":"related","evidence":"editorial","confidence":0.8},{"target":"project:metavyatka","type":"related","evidence":"editorial","confidence":0.8},{"target":"project:ya-ty-gorod","type":"related","evidence":"editorial","confidence":0.8}]
 ---
 ## Замысел
 

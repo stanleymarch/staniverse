@@ -13,7 +13,7 @@ entities: []
 featured: false
 features: ["Исследовал архитектуру виртуальных помощников и AI-компаньонов","Писал длинные объясняющие материалы и инструкции по сборке","Экспериментировал с персонажами, памятью, голосом и визуальным воплощением","Связывал тему агентных систем с XR- и WebXR-направлением"]
 legacySource: "F:/Code/active/sverseq#published:ai-vayfu-i-virtualnye-pomoschniki"
-relations: [{"target":"project:albina","type":"related","evidence":"editorial","confidence":0.8},{"target":"work:prodakshn-dlya-staniverse","type":"related","evidence":"editorial","confidence":0.8}]
+relations: [{"target":"project:albina","type":"related","evidence":"editorial","confidence":0.8},{"target":"project:staniverse","type":"related","evidence":"editorial","confidence":0.8}]
 ---
 ## Задача
 Исследовать и собирать цифровых компаньонов и персональных AI-помощников, которые работают не как тупой чат-бот, а как сущность с памятью, голосом, характером, интерфейсом и потенциальным местом в повседневной жизни пользователя.

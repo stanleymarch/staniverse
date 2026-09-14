@@ -1,0 +1,3023 @@
+{
+  "version": 2,
+  "lifecycle": "accepted",
+  "generatedAt": "2026-09-11T19:47:55.396Z",
+  "manifest": {
+    "path": "pipeline/enrichment/pilot-manifest.json",
+    "sha256": "a5a67a8e561f51b4e689ed722ffc3c7bfc4cfe844e60b4d1c1985fad1e5362cb"
+  },
+  "review": {
+    "path": "pipeline/enrichment/review/pilot-slow-review.json",
+    "sha256": "46226380d1ef52c80ff5c36af95bbfe182e8025a1b02c558b652ddad39f675d3",
+    "correctionsPath": "pipeline/enrichment/review/pilot-corrections.json",
+    "correctionsSha256": "d78f3af612d44361cdb936234a3898b5127eafbde30fdd7034be303841dd45c0",
+    "reviewer": "PilotCorrectionManifest",
+    "verdict": "accept_with_changes"
+  },
+  "results": [
+    {
+      "id": "publication:telegram:staniverse:3",
+      "sourceHash": "fd789136e369c03a6267d30164b5a3f3f8a4f1ca465d1dc36121a91ffdc7dba4",
+      "fileBodyHash": "4c6e5fc59b5d77393cf9d5b4303687a9b6d16e6e17c21cac902993e0aebefa21",
+      "summary": "Стас приветствует читателей нового канала и оставляет на будущее вопрос, порадуется ли он решению его завести.",
+      "topics": [],
+      "topicEvidence": [],
+      "entities": [],
+      "relations": [],
+      "stages": [
+        {
+          "stage": "topic-proposal",
+          "promptVersion": "staniverse-openrouter-pilot-v5",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "d5d8a5e4b36d8b7c46334541d382c9394a58ff107fcfb4c32f1210f6d390b98b"
+          ]
+        },
+        {
+          "stage": "relation-proposal",
+          "promptVersion": "staniverse-openrouter-relations-v3",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "050c4f8d1a3d98b9e1dbb6df1f3ac881fee91dda62e5e129a8374e0082455137"
+          ]
+        }
+      ],
+      "resultHash": "081df72b0b55d17705755e46a95bc420edc29cc23dadf99eeda674eef493e695"
+    },
+    {
+      "id": "publication:telegram:staniverse:4",
+      "sourceHash": "8697f1594c725f01bdc42c846853bf10dedfffc8975924ebaf85210deaf8844a",
+      "fileBodyHash": "ccb1c2a535bc026388dff8c47ec3386c97c0c8cfd2385b87c37c2392e5d1b889",
+      "summary": "Автор обсуждает недовольство разработчиков новой политикой оплаты Unity, неопределённость платы за установки и попытки компании восстановить доверие. Упоминаются проекты на Unity и переход разработчиков на другие игровые движки.",
+      "topics": [
+        "games"
+      ],
+      "topicEvidence": [
+        {
+          "topicId": "games",
+          "quote": "недавно главы одного из самых популярных игровых движков Unity очень накосячили с новой Fee policy и разгневали комьюнити.",
+          "explanation": "Основной предмет — игровая разработка, лицензирование движка и реакция разработчиков.",
+          "confidence": 0.99
+        }
+      ],
+      "entities": [
+        {
+          "entity": "Unity",
+          "quote": "Unity",
+          "explanation": "Игровой движок, политика оплаты которого обсуждается.",
+          "confidence": 1
+        },
+        {
+          "entity": "Godot",
+          "quote": "Gadot",
+          "explanation": "Принятая в обзоре нормализация опечатки в названии альтернативного открытого движка.",
+          "confidence": 0.97
+        },
+        {
+          "entity": "Unreal Engine",
+          "quote": "Unreal Engine",
+          "explanation": "Назван альтернативным движком для переноса проектов.",
+          "confidence": 1
+        },
+        {
+          "entity": "Spatial",
+          "quote": "Spatial",
+          "explanation": "Названа среди используемых автором платформ на Unity.",
+          "confidence": 1
+        },
+        {
+          "entity": "VRChat",
+          "quote": "VRChat",
+          "explanation": "Названа среди платформ на Unity.",
+          "confidence": 1
+        },
+        {
+          "entity": "Decentraland",
+          "quote": "Decentraland",
+          "explanation": "Названа среди платформ на Unity.",
+          "confidence": 1
+        },
+        {
+          "entity": "YouTube",
+          "quote": "YouTube",
+          "explanation": "Площадка с руководствами по миграции проектов.",
+          "confidence": 1
+        }
+      ],
+      "relations": [],
+      "stages": [
+        {
+          "stage": "topic-proposal",
+          "promptVersion": "staniverse-openrouter-pilot-v5",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "b2be638cefe1e8ce708ac0238586bf3c53ce9d19412dd5fda8240d816ef13881"
+          ]
+        },
+        {
+          "stage": "relation-proposal",
+          "promptVersion": "staniverse-openrouter-relations-v3",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "1d35da8d55684e6c5a93dc26b0dfe9dd4e1dc899e596103ba5f6688d6deeb51f"
+          ]
+        }
+      ],
+      "resultHash": "3b82609724c49a3d8bd22874cc416e7e48abbfb223d78ca14941a676bdd634a7"
+    },
+    {
+      "id": "publication:telegram:staniverse:7",
+      "sourceHash": "9c1caf889d18aa5b4ed0187c9bdf932b1b9270f5c3c57d2ab02d6618cb66ae3b",
+      "fileBodyHash": "5c09634d94fa586b6043bd9b4cb334ed89cd5d65f28abe329ad4b464629d7747",
+      "summary": "Автор задаёт короткий вопрос о просмотре выступления Meta Connect в Horizon World.",
+      "topics": [],
+      "topicEvidence": [],
+      "entities": [
+        {
+          "entity": "Meta Connect",
+          "quote": "Meta Connect",
+          "explanation": "Прямо названо мероприятие, выступление которого предлагается смотреть.",
+          "confidence": 1
+        },
+        {
+          "entity": "Horizon World",
+          "quote": "Horizon World",
+          "explanation": "Сохранено буквальное название платформы из источника без исправления на другое продуктовое имя.",
+          "confidence": 1
+        }
+      ],
+      "relations": [],
+      "stages": [
+        {
+          "stage": "topic-proposal",
+          "promptVersion": "staniverse-openrouter-pilot-v5",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "2f6edc116641bd8bd8bf07623951fd02f9ceed5629eb78bda721b9403a4f8b36"
+          ]
+        },
+        {
+          "stage": "relation-proposal",
+          "promptVersion": "staniverse-openrouter-relations-v3",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "c715a2945469a965e06d1227d13b8be18ac9d9ba4ba8dbfd09c68df8a324835e"
+          ]
+        }
+      ],
+      "resultHash": "103c6e4050dc525a125e747a7c36b30d5aab0c2a82d8d313d8c3e6122baf7a34"
+    },
+    {
+      "id": "publication:telegram:staniverse:8",
+      "sourceHash": "4b003c2a21358880dd8253afb588d8cf8ee88790b32c89d3641cc50df3018fcb",
+      "fileBodyHash": "b997605eb60b6f54e0bfbe8df76b0baefaacfdaada71da130d6d3b105e114069",
+      "summary": "В доступном тексте сохранена только ссылка на оригинал публикации в Telegram; содержательное описание отсутствует.",
+      "topics": [],
+      "topicEvidence": [],
+      "entities": [],
+      "relations": [],
+      "stages": [
+        {
+          "stage": "topic-proposal",
+          "promptVersion": "staniverse-openrouter-pilot-v5",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "26e54c07cb8553e0a3aace7278f8178ac43fb98b95221ec115be828603b7c513"
+          ]
+        },
+        {
+          "stage": "relation-proposal",
+          "promptVersion": "staniverse-openrouter-relations-v3",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "973e64f825e4af5420f74709f4a4fa30468e4a1b164b4c854c2cf9f742501f19"
+          ]
+        }
+      ],
+      "resultHash": "c056b7398df132657f3a301458b0bf03a22cc1e36ae689b7aed80199951ba5de"
+    },
+    {
+      "id": "publication:telegram:staniverse:11",
+      "sourceHash": "d18c79b4e9ce926efc174136d6c0491087e00f8a698f4eda24bbbe78cccd7d80",
+      "fileBodyHash": "ad881e088fd0fdb7bc654495ab7dac2c97deb1bdf4010e8c75a0db376fc6adaf",
+      "summary": "Автор вспоминает поездку в Москву, привычные кафе, покупки, транспорт и личные впечатления. Среди планов следующего посещения — ГЭС-2, Дом Наркомфина, новые транспортные маршруты и Зеленоград.",
+      "topics": [
+        "travel",
+        "place-heritage",
+        "lifestyle"
+      ],
+      "topicEvidence": [
+        {
+          "topicId": "travel",
+          "quote": "ровно 2 года назад я был в Москве последний раз",
+          "explanation": "Публикация разворачивается вокруг воспоминаний о поездке и планов следующего посещения.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "place-heritage",
+          "quote": "Это [ГЭС-2](https://ges-2.org/), которое тогда только-только собиралось открываться и [Дом Наркомфина](https://www.narkomfin.ru/), ради которого даже оформил бы карту лояльности Гаража.",
+          "explanation": "Конкретно обсуждаются культурные и архитектурные места, а не только факт поездки в город.",
+          "confidence": 0.97
+        },
+        {
+          "topicId": "lifestyle",
+          "quote": "И там подсел на флэт-уайт на миндальном. Который стоил дешевле, чем в Кирове.",
+          "explanation": "Личные привычки, расходы и повседневные воспоминания составляют самостоятельную часть рассказа.",
+          "confidence": 0.97
+        }
+      ],
+      "entities": [],
+      "relations": [],
+      "stages": [
+        {
+          "stage": "topic-proposal",
+          "promptVersion": "staniverse-openrouter-pilot-v5",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "9ca36aa52bfe752d8e99a0aa977ae7885e3de7d479be493651426ba6765ceeb7"
+          ]
+        },
+        {
+          "stage": "relation-proposal",
+          "promptVersion": "staniverse-openrouter-relations-v3",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "7b81aeccb890cf471840726b8051e88d1baacf668282292f423b94667cada9e7"
+          ]
+        }
+      ],
+      "resultHash": "d0a2b5089f4b8f4af42b5e5974c1209d2744add041773ff2af71b470c33c8221"
+    },
+    {
+      "id": "publication:telegram:staniverse:24",
+      "sourceHash": "986ffe4bbc0276cdc460de71336d12ca09ce1f90ce68cfd01694631c2e6ef52b",
+      "fileBodyHash": "710f8328236e8eef2403e68723361cd12b7dfc41e7144b4b9110cf3795fa8b13",
+      "summary": "Автор пробует с помощью Suno придать новое музыкальное звучание стихам о городах Кировской области. В качестве примера приведены стихи Гарри Цыпукова о Слободском и предложено сравнить варианты песни.",
+      "topics": [
+        "ai",
+        "sound",
+        "place-heritage"
+      ],
+      "topicEvidence": [
+        {
+          "topicId": "ai",
+          "quote": "нейросетями можем заставить по-новому звучать хорошие стихи про города области?",
+          "explanation": "Описывается конкретное применение генеративного ИИ к поэтическому материалу.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "sound",
+          "quote": "А вот обновление нейросетью (suno.ai).",
+          "explanation": "Автор предлагает новую музыкальную версию песни и сравнение звучания.",
+          "confidence": 0.98
+        },
+        {
+          "topicId": "place-heritage",
+          "quote": "Как-то я наткнулся на песню про Слободской на стихи Гарри Ниссоновича Цыпукова, которая меня зацепила.",
+          "explanation": "Содержание эксперимента связано с поэтическим образом конкретного города и местной памятью.",
+          "confidence": 0.98
+        }
+      ],
+      "entities": [
+        {
+          "entity": "Suno",
+          "quote": "suno.ai",
+          "explanation": "Нормализовано название прямо указанного сервиса генерации музыки.",
+          "confidence": 1
+        }
+      ],
+      "relations": [],
+      "stages": [
+        {
+          "stage": "topic-proposal",
+          "promptVersion": "staniverse-openrouter-pilot-v5",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "7a9474ece60254b49bfb2bdf6e3aaeacfcafc906b3be8a57071da6dd0b433c16"
+          ]
+        },
+        {
+          "stage": "relation-proposal",
+          "promptVersion": "staniverse-openrouter-relations-v3",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "cc3e8b217ab0bfe8a1fa96992a55994970ff7d55ddeebfb4228b327ef194f4e2"
+          ]
+        }
+      ],
+      "resultHash": "d002165c872dcff76565ab0823bf041f3a548f3e4e00e7d1bd46fcb5fc102da9"
+    },
+    {
+      "id": "publication:telegram:staniverse:76",
+      "sourceHash": "ace96aa1f645eedfb00b8edfcf060a03f8cc84678adc2c405d736a189189e921",
+      "fileBodyHash": "1302670dade0da723ee7b0f41d869932622b22ffe48d4ba694a41dbe42cf1307",
+      "summary": "Автор публикует обновлённые пользовательские инструкции для ChatGPT на основе прочитанных работ о промпт-инжиниринге. Он объясняет, куда вводить инструкции и какие изменения внёс в формат, пошаговые рассуждения и стиль ответов.",
+      "topics": [
+        "ai",
+        "llm",
+        "education"
+      ],
+      "topicEvidence": [
+        {
+          "topicId": "ai",
+          "quote": "мои обновленные касмтомные инструкции для ChatGPT – потестировал, работают хорошо.",
+          "explanation": "Описано практическое управление ответами ИИ через инструкции.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "llm",
+          "quote": "по промпт инженерингу, поэтому вот мои обновленные касмтомные инструкции для ChatGPT",
+          "explanation": "Предметом являются prompting и поведение конкретной языковой модели.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "education",
+          "quote": "Вводить их нужно в настройках аппа/сайта, в поле \"_How would you like ChatGPT to respond?_\"",
+          "explanation": "Материал содержит конкретную инструкцию по настройке и пояснения к изменениям.",
+          "confidence": 0.99
+        }
+      ],
+      "entities": [
+        {
+          "entity": "ChatGPT",
+          "quote": "ChatGPT",
+          "explanation": "Сервис, для которого предназначены пользовательские инструкции.",
+          "confidence": 1
+        }
+      ],
+      "relations": [],
+      "stages": [
+        {
+          "stage": "topic-proposal",
+          "promptVersion": "staniverse-openrouter-pilot-v5",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "513e9b34f9fe023890bdb665d97c0874b02c97059dad5caebe29950a50c6d646"
+          ]
+        },
+        {
+          "stage": "relation-proposal",
+          "promptVersion": "staniverse-openrouter-relations-v3",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "a3832ee359986650065343a1793daf850d374b0145f60b9541e5dd930c3f3d64"
+          ]
+        }
+      ],
+      "resultHash": "5fb1cd49f040aacada9d968411d8b77099f0b5adf5a6b9c8e5d1ce5929f925b6"
+    },
+    {
+      "id": "publication:telegram:staniverse:91",
+      "sourceHash": "87df2ce39f72ba6b73abf35a2e9f31bd7c86126e12015fc17764a6351aa4565b",
+      "fileBodyHash": "0642cf03d97f8830b6a0299eee043b06b190f9f9777896adde1a42d3330a873e",
+      "summary": "К юбилею Кирова/Вятки представлен музыкальный эксперимент «Timeless Love in Vyatka» с ИИ-версиями известных исполнителей и текстом о городских достопримечательностях. Реальные музыканты, по словам автора, о результате не знают; в производственных титрах указаны ChatGPT, Suno и RVC.",
+      "topics": [
+        "ai",
+        "sound",
+        "place-heritage"
+      ],
+      "topicEvidence": [
+        {
+          "topicId": "ai",
+          "quote": "о существовании финального результата они не в курсе, ведь это их AI-версии",
+          "explanation": "Участие исполнителей прямо обозначено как синтетическое, а не реальное.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "sound",
+          "quote": "Текст: ChatGPT, Музыка: Suno, Замена голосов: RVC",
+          "explanation": "Описан музыкальный результат с генерацией музыки и заменой голосов.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "place-heritage",
+          "quote": "Он упоминает такие знаковые места, как Трифонов монастырь, где каждое место хранит свою историю.",
+          "explanation": "Песня и её описание предметно обращаются к истории и достопримечательностям Вятки.",
+          "confidence": 0.98
+        }
+      ],
+      "entities": [
+        {
+          "entity": "ChatGPT",
+          "quote": "Текст: ChatGPT",
+          "explanation": "Прямой производственный титр; сам по себе не добавляет тему llm.",
+          "confidence": 1
+        },
+        {
+          "entity": "Suno",
+          "quote": "Музыка: Suno",
+          "explanation": "Прямо указан инструмент создания музыки.",
+          "confidence": 1
+        },
+        {
+          "entity": "RVC",
+          "quote": "Замена голосов: RVC",
+          "explanation": "Прямо указан инструмент замены голосов.",
+          "confidence": 1
+        }
+      ],
+      "relations": [],
+      "stages": [
+        {
+          "stage": "topic-proposal",
+          "promptVersion": "staniverse-openrouter-pilot-v5",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "3450fb7d169c94bcbcbbe0a022e8c10d81529e285434f6b6d35c8ec6f61b539b"
+          ]
+        },
+        {
+          "stage": "relation-proposal",
+          "promptVersion": "staniverse-openrouter-relations-v3",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "95519765d54b27449b044475d4c66b16a5584820b71aa78aace13b1015d35d74"
+          ]
+        }
+      ],
+      "resultHash": "4b3b1eca4ee775eef811ef368a8578f6f8930fdecd89a12f3d9024567bdefb5e"
+    },
+    {
+      "id": "publication:telegram:staniverse:167",
+      "sourceHash": "b687a078aade17dc45fcc413fa1ab86e5a7473b339de95ee88e78388b4e6bd98",
+      "fileBodyHash": "2f44adacb7cf2d150efa5e777a926a7116f79b628324e26d3b244aebbed0000d",
+      "summary": "Во время пребывания в больнице после травмы автор размышляет о технологиях для удобства пациентов: автоматизации палаты, голосовом управлении и ИИ-собеседниках. Отдельно он обсуждает носимые устройства для наблюдения за здоровьем и экстренной помощи, опираясь на личный опыт с Mi Band и Apple Watch.",
+      "topics": [
+        "iot",
+        "ai",
+        "companions",
+        "lifestyle"
+      ],
+      "topicEvidence": [
+        {
+          "topicId": "iot",
+          "quote": "Автоматизация света, рециркулятора, возможность связаться с постом — база.",
+          "explanation": "Предлагается управление физическими устройствами и инфраструктурой палаты.",
+          "confidence": 0.98
+        },
+        {
+          "topicId": "ai",
+          "quote": "Из сервисных штук, я бы добавил ИИ-помощников, не важно в каком облачении.",
+          "explanation": "ИИ-помощники обсуждаются как возможный сервис для пациентов.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "companions",
+          "quote": "Чтобы если тебе скучно — поговорил, как с колонкой. Детям и очень взрослым это зашло бы.",
+          "explanation": "В контексте ИИ-помощников прямо предлагается функция собеседника против скуки и одиночества.",
+          "confidence": 0.98
+        },
+        {
+          "topicId": "lifestyle",
+          "quote": "Знаете чего не хватает в лежачей палате на две персоны, когда ни спать не можешь, ни на бок повернуться, ни гулять по отделению. Технологий!",
+          "explanation": "Это личный больничный дневник о самочувствии и бытовых ограничениях.",
+          "confidence": 0.99
+        }
+      ],
+      "entities": [
+        {
+          "entity": "Mi Band",
+          "quote": "Mi Band",
+          "explanation": "Линейка браслетов подробно обсуждается в контексте наблюдения за здоровьем.",
+          "confidence": 1
+        },
+        {
+          "entity": "Apple Watch",
+          "quote": "Apple Watch",
+          "explanation": "Часы подробно обсуждаются в контексте обнаружения происшествий и вызова помощи.",
+          "confidence": 1
+        }
+      ],
+      "relations": [],
+      "stages": [
+        {
+          "stage": "topic-proposal",
+          "promptVersion": "staniverse-openrouter-pilot-v5",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "0cf96a078925305546800744afe873cf8a609ef8376d1b073c126fe76133d2c7"
+          ]
+        },
+        {
+          "stage": "relation-proposal",
+          "promptVersion": "staniverse-openrouter-relations-v3",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "20ce966b642f5ebf53c338848b58872cf7a1d9461d0e46b61db8d5616f098c72"
+          ]
+        }
+      ],
+      "resultHash": "4f09f225644f61201ee4a496489de3207220ff194634c3e18fd3935803298f36"
+    },
+    {
+      "id": "publication:telegram:staniverse:367",
+      "sourceHash": "fe1bb4a555454c6cacfc265892e529c7f066d7e85c6abb5c160dd8d1255901ec",
+      "fileBodyHash": "1617792574d21bf0720a3e6f451bcfbf1c9424860837920543f45026d777114c",
+      "summary": "Автор рассказывает об импорте мобильных сканов и Gaussian Splatting в Resonite, делится результатами проверки и ограничениями производительности. Он уже показал другим участникам скан церкви в Яранске и предлагает в будущем собрать небольшой виртуальный музей местных достопримечательностей.",
+      "topics": [
+        "xr",
+        "place-heritage",
+        "social-vr"
+      ],
+      "topicEvidence": [
+        {
+          "topicId": "xr",
+          "quote": "теперь можно гулять по сканам из мобильного Scaniverse в самой навороченной Social VR платформе, где не нужно иметь Unity для создания миров.",
+          "explanation": "Обсуждаются пространственные сканы и их просмотр внутри VR-платформы.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "place-heritage",
+          "quote": "Я бы вообще такое делал со всеми отдаленными от областных и районных центров краеведческими музеями.",
+          "explanation": "Предлагается цифровое сохранение локальных музейных пространств и достопримечательностей.",
+          "confidence": 0.98
+        },
+        {
+          "topicId": "social-vr",
+          "quote": "Даже успел кому-то показать церковь в Яранске и обсудить насколько больше деталей тут сохраняется, чем при обычной фотограмметрии без доработок.",
+          "explanation": "Зафиксировано совместное посещение и обсуждение объекта, а не только технический VR-импорт.",
+          "confidence": 0.99
+        }
+      ],
+      "entities": [
+        {
+          "entity": "Frooxius",
+          "quote": "Frooxius",
+          "explanation": "Прямо назван создатель Resonite и автор вдохновившего ролика.",
+          "confidence": 1
+        },
+        {
+          "entity": "Resonite",
+          "quote": "Resonite",
+          "explanation": "Платформа, в которой автор импортирует и показывает сканы.",
+          "confidence": 1
+        },
+        {
+          "entity": "Scaniverse",
+          "quote": "Scaniverse",
+          "explanation": "Названо приложение для мобильного сканирования.",
+          "confidence": 1
+        },
+        {
+          "entity": "Unity",
+          "quote": "Unity",
+          "explanation": "Движок обсуждается в контексте создания миров и производительности.",
+          "confidence": 1
+        },
+        {
+          "entity": "Яранск",
+          "quote": "церковь в Яранске",
+          "explanation": "Название города приведено к именительному падежу.",
+          "confidence": 1
+        }
+      ],
+      "relations": [],
+      "stages": [
+        {
+          "stage": "topic-proposal",
+          "promptVersion": "staniverse-openrouter-pilot-v5",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "2f78648930ab77dd2b8a995572f8a95ba3c427b51d3153814823863408b04191"
+          ]
+        },
+        {
+          "stage": "relation-proposal",
+          "promptVersion": "staniverse-openrouter-relations-v3",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "e41cefba941370ec138ca47b1d21bfd04c6a67071284a1203bfb21e8a927603f"
+          ]
+        }
+      ],
+      "resultHash": "b57abbb1a1436c3b3f93af0dbb910ee600abbcb31a23fe190239741c9e6c122a"
+    },
+    {
+      "id": "publication:telegram:staniverse:382",
+      "sourceHash": "c1f9c8e173b9b82d883cc86d53f89da5974f28120355f96bfc9a120dcafd6880",
+      "fileBodyHash": "70271fa85cd9104889902ac9825e3fed5e16e0ee2d251ed2fdde1a37367f921e",
+      "summary": "Автор делится советами по использованию языковых моделей в учебном исследовании: поиску и анализу источников, работе с методичками и оформлению текста. Дополнительно рассматриваются подкасты NotebookLM и получение цифрового рельефа с объектами OpenStreetMap для виртуальных сцен.",
+      "topics": [
+        "education",
+        "ai",
+        "llm",
+        "xr",
+        "sound"
+      ],
+      "topicEvidence": [
+        {
+          "topicId": "education",
+          "quote": "Несколько актуальных на сегодня советов о том, как сделать своё исследование быстрее и лучше, получить зачёт и иметь меньше синяков под глазами. Да, с LLM!",
+          "explanation": "Материал организован как практическая помощь учащемуся в подготовке исследования.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "ai",
+          "quote": "LLM помогают в моём исследовании, обработке данных",
+          "explanation": "Названо конкретное применение ИИ к исследовательской работе и данным.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "llm",
+          "quote": "Заходите через \\*\\*\\* в NotebookLM, добавляете источники и благодаря Gemini общаетесь со всеми ними.",
+          "explanation": "Объясняется анализ загруженных источников с помощью языковой модели.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "xr",
+          "quote": "Так можно получить хоть и не самую точную, но копию реального мира для своих миров виртуальных.",
+          "explanation": "Раздел о моделях рельефа описывает перенос реальной местности в виртуальные пространства.",
+          "confidence": 0.97
+        },
+        {
+          "topicId": "sound",
+          "quote": "**В NotebookLM добавили русский язык для подкастов**\r\n\r\nЯ просто закинул туда текст своего недавнего [поста про своего рода очищение](https://t.me/staniverse/593). И вот его обсуждают кремниевые ведущие.",
+          "explanation": "Описано создание и прослушивание синтезированного подкаста по исходному тексту.",
+          "confidence": 0.99
+        }
+      ],
+      "entities": [
+        {
+          "entity": "Claude",
+          "quote": "Claude",
+          "explanation": "Центральный инструмент в сравнении моделей для русскоязычных учебных задач.",
+          "confidence": 1
+        },
+        {
+          "entity": "NotebookLM",
+          "quote": "NotebookLM",
+          "explanation": "Центральный сервис анализа источников и генерации подкастов.",
+          "confidence": 1
+        }
+      ],
+      "relations": [
+        {
+          "targetId": "publication:telegram:staniverse:593",
+          "type": "references",
+          "evidenceQuote": "Я просто закинул туда текст своего недавнего [поста про своего рода очищение](https://t.me/staniverse/593).",
+          "explanation": "Публикация прямо ссылается на предыдущий пост 593 как на текст, помещённый в NotebookLM.",
+          "confidence": 1
+        }
+      ],
+      "stages": [
+        {
+          "stage": "topic-proposal",
+          "promptVersion": "staniverse-openrouter-pilot-v5",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "16c0efe6925d11f0b4275c8c9bc21d46618343607ed15c82497d720874441277"
+          ]
+        },
+        {
+          "stage": "relation-proposal",
+          "promptVersion": "staniverse-openrouter-relations-v3",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "de48a1fc07f6fd85fae0424557eeb8b29aeb0e612706682cc2843a41e48798f1"
+          ]
+        }
+      ],
+      "resultHash": "65f853f829af317d7699f5afb9831e441372660d73faa61636d57afe903b1ac1"
+    },
+    {
+      "id": "publication:telegram:staniverse:414",
+      "sourceHash": "4df726172ad211f3724af32f3b9ecb2a7f6ea74262dd269ceead4bf6ad2a7cbf",
+      "fileBodyHash": "6d76964b44bf74dc960229c83426bc76e07b93d5f61b334b4fbce8b4c8bbfd9b",
+      "summary": "Автор пересказывает выступления и обсуждения сообщества OMI о совместимости виртуальных миров, открытых стандартах и сохранении цифрового наследия. Он рассматривает проекты Overte, V-Sekai и Virtual Worlds Museum, упоминает разработку агентного архива встреч и размышляет о поддержке культурных инициатив.",
+      "topics": [
+        "open-source",
+        "metaverse",
+        "social-vr",
+        "culture",
+        "games",
+        "xr",
+        "ai",
+        "agents-automation"
+      ],
+      "topicEvidence": [
+        {
+          "topicId": "open-source",
+          "quote": "Quake 1996 года _—_ эталонный пример долговечности виртуального мира благодаря открытому исходному коду и простым форматам.",
+          "explanation": "Есть прямое обсуждение открытого исходного кода и его роли в долговечности проектов.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "metaverse",
+          "quote": "OMI — это открытое сообщество, работающее над тем, чтобы сделать метавселенную более открытой, взаимосвязанной и ориентированной на пользователей, а не на корпоративные интересы.",
+          "explanation": "Предметом является инфраструктура совместимых метавселенных.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "social-vr",
+          "quote": "смоллтоки в фойе, вопросы спикерами, отношение «сцена-зал»",
+          "explanation": "Автор описывает социальное устройство посещённой виртуальной конференции.",
+          "confidence": 0.97
+        },
+        {
+          "topicId": "culture",
+          "quote": "сохраняя не только технологии, но и культурный контекст виртуальных сообществ.",
+          "explanation": "Сохранение истории и культурной среды виртуальных сообществ раскрыто как самостоятельная задача.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "games",
+          "quote": "Созданный 30 лет назад для CRT-мониторов, он до сих пор живёт, развивается сообществом и даже работает в VR.",
+          "explanation": "На примере Quake обсуждаются долговечность игры и её развитие сообществом.",
+          "confidence": 0.98
+        },
+        {
+          "topicId": "xr",
+          "quote": "Это уже помогло комьюнити платформы AltSpace после закрытия мигрировать со своими мирами в VRChat и другие платформы.",
+          "explanation": "Подробно рассматриваются перенос и сохранение пространственных миров между VR-платформами.",
+          "confidence": 0.98
+        },
+        {
+          "topicId": "ai",
+          "quote": "разработка ИИ-агента на [фреймворке Eliza](https://github.com/elizaOS/eliza) для автоматизации [сбора и саммаризации аудио со встреч ](https://github.com/omigroup/omi-archive)",
+          "explanation": "Описана конкретная разработка с ИИ для обработки встреч сообщества.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "agents-automation",
+          "quote": "разработка ИИ-агента на [фреймворке Eliza](https://github.com/elizaOS/eliza) для автоматизации [сбора и саммаризации аудио со встреч ](https://github.com/omigroup/omi-archive)",
+          "explanation": "Указана цепочка действий агента: сбор материалов и подготовка сводок.",
+          "confidence": 0.99
+        }
+      ],
+      "entities": [
+        {
+          "entity": "OMI",
+          "quote": "OMI",
+          "explanation": "Сообщество Open Metaverse Interoperability Group, чьи идеи обсуждаются.",
+          "confidence": 1
+        },
+        {
+          "entity": "Overte",
+          "quote": "Overte",
+          "explanation": "Открытая платформа виртуальных миров, обсуждаемая в выступлении.",
+          "confidence": 1
+        },
+        {
+          "entity": "V-Sekai",
+          "quote": "V-Sekai",
+          "explanation": "Назван проект социального VR на Godot.",
+          "confidence": 1
+        },
+        {
+          "entity": "Godot",
+          "quote": "Godot",
+          "explanation": "Назван открытый движок проекта V-Sekai.",
+          "confidence": 1
+        },
+        {
+          "entity": "Unity",
+          "quote": "Unity",
+          "explanation": "Обсуждается как инструмент сборки и переноса виртуальных миров.",
+          "confidence": 1
+        },
+        {
+          "entity": "Quake",
+          "quote": "Quake",
+          "explanation": "Игра служит примером долговечности открытого проекта.",
+          "confidence": 1
+        },
+        {
+          "entity": "VRChat",
+          "quote": "VRChat",
+          "explanation": "Платформа упоминается в обсуждении миграции и сохранения миров.",
+          "confidence": 1
+        },
+        {
+          "entity": "AltSpace",
+          "quote": "AltSpace",
+          "explanation": "Сохранено принятое название закрывшейся платформы из источника.",
+          "confidence": 1
+        },
+        {
+          "entity": "Virtual Worlds Museum",
+          "quote": "Virtual Worlds Museum",
+          "explanation": "Центральный музейный проект по сохранению виртуальных миров.",
+          "confidence": 1
+        },
+        {
+          "entity": "Eliza",
+          "quote": "Eliza",
+          "explanation": "Фреймворк упомянутой разработки ИИ-агента.",
+          "confidence": 1
+        },
+        {
+          "entity": "n8n",
+          "quote": "n8n",
+          "explanation": "Платформа названа в обсуждении агентной автоматизации и её коммерциализации.",
+          "confidence": 1
+        },
+        {
+          "entity": "Kickstarter",
+          "quote": "Kickstarter",
+          "explanation": "Платформа кампании Virtual Worlds Museum.",
+          "confidence": 1
+        }
+      ],
+      "relations": [],
+      "stages": [
+        {
+          "stage": "topic-proposal",
+          "promptVersion": "staniverse-openrouter-pilot-v5",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "ea0b02576b14bfe2b23a473c8a39de4dfcfe21077f2f0aa802f58c6a24643b37"
+          ]
+        },
+        {
+          "stage": "relation-proposal",
+          "promptVersion": "staniverse-openrouter-relations-v3",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "b974d3c06a3d5462b42fd5bc593bd50d5eb3eccf18304ec47da8c10dbe20ec8a"
+          ]
+        }
+      ],
+      "resultHash": "4a2822b105d751a8e337ae3b7ade53742b94086750fa88c59b3060e61af7bfe7"
+    },
+    {
+      "id": "publication:telegram:staniverse:423",
+      "sourceHash": "8ca58187f62cb06c965ff01e28416f74c9b0abec8d1312ae469e555203a3e8d1",
+      "fileBodyHash": "22e5346520dc58f1d49f52a6bef236156f70f4852aaeccbd9dfddff2900e9370",
+      "summary": "Автор описывает прохождение сторонних курсов VR-разработки на Unity и продвижение через этапы ArtMasters. Подготовка к финалу переходит от виртуальных миров к сценографии: автор осваивает инструменты, использует генеративные модели и агентные интеграции для концептов, скриптов и материалов будущего сценического показа.",
+      "topics": [
+        "ai",
+        "llm",
+        "xr",
+        "education",
+        "games",
+        "agents-automation",
+        "video"
+      ],
+      "topicEvidence": [
+        {
+          "topicId": "ai",
+          "quote": "Т.е. в одном окне и без Интернетов с платными API можно сгенерить сначала концепт-арты, потом скайбокс, от которого так многое зависит в виртуальном пространством.",
+          "explanation": "Описывается генеративный производственный процесс создания визуальных материалов.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "llm",
+          "quote": "Туда же добавляются LLMки, включая локальные, для, например, помощи с написанием промпта.",
+          "explanation": "Прямо обсуждаются языковые модели и их роль в подготовке промптов.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "xr",
+          "quote": "XR Interaction Toolkit — это SDK от Unity, отвечающий за взаимодействие игрока с VR/AR-миром.",
+          "explanation": "Второй сегмент предметно объясняет инструменты пространственного взаимодействия.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "education",
+          "quote": "Программа из трёх модулей: сначала сам VR-игрок и базовое управление, потом интерактивные механики и UI, в финале — штуки вроде скалолазания, управление взглядом (Gaze, я в восторге от этого на visionOS) и сборка проекта.",
+          "explanation": "Сохранено независимое свидетельство второго сегмента о содержании стороннего курса.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "games",
+          "quote": "В итоге у вас на руках прототип VR-игры (или адаптированная под это плоская), который кладётся в портфолио или дорабатывается до релиза.",
+          "explanation": "Второй сегмент прямо описывает разработку игрового прототипа как учебный результат.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "agents-automation",
+          "quote": "Поэкспериментировал даже с MCP Unity, вещи в духе «посмотри в сцене объект такой-то и создай несколько дочерних так-то» вполне делает естественным языком.",
+          "explanation": "Во втором сегменте описаны выполняемые через MCP действия внутри Unity.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "video",
+          "quote": "В общем да, заниматься в итоге буду не VRChat\\`ом в VR, а...сценографией!",
+          "explanation": "Первый сегмент прямо фиксирует переход к сценическому продакшну, далее раскрытому через проекции и иммерсивное видео.",
+          "confidence": 0.98
+        }
+      ],
+      "entities": [
+        {
+          "entity": "Unity",
+          "quote": "Unity",
+          "explanation": "Основной движок курсов и конкурсных экспериментов.",
+          "confidence": 1
+        },
+        {
+          "entity": "Blender",
+          "quote": "Blender",
+          "explanation": "Инструмент моделирования в описываемом учебном процессе.",
+          "confidence": 1
+        },
+        {
+          "entity": "SteamVR",
+          "quote": "SteamVR",
+          "explanation": "SDK назван в содержании курса.",
+          "confidence": 1
+        },
+        {
+          "entity": "Stepik",
+          "quote": "Stepik",
+          "explanation": "Площадка стороннего курса.",
+          "confidence": 1
+        },
+        {
+          "entity": "VRChat",
+          "quote": "VRChat",
+          "explanation": "Платформа и инструментарий упоминаются в контексте разработки; это не доказательство социального VR-опыта итогового задания.",
+          "confidence": 1
+        },
+        {
+          "entity": "ComfyUI",
+          "quote": "ComfyUI",
+          "explanation": "Среда генеративного производственного процесса.",
+          "confidence": 1
+        },
+        {
+          "entity": "Wan 2.1",
+          "quote": "Wan 2.1 Vace",
+          "explanation": "Принятое имя модели подтверждено буквальным упоминанием её варианта.",
+          "confidence": 1
+        },
+        {
+          "entity": "Hunyuan3D",
+          "quote": "Hunyuan3D",
+          "explanation": "Модель генерации трёхмерных объектов.",
+          "confidence": 1
+        },
+        {
+          "entity": "DeepSeek R1",
+          "quote": "DeepSeek R1",
+          "explanation": "Прямо названа языковая модель.",
+          "confidence": 1
+        },
+        {
+          "entity": "iPad",
+          "quote": "iPad",
+          "explanation": "Устройство подробно обсуждается как приобретённый рабочий инструмент.",
+          "confidence": 1
+        },
+        {
+          "entity": "ProCreate",
+          "quote": "ProCreate",
+          "explanation": "Сохранено принятое название приложения из буквального упоминания.",
+          "confidence": 1
+        },
+        {
+          "entity": "Unreal Engine",
+          "quote": "Unreal Engine",
+          "explanation": "Движок назван в плане освоения сценографии.",
+          "confidence": 1
+        }
+      ],
+      "relations": [],
+      "stages": [
+        {
+          "stage": "topic-proposal",
+          "promptVersion": "staniverse-openrouter-pilot-v5",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "4516747bd083844ed108841e64c1a71cd2fec124ca676f7b2c9d61e4840200b2",
+            "46e1cb65f7ae0e943c6430c0fbb05f5a64c6abbf4da089af2818c05918043b79"
+          ]
+        },
+        {
+          "stage": "relation-proposal",
+          "promptVersion": "staniverse-openrouter-relations-v3",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "5adee972f68df1296ef90c47a6cac05a4b8106f6898892fb5a13a23ed7a7daac",
+            "0e50033bc9c931278375dbd65a3053f7cb0523799f1db439fe0be16ac9579586"
+          ]
+        }
+      ],
+      "resultHash": "87a6095026c4026dbde6aeeb45e4c64951abc2ff3b5a2ff44be17d4b56dc4881"
+    },
+    {
+      "id": "publication:telegram:staniverse:425",
+      "sourceHash": "4666d2132400782928f12420298b7f2a5df17264eeec9a324cbbaac4d4f3987c",
+      "fileBodyHash": "9ee26d9615537c90881c4cc7d114e6da65c64e3a12e212b582f39818eeb74fe5",
+      "summary": "В подборке сторонний рассказ о выпускном Digital Autumn в EngageXR соседствует с авторским питчем «МетаВятки» в отсканированной городской локации. Автор развивает замысел цифрового архива, каталога и ИИ-гида с RAG, обсуждает свободное переиспользование сканов и полевых записей; покупка аудиорекордера должна помочь добавить оригинальный интершум в будущие показы, а не означает завершение проекта.",
+      "topics": [
+        "xr",
+        "social-vr",
+        "place-heritage",
+        "ai",
+        "llm",
+        "companions",
+        "sound",
+        "education",
+        "web",
+        "open-source"
+      ],
+      "topicEvidence": [
+        {
+          "topicId": "xr",
+          "quote": "Эта презентация происходила на платформе социального VR Engage, в (криво) отсканированной мной реальной достопримечательности города, где живу.",
+          "explanation": "Автор описывает пространственную презентацию в собственном скане реальной локации.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "social-vr",
+          "quote": "10 питчей - 10 миров посещают гости.",
+          "explanation": "Сторонний рассказ о выпускном прямо описывает совместное посещение виртуальных миров.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "place-heritage",
+          "quote": "Памятников культуры с каждым годом становится всё меньше, а инструментов и способов задокументировать их — больше, чем когда либо.",
+          "explanation": "Сохранение локальных памятников составляет центральную мотивацию архивного проекта.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "ai",
+          "quote": "Причём если в backend там LLM с RAG, то воплощение возможно не только как NPC-аватара в метавёрсе, но и как чат-бота в Тележке или (простите) виджета на сайте.",
+          "explanation": "Описана архитектура предполагаемого ИИ-гида и возможные интерфейсы.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "llm",
+          "quote": "Причём если в backend там LLM с RAG, то воплощение возможно не только как NPC-аватара в метавёрсе, но и как чат-бота в Тележке или (простите) виджета на сайте.",
+          "explanation": "Прямо названы языковая модель и дополнение ответов извлечёнными знаниями.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "companions",
+          "quote": "Приятный бонус — виртуальный туризм. ИИ-компаньон, принцип создания которого я [рассказывал в гайде, что привёл треть из вас сюда](https://vas3k.club/post/27507/), в одном из воплощений — это медиатор в виртуальной локации",
+          "explanation": "Гид прямо представлен как ИИ-компаньон для общения в виртуальной локации.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "sound",
+          "quote": "зима звучит не так же, как весна, лето, осень. А центр города в 2025 году звучит не так же, как в 2010-м.",
+          "explanation": "Подробно обосновывается необходимость собственных полевых записей с учётом места и времени.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "education",
+          "quote": "На выпускном ученики питчат свои проекты гостям",
+          "explanation": "Описывается образовательный интенсив и презентация ученических проектов; деятельность принадлежит участникам программы.",
+          "confidence": 0.98
+        },
+        {
+          "topicId": "web",
+          "quote": "придумываю сайт-каталог про Кировскую область",
+          "explanation": "Автор прямо формулирует план веб-каталога и далее описывает сбор ссылок на материалы.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "open-source",
+          "quote": "свободная лицензия на использование 3D-сканов, записей интершумов",
+          "explanation": "Обсуждается свободно лицензируемое переиспользование цифровых материалов.",
+          "confidence": 0.97
+        }
+      ],
+      "entities": [
+        {
+          "entity": "Digital Autumn",
+          "quote": "Digital Autumn",
+          "explanation": "Название образовательного интенсива.",
+          "confidence": 1
+        },
+        {
+          "entity": "Алина Михалёва",
+          "quote": "Алина Михалёва",
+          "explanation": "Прямо названа организатор программы.",
+          "confidence": 1
+        },
+        {
+          "entity": "Французский институт",
+          "quote": "Французского института",
+          "explanation": "Название поддерживающей организации приведено к именительному падежу.",
+          "confidence": 1
+        },
+        {
+          "entity": "EngageXR",
+          "quote": "EngageXR",
+          "explanation": "Каноническая сущность платформы; последующие упоминания Engage относятся к ней и не образуют вторую сущность.",
+          "confidence": 1
+        },
+        {
+          "entity": "MetaVyatka",
+          "quote": "МетаВятка",
+          "explanation": "Название проекта нормализовано к MetaVyatka с сохранением русского буквального свидетельства.",
+          "confidence": 1
+        },
+        {
+          "entity": "Scaniverse",
+          "quote": "Scaniverse",
+          "explanation": "Основное рекомендуемое приложение для мобильного сканирования.",
+          "confidence": 1
+        },
+        {
+          "entity": "Niantic",
+          "quote": "Niantic",
+          "explanation": "Названа компания, связанная со Scaniverse и форматом сплатов.",
+          "confidence": 1
+        },
+        {
+          "entity": "Pokémon Go",
+          "quote": "Pokémon Go",
+          "explanation": "Игра прямо названа для идентификации Niantic.",
+          "confidence": 1
+        },
+        {
+          "entity": "Polycam",
+          "quote": "Polycam",
+          "explanation": "Один из предлагаемых инструментов обработки сканов.",
+          "confidence": 1
+        },
+        {
+          "entity": "Postshot",
+          "quote": "Postshot",
+          "explanation": "Инструмент локального обсчёта сканов.",
+          "confidence": 1
+        },
+        {
+          "entity": "Arrival.Space",
+          "quote": "Arrival.Space",
+          "explanation": "Площадка публикации сканов для веба.",
+          "confidence": 1
+        }
+      ],
+      "relations": [
+        {
+          "targetId": "publication:telegram:staniverse:347",
+          "type": "references",
+          "evidenceQuote": "[знает краеведение](https://t.me/staniverse/347)",
+          "explanation": "Автор прямо ссылается на публикацию 347 в описании краеведческих знаний виртуального гида.",
+          "confidence": 1
+        },
+        {
+          "targetId": "publication:telegram:staniverse:325",
+          "type": "references",
+          "evidenceQuote": "Пример [такого в моём посте выше](https://t.me/staniverse/325).",
+          "explanation": "Публикация 325 приведена как отдельный пример в описании обработки и размещения сканов.",
+          "confidence": 1
+        },
+        {
+          "targetId": "project:metavyatka",
+          "type": "develops",
+          "evidenceQuote": "Мой первый аудиорекордер. Сам удивлён, что за столько лет в аудиовизуальном производстве не имел хотя бы такого прибора.\r\n\r\nТеперь локации метаВятки на зарубежных питчах будут с оригинальным интершумом!",
+          "explanation": "Собственная покупка автора и намеченное добавление оригинального звука, вместе с изложенным планом каталога, показывают продолжающееся развитие MetaVyatka. Это подготовка архивных и звуковых улучшений, а не свидетельство завершённого проекта или присвоение стороннего рассказа о выпускном.",
+          "confidence": 0.9
+        }
+      ],
+      "stages": [
+        {
+          "stage": "topic-proposal",
+          "promptVersion": "staniverse-openrouter-pilot-v5",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "d14f6fa8fac0c9894e3090845db516422e6a13725bfb978482a9ea36a2905e22"
+          ]
+        },
+        {
+          "stage": "relation-proposal",
+          "promptVersion": "staniverse-openrouter-relations-v3",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "7bbbaac4ba6fc59e29058020f4550e01f44d8880ede9c9c5c963647c76169d55"
+          ]
+        }
+      ],
+      "resultHash": "c26ba218af01c9623209d6aa28f39579dd5cf8c36bd70030c327c008b1b106e2"
+    },
+    {
+      "id": "publication:telegram:staniverse:1008",
+      "sourceHash": "c6fe2720d823c4fe596c59db51db20eb06fab21c6d49f1029592322877ef2840",
+      "fileBodyHash": "4c3fa00cd43f60afd6c3ee244f75992f77b634b68ccddc6090a62c8cf80fb23e",
+      "summary": "Автор формулирует личные и профессиональные планы: цифровой сад и портфолио, открытые VR-платформы, обучение Art&Science и обустройство жилья. Разбирая сторонний проект Synthetic Memories в учебном задании, он связывает генеративную реконструкцию воспоминаний с утратой близких, виртуальными компаньонами и возможностью сохранять исчезающее местное наследие.",
+      "topics": [
+        "web",
+        "open-source",
+        "xr",
+        "ai",
+        "culture",
+        "companions",
+        "place-heritage",
+        "education",
+        "lifestyle"
+      ],
+      "topicEvidence": [
+        {
+          "topicId": "web",
+          "quote": "Сегодня даже начал ТЗ для Codex составлять под Astro",
+          "explanation": "План цифрового сада и портфолио сопровождается конкретной подготовкой веб-разработки.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "open-source",
+          "quote": "Со всеми ограничениями разной степени безумия с обеих сторон предлагаю бороться open-source решениями.",
+          "explanation": "Далее предметно обсуждаются открытые VR-решения, вклад в BasisVR и переносимость.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "xr",
+          "quote": "благодаря Unity с полным C# вы без боли перенесёте и на него, и с него продублируете куда-нибудь. В тот же Viverse, Somnium etc.",
+          "explanation": "Обсуждается перенос иммерсивных проектов между пространственными платформами.",
+          "confidence": 0.98
+        },
+        {
+          "topicId": "ai",
+          "quote": "с помощью генеративного ИИ эти воспоминания превращаются в визуальные образы.",
+          "explanation": "Описывается механизм стороннего проекта Synthetic Memories.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "culture",
+          "quote": "Synthetic Memories мне близок именно потому, что он про это всё сразу — про то, что память хрупкая, технологии уже готовы, а времени меньше, чем кажется.",
+          "explanation": "Развёрнутая рефлексия связывает цифровые технологии с культурной и личной памятью.",
+          "confidence": 0.98
+        },
+        {
+          "topicId": "companions",
+          "quote": "По датасету переписок можно собрать модель человека в разных социальных ролях.",
+          "explanation": "В разделе о виртуальных компаньонах обсуждаются цифровые собеседники, реконструкция личности и одиночество.",
+          "confidence": 0.98
+        },
+        {
+          "topicId": "place-heritage",
+          "quote": "Есть памятники архитектуры и природы, малые города и деревни, которые физически доживают последние десятилетия.",
+          "explanation": "Далее раскрывается цифровое сохранение исчезающих церквей, домов и местных историй.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "education",
+          "quote": "Контекст: предложили познакомиться с проектами-победителями конкурса Ars Electronica, выбрать самый зацепивший и поделиться чем зацепил.",
+          "explanation": "Автор выполняет и обсуждает задание премастерса Art&Science.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "lifestyle",
+          "quote": "При этом у меня есть коробка с фотографиями нескольких поколений семьи, которую я ещё не оцифровал и очень за неё переживаю",
+          "explanation": "Семейная память, утрата близких и личные планы являются самостоятельной содержательной линией.",
+          "confidence": 0.99
+        }
+      ],
+      "entities": [
+        {
+          "entity": "Synthetic Memories",
+          "quote": "Synthetic Memories",
+          "explanation": "Центральный сторонний проект, выбранный для учебной рефлексии.",
+          "confidence": 1
+        },
+        {
+          "entity": "BasisVR",
+          "quote": "BasisVR",
+          "explanation": "Названа и обсуждается открытая VR-платформа, которую автор уже пробовал.",
+          "confidence": 1
+        }
+      ],
+      "relations": [
+        {
+          "targetId": "publication:telegram:staniverse:325",
+          "type": "references",
+          "evidenceQuote": "[реконструкцию церкви в провинции](https://t.me/staniverse/325)",
+          "explanation": "Публикация прямо ссылается на пост 325 как на пример цифровой реконструкции церкви; сходство архивных идей не превращено в связь развития другого проекта.",
+          "confidence": 0.95
+        }
+      ],
+      "stages": [
+        {
+          "stage": "topic-proposal",
+          "promptVersion": "staniverse-openrouter-pilot-v5",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "423d978420b6389b46e59892180b8196798d9c3fae9f55811b769aa8dac740f2"
+          ]
+        },
+        {
+          "stage": "relation-proposal",
+          "promptVersion": "staniverse-openrouter-relations-v3",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "6b5cb73f201bed999489816f32eed61fa4da95d386915378f55e6d5ed169042a"
+          ]
+        }
+      ],
+      "resultHash": "61e9adebafe713fed33ff84ce1a326f8abb515c4e32f778992fbcadbf0e8d637"
+    },
+    {
+      "id": "project:metavyatka",
+      "sourceHash": "151cf881ed9a4d628994f0635bdd0fd968aaeae0971c5e25107da92836c5c8ec",
+      "fileBodyHash": "77c266134a7077a6b8f13ae7bded6706008210a42e5402950f1a1f5ddcd0ee99",
+      "summary": "MetaVyatka — незавершённый цифровой архив и XR-проект о Вятке, уже представленный в фестивальных заявках и отдельных кейсах цифровой консервации. Его дальнейшие направления включают пополнение звукового архива, каталог на Next.js, ИИ-гида с RAG и перенос миров на BasisVR; готовность этих намеченных систем не утверждается.",
+      "topics": [
+        "ai",
+        "llm",
+        "xr",
+        "place-heritage",
+        "culture",
+        "sound",
+        "web",
+        "open-source"
+      ],
+      "topicEvidence": [
+        {
+          "topicId": "ai",
+          "quote": "**ИИ-гид**: ассистент с `RAG`, который связывает объекты, маршруты, локальную историю и культурный контекст.",
+          "explanation": "ИИ-гид прямо назван одним из направлений проекта, без утверждения о завершённой реализации.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "llm",
+          "quote": "ИИ-гид с `RAG`, который может жить как на сайте, так и внутри XR-среды;",
+          "explanation": "Описан ассистент с извлечением знаний и несколькими возможными интерфейсами.",
+          "confidence": 0.98
+        },
+        {
+          "topicId": "xr",
+          "quote": "**XR-миры**: художественные сцены и пространства, где Вятка получает современный визуальный язык.",
+          "explanation": "Пространственные художественные миры — одна из трёх опорных линий проекта.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "place-heritage",
+          "quote": "`MetaVyatka` — это цифровой архив Вятки и одновременно XR-форма разговора о регионе.",
+          "explanation": "Сохранение и представление локальных мест и памяти составляет ядро проекта.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "culture",
+          "quote": "В терминах contemporary art мне здесь близка идея распределённого архива и архива-нарратива, где культурная память не запирается в одном носителе, а остаётся подвижной и доступной для новых прочтений.",
+          "explanation": "Проект прямо осмысляется в контексте цифрового искусства и культурной памяти.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "sound",
+          "quote": "Звуковой архив в стадии наполнения.",
+          "explanation": "Звук является самостоятельным развиваемым архивным направлением, дополненным полевыми записями.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "web",
+          "quote": "чтобы собрать на Next.js каталог с картой и возможностью загружать и публиковать объекты",
+          "explanation": "Прямо описаны планируемая веб-платформа и её функции.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "open-source",
+          "quote": "[BasisVR](https://github.com/BasisVR/Basis), open-source фреймворк для социального VR, чтобы обеспечить доступ к мирам через селф-хост сервера",
+          "explanation": "Открытый фреймворк и собственное размещение рассматриваются как будущая основа переносимости миров.",
+          "confidence": 0.99
+        }
+      ],
+      "entities": [
+        {
+          "entity": "MetaVyatka",
+          "quote": "MetaVyatka",
+          "explanation": "Каноническое название описываемого проекта.",
+          "confidence": 1
+        },
+        {
+          "entity": "Вятка",
+          "quote": "Вятки",
+          "explanation": "Название региона и культурной территории приведено к именительному падежу.",
+          "confidence": 1
+        },
+        {
+          "entity": "Resonite",
+          "quote": "Resonite",
+          "explanation": "Платформа прямо указана в стеке проекта.",
+          "confidence": 1
+        },
+        {
+          "entity": "BasisVR",
+          "quote": "BasisVR",
+          "explanation": "Фреймворк назван в плане будущего портирования.",
+          "confidence": 1
+        },
+        {
+          "entity": "Next.js",
+          "quote": "Next.js",
+          "explanation": "Планируемая технологическая основа каталога.",
+          "confidence": 1
+        },
+        {
+          "entity": "Scaniverse",
+          "quote": "Scaniverse",
+          "explanation": "Приложение прямо указано среди инструментов фотограмметрии.",
+          "confidence": 1
+        },
+        {
+          "entity": "Synthetic Memories",
+          "quote": "Synthetic Memories",
+          "explanation": "Сторонний проект назван в осмыслении музейной и архивной логики.",
+          "confidence": 1
+        },
+        {
+          "entity": "Арка Вятского Кремля",
+          "quote": "Арка Вятского Кремля",
+          "explanation": "Прямо назван и связан ссылкой отдельный кейс цифровой консервации.",
+          "confidence": 1
+        }
+      ],
+      "relations": [
+        {
+          "targetId": "work:arka-vyatskogo-kremlya",
+          "type": "references",
+          "evidenceQuote": "Появились первые прикладные кейсы цифровой консервации, включая [Арка Вятского Кремля](/works/arka-vyatskogo-kremlya/)",
+          "explanation": "Страница проекта называет и связывает отдельную работу как пример кейса, но не документирует здесь подробно её процесс или результат. Принята направленная ссылка project→work вместо прежнего documents; обратная принадлежность не выводится.",
+          "confidence": 0.98
+        },
+        {
+          "targetId": "project:ya-ty-gorod",
+          "type": "uses",
+          "evidenceQuote": "архивы фото и видео из `я.ты.город.`",
+          "explanation": "В разделе стека прямо указано использование архивных материалов проекта «я.ты.город.» в MetaVyatka; направление зависимости сохранено от использующего проекта к источнику материалов.",
+          "confidence": 0.95
+        }
+      ],
+      "stages": [
+        {
+          "stage": "topic-proposal",
+          "promptVersion": "staniverse-openrouter-pilot-v5",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "add2812b409a8f2056fcc65300acf49aad9b5786c23dd7edec4afcd3ba2b080d"
+          ]
+        },
+        {
+          "stage": "relation-proposal",
+          "promptVersion": "staniverse-openrouter-relations-v3",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "0c3221f5399b9cf4bd538e88708d0ce28bd9de0f5bf9c5f0d5948c360a3998d8"
+          ]
+        }
+      ],
+      "resultHash": "7a71e24655d8b8cef4014fdcd97b905fdc700106534a206a0242f69da60e52d9"
+    },
+    {
+      "id": "publication:telegram:staniverse:416",
+      "sourceHash": "d9044c97e64ff47451d86999f76acbe448f3558c0feb877e5d9e6964d210ac59",
+      "fileBodyHash": "aae0aa5b0c259633d01c439ac91f670baac934a51f94f1ee693b9424f18b7e0b",
+      "summary": "В пересказе, подготовленном с помощью Claude, приводятся результаты опроса EVA AI о романтических отношениях с ИИ и обсуждаются эмоциональная связь и цифровые копии людей. Это атрибутированные утверждения опроса, а не независимо подтверждённая статистика; далее автор предостерегает от использования реальных переписок с бывшими при создании виртуальных партнёров.",
+      "topics": [
+        "ai",
+        "companions",
+        "intimate-tech"
+      ],
+      "topicEvidence": [
+        {
+          "topicId": "ai",
+          "quote": "Люди всё больше тянутся к искусственному интеллекту в поисках романтики",
+          "explanation": "В центре материала применение ИИ в отношениях; это содержание пересказа, а не проверка его утверждений.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "companions",
+          "quote": "83% считают возможным создать глубокую эмоциональную связь с ИИ",
+          "explanation": "Приведённый результат опроса относится к отношениям с ИИ-компаньонами, независимо от достоверности процента.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "intimate-tech",
+          "quote": "81% готовы заключить брак с ИИ-партнером (если закон позволит)",
+          "explanation": "Романтические и партнёрские отношения с ИИ прямо входят в предмет источника.",
+          "confidence": 0.99
+        }
+      ],
+      "entities": [
+        {
+          "entity": "EVA AI",
+          "quote": "EVA AI",
+          "explanation": "Название компании нормализовано по пробелу; ей атрибутирован обсуждаемый опрос.",
+          "confidence": 1
+        }
+      ],
+      "relations": [],
+      "stages": [
+        {
+          "stage": "topic-proposal",
+          "promptVersion": "staniverse-openrouter-pilot-v5",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "f65a640031473b85a46028c864212891c01463a70e193130c7f2a8bdf23dae23"
+          ]
+        },
+        {
+          "stage": "relation-proposal",
+          "promptVersion": "staniverse-openrouter-relations-v3",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "6d2ba3f5b0c27bc0f809a0123cc05441ff95a3a1b2c2fb97a084ccccca0f53e3"
+          ]
+        }
+      ],
+      "resultHash": "33b4a8767f0ba9e889d6e9727ea888c1da3a4b5fa509598a1d5ec453dee49c78"
+    },
+    {
+      "id": "publication:telegram:staniverse:451",
+      "sourceHash": "2f25b65aa8839d8c659c3ed94dc6e5dbb45a1d6226bb6dd5c87771ee7ae2b0c7",
+      "fileBodyHash": "d96abc0785e9f816eb0ba524ba49153315808d88a0c1cdd81fa16002631d0984",
+      "summary": "Представлен видеогид по созданию виртуального ИИ-компаньона — от текстового чата до голосового 3D-аватара в смешанной реальности. План руководства охватывает языковую модель, речь, память, тактильную обратную связь, локальные решения и агентные фреймворки; дана ссылка на текстовую версию.",
+      "topics": [
+        "ai",
+        "companions",
+        "llm",
+        "xr",
+        "agents-automation",
+        "education",
+        "intimate-tech"
+      ],
+      "topicEvidence": [
+        {
+          "topicId": "ai",
+          "quote": "Создаём ИИ-вайфу и не только: руководство по созданию виртуальных помощников",
+          "explanation": "ИИ-помощники являются прямым предметом руководства.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "companions",
+          "quote": "как создать своего собственного виртуального компаньона, от простого текстового чат-бота до 3D-аватара в смешанной реальности.",
+          "explanation": "Центральная цель — создание виртуального собеседника с различными воплощениями.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "llm",
+          "quote": "4:28 Языковой центр (LLM)",
+          "explanation": "Структура руководства явно содержит раздел о языковой модели.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "xr",
+          "quote": "до 3D-аватара в смешанной реальности. С голосом и эмоциями.",
+          "explanation": "Один из разобранных интерфейсов — пространственный аватар в MR.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "agents-automation",
+          "quote": "25:49 Уровень 4: Агентские фреймворки (n8n, Flowise, Langchain, ElizaOS)",
+          "explanation": "Указан отдельный уровень реализации через агентные фреймворки.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "education",
+          "quote": "19:52 Варианты реализации: от простого к сложному",
+          "explanation": "Текст представляет структурированное руководство с последовательными уровнями реализации.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "intimate-tech",
+          "quote": "3:25 Из чего состоит виртуальная подруга?",
+          "explanation": "Прямой контекст виртуального партнёрства дополнен разделом о тактильной обратной связи.",
+          "confidence": 0.98
+        }
+      ],
+      "entities": [
+        {
+          "entity": "Voxta",
+          "quote": "Voxta",
+          "explanation": "Центральная локальная система и отдельный пример интеграции.",
+          "confidence": 1
+        },
+        {
+          "entity": "SillyTavern",
+          "quote": "SillyTavern",
+          "explanation": "Центральная локальная система и отдельный пример интеграции.",
+          "confidence": 1
+        },
+        {
+          "entity": "Warudo",
+          "quote": "Warudo",
+          "explanation": "Названо приложение для используемого аватара.",
+          "confidence": 1
+        }
+      ],
+      "relations": [
+        {
+          "targetId": "article:ai-waifu",
+          "type": "references",
+          "evidenceQuote": "Текстовая версия со всеми ссылками:\r\nhttps://vas3k.club/post/27507/",
+          "explanation": "Источник прямо указывает на текстовую версию руководства; её идентичность статье ai-waifu подтверждена завершённым обзором.",
+          "confidence": 0.98
+        },
+        {
+          "targetId": "project:staniverse",
+          "type": "mentions",
+          "evidenceQuote": "Заглядывайте в мой канал:\r\n@staniverse",
+          "explanation": "Приглашение явно упоминает авторский канал Staniverse, но не утверждает принадлежность материала более широкому проекту. Принята только связь mentions вместо прежней part-of.",
+          "confidence": 0.95
+        }
+      ],
+      "stages": [
+        {
+          "stage": "topic-proposal",
+          "promptVersion": "staniverse-openrouter-pilot-v5",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "12f75832e3058edb7c5592784c5c13b56d1d0b0706894308ecef3139c1d355c6"
+          ]
+        },
+        {
+          "stage": "relation-proposal",
+          "promptVersion": "staniverse-openrouter-relations-v3",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "55ad84126e0f418ad446e623acd86117852ce6f6a817040e4b13ce939e3f0df2"
+          ]
+        }
+      ],
+      "resultHash": "13078111eb8f11efcc3d6840289b2e77fdf08e487e599245394be5fc17e3e095"
+    },
+    {
+      "id": "publication:telegram:staniverse:518",
+      "sourceHash": "db6786339bb09f5c0397f250ddd555a4340f686989508ee64ae14a97cbb91ee4",
+      "fileBodyHash": "28b1a95fc2f2ff39dae6091519d936d2acace03f9a38386d0e25103484e195e7",
+      "summary": "Автор сравнивает Gemini, Cursor и Lovable при создании ботов и веб-приложений, описывает прототип цепочки анализа рилсов и ограничения полученного кода. Он объясняет покупку курса по Telegram-ботам, рассказывает о неудачах с Lovable и рассматривает локальную связку с открытым Supabase как будущую альтернативу.",
+      "topics": [
+        "ai",
+        "open-source",
+        "web",
+        "llm",
+        "agents-automation",
+        "education"
+      ],
+      "topicEvidence": [
+        {
+          "topicId": "ai",
+          "quote": "Из вертикального короткого видео, которое постил вчера, можно вот столько структурированной информации извлечь с помощью мультимодальной Gemini Flash 2.0.",
+          "explanation": "Первый сегмент описывает конкретное извлечение данных мультимодальной моделью.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "open-source",
+          "quote": "[ локально Supabase](https://github.com/supabase/supabase) (он open-source, что вау)",
+          "explanation": "Во втором сегменте открытость Supabase утверждается прямо, а не выводится только из локального запуска.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "web",
+          "quote": "Благо, там недавно добавили интеграцию с Supabase, а значит мы должны получить и реляционную базу данных, и авторизацию пользователей и бэкенд с Edge function в одном месте.",
+          "explanation": "Первый сегмент подробно рассматривает архитектуру и разработку веб-приложения.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "llm",
+          "quote": "Да, Cursor с Claude могут написать код и без прохождения курсов по конкретной либе.",
+          "explanation": "Сохранено свидетельство первого сегмента о практическом использовании языковой модели для кодинга.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "agents-automation",
+          "quote": "который собирает по ссылкам рилсы авторов, прогоняет через Gemini и оформляет в табличку извлечённые данные",
+          "explanation": "Описан собранный прототип последовательной автоматизации сбора, анализа и оформления данных.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "education",
+          "quote": "Вдохновился, купил себе расширенный курс по Telegram-ботам",
+          "explanation": "Автор подробно объясняет цели изучения курса и понимания архитектуры приложений.",
+          "confidence": 0.99
+        }
+      ],
+      "entities": [
+        {
+          "entity": "Gemini",
+          "quote": "Gemini",
+          "explanation": "Модель анализа видео и один из основных инструментов разработки.",
+          "confidence": 1
+        },
+        {
+          "entity": "Cursor",
+          "quote": "Cursor",
+          "explanation": "Основная IDE в сравнении и эксперименте по созданию сервиса.",
+          "confidence": 1
+        },
+        {
+          "entity": "Lovable",
+          "quote": "Lovable",
+          "explanation": "Веб-инструмент, опыт работы с которым подробно разобран.",
+          "confidence": 1
+        },
+        {
+          "entity": "Supabase",
+          "quote": "Supabase",
+          "explanation": "Платформа базы данных, авторизации и серверных функций; рассмотрен её локальный запуск.",
+          "confidence": 1
+        }
+      ],
+      "relations": [
+        {
+          "targetId": "publication:telegram:staniverse:468",
+          "type": "references",
+          "evidenceQuote": "[скрипты для Unity мне на C# пишет](https://t.me/staniverse/468)",
+          "explanation": "Первый сегмент прямо ссылается на пост 468 о написании скриптов Unity; направление сохранено от объединённого источника к публикации.",
+          "confidence": 0.99
+        },
+        {
+          "targetId": "publication:telegram:staniverse:451",
+          "type": "references",
+          "evidenceQuote": "[на видео с Вайфу](https://t.me/staniverse/451)",
+          "explanation": "Первый сегмент прямо отсылает к видео из публикации 451; объединение сегментов не меняет направление ссылки.",
+          "confidence": 0.99
+        }
+      ],
+      "stages": [
+        {
+          "stage": "topic-proposal",
+          "promptVersion": "staniverse-openrouter-pilot-v5",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "cb157b4b2143f0a717139c18e7dff9b6d7a637b499941c969f35e6c68478b011",
+            "403580989a8b6f17310eb1e14c9d04020084020c8987b7520a81c5c827838dc6"
+          ]
+        },
+        {
+          "stage": "relation-proposal",
+          "promptVersion": "staniverse-openrouter-relations-v3",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "1348a4ebb1ae86f6a9b131607fdb71ad0cbd4f3331ed152e648ac52b727bc075",
+            "23ffdcd57d02301c354fdfd4c0c93978ac12cc77d1ccb5dee536d7acfcd319d0"
+          ]
+        }
+      ],
+      "resultHash": "202c2479b500d2773958d34b2261806407eeafdc8ebce7945df813c3e35ce815"
+    },
+    {
+      "id": "publication:telegram:staniverse:593",
+      "sourceHash": "6b041e5564b5f14fd6f59e4b90eeb88e2009464839f692802e77fe4aa11313bf",
+      "fileBodyHash": "1a8385bde6c0cae5b7791b13dd0d21f3f55b2d28fa239602437a256a6ecca995",
+      "summary": "Расхламление перед ремонтом становится для автора разговором с семейной памятью, вещами и собственной привязанностью к городу. Он вспоминает аудиотехнику и пластинки, передаёт часть имущества другим людям и музею, а также критикует состояние Кирова и его современный брендинг.",
+      "topics": [
+        "lifestyle",
+        "sound",
+        "place-heritage"
+      ],
+      "topicEvidence": [
+        {
+          "topicId": "lifestyle",
+          "quote": "Необходимость полностью разобрать одну комнату, перенеся из неё что-то в другие, запустило процесс",
+          "explanation": "Бытовое расхламление и связанные с ним личные переживания составляют основу текста.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "sound",
+          "quote": "Или вот электрофон «Россия» — главный ответственный за мое знание советской эстрады, аудиоспектаклей, магии извлечения звука из канавок.",
+          "explanation": "Отдельная содержательная линия посвящена аудионосителям, аппаратуре и музыкальной памяти.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "place-heritage",
+          "quote": "Придумали же бренд, конечно. При игнорировании локальной истории.",
+          "explanation": "Автор предметно критикует городской брендинг и его отношение к местной истории.",
+          "confidence": 0.97
+        }
+      ],
+      "entities": [
+        {
+          "entity": "Фактор-2",
+          "quote": "Фактор-2",
+          "explanation": "Названа группа из воспоминаний о концерте.",
+          "confidence": 1
+        },
+        {
+          "entity": "chess.com",
+          "quote": "chess.com",
+          "explanation": "Прямо назван шахматный сервис.",
+          "confidence": 1
+        },
+        {
+          "entity": "JBL",
+          "quote": "JBL",
+          "explanation": "Марка колонки из семейного воспоминания.",
+          "confidence": 1
+        },
+        {
+          "entity": "Олимп-005",
+          "quote": "Олимпе-005",
+          "explanation": "Название модели магнитофона приведено к именительному падежу.",
+          "confidence": 1
+        },
+        {
+          "entity": "Россия (электрофон)",
+          "quote": "электрофон «Россия»",
+          "explanation": "Сущность явно разнозначена как аудиоустройство, а не страна.",
+          "confidence": 1
+        },
+        {
+          "entity": "Veritas",
+          "quote": "Veritas",
+          "explanation": "Названа марка семейной швейной машинки.",
+          "confidence": 1
+        },
+        {
+          "entity": "Авито",
+          "quote": "Авито",
+          "explanation": "Площадка передачи вещей новым владельцам.",
+          "confidence": 1
+        },
+        {
+          "entity": "Терминал ЭВМ",
+          "quote": "Терминал ЭВМ",
+          "explanation": "Название музея, которому передана часть вещей.",
+          "confidence": 1
+        },
+        {
+          "entity": "ДНС",
+          "quote": "ДНС",
+          "explanation": "Названа торговая сеть в обсуждении проигрывателей.",
+          "confidence": 1
+        },
+        {
+          "entity": "MTG",
+          "quote": "MTG",
+          "explanation": "Прямо названо карточное увлечение автора.",
+          "confidence": 1
+        },
+        {
+          "entity": "Спотифай",
+          "quote": "Спотифая",
+          "explanation": "Принятое название музыкального сервиса приведено к именительному падежу.",
+          "confidence": 1
+        }
+      ],
+      "relations": [
+        {
+          "targetId": "publication:telegram:staniverse:270",
+          "type": "references",
+          "evidenceQuote": "О том, что для меня винил и как всё начиналось, [я уже писал.](https://t.me/staniverse/270)",
+          "explanation": "Автор прямо отсылает к прежней публикации 270 о виниле и своём опыте.",
+          "confidence": 0.98
+        }
+      ],
+      "stages": [
+        {
+          "stage": "topic-proposal",
+          "promptVersion": "staniverse-openrouter-pilot-v5",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "e4f6931b87f6bf222c3798e3555fd1ddd23c6b9fabca9ab30b39abefccf6af00"
+          ]
+        },
+        {
+          "stage": "relation-proposal",
+          "promptVersion": "staniverse-openrouter-relations-v3",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "d9bbb71c33ae854ee947e6713c2293daadd297803af18e8c8490d7f7cfef2fc1"
+          ]
+        }
+      ],
+      "resultHash": "75f89ee81f032acc8fabcae29c8d06313b06a27d36525083fb4f4e6abec423c6"
+    },
+    {
+      "id": "publication:telegram:staniverse:690",
+      "sourceHash": "bf62a649aa54fa232cc0a1b58a8dd478f308b40c7f286eac13749f46efadb9c5",
+      "fileBodyHash": "b7bded160f2eb81c5c9b14f11e89b1e91e7576374d15484212c1a1c07d1e213f",
+      "summary": "Автор рассказывает о сторонних экспериментах стримерши Perri Karyal: управлении Elden Ring через Emotiv EPOC X, полёте на FPV-дроне в симуляторе и применении тактильных и электрических стимулов. Его эмоциональная реакция на её творчество не превращает эти игровые интерфейсы в интимные технологии.",
+      "topics": [
+        "iot",
+        "games"
+      ],
+      "topicEvidence": [
+        {
+          "topicId": "iot",
+          "quote": "человек с [Emotiv EPOC X](https://www.emotiv.com/products/epoc-x) на голове прошёл силой мысли [боссов в Elden Ring](https://youtu.be/pr2_LiyQ1_s).",
+          "explanation": "Обсуждается физический нейроинтерфейс, управляющий цифровой средой.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "games",
+          "quote": "[ как вообще управляется с играми силой мысли](https://www.youtube.com/watch?v=UXzncNh7rr8)",
+          "explanation": "Игровое управление составляет один из центральных демонстрируемых сценариев. Цитата сохраняет буквальный лишний пробел внутри скобки исходника.",
+          "confidence": 0.99
+        }
+      ],
+      "entities": [
+        {
+          "entity": "Emotiv EPOC X",
+          "quote": "Emotiv EPOC X",
+          "explanation": "Прямо названа модель нейроинтерфейса.",
+          "confidence": 1
+        },
+        {
+          "entity": "Elden Ring",
+          "quote": "Elden Ring",
+          "explanation": "Прямо названа игра в демонстрации управления.",
+          "confidence": 1
+        },
+        {
+          "entity": "Perri Karyal",
+          "quote": "Perri Karyal",
+          "explanation": "Центральная участница сторонних демонстраций названа и снабжена ссылкой.",
+          "confidence": 1
+        }
+      ],
+      "relations": [
+        {
+          "targetId": "publication:telegram:staniverse:578",
+          "type": "references",
+          "evidenceQuote": "В этом канале уже [мельком упоминалась](https://t.me/staniverse/578) умница из UK [Perri Karyal](https://www.twitch.tv/perrikaryal)",
+          "explanation": "Автор прямо указывает публикацию 578 как более раннее упоминание Perri Karyal.",
+          "confidence": 0.95
+        }
+      ],
+      "stages": [
+        {
+          "stage": "topic-proposal",
+          "promptVersion": "staniverse-openrouter-pilot-v5",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "320c76a2987de171b2f4fce83c03f0c2d5c3db8ec045bbf1fb030a221731e0f8"
+          ]
+        },
+        {
+          "stage": "relation-proposal",
+          "promptVersion": "staniverse-openrouter-relations-v3",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "339224e70f2af280428b792e9f913bdde0049fd7da297a960d20f17cc1c40e0a"
+          ]
+        }
+      ],
+      "resultHash": "e7a9b42bab71e2f864ebbe4c270f4b7b62aff8e4cebcc6e22a520084e81eb0c2"
+    },
+    {
+      "id": "publication:telegram:staniverse:710",
+      "sourceHash": "4dffd69bcf6692e2aef85d85e1089145e47621b423e7086b29b8e26d02f580ca",
+      "fileBodyHash": "7c880d10d1932ae18a46d4dfdb25ef1f939b4b40510cd88b69d4d4da37f87940",
+      "summary": "Автор разбирает доступ на мероприятия в социальном VR: ограничения вместимости, очереди, донаты, билеты и возможное резервирование мест. Он различает тиражируемые концерты и персональное взаимодействие с танцовщицами или актёрами, для которого копирование аватаров в другой инстанс не заменяет участия.",
+      "topics": [
+        "social-vr",
+        "xr",
+        "intimate-tech"
+      ],
+      "topicEvidence": [
+        {
+          "topicId": "social-vr",
+          "quote": "Существует лимит одновременного нахождения в одном мире пользователей, обычно человек 80.",
+          "explanation": "Подробно рассматриваются совместные мероприятия, доступ участников и организация VR-сообществ.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "xr",
+          "quote": "В VR-театре актёры ситуативно общаются с тобой, делая полноценным персонажем истории и вовлекая в происходящее.",
+          "explanation": "Описан пространственный интерактивный театральный опыт внутри VR.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "intimate-tech",
+          "quote": "Я сам особенно люблю ходить на ивенты с танцами, особенно наколенными (и с «ё» тоже).",
+          "explanation": "Речь о персональном интимном взаимодействии людей в социальном VR, далее противопоставленном обычной трансляции.",
+          "confidence": 0.99
+        }
+      ],
+      "entities": [
+        {
+          "entity": "VRChat",
+          "quote": "VRChat",
+          "explanation": "Центральная платформа обсуждаемых мероприятий и механики доступа.",
+          "confidence": 1
+        },
+        {
+          "entity": "Ferryman Collective",
+          "quote": "Ferryman Collective",
+          "explanation": "Прямо назван коллектив живого театра в виртуальной реальности.",
+          "confidence": 1
+        }
+      ],
+      "relations": [],
+      "stages": [
+        {
+          "stage": "topic-proposal",
+          "promptVersion": "staniverse-openrouter-pilot-v5",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "3876350c175716ec145f2824e18aa85d113703e664422cea8f51d420fb55626f"
+          ]
+        },
+        {
+          "stage": "relation-proposal",
+          "promptVersion": "staniverse-openrouter-relations-v3",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "e096594ecf6559932d532effe76565cdce5aa1a793ae4e58e4e35b408ffa75f8"
+          ]
+        }
+      ],
+      "resultHash": "6b95ceb1393e7b86fdd3abc2e2c5056c13ca7ef7c2e1a8f52c50988412bfbdc3"
+    },
+    {
+      "id": "publication:telegram:staniverse:743",
+      "sourceHash": "2592098b85f2e686e339b185faad6d920e11ae28ed424da3ccc11615bfad8da2",
+      "fileBodyHash": "7af446b5cb095eca14953d5131b8ab81b2677b6e422b69be6eccf011a0dc5afb",
+      "summary": "Дневник финала ArtMasters соединяет работу над сценографией номера «Я обманывать себя не стану» с поездкой в Москву, посещением выставок и размышлениями об учёбе и переезде. Автор описывает кодинг с языковыми моделями, подготовку и вывод видеослоёв, репетиции, показ и защиту, а также собственное знакомство с Apple Vision Pro.",
+      "topics": [
+        "lifestyle",
+        "xr",
+        "llm",
+        "culture",
+        "education",
+        "ai",
+        "video",
+        "travel"
+      ],
+      "topicEvidence": [
+        {
+          "topicId": "lifestyle",
+          "quote": "Но пока безуспешно продвигается продажа моего жилья в Кирове и не ищется новое в Слободском, важнейшая задача на август — как-то справиться с текущим конкурсным проектом.",
+          "explanation": "Жилищные планы и переживания автора составляют сквозную личную линию дневника.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "xr",
+          "quote": "Дизайном, micro-OLED дисплеями, трекингом рук и взгляда. Интересное чувство, когда при надевании железка сама подогнала IPD и потом ты просто посмотрел куда-то, щипнул в естественном положении руки и оно отозвалось.",
+          "explanation": "Второй сегмент подробно описывает пространственный интерфейс Apple Vision Pro.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "llm",
+          "quote": "Мои два верных друга на эту всю работу: ChatGPT и Gemini 2.5 Pro в Cursor.",
+          "explanation": "Первый сегмент развёрнуто описывает работу языковых моделей над скриптами и промптами.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "culture",
+          "quote": "Сходил на два опыта: медитацию с частицами и про встречу искусства с генеративным ИИ.",
+          "explanation": "В первом сегменте обсуждаются иммерсивное искусство и его влияние на собственную практику.",
+          "confidence": 0.98
+        },
+        {
+          "topicId": "education",
+          "quote": "Так я себе уже приглядел ДПО в Британке, магистрату в ВШЭ, программы на Винзаводе и вот это всё.",
+          "explanation": "Автор предметно рассматривает дальнейшие образовательные программы и потребность в новых знаниях.",
+          "confidence": 0.97
+        },
+        {
+          "topicId": "ai",
+          "quote": "И вот день занимался вайбкодингом, чтобы заставить виртуальные тени ходить по парящему светящемуся сетчатому кубу.",
+          "explanation": "Описан фактический генеративный кодинг конкурсной сцены, а не одиночное упоминание ИИ.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "video",
+          "quote": "Ну и наши слои видео для сетки и экрана сегодня впервые увидел режиссёр, дал обратную связь и отправил в доброе плаванье до завтрашнего прогона.",
+          "explanation": "Второй сегмент документирует реальный сценический видеопродакшн и подготовку показа.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "travel",
+          "quote": "С момента прошлого поста случилась пешая прогулка через Кузнецкий мост на Цветной бульвар до Марса. Центра современного искусства Марс.",
+          "explanation": "Это конкретный маршрут из подробного дневника длительной поездки и культурной программы в другом городе.",
+          "confidence": 0.98
+        }
+      ],
+      "entities": [
+        {
+          "entity": "VRChat",
+          "quote": "VRChat",
+          "explanation": "Источник используемых инструментов; итоговая работа предназначена для физической сцены.",
+          "confidence": 1
+        },
+        {
+          "entity": "Udon Sharp",
+          "quote": "Udon Sharp",
+          "explanation": "Прямо назван инструмент скриптинга, осваиваемый в процессе.",
+          "confidence": 1
+        },
+        {
+          "entity": "Unity",
+          "quote": "Unity",
+          "explanation": "Основной движок конкурсной разработки.",
+          "confidence": 1
+        },
+        {
+          "entity": "ChatGPT",
+          "quote": "ChatGPT",
+          "explanation": "Один из центральных помощников в рабочем процессе.",
+          "confidence": 1
+        },
+        {
+          "entity": "Gemini",
+          "quote": "Gemini",
+          "explanation": "Одна из центральных моделей для кодинга.",
+          "confidence": 1
+        },
+        {
+          "entity": "Claude",
+          "quote": "Claude",
+          "explanation": "Модель, с которой автор сравнивает рабочий опыт и ограничения.",
+          "confidence": 1
+        },
+        {
+          "entity": "Apple Vision Pro",
+          "quote": "Apple Vision Pro",
+          "explanation": "Упомянуто в первом сегменте и подробно рассмотрено во втором.",
+          "confidence": 1
+        },
+        {
+          "entity": "Leap Motion",
+          "quote": "Leap Motion",
+          "explanation": "Прямо назван трекер, распознанный в посещённой инсталляции.",
+          "confidence": 1
+        }
+      ],
+      "relations": [
+        {
+          "targetId": "work:ya-obmanyvat-sebya-ne-stanu",
+          "type": "documents",
+          "evidenceQuote": "Стрим шоу:\r\nhttps://vk.com/video-194343825\\_456241218?list=b2895b0b205291331c\r\n\r\nМой номер 3 «Я обманывать себя не стану»",
+          "explanation": "Второй сегмент прямо идентифицирует авторский номер; объединённый дневник документирует его подготовку, показ и защиту. Направление — от публикации к работе.",
+          "confidence": 0.98
+        }
+      ],
+      "stages": [
+        {
+          "stage": "topic-proposal",
+          "promptVersion": "staniverse-openrouter-pilot-v5",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "59762831b91d33a41cf10c4ac079b88af4fd42c9988407c726e482954b604d0e",
+            "7ad80a26f3982a698e2a663048e841855b90dd3854f3b1a374e642cff30c3cdb"
+          ]
+        },
+        {
+          "stage": "relation-proposal",
+          "promptVersion": "staniverse-openrouter-relations-v3",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "5e9bce6a6a3849461d4ce0b13a28623360403c742445a6b802b4fcb4f1701f3e",
+            "04b5931c92875849b1a1d974eb09cb4815a84ecc79ef794f4c1027eb0cd56ef6"
+          ]
+        }
+      ],
+      "resultHash": "563252a39ed4652cfe182c14e13a6adbdaf755c9f0b4d092b9514ad8be9f1599"
+    },
+    {
+      "id": "publication:telegram:staniverse:974",
+      "sourceHash": "bbb9ec51b9c90ee566c5066191cb3e999dbeb375b4abfba28050a082c54e6280",
+      "fileBodyHash": "747cfc40e758d17ad6d81462bdc97fdefe3435736652491640c92153038b57b0",
+      "summary": "Автор описывает собственные эксперименты с OpenClaw: выбор моделей и тарифов, интеграции через MCP и API, голосовые команды, синхронизацию заметок и ограничения автономных действий. Практический опыт отделён от планов более удобного умного дома с локальными моделями и дальнейшего использования Obsidian.",
+      "topics": [
+        "ai",
+        "llm",
+        "agents-automation",
+        "iot",
+        "open-source"
+      ],
+      "topicEvidence": [
+        {
+          "topicId": "ai",
+          "quote": "Из опыта с Openclaw",
+          "explanation": "Развёрнутый раздел посвящён практическому использованию персонального ИИ-агента.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "llm",
+          "quote": "Kimi K2.5 таки показалась проще, чем GLM 4.7/Z.ai.",
+          "explanation": "Сравнение языковых моделей продолжается обсуждением лимитов, стоимости и маршрутизации запросов.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "agents-automation",
+          "quote": "Напомню, оно умеет ходить в MCP и по документации к API какого-то сервиса интегрироваться. И делает это фоном.",
+          "explanation": "Описаны интеграции и фоновые действия агента, а не только диалог.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "iot",
+          "quote": "Как-то вот хочется нормальный правда умный дом с Home Assistant и своими LLM\\`ками под капотом.",
+          "explanation": "На фоне опыта с таймером Алисы и носимыми устройствами автор формулирует план домашней автоматизации.",
+          "confidence": 0.98
+        },
+        {
+          "topicId": "open-source",
+          "quote": "Syncthing. Он бесплатный, опен-сорс и сможет это делать внутри Tailscale-сети.",
+          "explanation": "Открытость инструмента синхронизации указана прямо вместе с его ролью.",
+          "confidence": 0.99
+        }
+      ],
+      "entities": [
+        {
+          "entity": "OpenClaw",
+          "quote": "OpenClaw",
+          "explanation": "Центральная система, чей опыт настройки и использования описан.",
+          "confidence": 1
+        },
+        {
+          "entity": "Kimi",
+          "quote": "Kimi",
+          "explanation": "Модельная линейка подробно сравнивается с альтернативами.",
+          "confidence": 1
+        },
+        {
+          "entity": "GLM",
+          "quote": "GLM",
+          "explanation": "Модельная линейка названа в опыте запуска и сравнении.",
+          "confidence": 1
+        },
+        {
+          "entity": "Syncthing",
+          "quote": "Syncthing",
+          "explanation": "Инструмент синхронизации заметок, памяти и конфигурации.",
+          "confidence": 1
+        }
+      ],
+      "relations": [
+        {
+          "targetId": "publication:telegram:staniverse:965",
+          "type": "references",
+          "evidenceQuote": "под [знаменем](https://t.me/staniverse/965) Clawdbot/MoltBot/[OpenClaw](https://openclaw.ai/)",
+          "explanation": "Источник прямо ссылается на более раннюю публикацию 965 об OpenClaw. Цель связи — отдельный пост, а не сам проект; ссылка не описывается как документирование развития проекта.",
+          "confidence": 0.98
+        }
+      ],
+      "stages": [
+        {
+          "stage": "topic-proposal",
+          "promptVersion": "staniverse-openrouter-pilot-v5",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "ad1b3452afedad899ebba1c39a2bf6d22fafcf4592af78e71d22fc87e0747cc8"
+          ]
+        },
+        {
+          "stage": "relation-proposal",
+          "promptVersion": "staniverse-openrouter-relations-v3",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "ac06008aa1a9f03c13379db7c0e26f31a32f37983e671693503c3d8e2c4479cd"
+          ]
+        }
+      ],
+      "resultHash": "d0c43c56d65d9e9ffa591f44293ee2ccdf6bde2702fd2bbb96078ca646b88b88"
+    },
+    {
+      "id": "publication:telegram:staniverse:979",
+      "sourceHash": "e3aa8f6fde306fc90a24beff9e3756d2923e1deb6c5812ef2baa5aab4fb5a67b",
+      "fileBodyHash": "40e7fe30840468d2e74be07553b387a450e5dcb8d696d2dfcbf21343acb0f8c7",
+      "summary": "Автор сравнивает Claude Code, OpenCode и Codex при агентной разработке, обсуждая понимание запросов, тарифы, лимиты и рабочие надстройки. Он получил рабочий веб-прототип на Vercel и занимался бэкендом на FastAPI, но подчёркивает, что полностью устраивающего результата тестовых задумок ещё нет.",
+      "topics": [
+        "llm",
+        "agents-automation",
+        "ai",
+        "web"
+      ],
+      "topicEvidence": [
+        {
+          "topicId": "llm",
+          "quote": "Буду сравнивать GLM, Kimi и понимающего меня с полуслова Claude с Codex.",
+          "explanation": "Сравнение моделей, их качества и ограничений является самостоятельным предметом текста.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "agents-automation",
+          "quote": "[Ralph Loop](https://github.com/snarktank/ralph) (сжигает токены по кругу, пока не выполнится условие",
+          "explanation": "Описан агентный цикл выполнения задачи с условием завершения.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "ai",
+          "quote": "Я правда получил минут за 20 рабочий proof of concept",
+          "explanation": "В контексте опыта с Claude описан конкретный результат генеративной разработки.",
+          "confidence": 0.98
+        },
+        {
+          "topicId": "web",
+          "quote": "Задачу я Codex 5.3 придумал достаточно сложную, эти два дня мы просто писали бэк на FastAPI.",
+          "explanation": "Описана фактическая разработка серверной части веб-приложения.",
+          "confidence": 0.99
+        }
+      ],
+      "entities": [
+        {
+          "entity": "Claude Code",
+          "quote": "Claude Code",
+          "explanation": "Основной сравниваемый агентный инструмент.",
+          "confidence": 1
+        },
+        {
+          "entity": "Cursor",
+          "quote": "Курсор",
+          "explanation": "Русское написание нормализовано к принятому названию IDE.",
+          "confidence": 1
+        },
+        {
+          "entity": "OpenCode",
+          "quote": "OpenCode",
+          "explanation": "Назван клиент, через который автор использовал Codex.",
+          "confidence": 1
+        },
+        {
+          "entity": "GLM-4.7",
+          "quote": "GLM-4.7",
+          "explanation": "Прямо указана версия сравниваемой модели.",
+          "confidence": 1
+        },
+        {
+          "entity": "Kimi",
+          "quote": "Kimi",
+          "explanation": "Названа в сравнении моделей.",
+          "confidence": 1
+        },
+        {
+          "entity": "Codex",
+          "quote": "Codex",
+          "explanation": "Центральный инструмент второй части экспериментов.",
+          "confidence": 1
+        },
+        {
+          "entity": "OpenAI",
+          "quote": "OpenAI",
+          "explanation": "Компания названа в контексте подписки и Codex.",
+          "confidence": 1
+        },
+        {
+          "entity": "Minimax",
+          "quote": "Minimax",
+          "explanation": "Названа в оценке альтернативных моделей и тарифов.",
+          "confidence": 1
+        },
+        {
+          "entity": "FastAPI",
+          "quote": "FastAPI",
+          "explanation": "Фреймворк фактически разрабатываемого бэкенда.",
+          "confidence": 1
+        },
+        {
+          "entity": "Vercel",
+          "quote": "Vercel",
+          "explanation": "Платформа размещения веб-прототипа.",
+          "confidence": 1
+        },
+        {
+          "entity": "Ralph Loop",
+          "quote": "Ralph Loop",
+          "explanation": "Прямо названа опробованная агентная надстройка.",
+          "confidence": 1
+        },
+        {
+          "entity": "Superpowers",
+          "quote": "Superpowers",
+          "explanation": "Прямо названа опробованная рабочая надстройка.",
+          "confidence": 1
+        }
+      ],
+      "relations": [],
+      "stages": [
+        {
+          "stage": "topic-proposal",
+          "promptVersion": "staniverse-openrouter-pilot-v5",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "f93d8ec449f9583b02c9413eb32aa146b2de6b2b9a366f2b934642d0bcf4d193"
+          ]
+        },
+        {
+          "stage": "relation-proposal",
+          "promptVersion": "staniverse-openrouter-relations-v3",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "55e070974d4940dc75e4d1c1e5c7fefae073a1134ecfdbf37bdf37685ed8f8c0"
+          ]
+        }
+      ],
+      "resultHash": "6c3379c814d382da66672f2d19b5517da5b9b03aa9ba759b61993aa81223460d"
+    },
+    {
+      "id": "publication:telegram:staniverse:985",
+      "sourceHash": "571dd8d12bc1674a657225d81b16bfc54f99014cef7e61fc8da79d206ec42075",
+      "fileBodyHash": "cc589255acc4b5dcd48495531f58f4fb2ad651fdc344d010d50c2041f9bf1914",
+      "summary": "Автор описывает наблюдение за взрослой интерактивной VR-трансляцией и разбирает её предполагаемую техническую схему: стереовидео, трекинг, API устройств Lovense и тактильную обратную связь. Техническое описание соединено с рефлексией о социальном контексте цифровой интимности и труда участницы трансляции.",
+      "topics": [
+        "xr",
+        "iot",
+        "intimate-tech",
+        "culture",
+        "video"
+      ],
+      "topicEvidence": [
+        {
+          "topicId": "xr",
+          "quote": "При переходе в режим \"Immersive experience\" браузер моего Quest 3 выдал пассивно-агрессивное «Сайт запрашивает доступ к Hand tracking».",
+          "explanation": "Описаны иммерсивный браузерный режим и пространственный ввод через трекинг рук.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "iot",
+          "quote": "Там же крутится какая-то хитрая связка с API для устройств Lovense, которая конвертирует внутреннюю валюту в механическую работу поршня на другом конце еthernet-провода.",
+          "explanation": "Рассматривается связь сетевого сервиса с физическим исполнительным устройством.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "intimate-tech",
+          "quote": "Когда устройство срабатывает у модели, вибрируют контроллеры и у тебя. Полный дуплекс.",
+          "explanation": "В контексте взрослой трансляции описана дистанционная интимная и тактильная связь.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "culture",
+          "quote": "Человек говорит о боли социальной, пока робот причиняет ей (предположительно) удовольствие физическое. Полный рассинхрон сознания и тела, обеспеченный высокими технологиями.",
+          "explanation": "Автор развивает социальную и культурную интерпретацию технологически опосредованного опыта.",
+          "confidence": 0.98
+        },
+        {
+          "topicId": "video",
+          "quote": "Стереоскопические камеры (минимум 6K, иначе в шлеме мыло), которые где-то как-то сшивают картинку и пропихивают этот поток через узкое горлышко домашнего интернета",
+          "explanation": "Предметно обсуждаются съёмка, сшивка стереоизображения и передача видеопотока.",
+          "confidence": 0.99
+        }
+      ],
+      "entities": [
+        {
+          "entity": "Lovense",
+          "quote": "Lovense",
+          "explanation": "Прямо названа марка устройств, чья API-интеграция обсуждается.",
+          "confidence": 1
+        },
+        {
+          "entity": "Quest 3",
+          "quote": "Quest 3",
+          "explanation": "Названа гарнитура, с которой автор наблюдал трансляцию.",
+          "confidence": 1
+        }
+      ],
+      "relations": [],
+      "stages": [
+        {
+          "stage": "topic-proposal",
+          "promptVersion": "staniverse-openrouter-pilot-v5",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "488b939862316f4b305f10a15c59d0f4828c20625b762b75a53f7e7e8ae04e7a"
+          ]
+        },
+        {
+          "stage": "relation-proposal",
+          "promptVersion": "staniverse-openrouter-relations-v3",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "d0a2c0594274850d201fe8d8a550349582fec951b5d64ab1a20d025d16f1c54c"
+          ]
+        }
+      ],
+      "resultHash": "954d2fe7e6346038302dda639d282185be5abc80a05e3884fa86c925fffccf49"
+    },
+    {
+      "id": "publication:telegram:staniverse:1000",
+      "sourceHash": "51c9aa0b678d872ba353bad5e7f3a7daf1678117ddb272634f4a9c692f7a8938",
+      "fileBodyHash": "9a4e2cb5c1c83ef223c2d86a6228d4cd3f3d3e79dbef304e0649720fd4f1eabe",
+      "summary": "Автор критически разбирает проект российского закона об ИИ: требования к происхождению моделей и данных, статусам «суверенных» и «национальных» моделей, господдержке и регуляторной нагрузке. По его интерпретации, зарубежные открытые датасеты не запрещены безусловно, но могут лишать модель специального статуса и поддержки; это авторская оценка законопроекта, а не юридическое заключение.",
+      "topics": [
+        "ai",
+        "llm",
+        "open-source"
+      ],
+      "topicEvidence": [
+        {
+          "topicId": "ai",
+          "quote": "Об основах государственного регулирования сфер применения технологий искусственного интеллекта в Российской Федерации",
+          "explanation": "Прямой предмет разбора — регулирование разработки и применения ИИ.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "llm",
+          "quote": "Только вот сегодняшние наши модели самых огромных копораций = база какого-нибудь Qwen и дообучение.",
+          "explanation": "Обсуждаются конкретная языковая модель и дообучение; цитата передаёт авторское утверждение, не подтверждая его независимо.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "open-source",
+          "quote": "Да, речь идёт не про прямой запрет open-source, но про то, что делает его экономически невыгодным.",
+          "explanation": "Автор прямо обсуждает предполагаемые экономические последствия для открытых решений, отличая их от запрета.",
+          "confidence": 0.99
+        }
+      ],
+      "entities": [
+        {
+          "entity": "DeepSeek",
+          "quote": "DeepSeek",
+          "explanation": "Модель прямо названа в примере ограничений ответов.",
+          "confidence": 1
+        },
+        {
+          "entity": "Гигачат",
+          "quote": "Гигачат",
+          "explanation": "Прямо назван продукт в обсуждении российских моделей.",
+          "confidence": 1
+        },
+        {
+          "entity": "Яндекс.ГПТ",
+          "quote": "Яндекс.ГПТ",
+          "explanation": "Сохранено принятое название модели из источника.",
+          "confidence": 1
+        },
+        {
+          "entity": "Qwen",
+          "quote": "Qwen",
+          "explanation": "Модель названа в авторском рассуждении о базах и дообучении.",
+          "confidence": 1
+        },
+        {
+          "entity": "Сбер",
+          "quote": "Сбер",
+          "explanation": "Компания прямо названа в обсуждении требований к моделям.",
+          "confidence": 1
+        },
+        {
+          "entity": "Т-Банк",
+          "quote": "Т-Банка",
+          "explanation": "Название банка приведено к именительному падежу.",
+          "confidence": 1
+        },
+        {
+          "entity": "Эльбрусы",
+          "quote": "Эльбрусах",
+          "explanation": "Принятое название вычислительной платформы приведено к форме сущности.",
+          "confidence": 1
+        },
+        {
+          "entity": "NVIDIA",
+          "quote": "NVIDIA",
+          "explanation": "Компания названа в обсуждении вычислительного оборудования.",
+          "confidence": 1
+        },
+        {
+          "entity": "Huawei",
+          "quote": "Huawei",
+          "explanation": "Компания названа в обсуждении вычислительного оборудования.",
+          "confidence": 1
+        },
+        {
+          "entity": "Алиса",
+          "quote": "Алисой",
+          "explanation": "Название голосового помощника приведено к именительному падежу.",
+          "confidence": 1
+        },
+        {
+          "entity": "GitHub",
+          "quote": "GH/HF",
+          "explanation": "GH — первая из двух отдельных платформ в буквальном сокращении; объединённая сущность не сохранена.",
+          "confidence": 0.99
+        },
+        {
+          "entity": "Hugging Face",
+          "quote": "GH/HF",
+          "explanation": "HF — вторая из двух отдельных платформ в буквальном сокращении; нормализована отдельно от GitHub.",
+          "confidence": 0.99
+        }
+      ],
+      "relations": [
+        {
+          "targetId": "publication:telegram:staniverse:1001",
+          "type": "references",
+          "evidenceQuote": "[продолжение дальше](https://t.me/staniverse/1001)",
+          "explanation": "Прямая ссылка ведёт от публикации 1000 к отдельной публикации-продолжению 1001.",
+          "confidence": 1
+        }
+      ],
+      "stages": [
+        {
+          "stage": "topic-proposal",
+          "promptVersion": "staniverse-openrouter-pilot-v5",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "0737f5aa6060ec253e5256335d1712806c9bd1173930e0ef324ad64ca75f8b22"
+          ]
+        },
+        {
+          "stage": "relation-proposal",
+          "promptVersion": "staniverse-openrouter-relations-v3",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "6a5354ee94f15d24626edcb8c8eaa13abf76910452ba3352a78a3b98cb6e88e0"
+          ]
+        }
+      ],
+      "resultHash": "ff4eb89d6701216c2bc8557f9841c9c370bd0fb4b9458e325dcb66795dbed6ae"
+    },
+    {
+      "id": "publication:telegram:staniverse:1001",
+      "sourceHash": "069c8ac5a35e93c6ee7c288b5740e5018f3b1d22f4e269e109433431697c47f3",
+      "fileBodyHash": "9f95c32e44ba4c216e90e000eb49f311ce7c151990d9fe5e312fa46331d9c93c",
+      "summary": "Продолжая разбор законопроекта об ИИ, автор сопоставляет открытые модели и практики обучения с требованиями к правам на данные и происхождению материалов. Он приводит гипотетическое дообучение генератора изображений на местном культурном материале и подчёркивает, что проект закона ещё обсуждается, а его интерпретация нуждается в экспертной проверке.",
+      "topics": [
+        "ai",
+        "open-source"
+      ],
+      "topicEvidence": [
+        {
+          "topicId": "ai",
+          "quote": "вплоть до использования передовых зарубежных моделей для дистилляции их работы в свои.",
+          "explanation": "Обсуждаются методы обучения и переноса возможностей моделей; утверждение о чужой практике остаётся атрибутированным автору.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "open-source",
+          "quote": "Тем временем Китай активно использует опен-сорс (и делится своими моделями так же открыто)",
+          "explanation": "Открытость моделей и возможность их повторного использования являются основным предметом рассуждения.",
+          "confidence": 0.99
+        }
+      ],
+      "entities": [
+        {
+          "entity": "Seedance",
+          "quote": "Seedance",
+          "explanation": "Модель названа как пример в споре об обучающих данных; её имя не добавляет отдельную тему видеопродакшна.",
+          "confidence": 1
+        },
+        {
+          "entity": "Anthropic",
+          "quote": "Антропика",
+          "explanation": "Русская падежная форма нормализована к названию компании.",
+          "confidence": 1
+        },
+        {
+          "entity": "OpenClaw",
+          "quote": "OpenClaw",
+          "explanation": "Прямо назван продукт в авторском описании внедрения ИИ.",
+          "confidence": 1
+        }
+      ],
+      "relations": [
+        {
+          "targetId": "publication:telegram:staniverse:1000",
+          "type": "references",
+          "evidenceQuote": "[начало здесь](https://t.me/staniverse/1000)",
+          "explanation": "Прямая ссылка указывает назад, на публикацию 1000 с началом обсуждения.",
+          "confidence": 1
+        }
+      ],
+      "stages": [
+        {
+          "stage": "topic-proposal",
+          "promptVersion": "staniverse-openrouter-pilot-v5",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "b76c20da70d979f6b3f09dcab5e356365c03d4b7275fcd20d1598e7cf40b786c"
+          ]
+        },
+        {
+          "stage": "relation-proposal",
+          "promptVersion": "staniverse-openrouter-relations-v3",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "fb949d8ecc55373c4b64ebbf718e245620e54b100c8b79e7d1f9b35f1f689ed6"
+          ]
+        }
+      ],
+      "resultHash": "1edb5937bb822930085739b792ef674016ecc4f904e727b3a11fbd3deb30a3c3"
+    },
+    {
+      "id": "publication:telegram:staniverse:1031",
+      "sourceHash": "a584741652ec7181e271d61e4253faefd40154c6a69a7ef2bb1a9877fd9165cc",
+      "fileBodyHash": "a35b53ddf8f03c773f0c4ced9abecd0a3f7b81dc3e95d587fbf6c109f96b6dbf",
+      "summary": "Автор рассказывает о завершении Академии Somnium и выпускном в социальном VR, работе над ещё не завершённым видеогидом об ИИ-агентах и неудаче на конкурсе портфолио Art&Science ИТМО. Он разбирает собеседование, предлагает репетировать его с ChatGPT и приводит MetaVyatka и Mnemoform как проекты заявки, не утверждая готовность всех задуманных возможностей.",
+      "topics": [
+        "ai",
+        "agents-automation",
+        "social-vr",
+        "video",
+        "education",
+        "lifestyle",
+        "llm",
+        "xr"
+      ],
+      "topicEvidence": [
+        {
+          "topicId": "ai",
+          "quote": "большое видео (и текстовую версию с огромным количеством гиперссылок) про ИИ-агентов с Payoff написания своей ВКР.",
+          "explanation": "Автор содержательно описывает готовящийся материал о применении ИИ.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "agents-automation",
+          "quote": "что такое агентность и всегда ли нужна, что за харнессы и Клешнеботы, как с этим вспомнить про Obsidian.",
+          "explanation": "Агентные системы и организация их работы выделены как предмет руководства.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "social-vr",
+          "quote": "На платформе есть локация амфитеатра, где у них еженедельно проводятся встречи сообщества с разработчиками и главными.",
+          "explanation": "Описан реальный социальный формат встреч и выпускного на VR-платформе.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "video",
+          "quote": "Только за эту неделю я записывал свою голову 2 часа, посмотрел, подумал что не то и переписал половину.",
+          "explanation": "Это конкретная работа над видеопроизводством, а не просто ссылка на ролик.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "education",
+          "quote": "Вчера официально завершили второй сезон Академии Somnium, в которой поучаствовал и дошёл до конца.",
+          "explanation": "Автор документирует завершённую образовательную программу и далее обсуждает поступление.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "lifestyle",
+          "quote": "Трезво понимая, что не всегда любые приложенные усилия приводят к хорошим развязкам историй.",
+          "explanation": "Личная оценка усилий, неудачи собеседования и жизненных планов составляет самостоятельную линию текста.",
+          "confidence": 0.97
+        },
+        {
+          "topicId": "llm",
+          "quote": "ЛЛМ ещё поверх накинет и с ракурсов разных посмотрит.",
+          "explanation": "В контексте рекомендации репетировать собеседование голосовым режимом ChatGPT объясняется роль языковой модели.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "xr",
+          "quote": "И что этот опыт у него хоть и цифровой, но телесный и пространственный.",
+          "explanation": "Автор прямо раскрывает иммерсивное пространственное качество выпускного, а не только онлайн-общение.",
+          "confidence": 0.99
+        }
+      ],
+      "entities": [
+        {
+          "entity": "Somnium Space",
+          "quote": "Somnium Space",
+          "explanation": "Платформа обучения, разработки и социального выпускного.",
+          "confidence": 1
+        },
+        {
+          "entity": "ChatGPT",
+          "quote": "ChatGPT",
+          "explanation": "Сервис рекомендован для репетиции собеседования.",
+          "confidence": 1
+        },
+        {
+          "entity": "MetaVyatka",
+          "quote": "Метавятка",
+          "explanation": "Название проекта нормализовано к MetaVyatka; источник использует русскую форму в заявке.",
+          "confidence": 1
+        },
+        {
+          "entity": "Mnemoform",
+          "quote": "Mnemoform",
+          "explanation": "Второй прямо названный проект портфолио.",
+          "confidence": 1
+        },
+        {
+          "entity": "ИТМО",
+          "quote": "ИТМО",
+          "explanation": "Университет, на программу которого подавался автор.",
+          "confidence": 1
+        },
+        {
+          "entity": "Blender",
+          "quote": "Blender",
+          "explanation": "Инструмент, изучавшийся в Академии Somnium.",
+          "confidence": 1
+        },
+        {
+          "entity": "Unity",
+          "quote": "Unity",
+          "explanation": "Инструмент образовательной программы и практики автора.",
+          "confidence": 1
+        },
+        {
+          "entity": "Obsidian",
+          "quote": "Obsidian",
+          "explanation": "Приложение названо в содержании готовящегося агентного руководства.",
+          "confidence": 1
+        },
+        {
+          "entity": "YouTube",
+          "quote": "YouTube",
+          "explanation": "Площадка предполагаемой публикации видеоматериала.",
+          "confidence": 1
+        },
+        {
+          "entity": "Zoom",
+          "quote": "Zoom",
+          "explanation": "Платформа саммита, на который автор приобрёл билет.",
+          "confidence": 1
+        },
+        {
+          "entity": "Discord",
+          "quote": "Дискорде",
+          "explanation": "Русская падежная форма нормализована к названию платформы обучения.",
+          "confidence": 1
+        }
+      ],
+      "relations": [
+        {
+          "targetId": "project:metavyatka",
+          "type": "mentions",
+          "evidenceQuote": "Вот я рассказывал про проект [Метавятка](https://staniverse.xyz/lab/metavyatka).",
+          "explanation": "Проект прямо назван и связан с канонической страницей в рассказе о собеседовании; это упоминание, а не доказательство новых реализованных функций.",
+          "confidence": 0.95
+        },
+        {
+          "targetId": "project:mnemoform",
+          "type": "mentions",
+          "evidenceQuote": "Вторым (и как мне кажется более интересным для вайба программы) я подавал [Mnemoform](https://staniverse.xyz/lab/mnemoform).",
+          "explanation": "Проект прямо упомянут как часть заявки; описание исследовательского замысла не повышено до утверждения о готовой реализации.",
+          "confidence": 0.95
+        }
+      ],
+      "stages": [
+        {
+          "stage": "topic-proposal",
+          "promptVersion": "staniverse-openrouter-pilot-v5",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "c6222354931730410fd9350a897b4be1b38fc269c2c8b6f3c162aed60badba95"
+          ]
+        },
+        {
+          "stage": "relation-proposal",
+          "promptVersion": "staniverse-openrouter-relations-v3",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "49de47c7bfd27275bdb5e9f246e9a55716aeedcc814239d63a35169497f360ba"
+          ]
+        }
+      ],
+      "resultHash": "f39ec621a6111c9246fced53dcbad2e7be84841b2856d8fd962c864fa9c129d9"
+    },
+    {
+      "id": "publication:telegram:staniverse:1115",
+      "sourceHash": "d24a0768638cccc0cbcfb2545e457109cb1b400c5303dc5aa5ce413408f4b36c",
+      "fileBodyHash": "eb20012773a3e5fe6169b00d009cceb7275ba9bbf58b0cab6668a259448fd0fc",
+      "summary": "Автор документирует Nearventure — пока очень сырой прототип веб-приложения и Telegram-бота, строящего прогулочные маршруты с GPX по времени, транспорту и интересам, — и отдельный инструмент poi-toolkit для сведения открытых данных. Он описывает действующие ограничения GraphHopper и исправления OSM, а агентный сбор описаний, генерацию озвучивания, сканирование для виртуальных миров и будущий AR-интерфейс представляет как планы.",
+      "topics": [
+        "travel",
+        "web",
+        "place-heritage",
+        "open-source",
+        "culture",
+        "ai",
+        "agents-automation",
+        "xr"
+      ],
+      "topicEvidence": [
+        {
+          "topicId": "travel",
+          "quote": "Иногда хватает уехать на велике километров за двадцать, постоять у полузаброшенной церкви и посмотреть, как солнце садится в пруд у какого-то СНТ.",
+          "explanation": "Задача проекта вырастает из практики коротких местных путешествий и велопрогулок.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "web",
+          "quote": "потихоньку вайбкодился Nearventure аж в нескольких воплощениях (веб-апп и тг-бот с зачатками Mini App @nearventure\\_bot).",
+          "explanation": "Автор прямо описывает разработку веб-приложения и его интерфейсов.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "place-heritage",
+          "quote": "на Соборной площади в Слободском стоит деревянная Михайло-Архангельская церковь 1610 года",
+          "explanation": "Подробный пример объясняет проблемы сопоставления данных об объектах культурного наследия.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "open-source",
+          "quote": "Код [с доками лежит на гитхабе](https://github.com/stanleymarch/nearventure). Там же [рядом poi-toolkit для него](https://github.com/stanleymarch/poi-toolkit) (и не только)",
+          "explanation": "Код и документация опубликованы; далее автор приглашает к PR, Issues и улучшению открытых данных.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "culture",
+          "quote": "Хочется, чтобы обычная покатушка превращалась в акт гражданской науки.",
+          "explanation": "Идея раскрывается через фактическое исправление карт и совместное производство доступных знаний о местах.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "ai",
+          "quote": "Более DH-ная задача — посадить агента на LangGraph, чтобы ползал за описаниями мест по Интернетам, книгам и открытым архивам",
+          "explanation": "Описан конкретный план применения ИИ для наполнения краеведческого гида.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "agents-automation",
+          "quote": "Более DH-ная задача — посадить агента на LangGraph, чтобы ползал за описаниями мест по Интернетам, книгам и открытым архивам",
+          "explanation": "Предложена агентная цепочка поиска и сбора материалов; она не выдана за уже работающую функцию.",
+          "confidence": 0.99
+        },
+        {
+          "topicId": "xr",
+          "quote": "На сервере бы посчитались Gaussian Splat\\`ы, загрузились в мой будущий каталог и на какую-нибудь метавёрс-платформу, чтоб весь мир мог оказаться в этой локации.",
+          "explanation": "Прямо описан будущий процесс переноса сканов в виртуальные пространства, дополненный планом AR-гида.",
+          "confidence": 0.99
+        }
+      ],
+      "entities": [
+        {
+          "entity": "Nearventure",
+          "quote": "Nearventure",
+          "explanation": "Центральный документируемый проект; его прототипный статус сохранён.",
+          "confidence": 1
+        },
+        {
+          "entity": "poi-toolkit",
+          "quote": "poi-toolkit",
+          "explanation": "Отдельный прямо названный инструмент сведения данных об объектах.",
+          "confidence": 1
+        },
+        {
+          "entity": "OpenStreetMap",
+          "quote": "OSM",
+          "explanation": "Буквальная аббревиатура нормализована к названию центрального открытого картографического проекта.",
+          "confidence": 1
+        },
+        {
+          "entity": "GraphHopper",
+          "quote": "GraphHopper",
+          "explanation": "Прямо назван механизм построения маршрутов и обсуждены его ресурсные ограничения.",
+          "confidence": 1
+        }
+      ],
+      "relations": [
+        {
+          "targetId": "publication:telegram:staniverse:611",
+          "type": "references",
+          "evidenceQuote": "Я и сам писал[ про важность открытых карт](https://t.me/staniverse/611)",
+          "explanation": "Автор прямо ссылается на собственную более раннюю публикацию 611 об открытых картах; направление — от текущего источника к этому материалу.",
+          "confidence": 0.95
+        },
+        {
+          "targetId": "project:nearventure",
+          "type": "documents",
+          "evidenceQuote": "Так, когда оставались токены после рабочих и других задач, потихоньку вайбкодился Nearventure аж в нескольких воплощениях (веб-апп и тг-бот с зачатками Mini App @nearventure\\_bot). Во всех логика примерно одна: кидаете (или отмечаете) геопозицию старта, говорите, сколько у вас времени и на чём вы двигаетесь, тыкаете слои (природа, храмы, наследие) — на выходе кольцевой маршрут и GPX для навигатора.",
+          "explanation": "Статья непосредственно документирует создание, интерфейсы, работу и ограничения названного Nearventure. Описываемое состояние остаётся сырым proof-of-concept, а не готовым продуктом.",
+          "confidence": 0.95
+        }
+      ],
+      "stages": [
+        {
+          "stage": "topic-proposal",
+          "promptVersion": "staniverse-openrouter-pilot-v5",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "e43e435ba37ef3cff820d1536ea710c4ab1c3bbbc1dfdc1780ef0082e55d39de"
+          ]
+        },
+        {
+          "stage": "relation-proposal",
+          "promptVersion": "staniverse-openrouter-relations-v3",
+          "provider": "openrouter",
+          "model": "deepseek/deepseek-v4-flash",
+          "resultHashes": [
+            "2bfee9b7b3fab6d1f6b0b5eca4ebe78e4903ca99cd3043b1f7947cab0c3121f4"
+          ]
+        }
+      ],
+      "resultHash": "ef5599460a327fd315f67fe22b0867414fdd93a3df45adce5b0fc7abf9fb5ea9"
+    }
+  ]
+}

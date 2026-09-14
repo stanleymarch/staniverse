@@ -9,7 +9,7 @@ tags: ["article","ai/agents","obsidian","tools","automation","productivity","ope
 entities: []
 featured: true
 legacySource: "F:/Code/active/sverseq/content/articles/kak-ya-zaschitil-diplom-na-otlichno-s-pomoschyu-ii-agentov-i-sistemy-znaniy.md"
-relations: [{"target":"work:sistema-sbora-i-analiza-trendov-na-n8n","type":"related","evidence":"editorial","confidence":0.9},{"target":"publication:telegram:staniverse:1032","type":"documents","evidence":"editorial","confidence":1},{"target":"publication:youtube:1Q6KahaYrPA","type":"related","evidence":"editorial","confidence":1},{"target":"publication:youtube:rAzT5lcezPs","type":"related","evidence":"editorial","confidence":0.8}]
+relations: [{"target":"work:sistema-sbora-i-analiza-trendov-na-n8n","type":"related","evidence":"editorial","confidence":0.9},{"target":"publication:telegram:staniverse:1032","type":"documents","evidence":"editorial","confidence":1},{"target":"publication:youtube:1Q6KahaYrPA","type":"related","evidence":"editorial","confidence":1}]
 ---
 ## Содержание
 
@@ -319,7 +319,7 @@ LLM сама по себе ничего не помнит. На первый в�
 *Всем рекомендую залетать в чёрную дыру с VR-режимом*
 
 
-Порой удивляешься, кто залетает в эту тему. Буквально на днях [PewDiePie](https://www.youtube.com/@PewDiePie) представил [Odysseus](https://github.com/pewdiepie-archdaemon/odysseus) — собственный AI workspace с агентным harness. После публикации [видео о релизе](https://youtu.be/rAzT5lcezPs), проект всего за пару дней собрал более 30 тысяч звёзд на GitHub.
+Порой удивляешься, кто залетает в эту тему. Буквально на днях [PewDiePie](https://www.youtube.com/@PewDiePie) представил [Odysseus](https://github.com/pewdiepie-archdaemon/odysseus) — собственный AI workspace с агентным harness. После публикации [внешнего видео о релизе](https://youtu.be/rAzT5lcezPs), проект всего за пару дней собрал более 30 тысяч звёзд на GitHub.
 
 В чём идея OpenClaw и подобных проектов? У вас может быть несколько независимых агентов, каждый живёт в своей [папке](https://docs.openclaw.ai/concepts/agent-workspace). Именно файлы в этой папке собирают личность агента, и при должном подходе в комбинации с другими [источниками памяти](https://docs.openclaw.ai/concepts/memory) возникает ощущение, что он знает о вас и ваших проектах годами как никто другой.
 

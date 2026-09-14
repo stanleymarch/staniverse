@@ -5,9 +5,9 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro check && astro build",
-    "preview": "astro preview",
+    "postbuild": "node scripts/gen-og.mjs",
     "check": "astro check",
-    "test": "node --import tsx --test --test-isolation=none tests/*.test.ts",
+    "test": "node --import tsx --test tests/*.test.ts",
     "test:e2e": "playwright test",
     "telegram:import": "tsx pipeline/telegram/import-export.ts",
     "telegram:sync": "tsx pipeline/telegram/sync-export.ts",
@@ -19,7 +19,16 @@
     "enrichment:prepare": "tsx pipeline/enrichment/prepare.ts",
     "enrichment:local": "tsx pipeline/enrichment/local.ts",
     "enrichment:openai": "tsx pipeline/enrichment/openai.ts",
+    "enrichment:openrouter": "tsx pipeline/enrichment/openrouter.ts",
     "enrichment:review": "tsx pipeline/enrichment/review.ts",
+    "enrichment:relations": "tsx pipeline/enrichment/relations.ts --pilot --limit 30",
+    "enrichment:pilot-report": "tsx pipeline/enrichment/pilot-report.ts pipeline/enrichment/jobs/pilot.jsonl pipeline/enrichment/review/pilot-openrouter-with-relations.json docs/taxonomy-pilot-results.md",
+    "enrichment:accept-pilot": "tsx pipeline/enrichment/accept-pilot.ts",
+    "enrichment:prepare-full": "tsx pipeline/enrichment/prepare.ts --full",
+    "enrichment:openrouter-full": "tsx pipeline/enrichment/openrouter.ts pipeline/enrichment/jobs/full.jsonl pipeline/enrichment/review/full-openrouter.json --full",
+    "enrichment:combine": "tsx pipeline/enrichment/combine.ts",
+    "enrichment:apply-tags": "tsx pipeline/enrichment/apply-tags.ts",
+    "content:retag": "npm run enrichment:combine && npm run enrichment:apply-tags",
     "content:refresh": "npm run enrichment:local && npm run telegram:materialize",
     "audit:content": "tsx pipeline/audit.ts",
     "audit:media": "tsx pipeline/audit-media.ts",
@@ -33,12 +42,15 @@
     "astro": "latest",
     "sharp": "^0.35.3",
     "three": "latest",
-    "typescript": "latest"
+    "typescript": "latest",
+    "yaml": "^2.9.0"
   },
   "devDependencies": {
+    "@iwer/sem": "^2.4.0",
     "@playwright/test": "^1.62.1",
     "@types/node": "^26.2.0",
     "@types/three": "^0.185.4",
+    "iwer": "^2.4.0",
     "tsx": "latest"
   }
 }

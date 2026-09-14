@@ -9,7 +9,7 @@ tags: ["article","ai/llm","ai/agents","ai/companions","ai/voice","xr/avatars"]
 entities: []
 featured: true
 legacySource: "F:/Code/active/sverseq/content/articles/ii-vayfu-na-14-fevralya-instruktsiya-po-primeneniyu-i-sozdaniyu.md"
-relations: [{"target":"project:albina","type":"develops","evidence":"editorial","confidence":1},{"target":"publication:youtube:ncQ31xB3GLE","type":"related","evidence":"editorial","confidence":1},{"target":"publication:youtube:AqqQ-xNAcCw","type":"related","evidence":"editorial","confidence":0.9}]
+relations: [{"target":"project:albina","type":"develops","evidence":"editorial","confidence":1},{"target":"publication:youtube:ncQ31xB3GLE","type":"related","evidence":"editorial","confidence":1}]
 ---
 Говорят, браки заключаются на небесах. Но, похоже, скоро их начнут заключать в облачных сервисах и домашних лабораториях энтузиастов. В День святого Валентина разбираемся, как технологии предлагают решить проблему одиночества, и почему это может действительно сработать. К концу этого текста вы узнаете как собрать себе Джой из Blade Runner 2049. Ну или ИИ-агента для Web3.
 
@@ -18,6 +18,8 @@ relations: [{"target":"project:albina","type":"develops","evidence":"editorial",
 *Примечание для деловых людей: замените «виртуальная подруга» на «ИИ-ассистент» или «Нейро-сотрудник» — функционал тот же, только в строгом костюме и с фокусом на продуктивность.*
 
 У этой статьи [появилась видеоверсия](https://youtu.be/ncQ31xB3GLE).
+
+Внешнее дополнение к теме — [видео об ИИ-компаньонах](https://youtu.be/AqqQ-xNAcCw). Оно не входит в авторский архив Staniverse и приведено только в контексте этой статьи.
 
 ### Оглавление
 

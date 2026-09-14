@@ -19,7 +19,7 @@ embedUrl: "https://www.youtube.com/embed/ncQ31xB3GLE"
 channel: {"key":"staniverse","handle":"@staniverse","platform":"youtube"}
 channelId: "UCtvI-sljBnwb7ZFR8Teyd6Q"
 ownership: "verified"
-verification: {"status":"verified","reason":"allowlisted-channel-id","evidence":[{"kind":"channel-page","path":"src/content/projects/staniverse.md","url":"https://www.youtube.com/@staniverse"},{"kind":"channel-page","path":"src/content/works/prodakshn-dlya-staniverse.md","url":"https://www.youtube.com/@staniverse"}]}
+verification: {"status":"verified","reason":"allowlisted-channel-id","evidence":[{"kind":"channel-page","path":"src/content/projects/staniverse.md","url":"https://www.youtube.com/@staniverse"}]}
 relations: [{"target":"article:ai-waifu","type":"part-of","evidence":"editorial","confidence":1}]
 ---
 

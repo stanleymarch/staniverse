@@ -4,8 +4,9 @@ import type { GraphEdge, GraphNode } from "../lib/graph";
 import Base from "../layouts/Base.astro";
 import LocalGraph from "./LocalGraph.astro";
 import { hrefFor, kindLabel, projectStatus, workStatus } from "../lib/content";
-import { topicSlug } from "../lib/topics";
-import { render } from "astro:content";
+import { topicRoute } from "../lib/topics";
+import { getCollection, render } from "astro:content";
+import { getTopicDefinition, normalizeTopics } from "../lib/taxonomy";
 interface Props { entry: AnyEntry; nodes: GraphNode[]; edges: GraphEdge[]; chapters?: AnyEntry[] }
 const { entry, nodes, edges, chapters=[] } = Astro.props;
 const { Content } = await render(entry);
@@ -17,32 +18,117 @@ const publicationMeta = entry.collection === "publications" && entry.data.platfo
   sourceUrl: entry.data.sourceUrl,
 } : undefined;
 const gallery = entry.collection === "publications" && entry.data.kind !== "telegram-article" ? entry.data.media.filter((item) => item.publicPath) : [];
-const sourceTags = entry.data.sourceTags ?? entry.data.tags;
-const inferredTopics = entry.data.topics.filter((topic) => !sourceTags.includes(topic));
+const channelVideos = entry.collection === "publications" && entry.data.channel?.key ? (await getCollection("publications"))
+  .filter((video) => video.data.kind === "youtube-video" && video.data.channel?.key === entry.data.channel?.key && video.id !== entry.id && ["verified", "own"].includes(video.data.ownership ?? ""))
+  .sort((a, b) => (b.data.date?.getTime() ?? 0) - (a.data.date?.getTime() ?? 0))
+  .slice(0, 8) : [];
+const sourceTags = entry.collection === "publications" ? entry.data.sourceTags ?? [] : entry.data.sourceTags ?? entry.data.tags;
+// A topic already implied by the author's own tag is not an "automatically found" hypothesis.
+const sourceTagIds = new Set(normalizeTopics(sourceTags));
+const sourceTagLinks = sourceTags.map((tag) => ({ tag, href: topicRoute(tag) }));
+const inferredTopics = entry.data.topics
+  .filter((topic) => !sourceTagIds.has(topic))
+  .map((topic) => ({ label: getTopicDefinition(topic)?.label ?? topic, href: topicRoute(topic) }));
+const plainCopy = (value: string) => value
+  .replace(/```[\s\S]*?```/g, " ")
+  .replace(/!\[([^\]]*)\]\([^)]*\)/g, "$1")
+  .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+  .replace(/[*_>#]/g, "")
+  .replaceAll(String.fromCharCode(96), "")
+  .replace(/\s+/g, " ")
+  .trim();
+const isTelegramPublication = entry.collection === "publications" && ["telegram-post", "telegram-article"].includes(entry.data.kind);
+const summaryPrefix = plainCopy(entry.data.summary).replace(/…$/u, "").trim();
+const entities = entry.collection === "publications" ? entry.data.entities ?? [] : [];
+const entitySummary = entities.length > 1 ? `Упомянуто · ${entities[0]} и ещё ${entities.length - 1}` : entities.length === 1 ? `Упомянуто · ${entities[0]}` : "";
+const showSummary = !isTelegramPublication || !summaryPrefix || !plainCopy(entry.body ?? "").startsWith(summaryPrefix);
+const schemaType = ["youtube-video", "video"].includes(entry.data.kind)
+  ? "VideoObject"
+  : ["article", "telegram-post", "telegram-article"].includes(entry.data.kind)
+    ? "Article"
+    : "CreativeWork";
+const entryJsonLd: Record<string, unknown> = {
+  "@type": schemaType,
+  "@id": new URL(`${hrefFor(entry)}#content`, Astro.site).href,
+  url: new URL(hrefFor(entry), Astro.site).href,
+  name: entry.data.title,
+  headline: entry.data.title,
+  description: entry.data.summary,
+  inLanguage: "ru-RU",
+  author: { "@id": new URL("/#stanislav-ermolenko", Astro.site).href },
+  isPartOf: { "@id": new URL("/#website", Astro.site).href },
+  ...(entry.data.date ? { datePublished: entry.data.date.toISOString() } : {}),
+  ...(entry.data.updated ? { dateModified: entry.data.updated.toISOString() } : {}),
+  ...(entry.collection === "publications" && entry.data.thumbnailUrl ? { thumbnailUrl: entry.data.thumbnailUrl } : {}),
+  ...(entry.collection === "publications" && entry.data.embedUrl ? { embedUrl: entry.data.embedUrl } : {}),
+};
 ---
-<Base title={entry.data.title} description={entry.data.summary}>
+<Base title={entry.data.title} description={entry.data.summary} ogImage={entry.collection === "publications" ? entry.data.thumbnailUrl : undefined} jsonLd={entryJsonLd}>
   <article class="entry-shell">
     <header class="entry-hero">
       <div class="section-kicker">{kindLabel[entry.data.kind]}{status && ` · ${status}`}</div>
       <h1 class:list={{ "is-long": entry.data.title.length > 64, "is-very-long": entry.data.title.length > 105 }}>{entry.data.title}</h1>
-      <p class="entry-summary">{entry.data.summary}</p>
-      {sourceTags.length > 0 && <div class="tag-group"><span class="tag-origin">{entry.collection === "publications" ? "Теги автора" : "Темы редакции"}</span><div class="tag-row">{sourceTags.map((tag) => <a href={`/topics/${topicSlug(tag)}/`}>#{tag}</a>)}</div></div>}
-      {inferredTopics.length > 0 && <details class="auto-topics"><summary>Автоматически найденные темы · {inferredTopics.length}</summary><p>Это навигационные гипотезы, а не ручная разметка.</p><div class="tag-row is-inferred">{inferredTopics.map((topic) => <a href={`/topics/${topicSlug(topic)}/`}>{topic}</a>)}</div></details>}
+      {showSummary && <p class="entry-summary">{entry.data.summary}</p>}
+      {sourceTags.length > 0 && <div class="tag-group"><span class="tag-origin">{entry.collection === "publications" ? "Теги автора" : "Темы редакции"}</span><div class="tag-row">{sourceTagLinks.map(({ tag, href }) => href ? <a href={href}>#{tag}</a> : <span>#{tag}</span>)}</div></div>}
+      {inferredTopics.length > 0 && <details class="auto-topics"><summary>Автоматически найденные темы · {inferredTopics.length}</summary><p>Это навигационные гипотезы, а не ручная разметка.</p><div class="tag-row is-inferred">{inferredTopics.map(({ label, href }) => href ? <a href={href}>{label}</a> : <span>{label}</span>)}</div></details>}
+      {entities.length > 0 && <details class="auto-topics entity-list"><summary>{entitySummary}</summary><div class="tag-row">{entities.map((entity) => <span>{entity}</span>)}</div></details>}
       {publicationMeta && <div class="publication-facts"><span>{publicationMeta.platform}</span><span>{publicationMeta.ownership}</span><a href={publicationMeta.sourceUrl}>Открыть оригинал ↗</a></div>}
       {entry.data.kind === "work" && <dl class="work-facts">
-        <div><dt>Год</dt><dd>{entry.data.year}</dd></div>
+        {String(entry.data.year).trim().length > 0 && <div><dt>Год</dt><dd>{entry.data.year}</dd></div>}
         <div><dt>Роль</dt><dd>{entry.data.role}</dd></div>
-        <div><dt>Для кого</dt><dd>{entry.data.client ?? "Авторская / конкурсная работа"}</dd></div>
-        {entry.data.features.length > 0 && <div class="work-features"><dt>Что сделано лично</dt><dd>{entry.data.features.slice(0,6).map((feature)=><span>{feature}</span>)}</dd></div>}
+        {entry.data.client && <div><dt>Для кого</dt><dd>{entry.data.client}</dd></div>}
+        {entry.data.features.length > 0 && <div class="work-features"><dt>Что сделано лично</dt><dd>{entry.data.features.map((feature)=><span>{feature}</span>)}</dd></div>}
       </dl>}
     </header>
-    {embedUrl && <div class="video-stage"><iframe src={embedUrl} title={entry.data.title} loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>}
-    {gallery.length > 0 && <div class="media-gallery" aria-label="Медиа публикации">{gallery.map((item,index)=>item.type==="image"?<a href={item.publicPath}><img src={item.publicPath} alt={`${entry.data.title} · изображение ${index+1}`} loading={index>0?"lazy":"eager"} decoding="async" /></a>:item.type==="video"?<video controls preload="metadata" src={item.publicPath}>Видео из публикации</video>:item.type==="audio"?<audio controls preload="metadata" src={item.publicPath}>Аудио из публикации</audio>:<a class="media-document" href={item.publicPath}>Открыть документ ↗</a>)}</div>}
+    {embedUrl && entry.collection === "publications" && entry.data.kind === "youtube-video" && entry.data.thumbnailUrl && (
+      <div class="video-stage" data-video-stage data-embed={embedUrl} data-title={entry.data.title}>
+        <button type="button" class="video-poster" data-video-play aria-label={`Смотреть: ${entry.data.title}`}>
+          <img src={entry.data.thumbnailUrl} alt="" loading="eager" decoding="async" />
+          <span class="video-poster-play" aria-hidden="true">▶</span>
+        </button>
+      </div>
+    )}
+    {embedUrl && !(entry.collection === "publications" && entry.data.kind === "youtube-video" && entry.data.thumbnailUrl) && <div class="video-stage"><iframe src={embedUrl} title={entry.data.title} loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>}
+    {channelVideos.length > 0 && <section class="channel-gallery" aria-labelledby="channel-gallery-title"><h2 id="channel-gallery-title">Ещё видео канала</h2><div class="channel-gallery-grid">{channelVideos.map((video) => <a href={hrefFor(video)}><img src={video.data.thumbnailUrl} alt="" loading="lazy" decoding="async" width="320" height="180" /><strong>{video.data.title}</strong></a>)}</div></section>}
+    {gallery.length > 0 && <div class="media-gallery" aria-label="Медиа публикации">{gallery.map((item,index)=>item.type==="image"?<a href={item.publicPath}><img src={item.publicPath} alt={`${entry.data.title} · изображение ${index+1}`} loading={index>0?"lazy":"eager"} decoding="async" /></a>:item.type==="video"?<video controls playsinline preload="metadata" src={item.publicPath}>Видео из публикации</video>:item.type==="audio"?<audio controls preload="metadata" src={item.publicPath}>Аудио из публикации</audio>:<a class="media-document" href={item.publicPath}>Открыть документ ↗</a>)}</div>}
     <div class="entry-grid">
       <div class="prose"><Content />
         {chapters.length>0&&<section class="project-chapters" aria-labelledby="project-chapters-title"><h2 id="project-chapters-title">Главы и результаты проекта</h2><p>Материалы собраны здесь в контексте собственной инициативы, а не среди заказных работ.</p><div>{chapters.map((chapter)=><a href={hrefFor(chapter)}><small>{chapter.data.kind==="work"?chapter.data.year:""}</small><strong>{chapter.data.title}</strong><span>{chapter.data.summary}</span></a>)}</div></section>}
       </div>
       <LocalGraph currentId={entry.data.id} nodes={nodes} edges={edges} />
     </div>
+<script>
+  document.querySelectorAll<HTMLElement>("[data-video-stage]").forEach((stage) => {
+    const play = stage.querySelector<HTMLButtonElement>("[data-video-play]");
+    if (!play) return;
+    play.addEventListener("click", () => {
+      const url = new URL(stage.dataset.embed ?? "", location.origin);
+      url.searchParams.set("autoplay", "1");
+      const iframe = document.createElement("iframe");
+      iframe.src = url.toString();
+      iframe.title = stage.dataset.title ?? "Видео";
+      iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+      iframe.allowFullscreen = true;
+      stage.replaceChildren(iframe);
+      iframe.focus();
+    }, { once: true });
+  });
+</script>
+
+<style>
+  .video-poster { position: relative; display: block; width: 100%; padding: 0; border: 0; background: #05070d; cursor: pointer; }
+  .video-poster img { display: block; width: 100%; height: auto; opacity: .92; }
+  .video-poster:hover img, .video-poster:focus-visible img { opacity: 1; }
+  .video-poster-play { position: absolute; top: 50%; left: 50%; display: grid; place-items: center; width: 4.2rem; height: 4.2rem; border: 2px solid rgba(255, 255, 255, .85); border-radius: 50%; background: rgba(5, 7, 13, .55); color: #fff; font-size: 1.3rem; transform: translate(-50%, -50%); transition: transform .2s ease, background .2s ease; }
+  .video-poster:hover .video-poster-play, .video-poster:focus-visible .video-poster-play { transform: translate(-50%, -50%) scale(1.08); background: rgba(100, 223, 244, .35); }
+  .channel-gallery { max-width: 980px; margin: 2.5rem 0 0; }
+  .channel-gallery h2 { margin: 0 0 1rem; font: 500 1.2rem Unbounded; }
+  .channel-gallery-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; }
+  .channel-gallery-grid a { min-width: 0; color: inherit; }
+  .channel-gallery-grid img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border: 1px solid var(--line); }
+  .channel-gallery-grid strong { display: block; margin-top: .45rem; font-size: .82rem; font-weight: 500; line-height: 1.35; overflow-wrap: anywhere; }
+  .channel-gallery-grid a:hover img, .channel-gallery-grid a:focus-visible img { border-color: var(--accent); }
+  @media (max-width: 900px) { .channel-gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+</style>
   </article>
 </Base>

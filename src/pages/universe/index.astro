@@ -2,86 +2,14 @@
 import Base from "../../layouts/Base.astro";
 import { allEntries } from "../../lib/content";
 import { buildGraph } from "../../lib/graph";
+import UniverseScene from "../../components/universe/UniverseScene.astro";
 import "../../styles/universe.css";
 
 const graph = buildGraph(await allEntries());
 ---
 
-<Base title="Вселенная" immersive>
-  <section class="universe-page" data-universe data-graph={JSON.stringify(graph)}>
-    <canvas
-      class="universe-canvas"
-      tabindex="0"
-      aria-label="Пространственный граф связей Staniverse"
-      aria-describedby="universe-help"
-    ></canvas>
-
-    <div class="universe-ui">
-      <header class="universe-top">
-        <a class="universe-logo" href="/" aria-label="Вернуться на главную">← staniverse</a>
-        <div class="universe-actions" data-universe-actions>
-          <label class="node-search">
-            <span class="sr-only">Найти узел</span>
-            <input data-node-search type="search" list="universe-nodes" placeholder="Найти узел…" autocomplete="off" />
-          </label>
-          <datalist id="universe-nodes">
-            {graph.nodes.map((node) => <option value={node.title} />)}
-          </datalist>
-          <button class="icon-button" type="button" data-history-back disabled>Назад</button>
-          <button class="icon-button" type="button" data-reset>Сбросить фокус</button>
-          <button class="icon-button" type="button" data-sound aria-pressed="false">Звук: выкл</button>
-          <span class="xr-status" data-xr-status>Проверяю XR…</span>
-          <span class="xr-status xr-status-vr" data-xr-vr-status>VR — проверка</span>
-          <span class="xr-status xr-status-ar" data-xr-ar-status>AR — проверка</span>
-        </div>
-      </header>
-
-      <section class="universe-intro" data-intro>
-        <div class="section-kicker">пространственный режим</div>
-        <h1>Летай между идеями</h1>
-        <p id="universe-help">
-          Вращай поле мышью или пальцем, приближай колесом. Выбирай узлы с клавиатуры и открывай соседние связи.
-          Белые центры — темы, линии с точками — тематические связи, тонкие линии — подтверждённые упоминания.
-        </p>
-        <div class="universe-legend" aria-label="Легенда графа">
-          <span class="legend-node legend-work">работы</span>
-          <span class="legend-node legend-project">проекты</span>
-          <span class="legend-node legend-article">статьи</span>
-          <span class="legend-node legend-publication">публикации</span>
-          <span class="legend-node legend-topic">темы</span>
-          <span class="legend-edge legend-edge-evidence">упоминание</span>
-          <span class="legend-edge legend-edge-topic">тема</span>
-          <span class="legend-edge legend-edge-causal">привело к / развивает</span>
-        </div>
-      </section>
-
-      <aside class="node-card" data-node-card aria-label="Выбранный узел" aria-live="polite" hidden>
-        <div class="section-kicker" data-node-kind></div>
-        <h2 data-node-title></h2>
-        <div class="tag-row" data-node-tags></div>
-        <div class="node-neighbors" data-node-neighbors>
-          <div class="node-neighbors-title">Связи рядом</div>
-          <div class="node-neighbor-list" data-node-neighbor-list></div>
-        </div>
-        <div class="node-evidence" data-node-evidence hidden>
-          <div class="node-neighbors-title">Основания связей</div>
-          <div class="node-evidence-list" data-node-evidence-list></div>
-        </div>
-        <a class="node-link" data-node-link>Открыть материал <span aria-hidden="true">↗</span></a>
-      </aside>
-
-      <details class="universe-fallback">
-        <summary>Открыть список узлов</summary>
-        <p>Доступная версия карты без 3D. Выберите материал, чтобы перейти к его связям.</p>
-        <ol class="universe-node-list" data-node-list>
-          {graph.nodes.map((node) => (
-            <li><button type="button" data-node-id={node.id}>{node.title}</button><span>{node.kind === "topic" ? "тема" : node.kind}</span></li>
-          ))}
-        </ol>
-      </details>
-      <div class="universe-announcer sr-only" data-announcer aria-live="polite" aria-atomic="true"></div>
-    </div>
-  </section>
+<Base title="Вселенная" description="Интерактивная 3D-карта связей между работами, проектами, темами и публикациями Станислава Ермоленко. Экранный, VR- и AR-режимы." immersive>
+  <UniverseScene {graph} />
 </Base>
 
 <script>

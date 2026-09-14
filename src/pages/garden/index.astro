@@ -1,22 +1,208 @@
 ---
 import Base from "../../layouts/Base.astro";
 import { getCollection } from "astro:content";
-import { hrefFor, kindLabel } from "../../lib/content";
+import { allEntries, hrefFor, kindLabel } from "../../lib/content";
+import { buildGraph } from "../../lib/graph";
 import { collectTopics, topicSlug } from "../../lib/topics";
 import { normalizeTopics, getTopicDefinition, topicRelations } from "../../lib/taxonomy";
-import { isCommissionedWork } from "../../lib/canonical";
 import "../../styles/garden.css";
-const entries=[...await getCollection("articles"),...await getCollection("publications"),...await getCollection("projects"),...(await getCollection("works")).filter(isCommissionedWork)].filter((entry)=>entry.id!=="manifesto"&&(entry.collection!=="publications"||!["video","youtube-video"].includes(entry.data.kind)||entry.data.ownership==="verified"||entry.data.ownership==="own")).sort((a,b)=>(b.data.date?.getTime()??b.data.updated?.getTime()??0)-(a.data.date?.getTime()??a.data.updated?.getTime()??0));
-const topics=collectTopics(entries,true);
-const records=entries.map((entry)=>({id:entry.data.id,href:hrefFor(entry),title:entry.data.title,summary:entry.data.summary,kind:entry.data.kind,kindLabel:kindLabel[entry.data.kind],date:entry.data.date?.toISOString()??"",topics:normalizeTopics([...entry.data.tags,...entry.data.topics]).map((id)=>{const label=getTopicDefinition(id)?.label??id;const routes=topicRelations(id);return{id,label,origin:normalizeTopics(entry.data.sourceTags??entry.data.tags).includes(id)?"source":"automatic",href:`/topics/${topicSlug(label)}/`,related:[...routes.related,...routes.companions]}}),media:entry.collection==="publications"?entry.data.media.length:0,thumbnail:entry.collection==="publications"?entry.data.thumbnailUrl:undefined,channelKey:entry.collection==="publications"?entry.data.channel?.key:undefined,channelLabel:entry.collection==="publications"&&entry.data.channel?.key==="ya-ty-gorod"?"я.ты.город.":entry.collection==="publications"&&entry.data.channel?.key==="staniverse"?"Staniverse":undefined,relations:entry.data.relations.map((relation)=>({target:relation.target,type:relation.type,evidence:relation.evidence,confidence:relation.confidence,provenance:relation.provenance,reviewStatus:relation.reviewStatus}))}));
+
+const included = [...await getCollection("articles"), ...await getCollection("publications"), ...await getCollection("projects"), ...await getCollection("works")]
+  .filter((entry) => entry.id !== "manifesto" && (entry.collection !== "publications" || !["video", "youtube-video"].includes(entry.data.kind) || entry.data.ownership === "verified" || entry.data.ownership === "own"))
+  .sort((a, b) => (b.data.date?.getTime() ?? b.data.updated?.getTime() ?? 0) - (a.data.date?.getTime() ?? a.data.updated?.getTime() ?? 0));
+const topics = collectTopics(included, true);
+const projects = new Map(included.filter((entry) => entry.collection === "projects").map((entry) => [entry.data.id, entry.data.title]));
+
+/** One canonical edge source for the whole site: the same accepted-relation
+ * rules as local graphs and Universe, validated against the full corpus. */
+const graph = await buildGraph(await allEntries());
+const includedIds = new Set(included.map((entry) => entry.data.id));
+const relationsByRecord = new Map<string, { target: string; type: string; evidence: string; confidence: number; provenance?: unknown; reviewStatus?: string; status?: string }[]>();
+for (const edge of graph.edges) {
+  if (edge.evidence === "topic") continue;
+  const forward = includedIds.has(edge.source) && includedIds.has(edge.target);
+  if (!forward) continue;
+  const push = (id: string, other: string) => {
+    const list = relationsByRecord.get(id) ?? [];
+    list.push({ target: other, type: edge.type, evidence: edge.evidence, confidence: edge.confidence, provenance: edge.provenance, reviewStatus: edge.reviewStatus, status: edge.status });
+    relationsByRecord.set(id, list);
+  };
+  push(edge.source, edge.target);
+  push(edge.target, edge.source);
+}
+
+/** Preserve raw hashtags as provenance, but keep known prompt/code debris out of the public facet. */
+const noisySourceTags = new Set(["instructions", "answering"]);
+const validSourceTag = (value: unknown): value is string => {
+  if (typeof value !== "string") return false;
+  const tag = value.trim();
+  return tag.length > 1 && !tag.startsWith("-") && !/^\d+$/.test(tag) && !noisySourceTags.has(tag.toLocaleLowerCase("ru-RU")) && !/[{}\[\]`]/.test(tag);
+};
+const sourceTagCounts = new Map<string, number>();
+
+const records = included.map((entry) => {
+  const sourceTags = [...(entry.data.sourceTags ?? (entry.collection === "publications" ? [] : entry.data.tags ?? []))].filter(validSourceTag).map((value) => value.trim());
+  sourceTags.forEach((value) => sourceTagCounts.set(value, (sourceTagCounts.get(value) || 0) + 1));
+  return {
+    id: entry.data.id,
+    href: hrefFor(entry),
+    title: entry.data.title,
+    summary: entry.data.summary,
+    kind: entry.data.kind,
+    kindLabel: kindLabel[entry.data.kind],
+    date: entry.data.date?.toISOString() ?? "",
+    sourceTags,
+    entities: entry.data.entities,
+    topics: normalizeTopics([...entry.data.tags, ...entry.data.topics]).map((id) => {
+      const label = getTopicDefinition(id)?.label ?? id;
+      const routes = topicRelations(id);
+      return { id, label, origin: normalizeTopics(entry.data.sourceTags ?? entry.data.tags).includes(id) ? "source" : "automatic", href: `/topics/${topicSlug(label)}/`, related: [...routes.related, ...routes.companions] };
+    }),
+    media: entry.collection === "publications" ? entry.data.media.length : 0,
+    thumbnail: entry.collection === "publications" ? entry.data.thumbnailUrl : undefined,
+    channelKey: entry.collection === "publications" ? entry.data.channel?.key : undefined,
+    channelLabel: entry.collection === "publications" && entry.data.channel?.key === "ya-ty-gorod" ? "я.ты.город." : entry.collection === "publications" && entry.data.channel?.key === "staniverse" ? "Staniverse" : undefined,
+    relations: relationsByRecord.get(entry.data.id) ?? [],
+    projectIds: [] as string[],
+  };
+});
+
+/** Project facet contract: accepted/confirmed inter-entity edges in both directions,
+ * topic context excluded. Migrated editorial edges without a review status count as accepted. */
+const isFacetRelation = (relation: { target: string; evidence?: string; reviewStatus?: string; status?: string }) => {
+  const status = relation.reviewStatus ?? relation.status;
+  return (!status || ["accepted", "confirmed"].includes(status)) && relation.evidence !== "topic";
+};
+const projectIdsByRecord = new Map<string, Set<string>>();
+const linkProject = (recordId: string, projectId: string) => {
+  const ids = projectIdsByRecord.get(recordId) ?? new Set<string>();
+  ids.add(projectId);
+  projectIdsByRecord.set(recordId, ids);
+};
+for (const record of records) {
+  for (const relation of record.relations) {
+    if (!isFacetRelation(relation) || typeof relation.target !== "string" || !projects.has(relation.target)) continue;
+    linkProject(record.id, relation.target);
+    // A project documents/develops edge makes the material part of the project facet too.
+    linkProject(relation.target, relation.target);
+  }
+}
+for (const record of records) record.projectIds = [...(projectIdsByRecord.get(record.id) ?? [])];
+const relationProjects = [...projectIdsByRecord.keys()].filter((id) => projects.has(id)).map((id) => ({ id, title: projects.get(id) as string }));
+
+const formatDate = (value: string) => (value ? new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "short", year: "numeric" }).format(new Date(value)) : "");
+/** Counts are shown in Russian, so 1/2/5 must not read as "1 материалов". */
+const materialForms: Record<string, string> = { one: "материал", few: "материала", many: "материалов" };
+const pluralRules = new Intl.PluralRules("ru-RU");
+const materials = (count: number) => `${count} ${materialForms[pluralRules.select(count)] ?? "материалов"}`;
+/** Server-rendered first page: real links without JavaScript, replaced by the client on load. */
+const initialRecords = records.slice(0, 24);
+const sourceTags = [...sourceTagCounts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "ru"));
+const entries = included;
+/** Topic constellation: the visual face of the garden. Size follows real
+ * coverage (log scale over material counts), so the cloud shows the actual
+ * shape of the archive instead of a flat A-Z facet list. */
+const maxCount = Math.max(...topics.map((topic) => topic.entries.length), 1);
+const cloudTopics = [...topics].sort((a, b) => b.entries.length - a.entries.length).map((topic, index) => ({
+  ...topic,
+  size: Number((0.88 + 0.62 * (Math.log(topic.entries.length || 1) / Math.log(maxCount))).toFixed(3)),
+  tier: index < 3 ? "lead" : topic.entries.length >= maxCount / 4 ? "major" : "minor",
+}));
 ---
-<Base title="Сад опыта">
+<Base title="Сад опыта" description="Цифровой сад Станислава Ермоленко: каталог публикаций, статей и видео об AI, XR, вебе, медиа, культуре и технологиях — с темами, фильтрами и картой связей.">
   <div class="garden-page">
   <header class="garden-hero"><div><div class="section-kicker">Публичная память</div><h1>Сад</h1><p>Каталог опыта: публикации, статьи, видео и цепочки мыслей, связанные с темами и живыми проектами.</p></div><div class="garden-search-wrap"><label for="garden-search">Поиск по материалам</label><input id="garden-search" type="search" placeholder="Тема, проект, технология…" autocomplete="off" data-garden-search /></div></header>
-  <div class="garden-mode" role="group" aria-label="Режим сада"><button type="button" data-garden-mode="feed">Лента</button><button type="button" class="active" data-garden-mode="catalog">Каталог</button><button type="button" data-garden-mode="map">Карта</button><button type="button" class="garden-filter-toggle" data-filter-toggle aria-expanded="false">Фильтры</button></div>
+  <section class="garden-cloud" aria-labelledby="garden-cloud-title">
+    <div class="garden-cloud-head"><span class="section-kicker">Созвездие тем</span><h2 id="garden-cloud-title">Чем наполнен сад</h2><p>Размер темы — это число размеченных материалов. Фильтры ниже уточняют выбор, а не заменяют обзор.</p></div>
+    <nav class="garden-cloud-nav" aria-label="Темы сада">
+      {cloudTopics.map((topic) => <a href={`/topics/${topic.slug}/`} class={`is-${topic.tier}`} style={`--topic-size:${topic.size}`} aria-label={`${topic.name}: ${materials(topic.entries.length)}`}>{topic.name}<small>{topic.entries.length}</small></a>)}
+    </nav>
+  </section>
+  <nav class="garden-mode" aria-label="Вид и сортировка материалов">
+    <span class="garden-mode-label">Показать</span>
+    <button type="button" aria-pressed="true" data-garden-mode="catalog">Каталог</button>
+    <button type="button" aria-pressed="false" data-garden-mode="feed">Лента</button>
+    <button type="button" aria-pressed="false" data-garden-mode="map">Карта</button>
+    <span class="garden-mode-spacer"></span>
+    <label class="garden-sort">По дате
+      <select data-garden-sort>
+        <option value="newest">Сначала новые</option>
+        <option value="oldest">Сначала старые</option>
+      </select>
+    </label>
+    <button type="button" class="garden-filter-toggle" data-filter-toggle aria-expanded="false" aria-controls="garden-facets">Фильтры</button>
+  </nav>
   <div class="garden-layout">
-    <aside class="garden-facets" data-garden-facets><div class="garden-facet-head"><strong>Фильтры</strong><button type="button" data-garden-reset>Сбросить</button></div><fieldset><legend>Тип материала</legend><label><input type="checkbox" value="project" data-kind-filter /> Собственные проекты</label><label><input type="checkbox" value="work" data-kind-filter /> Работы для других</label><label><input type="checkbox" value="telegram-post" data-kind-filter /> Посты Telegram</label><label><input type="checkbox" value="telegram-article" data-kind-filter /> Статьи Telegram</label><label><input type="checkbox" value="article" data-kind-filter /> Авторские статьи</label><label><input type="checkbox" value="youtube-video" data-kind-filter /> Проверенные видео</label></fieldset><fieldset><legend>Авторские каналы</legend><label><input type="checkbox" value="staniverse" data-channel-filter /> YouTube Staniverse</label><label><input type="checkbox" value="ya-ty-gorod" data-channel-filter /> YouTube я.ты.город.</label></fieldset><fieldset><legend>Темы</legend><div class="garden-topic-options">{topics.map((topic)=><label><input type="checkbox" value={topic.id} data-topic-filter /><span>{topic.name}</span><small>{topic.entries.length}</small></label>)}</div></fieldset><fieldset><legend>Медиа</legend><label><input type="checkbox" value="with-media" data-media-filter /> Только с медиа</label></fieldset></aside>
-    <main class="garden-results" aria-live="polite"><div class="garden-result-head"><p data-result-count>{entries.length} материалов</p><p data-active-filters>Все темы и форматы</p></div><div class="garden-list" data-garden-list></div><div class="garden-empty" data-garden-empty hidden>Ничего не найдено. Уберите часть фильтров или измените запрос.</div><button class="garden-more" type="button" data-garden-more>Показать ещё</button></main>
+    <aside class="garden-facets" id="garden-facets" aria-label="Фильтры" data-garden-facets>
+      <div class="garden-facet-head">
+        <strong>Фильтры</strong>
+        <button type="button" data-garden-reset>Сбросить</button>
+        <button type="button" class="garden-filter-close" data-filter-close>Закрыть ×</button>
+      </div>
+      <fieldset>
+        <legend>Тип материала</legend>
+        <label><input type="checkbox" value="project" data-kind-filter /> Собственные проекты</label>
+        <label><input type="checkbox" value="work" data-kind-filter /> Работы</label>
+        <label><input type="checkbox" value="telegram-post" data-kind-filter /> Посты Telegram</label>
+        <label><input type="checkbox" value="telegram-article" data-kind-filter /> Статьи Telegram</label>
+        <label><input type="checkbox" value="article" data-kind-filter /> Авторские статьи</label>
+        <label><input type="checkbox" value="youtube-video" data-kind-filter /> Видео</label>
+      </fieldset>
+      <fieldset>
+        <legend>Авторские каналы</legend>
+        <label><input type="checkbox" value="staniverse" data-channel-filter /> YouTube Staniverse</label>
+        <label><input type="checkbox" value="ya-ty-gorod" data-channel-filter /> YouTube я.ты.город.</label>
+      </fieldset>
+      <fieldset>
+        <legend>Темы</legend>
+        <div class="garden-topic-options">{topics.map((topic) => <label><input type="checkbox" value={topic.id} data-topic-filter /><span>{topic.name}</span><small>{topic.entries.length}</small></label>)}</div>
+      </fieldset>
+      <fieldset>
+        <legend>Исходные теги</legend>
+        <input type="search" class="garden-source-search" data-source-tag-search placeholder="Найти тег…" autocomplete="off" aria-label="Поиск по исходным тегам" />
+        <div class="garden-source-options">{sourceTags.map(([tag, count]) => <label data-source-tag-label={tag}><input type="checkbox" value={tag} data-source-tag-filter /><span>{tag}</span><small>{count}</small></label>)}</div>
+        <p class="garden-source-empty" data-source-tag-empty hidden>Теги не найдены.</p>
+      </fieldset>
+      {relationProjects.length > 0 && <fieldset>
+        <legend>Связанный проект</legend>
+        <div class="garden-project-options">{relationProjects.map((project) => <label><input type="checkbox" value={project.id} data-project-filter /><span>{project.title}</span></label>)}</div>
+      </fieldset>}
+      <fieldset>
+        <legend>Медиа</legend>
+        <label><input type="checkbox" value="with-media" data-media-filter /> Только с медиа</label>
+      </fieldset>
+      <div class="garden-facet-actions">
+        <p data-facet-count>{materials(entries.length)}</p>
+        <button type="button" class="garden-facet-apply" data-filter-apply>Показать материалы</button>
+      </div>
+    </aside>
+    <section class="garden-results" aria-label="Материалы сада">
+      <div class="garden-result-head">
+        <p data-result-count role="status" tabindex="-1">{materials(entries.length)}</p>
+        <p data-active-filters>Все темы и форматы</p>
+      </div>
+      <div class="garden-list" data-garden-list>
+        {initialRecords.map((record) => (
+          <a class={`garden-row${record.thumbnail ? " has-thumbnail" : ""}`} href={record.href}>
+            <div class="garden-row-meta">
+              {record.thumbnail && <img class="garden-row-thumbnail" src={record.thumbnail} alt="" loading="lazy" width="320" height="180" />}
+              <span>{record.channelLabel || record.kindLabel}</span>
+            </div>
+            <div class="garden-row-body">
+              <h2>{record.title}</h2>
+              <p>{record.summary}</p>
+              <div class="garden-row-topics">{record.topics.slice(0, 4).map((topic) => <span class={topic.origin === "automatic" ? "is-automatic" : "is-source"}>{topic.label}</span>)}</div>
+            </div>
+            <time class="garden-row-date" datetime={record.date}>{formatDate(record.date)}</time>
+          </a>
+        ))}
+      </div>
+      <div class="garden-empty" data-garden-empty hidden>
+        <p><strong>Ничего не найдено.</strong> Уберите часть фильтров или измените запрос.</p>
+        <button class="button primary" type="button" data-garden-reset>Сбросить фильтры</button>
+      </div>
+      <button class="garden-more" type="button" data-garden-more>Показать ещё</button>
+    </section>
     <aside class="garden-map-panel" data-garden-map hidden><div class="section-kicker">Карта контекста</div><h2>Связи выбранного набора</h2><p>Сплошные линии означают доказанные связи. Пунктиром показаны тематические и смысловые рекомендации.</p><p class="garden-map-pan-hint">Проведите по карте, чтобы увидеть остальные узлы.</p><div class="garden-map-viewport" tabindex="0" aria-label="Панорамная область карты"><svg class="garden-map-svg" data-garden-map-svg viewBox="0 0 800 560" role="img" aria-label="Граф отфильтрованных материалов"></svg></div><ol class="garden-map-list" data-garden-map-list aria-label="Материалы на карте"></ol><p class="garden-map-note">Выберите материал, чтобы открыть его локальный граф. Для пространственного путешествия существует отдельная Вселенная.</p></aside>
   </div>
   <script is:inline type="application/json" id="garden-records" set:html={JSON.stringify(records).replace(/</g,"\\u003c")} />
