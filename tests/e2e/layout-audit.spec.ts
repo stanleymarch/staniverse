@@ -20,8 +20,11 @@ const routes = [
 
 for (const route of routes) {
   test(`layout geometry remains readable: ${route}`, async ({ page }, testInfo) => {
-    await page.goto(route);
-    await page.waitForLoadState("networkidle");
+    await page.goto(route, { waitUntil: "load" });
+    // Fonts change heading metrics, so audit only after they settle. Plain
+    // `networkidle` is unreachable on /garden/: its 1.2 MB inline catalog keeps
+    // the main thread busy long past the network going quiet on a cold cache.
+    await page.evaluate(() => document.fonts.ready);
     await expect(page.locator("h1").first(), `${route}: page has a visible primary heading`).toBeVisible();
     await expect(page.locator("body"), `${route}: no framework error page`).not.toContainText("An error occurred");
     const depthThree = page.locator('[data-depth-button="3"]');

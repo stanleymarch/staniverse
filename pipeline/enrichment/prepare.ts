@@ -256,20 +256,56 @@ export function relationCandidateSignals(source: string, target: { id: string; t
   return signals;
 }
 
+// Retrieval is quadratic (every publication x every target); the old per-pair
+// calls folded the full 12k-char source through NFKC and compiled a RegExp for
+type PreparedTarget = { hay: string; names: string[]; canonicalPaths: string[]; publicationId?: string; grams: Set<string> };
+// signals (see relationCandidateSignals, kept for direct/test use).
+const TELEGRAM_LINK_GLOBAL = /(?:t\.me\/[^/\s)]+\/|\/garden\/telegram\/tg-)(\d+)(?=\D|$)/giu;
+const preparedTargets = new WeakMap<Target[], Map<Target, PreparedTarget>>();
+const fold = (value: string) => value.toLocaleLowerCase("ru-RU").normalize("NFKC").replace(/ё/g, "е");
+
 export function retrieve(source: string, targets: Target[], limit = 12) {
   const stopWords = ["который", "только", "этого", "можно", "будет", "есть", "если", "this", "that", "with"];
-  const foldedSource = source.toLocaleLowerCase("ru-RU").normalize("NFKC").replace(/ё/g, "е");
+  const foldedSource = fold(source);
+  const visibleSource = foldedSource.replace(/\]\([^)]+\)/g, "]").replace(/https?:\/\/[^\s)]+/g, " ");
+  const compactSource = visibleSource.replace(/[^\p{L}\p{N}]+/gu, "");
+  const linkedPublicationIds = new Set([...source.matchAll(TELEGRAM_LINK_GLOBAL)].map((match) => match[1]));
   const words = new Set((foldedSource.match(/[\p{L}\p{N}]{4,}/gu) ?? []).filter((word) => !stopWords.includes(word)));
+  let byTarget = preparedTargets.get(targets);
+  if (!byTarget) {
+    byTarget = new Map(targets.map((target) => {
+      const slug = target.id.slice(target.id.indexOf(":") + 1).toLocaleLowerCase();
+      const canonicalPaths = target.id.startsWith("project:")
+        ? [`/projects/${slug}`, `/lab/${slug}`]
+        : target.id.startsWith("work:")
+          ? [`/works/${slug}`, `/works/cases/${slug}`]
+          : target.id.startsWith("article:")
+            ? [`/articles/${slug}`]
+            : [];
+      const names = [target.title, ...(targetAliases[target.id] ?? [])].map((name) => fold(name).replace(/[^\p{L}\p{N}]+/gu, "")).filter((name) => name.length >= 8);
+      const hay = (target.title + " " + target.summaryExcerpt + " " + target.text).toLocaleLowerCase("ru-RU");
+      const grams = new Set<string>();
+      for (let index = 0; index + 4 <= hay.length; index++) grams.add(hay.slice(index, index + 4));
+      return [target, { hay, grams, names, canonicalPaths, publicationId: target.id.match(/^publication:telegram:[^:]+:(\d+)$/)?.[1] }];
+    }));
+    preparedTargets.set(targets, byTarget);
+  }
   return targets
     .map((target) => {
-      const signals = relationCandidateSignals(source, target);
-      const hay = (target.title + " " + target.summaryExcerpt + " " + target.text).toLocaleLowerCase("ru-RU");
-      const lexical = [...words].reduce((score, word) => score + (hay.includes(word) ? 1 : 0), 0);
-      const score = lexical
-        + (signals.includes("exact-title") ? 1_000 : 0)
-        + (signals.includes("canonical-path") ? 2_000 : 0)
-        + (signals.includes("direct-telegram-link") ? 3_000 : 0);
-      return { target, score };
+      // Exact `hay.includes(word)` semantics: a word can only be a substring if
+      // every one of its 4-grams is present in the target's gram set, so absent
+      // grams veto without false negatives and includes() stays the final word.
+      const prepared = byTarget.get(target)!;
+      const lexical = [...words].reduce((score, word) => {
+        let possible = true;
+        for (let index = 0; index + 4 <= word.length && possible; index++) possible = prepared.grams.has(word.slice(index, index + 4));
+        return score + (possible && prepared.hay.includes(word) ? 1 : 0);
+      }, 0);
+      const signals =
+        (prepared.names.some((name) => compactSource.includes(name)) ? 1_000 : 0)
+        + (prepared.canonicalPaths.some((path) => foldedSource.includes(path)) ? 2_000 : 0)
+        + (prepared.publicationId && linkedPublicationIds.has(prepared.publicationId) ? 3_000 : 0);
+      return { target, score: lexical + signals };
     })
     .filter(({ score }) => score > 0)
     .sort((a, b) => b.score - a.score || a.target.id.localeCompare(b.target.id))

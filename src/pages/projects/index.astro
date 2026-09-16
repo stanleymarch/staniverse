@@ -8,7 +8,7 @@ const statuses = [...new Set(entries.map((entry) => entry.data.status))];
 ---
 <Base title="Собственные проекты" description="Собственные проекты Станислава Ермоленко на стыке XR, AI, автоматизации, цифровой культуры, медиа и сохранения памяти.">
   <header class="catalog-hero"><div class="section-kicker">Лаборатория</div><h1>Собственные проекты</h1><p class="hero-lead">Не работы для кого-то, а идеи и исследования, которые двигаются: иногда рывком, иногда медленно, иногда ещё только ищут форму.</p><div class="catalog-controls" data-filter-controls><button class="filter-button active" data-filter="all">Все</button>{statuses.map((status) => <button class="filter-button" data-filter={status}>{projectStatus[status]}</button>)}</div></header>
-  <section class="section" style="padding-top:1rem"><div class="card-grid" data-filter-grid>{entries.map((entry) => <div data-project-status={entry.data.status}><ContentCard entry={entry} headingLevel="h2" /></div>)}</div><div class="empty-state">Проектов с таким статусом пока нет.</div></section>
+  <section class="section"><div class="card-grid" data-filter-grid>{entries.map((entry) => <div data-project-status={entry.data.status}><ContentCard entry={entry} headingLevel="h2" /></div>)}</div><div class="empty-state">Проектов с таким статусом пока нет.</div></section>
   <script is:inline>
     document.querySelectorAll('[data-filter-controls] button').forEach((button) => button.addEventListener('click', () => {
       document.querySelectorAll('[data-filter-controls] button').forEach((item) => item.classList.remove('active')); button.classList.add('active');

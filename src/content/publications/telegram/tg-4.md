@@ -2,13 +2,13 @@
 id: "publication:telegram:staniverse:4"
 kind: telegram-post
 title: "Вы вряд ли следите за этой историей, но недавно главы одного из самых популярных игровых…"
-summary: "Автор обсуждает недовольство разработчиков новой политикой оплаты Unity, неопределённость платы за установки и попытки компании восстановить доверие. Упоминаются проекты на Unity и переход разработчиков на другие игровые движки."
+summary: "Вы вряд ли следите за этой историей, но недавно главы одного из самых популярных игровых движков Unity очень накосячили с новой Fee policy и разгневали комьюнити. Там предлагалось брать деньги за каждую установку проект…"
 date: "2023-09-22T22:52:47"
 updated: "2023-09-22T23:06:36"
 tags: []
 sourceTags: []
-topics: ["games"]
-entities: ["Unity","Godot","Unreal Engine","Spatial","VRChat","Decentraland","YouTube"]
+topics: ["games","open-source"]
+entities: []
 sourceUrl: "https://t.me/staniverse/4"
 sourceId: "4"
 threadIds: ["4"]

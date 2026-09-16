@@ -32,7 +32,7 @@ const publicationCount = entries.filter((entry) => entry.collection === "publica
 const portraitFile = existsSync("public/assets") && readdirSync("public/assets").find((file) => /^stas-portrait\.(jpe?g|png|webp|avif)$/i.test(file));
 const portraitSrc = portraitFile ? `/assets/${portraitFile}` : undefined;
 
-const services = [
+const services: { title: string; text: string; tags: string[]; href: string; proof?: string; featured: boolean }[] = [
   {
     title: "AI-автоматизация бизнеса",
     text: "Встраиваю AI в уже работающие процессы: приём и уточнение заказов, создание сделок в CRM, документы, уведомления и следующие шаги. Человек сохраняет контроль, а рутина перестаёт съедать день.",
@@ -58,7 +58,8 @@ const services = [
     title: "Контентные системы",
     text: "Не просто напишу пачку текстов: выстрою понятный процесс наполнения канала, сайта, каталога или медиатеки. Редакционный план, производство, автоматизация, публикация и передача команде.",
     tags: ["контент", "продакшн", "автоматизация"],
-    href: "/works/prodakshn-dlya-ya-ty-gorod/",
+    href: "/articles/ai-diploma/",
+    proof: "Как я защитил диплом с ИИ-агентами →",
     featured: false,
   },
   {
@@ -88,16 +89,16 @@ const homepageJsonLd = {
         {[0, 1, 2].map((layer) => <div class="star-layer" data-parallax={String(.035 + layer * .035)}>{stars.filter((_, index) => index % 3 === layer).map((star) => <i class="star" style={`left:${star.left};top:${star.top};opacity:${star.opacity};--s:${star.size};--d:${star.delay};--t:${star.duration}`}></i>)}</div>)}
       </div>
       <div class="hero-copy">
-        <p class="hero-hello">Всем привет, это Стас!</p>
-        <h1 id="home-title" class="display">Помогаю внедрять<br />AI и XR —<br />без лишней магии</h1>
+        <p class="hero-hello">👋 — это Стас</p>
+        <h1 id="home-title" class="display"><span style="display:block">Помогаю внедрять</span><span style="display:block">AI и XR</span><span style="display:block">в работающие процессы</span></h1>
         <p class="hero-lead">Подключаю AI-агентов к реальным бизнес-процессам, собираю XR-опыты и сложные контентные системы. Могу войти в работающий проект, разобраться в наследстве и довести до предсказуемого результата — не обязательно начинать всё с нуля.</p>
         <div class="hero-actions"><a class="button primary" href="/cv/Stanislav-Ermolenko-CV-RU.pdf" download>Скачать CV</a><a class="button" href="/works/">Смотреть работы</a><a class="button" href="mailto:stas@staniverse.xyz?subject=Проект для Стаса">Обсудить проект</a><a class="button cosmic" href="/universe/">Войти во вселенную ↗</a></div>
       </div>
       <div class="hero-bento" aria-label="Коротко о сайте">
         {portraitSrc && <figure class="bento-tile bento-photo"><img src={portraitSrc} alt="Станислав Ермоленко" loading="eager" /></figure>}
-        <div class="bento-tile bento-now"><span class="section-kicker">Сейчас</span><strong>ИТМО · 2026 - н.в.</strong><p>Учусь в магистратуре «Цифровые методы в гуманитарных исследованиях», веду Telegram-канал Staniverse и иногда возвращаюсь к YouTube.</p></div>
+        <div class="bento-tile bento-now"><span class="section-kicker">Сейчас</span><strong>ИТМО · 2026 - н.в.</strong><p>Учусь в магистратуре «Цифровые методы в гуманитарных исследованиях», веду <a href="https://t.me/staniverse" target="_blank" rel="noreferrer">Telegram-канал Staniverse</a>, иногда возвращаюсь к YouTube — <a href="https://www.youtube.com/@staniverse" target="_blank" rel="noreferrer">Staniverse</a> и <a href="https://www.youtube.com/@yatygorod" target="_blank" rel="noreferrer">«я.ты.город»</a>.</p></div>
         <div class="bento-tile bento-stats"><span><strong>{workById.size}</strong><small>работ в каталоге</small></span><span><strong>{projectById.size}</strong><small>проектов в каталоге</small></span><span><strong>{publicationCount}</strong><small>публикации в архиве</small></span></div>
-        <a class="bento-tile bento-cta" href="mailto:stas@staniverse.xyz?subject=Консультация"><strong>Начать с разбора?</strong><span>60 минут — 5 000 ₽. Разберём задачу и выберем следующий шаг без продажи лишней технологии →</span></a>
+        <a class="bento-tile bento-cta" href="mailto:stas@staniverse.xyz?subject=Проект для Стаса"><strong>Обсудить проект?</strong><span>Напишите пару слов о задаче — разберём, что здесь реально поможет, и выберем следующий шаг →</span></a>
       </div>
     </section>
 
@@ -112,8 +113,8 @@ const homepageJsonLd = {
 
     <section class="section home-services" aria-labelledby="services-title">
       <div class="section-head"><div><div class="section-kicker">Работа со мной</div><h2 id="services-title">Чем могу быть полезен</h2></div><a class="text-link" href="mailto:stas@staniverse.xyz?subject=Проект для Стаса">Обсудить проект →</a></div>
-      <div class="services-grid">{services.map((service) => <article class:list={["service-tile", { "is-featured": service.featured }]}><h3>{service.title}</h3><p>{service.text}</p><div class="tag-row">{service.tags.map((tag) => <span>{tag}</span>)}</div><a class="service-proof" href={service.href}>Посмотреть похожий опыт →</a></article>)}</div>
-      <p class="services-note"><strong>Не знаете, с чего начать?</strong> Можно взять отдельный разбор за 5 000 ₽ / 60 минут. За встречу разложим процесс, найдём узкое место и решим, нужен ли здесь AI, XR или обычная надёжная автоматизация. Большие внедрения оцениваю после диагностики и делю на этапы с понятным результатом.</p>
+      <div class="services-grid">{services.map((service) => <article class:list={["service-tile", { "is-featured": service.featured }]}><h3>{service.title}</h3><p>{service.text}</p><div class="tag-row">{service.tags.map((tag) => <span>{tag}</span>)}</div><a class="service-proof" href={service.href}>{service.proof ?? "Посмотреть похожий опыт →"}</a></article>)}</div>
+      <p class="services-note"><strong>Не знаете, с чего начать?</strong> Напишите пару слов о задаче — за одну встречу разложим процесс, найдём узкое место и решим, нужен ли здесь AI, XR или обычная надёжная автоматизация. Большие внедрения оцениваю после диагностики и делю на этапы с понятным результатом.</p>
     </section>
 
     <dialog class="profile-dialog" data-profile-dialog aria-labelledby="profile-title">
@@ -173,10 +174,10 @@ const homepageJsonLd = {
   .home-page { --home-accent: #65ddf2; --home-ink: #f1f5ff; --home-muted: #9cafc9; --home-line: rgba(116, 157, 198, .22); }
 
   /* Desktop hero fills the viewport below the real sticky header, not a second screen. */
-  .home-page .hero-full { min-height: calc(100svh - 4.9rem); display: grid; align-content: center; padding-block: clamp(3rem, 6vh, 4.5rem); }
+  .home-page .hero-full { min-height: calc(100svh - 4rem); display: grid; align-content: center; padding-block: clamp(3rem, 6vh, 4.5rem); }
   @media (min-width: 1000px) { .home-page .hero-full { grid-template-columns: minmax(0, 1.12fr) minmax(20rem, .88fr); gap: clamp(2rem, 4vw, 4rem); align-items: center; } }
   .home-page .hero-copy { max-width: 52rem; }
-  .hero-hello { margin: 0 0 .7rem; color: var(--home-accent); font-size: clamp(1rem, 1.4vw, 1.3rem); font-weight: 500; letter-spacing: .01em; }
+  .hero-hello { margin: 0 0 var(--s-2); color: var(--home-accent); font-size: clamp(1rem, 1.4vw, 1.3rem); font-weight: 500; letter-spacing: .01em; }
   .home-page .display { color: var(--home-ink); max-width: 11ch; font-size: clamp(2.4rem, 4.15vw, 3.6rem); }
 
   /* Deep-sky backdrop: layered nebulae + a dense twinkling starfield. */
@@ -195,16 +196,16 @@ const homepageJsonLd = {
   @keyframes twinkle { from { opacity: .25; } to { opacity: 1; } }
   @media (prefers-reduced-motion: reduce) { .home-page .star { animation: none; } }
 
-  .hero-bento { display: grid; gap: clamp(.65rem, 1vw, .85rem); }
-  .bento-tile { min-width: 0; padding: clamp(.9rem, 1.25vw, 1.1rem) clamp(1rem, 1.5vw, 1.2rem); border: 1px solid var(--home-line); border-radius: .85rem; background: rgba(10, 15, 26, .72); backdrop-filter: blur(8px); }
-  .bento-now strong { display: block; margin: .4rem 0 .35rem; color: var(--home-ink); font-size: clamp(.95rem, 1.1vw, 1.05rem); }
+  .hero-bento { display: grid; gap: var(--s-2); }
+  .bento-tile { min-width: 0; padding: var(--s-3); border: 1px solid var(--home-line); border-radius: .85rem; background: rgba(10, 15, 26, .72); backdrop-filter: blur(8px); }
+  .bento-now strong { display: block; margin: var(--s-1) 0 var(--s-1); color: var(--home-ink); font-size: clamp(.95rem, 1.1vw, 1.05rem); }
   .bento-now p { margin: 0; color: var(--home-muted); font-size: clamp(.78rem, .85vw, .84rem); line-height: 1.5; text-wrap: pretty; }
   .bento-photo { margin: 0; overflow: hidden; padding: 0; }
   .bento-photo img { display: block; width: 100%; height: 100%; max-height: 14rem; object-fit: cover; }
-  .bento-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .8rem; }
-  .bento-stats span { display: grid; align-content: start; gap: .2rem; }
+  .bento-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-3); }
+  .bento-stats span { display: grid; align-content: start; gap: var(--s-1); }
   .bento-stats strong { color: var(--home-ink); font: 500 clamp(1.25rem, 1.7vw, 1.7rem)/1 Unbounded; }
-  .bento-cta { display: grid; gap: .35rem; border-color: rgba(101, 221, 242, .4); background: linear-gradient(140deg, rgba(20, 52, 71, .75), rgba(10, 15, 26, .8)); }
+  .bento-cta { display: grid; gap: var(--s-1); border-color: rgba(101, 221, 242, .4); background: linear-gradient(140deg, rgba(20, 52, 71, .75), rgba(10, 15, 26, .8)); }
   .bento-cta strong { color: var(--home-ink); font-size: clamp(.9rem, 1vw, 1rem); }
   .bento-cta span { color: var(--home-accent); font-size: clamp(.76rem, .85vw, .84rem); line-height: 1.45; text-wrap: pretty; }
   .bento-cta:hover, .bento-cta:focus-visible { border-color: var(--home-accent); }
@@ -217,12 +218,12 @@ const homepageJsonLd = {
   /* Services: concrete offers, no card zoo. */
   .home-services { background: #0a0f1a; }
   .services-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 1px; border-block: 1px solid var(--home-line); background: var(--home-line); }
-  .service-tile { container-type: inline-size; grid-column: span 2; min-width: 0; padding: clamp(1.35rem, 2.2vw, 2rem); background: #0a0f1a; }
+  .service-tile { container-type: inline-size; grid-column: span 2; min-width: 0; padding: var(--s-5) var(--rail-inset); background: #0a0f1a; }
   .service-tile.is-featured { grid-column: span 3; background: linear-gradient(145deg, #0d1724, #0a0f1a 72%); }
-  .service-tile h3 { margin: 0 0 .6rem; color: var(--home-ink); font: 500 var(--card-title)/1.25 Unbounded; letter-spacing: -.02em; }
-  .service-tile p { max-width: 46rem; margin: 0 0 1rem; color: var(--home-muted); font-size: var(--card-text); line-height: 1.6; text-wrap: pretty; }
-  .service-proof { display: inline-block; margin-top: 1rem; color: var(--home-accent); font-size: .82rem; text-decoration-thickness: 1px; text-underline-offset: .2em; }
-  .services-note { max-width: 62rem; margin: 1.4rem 0 0; color: var(--home-muted); font-size: .9rem; line-height: 1.6; text-wrap: pretty; }
+  .service-tile h3 { margin: 0 0 var(--s-2); color: var(--home-ink); font: 500 var(--card-title)/1.25 Unbounded; letter-spacing: -.02em; }
+  .service-tile p { max-width: 46rem; margin: 0 0 var(--s-3); color: var(--home-muted); font-size: var(--card-text); line-height: 1.6; text-wrap: pretty; }
+  .service-proof { display: inline-block; margin-top: var(--s-3); color: var(--home-accent); font-size: .82rem; text-decoration-thickness: 1px; text-underline-offset: .2em; }
+  .services-note { max-width: 62rem; margin: var(--s-4) 0 0; color: var(--home-muted); font-size: .9rem; line-height: 1.6; text-wrap: pretty; }
   .services-note strong { color: var(--home-ink); }
   @media (max-width: 1000px) { .services-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .service-tile, .service-tile.is-featured { grid-column: span 1; } .service-tile:last-child:nth-child(odd) { grid-column: 1 / -1; } }
   @media (max-width: 700px) { .services-grid { grid-template-columns: 1fr; } .service-tile, .service-tile.is-featured, .service-tile:last-child:nth-child(odd) { grid-column: 1; } }
@@ -230,20 +231,20 @@ const homepageJsonLd = {
   /* Reveals are owned by one site-wide system in global.css driven by the Base script. */
   .profile-dialog { width: min(92vw, 1400px); max-width: none; max-height: min(90dvh, 980px); margin: auto; padding: 0; overflow: auto; border: 1px solid var(--home-line); background: #080d16; color: var(--home-ink); box-shadow: 0 2rem 8rem rgba(0, 0, 0, .72); }
   .profile-dialog::backdrop { background: rgba(2, 5, 11, .78); backdrop-filter: blur(10px); }
-  .profile-module { position: relative; max-width: 1400px; margin: 0 auto; padding: clamp(3.5rem, 7vw, 6.5rem) var(--section-inline); }
+  .profile-module { position: relative; max-width: 1400px; margin: 0 auto; padding: var(--flow-section) var(--rail-inset); }
   .profile-close-form { position: sticky; z-index: 3; top: 0; display: flex; justify-content: flex-end; height: 0; margin: 0; }
   .profile-close { min-height: 44px; padding: .65rem 1rem; border: 1px solid var(--home-line); background: #0d1724; color: var(--home-ink); cursor: pointer; }
   .profile-close:hover, .profile-close:focus-visible { border-color: var(--home-accent); color: var(--home-accent); }
-  .profile-page-link { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--home-line); }
-  .profile-heading { display: flex; justify-content: space-between; align-items: end; gap: 2rem; margin-bottom: 2rem; } .profile-heading h2 { margin: .35rem 0 0; color: var(--home-ink); font: 500 clamp(1.8rem, 3.2vw, 3rem)/1.05 Unbounded; letter-spacing: -.04em; text-wrap: balance; }
-  .profile-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(260px, .75fr); gap: clamp(2rem, 7vw, 7rem); padding: 1.5rem 0; border-top: 1px solid var(--home-line); }
-  .profile-summary p { max-width: 52rem; margin: 0; color: var(--home-ink); font-size: clamp(1.05rem, 1.7vw, 1.35rem); line-height: 1.45; } .profile-facts { display: flex; flex-wrap: wrap; gap: 2rem; margin-top: 2rem; }
+  .profile-page-link { margin-top: var(--s-5); padding-top: var(--s-3); border-top: 1px solid var(--home-line); }
+  .profile-heading { display: flex; justify-content: space-between; align-items: end; gap: var(--s-5); margin-bottom: var(--s-5); } .profile-heading h2 { margin: .35rem 0 0; color: var(--home-ink); font: 500 clamp(1.8rem, 3.2vw, 3rem)/1.05 Unbounded; letter-spacing: -.04em; text-wrap: balance; }
+  .profile-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(260px, .75fr); gap: var(--flow-section); padding: var(--s-4) 0; border-top: 1px solid var(--home-line); }
+  .profile-summary p { max-width: 52rem; margin: 0; color: var(--home-ink); font-size: clamp(1.05rem, 1.7vw, 1.35rem); line-height: 1.45; } .profile-facts { display: flex; flex-wrap: wrap; gap: var(--s-5); margin-top: var(--s-5); }
   .profile-facts span { display: grid; gap: .25rem; } .profile-facts strong { width: fit-content; padding: .18rem .45rem; font-size: .9rem; font-weight: 500; } .profile-facts small { color: var(--home-muted); font-size: .72rem; }
-  .profile-now { border-left: 1px solid var(--home-line); padding-left: 1.5rem; } .profile-now strong { display: block; margin: .65rem 0 .5rem; color: var(--home-ink); font-size: 1.1rem; } .profile-now p, .profile-details-grid p, .profile-details-grid li { color: var(--home-muted); font-size: .82rem; line-height: 1.55; } .profile-now p { margin: 0; }
-  .profile-details { margin-top: 1rem; border-top: 1px solid var(--home-line); } .profile-details summary { display: flex; justify-content: space-between; gap: 1rem; padding: 1rem 0; color: var(--home-ink); cursor: pointer; font-size: .86rem; list-style: none; } .profile-details summary::-webkit-details-marker { display: none; } .profile-details[open] summary { border-bottom: 1px solid var(--home-line); }
-  .profile-details-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.5rem; padding-top: 1.5rem; } .profile-details-grid ul { display: grid; gap: .75rem; margin: .8rem 0 0; padding: 0; list-style: none; } .profile-details-grid li strong { display: block; color: var(--home-ink); font-size: .72rem; font-weight: 500; } .profile-details-grid p { margin: .8rem 0 0; }
+  .profile-now { border-left: 1px solid var(--home-line); padding-left: var(--s-4); } .profile-now strong { display: block; margin: var(--s-2) 0 var(--s-2); color: var(--home-ink); font-size: 1.1rem; } .profile-now p, .profile-details-grid p, .profile-details-grid li { color: var(--home-muted); font-size: .82rem; line-height: 1.55; } .profile-now p { margin: 0; }
+  .profile-details { margin-top: var(--s-3); border-top: 1px solid var(--home-line); } .profile-details summary { display: flex; justify-content: space-between; gap: var(--s-3); padding: var(--s-3) 0; color: var(--home-ink); cursor: pointer; font-size: .86rem; list-style: none; } .profile-details summary::-webkit-details-marker { display: none; } .profile-details[open] summary { border-bottom: 1px solid var(--home-line); }
+  .profile-details-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s-4); padding-top: var(--s-4); } .profile-details-grid ul { display: grid; gap: var(--s-2); margin: var(--s-3) 0 0; padding: 0; list-style: none; } .profile-details-grid li strong { display: block; color: var(--home-ink); font-size: .72rem; font-weight: 500; } .profile-details-grid p { margin: var(--s-3) 0 0; }
   .home-projects { background: transparent; } .home-page .content-card { border-color: var(--home-line); } .home-page .content-card:hover, .home-page .content-card:focus-visible { border-color: #58739a; }
-  @media (max-width: 900px) { .profile-heading { align-items: start; flex-direction: column; gap: .8rem; } .profile-heading .text-link { white-space: nowrap; } .profile-grid { grid-template-columns: 1fr; } .profile-now { border-top: 1px solid var(--home-line); border-left: 0; padding: 1.5rem 0 0; } .profile-details-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-  @media (max-width: 700px) { .home-page .hero-full { min-height: calc(100svh - 4rem); padding-block: clamp(2.75rem, 7vh, 4rem); } .home-page .display { max-width: 100%; font-size: clamp(2.2rem, 10vw, 3.4rem); } .hero-bento { grid-template-columns: 1fr 1fr; } .bento-now { grid-column: 1 / -1; } .home-page .signal-strip > button { padding-inline: .8rem; } .profile-dialog { width: calc(100vw - 1rem); max-height: calc(100dvh - 1rem); } .profile-heading h2 { font-size: clamp(1.6rem, 8vw, 2.4rem); } .profile-details-grid { grid-template-columns: 1fr; } .profile-facts { gap: 1rem 1.5rem; } }
-  @media (max-width: 460px) { .hero-bento { grid-template-columns: 1fr; } .bento-stats { gap: .65rem; } }
+  @media (max-width: 900px) { .profile-heading { align-items: start; flex-direction: column; gap: var(--s-3); } .profile-heading .text-link { white-space: nowrap; } .profile-grid { grid-template-columns: 1fr; } .profile-now { border-top: 1px solid var(--home-line); border-left: 0; padding: var(--s-4) 0 0; } .profile-details-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 700px) { .home-page .hero-full { min-height: calc(100svh - 4rem); padding-block: clamp(2.75rem, 7vh, 4rem); } .home-page .display { max-width: 100%; font-size: clamp(2.2rem, 10vw, 3.4rem); } .hero-bento { grid-template-columns: 1fr 1fr; } .bento-now { grid-column: 1 / -1; } .profile-dialog { width: calc(100vw - 1rem); max-height: calc(100dvh - 1rem); } .profile-heading h2 { font-size: clamp(1.6rem, 8vw, 2.4rem); } .profile-details-grid { grid-template-columns: 1fr; } .profile-facts { gap: var(--s-3) var(--s-4); } }
+  @media (max-width: 460px) { .hero-bento { grid-template-columns: 1fr; } .bento-stats { gap: var(--s-2); } }
 </style>

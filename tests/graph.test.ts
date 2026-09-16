@@ -118,12 +118,12 @@ test("content graph keeps every relation off its own source", () => {
 
 test("canonical owners of merged works carry no duplicate or removed relations", () => {
   const entries = readContentEntries();
-  const removed = ["work:avtomaticheskiy-kanal-dlya-proekta-chertezhi", "work:prodakshn-dlya-staniverse"];
+  const removed = ["work:avtomaticheskiy-kanal-dlya-proekta-chertezhi", "work:prodakshn-dlya-staniverse", "work:prodakshn-dlya-ya-ty-gorod", "work:sayt-proekta-ya-ty-gorod"];
   const ids = new Set(entries.map((entry) => entry.id));
   assert.deepEqual(removed.filter((id) => ids.has(id)), []);
   const stillReferenced = entries.flatMap((entry) => entry.relations.filter((relation) => removed.includes(relation.target)).map((relation) => entry.id));
   assert.deepEqual(stillReferenced, []);
-  for (const id of ["work:chertezhi-tekhdiplomy", "project:staniverse"]) {
+  for (const id of ["work:chertezhi-tekhdiplomy", "project:staniverse", "project:ya-ty-gorod"]) {
     const targets = entries.find((entry) => entry.id === id)?.relations.map((relation) => relation.target) ?? [];
     assert.ok(targets.length > 0, id);
     assert.equal(new Set(targets).size, targets.length, id);

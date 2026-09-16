@@ -18,9 +18,13 @@ const MERGED_WORK_REDIRECTS = {
   "works/avtomaticheskiy-kanal-dlya-proekta-chertezhi": "/works/chertezhi-tekhdiplomy/",
   "works/cases/prodakshn-dlya-staniverse": "/projects/staniverse/",
   "works/prodakshn-dlya-staniverse": "/projects/staniverse/",
+  "works/cases/prodakshn-dlya-ya-ty-gorod": "/projects/ya-ty-gorod/",
+  "works/prodakshn-dlya-ya-ty-gorod": "/projects/ya-ty-gorod/",
+  "works/cases/sayt-proekta-ya-ty-gorod": "/projects/ya-ty-gorod/",
+  "works/sayt-proekta-ya-ty-gorod": "/projects/ya-ty-gorod/",
 };
 
-const REMOVED_WORK_ROUTES = ["/works/avtomaticheskiy-kanal-dlya-proekta-chertezhi/", "/works/prodakshn-dlya-staniverse/"];
+const REMOVED_WORK_ROUTES = ["/works/avtomaticheskiy-kanal-dlya-proekta-chertezhi/", "/works/prodakshn-dlya-staniverse/", "/works/prodakshn-dlya-ya-ty-gorod/", "/works/sayt-proekta-ya-ty-gorod/"];
 
 test("former URLs of merged works redirect to the entity that absorbed them", () => {
   for (const [from, to] of Object.entries(MERGED_WORK_REDIRECTS)) assert.equal(legacyRedirects.get(from), to, from);

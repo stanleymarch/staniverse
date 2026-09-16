@@ -94,9 +94,8 @@ const collectionJsonLd: Record<string, unknown> = {
 </Base>
 
 <style>
-  .video-archive-note { margin: 1rem 0 0; color: var(--muted); font-size: .82rem; letter-spacing: .06em; text-transform: uppercase; }
-  .video-archive-section { padding-top: 1rem; }
-  .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 1rem; min-width: 0; }
+  .video-archive-note { margin: var(--s-3) 0 0; color: var(--muted); font-size: .82rem; letter-spacing: .06em; text-transform: uppercase; }
+  .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: var(--s-3); min-width: 0; }
   .video-card { display: flex; flex-direction: column; min-width: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 1rem; background: var(--panel); container-type: inline-size; transition: transform .25s ease, border-color .25s ease; }
   .video-card:hover, .video-card:focus-within { border-color: #6375a0; transform: translateY(-4px); }
   .video-card-media { position: relative; display: block; aspect-ratio: 16 / 9; background: #05070d; }
@@ -105,15 +104,15 @@ const collectionJsonLd: Record<string, unknown> = {
   .video-card-placeholder { display: grid; place-items: center; width: 100%; height: 100%; color: #7c93bd; font: 600 2rem Unbounded; background: linear-gradient(145deg, #122838, #0b111b); }
   .video-card-play { position: absolute; top: 50%; left: 50%; display: grid; place-items: center; width: 3.4rem; height: 3.4rem; border: 2px solid rgba(255, 255, 255, .85); border-radius: 50%; background: rgba(5, 7, 13, .55); color: #fff; font-size: 1rem; transform: translate(-50%, -50%); transition: transform .25s ease, background .25s ease; }
   .video-card:hover .video-card-play, .video-card:focus-within .video-card-play { background: rgba(100, 223, 244, .35); transform: translate(-50%, -50%) scale(1.08); }
-  .video-card-body { display: flex; flex-direction: column; gap: .6rem; padding: 1rem 1.1rem 1.2rem; }
-  .video-card-meta { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; min-width: 0; color: #8fa3c4; font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; }
+  .video-card-body { display: flex; flex: 1; flex-direction: column; gap: var(--s-2); padding: var(--s-3); }
+  .video-card-meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2); min-width: 0; color: #8fa3c4; font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; }
   .video-card-channel { max-width: 100%; padding: .24rem .5rem; border: 1px solid #33415d; border-radius: 2rem; overflow-wrap: break-word; }
   .video-card h2 { margin: 0; font: 500 var(--card-title) / 1.22 Unbounded; overflow-wrap: break-word; hyphens: auto; text-wrap: balance; }
   .video-card h2 a:hover, .video-card h2 a:focus-visible { color: var(--accent); outline: none; }
-  .video-card-source { margin-top: auto; padding-top: .4rem; color: var(--cyan); font-size: .82rem; }
+  .video-card-source { margin-top: auto; padding-top: var(--s-1); color: var(--cyan); font-size: .82rem; }
   .video-card-source:hover, .video-card-source:focus-visible { text-decoration: underline; text-underline-offset: .18em; }
-  .video-empty { max-width: 46rem; padding: 2.5rem; border: 1px dashed #46536d; border-radius: 1rem; color: var(--muted); }
-  .video-empty p { margin: 0 0 .6rem; }
+  .video-empty { max-width: 46rem; padding: var(--s-5); border: 1px dashed #46536d; border-radius: 1rem; color: var(--muted); }
+  .video-empty p { margin: 0 0 var(--s-2); }
   .video-empty p:last-child { margin-bottom: 0; }
   .video-empty a { color: var(--cyan); text-decoration: underline; text-underline-offset: .18em; }
 </style>

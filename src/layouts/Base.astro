@@ -62,6 +62,13 @@ const articleLike = ["works", "projects", "garden", "articles", "topics"].includ
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <meta name="description" content={description} />
     <meta name="theme-color" content="#070a12" />
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="preload" href="/fonts/geologica-cyrillic.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/unbounded-cyrillic.woff2" as="font" type="font/woff2" crossorigin />
+    <script is:inline>if ("IntersectionObserver" in window && !matchMedia("(prefers-reduced-motion: reduce)").matches) document.documentElement.classList.add("reveal-on");</script>
     <link rel="canonical" href={canonical} />
     <meta property="og:type" content={articleLike ? "article" : "website"} />
     <meta property="og:site_name" content="станивёрс" />
@@ -92,7 +99,7 @@ const articleLike = ["works", "projects", "garden", "articles", "topics"].includ
           <a href="/garden/">Сад</a>
           <a href="/videos/">Видео</a>
           <a href="/about/">Обо мне</a>
-          <a href="mailto:stas@staniverse.xyz">Контакты</a>
+          <a href="/contacts/">Контакты</a>
           <a href="/donate/">Поддержать</a>
         </nav>
         <button class="site-search-open" type="button" data-search-open aria-haspopup="dialog" aria-label="Поиск по сайту (Ctrl+K)">Поиск</button>
@@ -107,7 +114,7 @@ const articleLike = ["works", "projects", "garden", "articles", "topics"].includ
     {!immersive && (
       <footer class="site-footer">
         <div><strong>Staniverse</strong><p>Связи между технологиями, памятью, медиа и местом.</p></div>
-        <div class="footer-links"><a href="/about/#manifesto">Манифест</a><a href="/donate/">Поддержать</a><a href="mailto:stas@staniverse.xyz">Почта</a><a href="https://t.me/staniverse">Telegram</a><a href="https://vk.com/staniverse">VK</a><a href="https://www.youtube.com/@staniverse">YouTube</a><a href="https://vk.com/yatygorod">VK я.ты.город.</a><a href="https://www.youtube.com/@yatygorod">YouTube я.ты.город.</a></div>
+        <div class="footer-links"><a href="/contacts/">Контакты</a><a href="/about/#manifesto">Манифест</a><a href="/donate/">Поддержать</a><a href="mailto:stas@staniverse.xyz">Почта</a><a href="https://t.me/staniverse" target="_blank" rel="noreferrer">Telegram</a><a href="https://vk.com/staniverse" target="_blank" rel="noreferrer">VK</a><a href="https://www.youtube.com/@staniverse" target="_blank" rel="noreferrer">YouTube</a><a href="https://vk.com/yatygorod" target="_blank" rel="noreferrer">VK я.ты.город.</a><a href="https://www.youtube.com/@yatygorod" target="_blank" rel="noreferrer">YouTube я.ты.город.</a></div>
       </footer>
     )}
     {!immersive && (

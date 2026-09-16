@@ -1,15 +1,12 @@
 /* Garden catalogue. Local rules only, but no local design system: pills, card
    surface, kicker type, search input and the focus ring are the same vocabulary
    the rest of the site already uses. */
-.garden-page {
-  --page-pad: var(--section-inline);
-}
 .garden-hero {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(18rem, 34rem);
-  gap: clamp(1.5rem, 5vw, 5rem);
+  gap: var(--s-6);
   align-items: end;
-  padding: clamp(4.25rem, 7vw, 7rem) var(--page-pad) clamp(2.5rem, 4vw, 4rem);
+  padding: var(--flow-section) var(--rail-inset) var(--flow-half);
 }
 .garden-hero h1 {
   margin: .25em 0;
@@ -23,7 +20,7 @@
 }
 .garden-search-wrap {
   display: grid;
-  gap: .55rem;
+  gap: var(--s-2);
 }
 .garden-search-wrap label {
   font-size: .8rem;
@@ -42,15 +39,15 @@
   color: #7b8aa8;
 }
 .garden-cloud {
-  padding: clamp(2.5rem, 4vw, 4rem) var(--page-pad);
+  padding: var(--flow-half) var(--rail-inset);
   border-block: 1px solid var(--line);
   background: #0a0f1a;
 }
 .garden-cloud-head {
   display: grid;
-  gap: .35rem;
+  gap: var(--s-1);
   max-width: 46rem;
-  margin-bottom: clamp(1.35rem, 2.5vw, 2rem);
+  margin-bottom: var(--s-5);
 }
 .garden-cloud-head h2 {
   margin: 0;
@@ -105,8 +102,8 @@
   z-index: 15;
   display: flex;
   align-items: center;
-  gap: .7rem;
-  padding: .75rem var(--page-pad);
+  gap: var(--s-2);
+  padding: var(--s-2) var(--rail-inset);
   border-block: 1px solid var(--line);
   background: color-mix(in srgb, var(--bg) 92%, transparent);
   backdrop-filter: blur(16px);
@@ -122,7 +119,7 @@
 .garden-sort {
   display: inline-flex;
   align-items: center;
-  gap: .55rem;
+  gap: var(--s-2);
   color: var(--muted);
   white-space: nowrap;
 }
@@ -163,12 +160,13 @@
   border-color: var(--accent);
   color: var(--accent);
 }
+/* Inside the layout, both columns inset from the shared rail; beyond the wide
+   rail the whole grid centers in step with the rest of the page. */
 .garden-layout {
   display: grid;
   grid-template-columns: minmax(14rem, 19rem) minmax(0, 1fr);
   align-items: start;
-  max-width: 112rem;
-  margin: 0 auto;
+  padding-inline: max(0px, calc(var(--rail-inset) - var(--rail)));
 }
 .garden-facets {
   position: sticky;
@@ -176,14 +174,14 @@
   max-height: calc(100dvh - 9rem);
   overflow: auto;
   overscroll-behavior: contain;
-  padding: 1.4rem var(--page-pad) 3rem;
+  padding: var(--s-4) var(--rail) var(--s-6);
   border-right: 1px solid var(--line);
 }
 .garden-facet-head {
   display: flex;
   align-items: center;
-  gap: .5rem;
-  margin-bottom: 1rem;
+  gap: var(--s-2);
+  margin-bottom: var(--s-3);
 }
 .garden-facet-head strong {
   color: #8ea2c6;
@@ -210,14 +208,14 @@
 }
 .garden-facets fieldset {
   display: grid;
-  gap: .65rem;
+  gap: var(--s-2);
   margin: 0;
-  padding: 1.2rem 0;
+  padding: var(--s-4) 0;
   border: 0;
   border-top: 1px solid var(--line);
 }
 .garden-facets legend {
-  padding: 0 0 .7rem;
+  padding: 0 0 var(--s-2);
   color: #8ea2c6;
   font-size: .7rem;
   letter-spacing: .14em;
@@ -225,7 +223,7 @@
 }
 .garden-facets label {
   display: flex;
-  gap: .6rem;
+  gap: var(--s-2);
   align-items: start;
   color: var(--muted);
   font-size: .9rem;
@@ -246,14 +244,14 @@
 .garden-source-options,
 .garden-project-options {
   display: grid;
-  gap: .6rem;
+  gap: var(--s-2);
 }
 .garden-topic-options small {
   margin-left: auto;
 }
 .garden-source-search {
   width: 100%;
-  margin-bottom: .4rem;
+  margin-bottom: var(--s-1);
   padding: .45rem .7rem;
   border: 1px solid #35435e;
   border-radius: .5rem;
@@ -300,16 +298,16 @@
 }
 .garden-results {
   min-width: 0;
-  padding: 1.4rem clamp(1rem, 3vw, 3rem) 5rem;
+  padding: var(--s-5) var(--rail) var(--flow-section);
 }
 .garden-result-head {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
   justify-content: space-between;
-  gap: .5rem 1rem;
+  gap: var(--s-2) var(--s-3);
   min-height: 3rem;
-  padding-bottom: .8rem;
+  padding-bottom: var(--s-3);
   border-bottom: 1px solid var(--line);
   color: var(--muted);
 }
@@ -323,7 +321,7 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
-  gap: .4rem;
+  gap: var(--s-1);
 }
 .garden-filter-chip {
   max-width: 100%;
@@ -342,16 +340,16 @@
 }
 .garden-list {
   display: grid;
-  gap: .9rem;
-  margin-top: 1.2rem;
+  gap: var(--s-3);
+  margin-top: var(--s-3);
 }
 /* Rows keep the site card surface, the site card type scale and a real focus ring. */
 .garden-row {
   display: grid;
   grid-template-columns: 7.5rem minmax(0, 1fr) auto;
   grid-template-areas: "meta body date";
-  gap: clamp(1rem, 2.5vw, 2rem);
-  padding: 1.4rem;
+  gap: var(--s-5);
+  padding: var(--s-4);
   border: 1px solid var(--line);
   border-radius: 1.2rem;
   background: linear-gradient(145deg, #111929, #0b101c);
@@ -379,7 +377,7 @@
 .garden-row-meta {
   grid-area: meta;
   display: grid;
-  gap: .6rem;
+  gap: var(--s-2);
   align-content: start;
 }
 .garden-row-meta > span {
@@ -408,7 +406,7 @@
   grid-template-columns: minmax(10rem, 15rem) minmax(0, 1fr) auto;
 }
 .garden-row h2 {
-  margin: 0 0 .45rem;
+  margin: 0 0 var(--s-2);
   font: 500 var(--card-title) / 1.2 Unbounded;
   overflow-wrap: anywhere;
   text-wrap: balance;
@@ -422,8 +420,8 @@
 .garden-row-topics {
   display: flex;
   flex-wrap: wrap;
-  gap: .45rem;
-  margin-top: .75rem;
+  gap: var(--s-2);
+  margin-top: var(--s-3);
 }
 .garden-row-topics span {
   max-width: 100%;
@@ -443,10 +441,10 @@
 }
 .garden-empty {
   display: grid;
-  gap: .9rem;
+  gap: var(--s-3);
   justify-items: start;
-  margin-top: 1.2rem;
-  padding: 2.5rem;
+  margin-top: var(--s-3);
+  padding: var(--s-5);
   border: 1px dashed #46536d;
   border-radius: 1rem;
   color: var(--muted);
@@ -463,7 +461,7 @@
 }
 .garden-more {
   display: block;
-  margin: 1.6rem auto 0;
+  margin: var(--s-5) auto 0;
   padding: .82rem 1.15rem;
   border: 1px solid #455574;
   border-radius: 2rem;
@@ -479,7 +477,7 @@
   display: none;
 }
 .garden-map-panel {
-  padding: 3rem var(--page-pad);
+  padding: var(--s-6) var(--rail);
   width: 100%;
   max-width: 68rem;
   margin-inline: auto;
@@ -496,7 +494,7 @@
   display: none;
 }
 .garden-map-viewport {
-  margin: 2rem 0;
+  margin: var(--s-5) 0;
 }
 .garden-map-svg {
   display: block;
@@ -549,12 +547,12 @@
 }
 .garden-map-list {
   columns: 2;
-  column-gap: 2rem;
-  padding-left: 1.25rem;
+  column-gap: var(--s-5);
+  padding-left: var(--s-3);
 }
 .garden-map-list li {
   break-inside: avoid;
-  margin: .35rem 0;
+  margin: var(--s-1) 0;
   color: var(--muted);
 }
 .garden-map-list a {
@@ -567,7 +565,7 @@
 }
 .garden-map-note {
   border-left: 2px solid var(--accent);
-  padding-left: 1rem;
+  padding-left: var(--s-3);
 }
 /* Map mode keeps the result head (count and chips) and swaps the row list for the graph. */
 .garden-layout.map-active .garden-list,
@@ -582,8 +580,8 @@
 .garden-layout.feed-active .garden-row {
   grid-template-columns: minmax(0, 1fr) auto;
   grid-template-areas: "meta date" "body body";
-  gap: .35rem .8rem;
-  padding: 1.15rem 1.3rem;
+  gap: var(--s-1) var(--s-2);
+  padding: var(--s-3) var(--s-4);
 }
 .garden-layout.feed-active .garden-row-thumbnail {
   display: none;
@@ -622,9 +620,9 @@
     position: sticky;
     bottom: 0;
     display: grid;
-    gap: .55rem;
-    margin-top: 1rem;
-    padding: .9rem 0 1.2rem;
+    gap: var(--s-2);
+    margin-top: var(--s-3);
+    padding: var(--s-3) 0 var(--s-4);
     border-top: 1px solid var(--line);
     background: var(--bg);
   }
@@ -651,14 +649,14 @@
 }
 @media (max-width: 600px) {
   .garden-hero {
-    padding-top: 3rem;
+    padding-block-start: var(--flow-half);
   }
   .garden-hero h1 {
     font-size: clamp(2.5rem, 11.5vw, 3.1rem);
     line-height: .95;
   }
   .garden-mode {
-    gap: .5rem;
+    gap: var(--s-2);
     overflow-x: auto;
     scrollbar-width: thin;
   }
@@ -682,7 +680,7 @@
   .garden-row {
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas: "meta" "body" "date";
-    padding: 1.1rem;
+    padding: var(--s-3);
   }
   .garden-row.has-thumbnail {
     grid-template-columns: minmax(0, 1fr);
@@ -700,10 +698,10 @@
     overflow: hidden;
   }
   .garden-empty {
-    padding: 1.6rem;
+    padding: var(--s-4);
   }
   .garden-map-panel {
-    padding-inline: 1rem;
+    padding-inline: var(--rail);
   }
   .garden-map-svg {
     width: 48rem;
@@ -711,8 +709,8 @@
     aspect-ratio: 10 / 7;
   }
   .garden-map-viewport {
-    margin-inline: -1rem;
-    padding: 0 1rem 1rem;
+    margin-inline: calc(var(--rail) * -1);
+    padding: 0 var(--rail) var(--s-3);
     overflow-x: auto;
     overscroll-behavior-inline: contain;
     scrollbar-color: var(--accent) #0d1422;

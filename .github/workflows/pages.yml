@@ -1,0 +1,112 @@
+# GitHub Pages preview of the Astro rebuild.
+#
+# Production stays where it is: staniverse.xyz is published by the GitLab Pages
+# job in .gitlab-ci.yml, and that job keeps building root-based output. This
+# workflow only produces the project-site preview at
+# https://stanleymarch.github.io/staniverse/, driven entirely by environment
+# variables so the site source is not duplicated or rewritten.
+#
+# Required repository setting (one-time): Settings -> Pages -> Build and
+# deployment -> Source: "GitHub Actions". actions/configure-pages fails with an
+# explicit message until Pages is enabled, because the project-site URL and base
+# path are read from the Pages API rather than hardcoded here.
+#
+# Artifact layout: `astro build` writes routes relative to the output root even
+# when a base is configured (base is a URL prefix, not an output directory), so
+# `dist` is the Pages artifact root and the base path is supplied by Pages.
+
+name: Pages preview
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  # Same predeploy gates as .gitlab-ci.yml, run against the production-default
+  # configuration: no SITE_URL/BASE_PATH means base "/" and site
+  # https://staniverse.xyz.
+  gates:
+    name: Predeploy gates
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Unit tests
+        run: npm test
+      - name: Audit content
+        run: npm run audit:content
+      - name: Audit media
+        run: npm run audit:media
+      - name: Verify videos
+        run: npm run videos:verify
+
+  preview:
+    name: Build and deploy preview
+    needs: gates
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - name: Configure Pages
+        id: pages
+        uses: actions/configure-pages@v6
+      - name: Install dependencies
+        run: npm ci
+      - name: Build site for the Pages subpath
+        env:
+          SITE_URL: ${{ steps.pages.outputs.base_url }}
+          BASE_PATH: ${{ steps.pages.outputs.base_path }}
+        run: npm run build
+      # The site is authored with root-absolute URLs, which is correct for the
+      # root-based production build. Instead of refactoring source and content
+      # for a temporary preview, rewrite only this build's dist/ artifact onto
+      # the subpath: root-relative paths, meta refresh destinations, JS/JSON
+      # string literals, CSS url(), and the same-origin absolute URLs that
+      # `new URL("/…", Astro.site)` resolves without the base (canonical, og:*,
+      # JSON-LD ids, sitemap locs). Idempotent; no-op for a root-based build.
+      - name: Rewrite preview artifact for the subpath
+        env:
+          SITE_URL: ${{ steps.pages.outputs.base_url }}
+          BASE_PATH: ${{ steps.pages.outputs.base_path }}
+        run: node scripts/rewrite-pages-base.mjs
+      # Prove the rewriter left nothing behind: every remaining reference that
+      # cannot resolve under the base fails the deploy here, so a visibly
+      # broken preview is never published.
+      - name: Check subpath integrity
+        env:
+          SITE_URL: ${{ steps.pages.outputs.base_url }}
+          BASE_PATH: ${{ steps.pages.outputs.base_path }}
+        run: node scripts/check-pages-base.mjs
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

@@ -14,12 +14,12 @@ media: []
 platform: "youtube"
 videoId: "_Nzlls5fwlw"
 format: "video"
-thumbnailUrl: "https://i.ytimg.com/vi/_Nzlls5fwlw/hqdefault.jpg"
+thumbnailUrl: "/media/video/youtube-_Nzlls5fwlw.jpg"
 embedUrl: "https://www.youtube.com/embed/_Nzlls5fwlw"
 channel: {"key":"ya-ty-gorod","handle":"@yatygorod","platform":"youtube"}
 channelId: "UC-T9ZejKMS75V9WFxYDT8ww"
 ownership: "verified"
-verification: {"status":"verified","reason":"allowlisted-channel-id","evidence":[{"kind":"channel-page","path":"src/content/projects/ya-ty-gorod.md","url":"https://www.youtube.com/@yatygorod"},{"kind":"channel-page","path":"src/content/works/prodakshn-dlya-ya-ty-gorod.md","url":"https://www.youtube.com/@yatygorod"}]}
+verification: {"status":"verified","reason":"allowlisted-channel-id","evidence":[{"kind":"channel-page","path":"src/content/projects/ya-ty-gorod.md","url":"https://www.youtube.com/@yatygorod"}]}
 relations: [{"target":"project:ya-ty-gorod","type":"part-of","evidence":"editorial","confidence":1}]
 ---
 

@@ -14,7 +14,7 @@ media: []
 platform: "youtube"
 videoId: "0EaS-7LAPG8"
 format: "video"
-thumbnailUrl: "https://i.ytimg.com/vi/0EaS-7LAPG8/hqdefault.jpg"
+thumbnailUrl: "/media/video/youtube-0EaS-7LAPG8.jpg"
 embedUrl: "https://www.youtube.com/embed/0EaS-7LAPG8"
 channel: {"key":"staniverse","handle":"@staniverse","platform":"youtube"}
 channelId: "UCtvI-sljBnwb7ZFR8Teyd6Q"

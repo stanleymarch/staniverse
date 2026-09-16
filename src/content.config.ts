@@ -128,7 +128,8 @@ const publications = defineCollection({
     videoId: z.string().optional(),
     format: z.enum(["video", "short", "stream", "embed"]).optional(),
     embedUrl: z.url().optional(),
-    thumbnailUrl: z.url().optional(),
+    // Local poster copies (fetched by pipeline/fetch-video-posters.ts) or the CDN URL.
+    thumbnailUrl: z.union([z.url(), z.string().regex(/^\/media\//)]).optional(),
     channel: z.object({ key: z.string(), handle: z.string().optional(), platform: z.enum(["youtube", "vk"]) }).optional(),
     channelId: z.string().optional(),
     verification: z.object({

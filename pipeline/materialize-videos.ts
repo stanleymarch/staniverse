@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
@@ -17,6 +18,10 @@ export function materializeVideo(video: VideoManifestEntry, channels: Allowliste
   const result = verifyVideoOwnership(video, channels);
   return { ...video, ownership: result.ownership, verification: result.verification };
 }
+/** Prefers the poster fetched into public/media/video by fetch-video-posters,
+ * falling back to the CDN URL when the local copy is missing. */
+const localPosterPath = (platform: string, videoId: string) =>
+  existsSync(resolve("public/media/video", `${platform}-${videoId}.jpg`)) ? `/media/video/${platform}-${videoId}.jpg` : undefined;
 
 export function materializedFrontmatter(video: MaterializedVideo) {
   const kind = video.ownership === "verified" && video.platform === "youtube" ? "youtube-video" : "video";
@@ -42,7 +47,7 @@ export function materializedFrontmatter(video: MaterializedVideo) {
     platform: video.platform,
     videoId: video.id,
     format: video.format,
-    ...(video.platform === "youtube" ? { thumbnailUrl: youtubeThumbnailUrl(video.id) } : {}),
+    ...(video.platform === "youtube" ? { thumbnailUrl: localPosterPath(video.platform, video.id) ?? youtubeThumbnailUrl(video.id) } : {}),
     ...(video.embedUrl ? { embedUrl: video.embedUrl } : {}),
     ...(channel ? { channel } : {}),
     ...(video.channelId ? { channelId: video.channelId } : {}),

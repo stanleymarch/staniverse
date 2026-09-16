@@ -253,6 +253,15 @@ test("merged works redirect to the entity that absorbed them", async ({ page }) 
   await page.goto("/works/prodakshn-dlya-staniverse/");
   await expect(page).toHaveURL(/\/projects\/staniverse\/$/);
   await expect(page.getByRole("heading", { level: 1, name: "staniverse" })).toBeVisible();
+  await page.goto("/works/cases/prodakshn-dlya-ya-ty-gorod/");
+  await expect(page).toHaveURL(/\/projects\/ya-ty-gorod\/$/);
+  await page.goto("/works/prodakshn-dlya-ya-ty-gorod/");
+  await expect(page).toHaveURL(/\/projects\/ya-ty-gorod\/$/);
+  await page.goto("/works/cases/sayt-proekta-ya-ty-gorod/");
+  await expect(page).toHaveURL(/\/projects\/ya-ty-gorod\/$/);
+  await page.goto("/works/sayt-proekta-ya-ty-gorod/");
+  await expect(page).toHaveURL(/\/projects\/ya-ty-gorod\/$/);
+  await expect(page.getByRole("heading", { level: 1, name: "я.ты.город." })).toBeVisible();
 });
 
 test("layout has no horizontal overflow", async ({ page }) => {

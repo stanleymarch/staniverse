@@ -35,7 +35,8 @@
     "migrate:legacy": "tsx pipeline/migrate-legacy-content.ts",
     "videos:materialize": "tsx pipeline/materialize-videos.ts",
     "videos:sync": "tsx pipeline/sync-youtube.ts && npm run videos:materialize",
-    "videos:verify": "tsx pipeline/verify-videos.ts"
+    "videos:verify": "tsx pipeline/verify-videos.ts",
+    "videos:posters": "tsx pipeline/fetch-video-posters.ts"
   },
   "dependencies": {
     "@astrojs/check": "latest",

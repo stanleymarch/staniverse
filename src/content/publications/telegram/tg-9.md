@@ -7,7 +7,7 @@ date: "2023-09-27T21:05:40"
 updated: "2023-09-27T21:07:37"
 tags: []
 sourceTags: []
-topics: ["ai","metaverse","companions"]
+topics: []
 entities: []
 sourceUrl: "https://t.me/staniverse/9"
 sourceId: "9"

@@ -11,6 +11,8 @@ interface Props { entry: AnyEntry; nodes: GraphNode[]; edges: GraphEdge[]; chapt
 const { entry, nodes, edges, chapters=[] } = Astro.props;
 const { Content } = await render(entry);
 const status = entry.data.kind === "project" ? projectStatus[entry.data.status] : entry.data.kind === "work" ? workStatus[entry.data.status] : undefined;
+const stageVertical = entry.collection === "publications" && entry.data.format === "short";
+const stageClass = ["video-stage", { "is-vertical": stageVertical }];
 const embedUrl = entry.collection === "publications" ? entry.data.embedUrl : undefined;
 const publicationMeta = entry.collection === "publications" && entry.data.platform ? {
   platform: entry.data.platform === "youtube" ? "YouTube" : entry.data.platform === "vk" ? "VK Видео" : "Telegram",
@@ -81,16 +83,16 @@ const entryJsonLd: Record<string, unknown> = {
       </dl>}
     </header>
     {embedUrl && entry.collection === "publications" && entry.data.kind === "youtube-video" && entry.data.thumbnailUrl && (
-      <div class="video-stage" data-video-stage data-embed={embedUrl} data-title={entry.data.title}>
+      <div class:list={stageClass} data-video-stage data-embed={embedUrl} data-title={entry.data.title}>
         <button type="button" class="video-poster" data-video-play aria-label={`Смотреть: ${entry.data.title}`}>
           <img src={entry.data.thumbnailUrl} alt="" loading="eager" decoding="async" />
           <span class="video-poster-play" aria-hidden="true">▶</span>
         </button>
       </div>
     )}
-    {embedUrl && !(entry.collection === "publications" && entry.data.kind === "youtube-video" && entry.data.thumbnailUrl) && <div class="video-stage"><iframe src={embedUrl} title={entry.data.title} loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>}
+    {embedUrl && !(entry.collection === "publications" && entry.data.kind === "youtube-video" && entry.data.thumbnailUrl) && <div class:list={stageClass}><iframe src={embedUrl} title={entry.data.title} loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>}
     {channelVideos.length > 0 && <section class="channel-gallery" aria-labelledby="channel-gallery-title"><h2 id="channel-gallery-title">Ещё видео канала</h2><div class="channel-gallery-grid">{channelVideos.map((video) => <a href={hrefFor(video)}><img src={video.data.thumbnailUrl} alt="" loading="lazy" decoding="async" width="320" height="180" /><strong>{video.data.title}</strong></a>)}</div></section>}
-    {gallery.length > 0 && <div class="media-gallery" aria-label="Медиа публикации">{gallery.map((item,index)=>item.type==="image"?<a href={item.publicPath}><img src={item.publicPath} alt={`${entry.data.title} · изображение ${index+1}`} loading={index>0?"lazy":"eager"} decoding="async" /></a>:item.type==="video"?<video controls playsinline preload="metadata" src={item.publicPath}>Видео из публикации</video>:item.type==="audio"?<audio controls preload="metadata" src={item.publicPath}>Аудио из публикации</audio>:<a class="media-document" href={item.publicPath}>Открыть документ ↗</a>)}</div>}
+    {gallery.length > 0 && <div class="media-gallery" aria-label="Медиа публикации">{gallery.map((item,index)=>item.type==="image"?<a href={item.publicPath}><img src={item.publicPath} alt={`${entry.data.title} · изображение ${index+1}`} loading={index>0?"lazy":"eager"} decoding="async" /></a>:item.type==="video"?<video controls playsinline preload="metadata" width="320" height="180" src={item.publicPath}>Видео из публикации</video>:item.type==="audio"?<audio controls preload="metadata" src={item.publicPath}>Аудио из публикации</audio>:<a class="media-document" href={item.publicPath}>Открыть документ ↗</a>)}</div>}
     <div class="entry-grid">
       <div class="prose"><Content />
         {chapters.length>0&&<section class="project-chapters" aria-labelledby="project-chapters-title"><h2 id="project-chapters-title">Главы и результаты проекта</h2><p>Материалы собраны здесь в контексте собственной инициативы, а не среди заказных работ.</p><div>{chapters.map((chapter)=><a href={hrefFor(chapter)}><small>{chapter.data.kind==="work"?chapter.data.year:""}</small><strong>{chapter.data.title}</strong><span>{chapter.data.summary}</span></a>)}</div></section>}
@@ -116,17 +118,19 @@ const entryJsonLd: Record<string, unknown> = {
 </script>
 
 <style>
-  .video-poster { position: relative; display: block; width: 100%; padding: 0; border: 0; background: #05070d; cursor: pointer; }
-  .video-poster img { display: block; width: 100%; height: auto; opacity: .92; }
+  /* The stage box owns its aspect ratio; the poster fills it (cover trims the
+     baked-in pillarbox bars YouTube adds to Shorts thumbnails). */
+  .video-poster { position: absolute; inset: 0; display: block; width: 100%; height: 100%; padding: 0; border: 0; background: #05070d; cursor: pointer; }
+  .video-poster img { display: block; width: 100%; height: 100%; object-fit: cover; opacity: .92; }
   .video-poster:hover img, .video-poster:focus-visible img { opacity: 1; }
   .video-poster-play { position: absolute; top: 50%; left: 50%; display: grid; place-items: center; width: 4.2rem; height: 4.2rem; border: 2px solid rgba(255, 255, 255, .85); border-radius: 50%; background: rgba(5, 7, 13, .55); color: #fff; font-size: 1.3rem; transform: translate(-50%, -50%); transition: transform .2s ease, background .2s ease; }
   .video-poster:hover .video-poster-play, .video-poster:focus-visible .video-poster-play { transform: translate(-50%, -50%) scale(1.08); background: rgba(100, 223, 244, .35); }
-  .channel-gallery { max-width: 980px; margin: 2.5rem 0 0; }
-  .channel-gallery h2 { margin: 0 0 1rem; font: 500 1.2rem Unbounded; }
-  .channel-gallery-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; }
+  .channel-gallery { max-width: 980px; margin: var(--s-6) 0 0; }
+  .channel-gallery h2 { margin: 0 0 var(--s-4); font: 500 1.2rem Unbounded; }
+  .channel-gallery-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s-3); }
   .channel-gallery-grid a { min-width: 0; color: inherit; }
   .channel-gallery-grid img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border: 1px solid var(--line); }
-  .channel-gallery-grid strong { display: block; margin-top: .45rem; font-size: .82rem; font-weight: 500; line-height: 1.35; overflow-wrap: anywhere; }
+  .channel-gallery-grid strong { display: block; margin-top: var(--s-2); font-size: .82rem; font-weight: 500; line-height: 1.35; overflow-wrap: anywhere; }
   .channel-gallery-grid a:hover img, .channel-gallery-grid a:focus-visible img { border-color: var(--accent); }
   @media (max-width: 900px) { .channel-gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 </style>

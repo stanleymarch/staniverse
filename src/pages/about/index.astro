@@ -97,7 +97,7 @@ const { Content: Manifesto } = manifestoEntry ? await render(manifestoEntry) : {
 
 <style>
   .about-page { --about-cyan: #74d9f4; --about-ink: #f1f4fb; --about-muted: #9aa8c0; --about-line: rgba(145, 165, 198, .22); }
-  .about-page .catalog-hero { display: grid; grid-template-columns: minmax(0, 1.12fr) minmax(280px, .88fr); gap: clamp(2rem, 9vw, 9rem); max-width: 1440px; margin: 0 auto; padding: clamp(4rem, 9vw, 8rem) clamp(1rem, 4vw, 3.5rem) clamp(4rem, 8vw, 7rem); }
+  .about-page .catalog-hero { display: grid; grid-template-columns: minmax(0, 1.12fr) minmax(280px, .88fr); gap: clamp(2rem, 9vw, 9rem); max-width: 1440px; margin: 0 auto; padding: clamp(4rem, 9vw, 8rem) var(--rail) clamp(4rem, 8vw, 7rem); }
   .about-page .catalog-hero h1 { max-width: 9ch; margin: .45rem 0 1.5rem; color: var(--about-ink); font-size: clamp(2.5rem, 4.8vw, 4.8rem); line-height: .98; letter-spacing: -.045em; text-wrap: balance; }
   .about-page .hero-lead { max-width: 38rem; margin: 0; color: var(--about-muted); font-size: clamp(1rem, 1.5vw, 1.3rem); line-height: 1.55; }
   .about-page .hero-actions { margin-top: 2.2rem; }
@@ -107,7 +107,7 @@ const { Content: Manifesto } = manifestoEntry ? await render(manifestoEntry) : {
   .about-hero-note { align-self: end; max-width: 25rem; padding-top: 1rem; border-top: 1px solid var(--about-line); color: var(--about-muted); }
   .about-hero-note p { margin: 1rem 0 1.6rem; font-size: 1rem; line-height: 1.55; }
   .about-page .text-link { color: var(--about-cyan); font-size: .82rem; }
-  .about-page .section { max-width: 1440px; margin: 0 auto; padding: clamp(4rem, 8vw, 8rem) clamp(1rem, 4vw, 3.5rem); }
+  .about-page .section { max-width: 1440px; margin: 0 auto; padding: clamp(4rem, 8vw, 8rem) var(--rail); }
   .about-page .section-head { align-items: end; margin-bottom: 2rem; padding-bottom: 1.4rem; border-bottom: 1px solid var(--about-line); }
   .about-page .section-head h2 { margin: .4rem 0 0; color: var(--about-ink); font: 500 clamp(2rem, 4.5vw, 4.5rem)/.98 Unbounded; letter-spacing: -.045em; text-wrap: balance; }
   .about-intro-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem, 8vw, 8rem); }

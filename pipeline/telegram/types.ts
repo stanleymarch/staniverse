@@ -5,6 +5,7 @@ export interface TelegramMessage {
   date?: string;
   date_unixtime?: string;
   edited?: string;
+  edited_unixtime?: string;
   text?: string | Array<string | TelegramTextEntity>;
   text_entities?: TelegramTextEntity[];
   reply_to_message_id?: number;
