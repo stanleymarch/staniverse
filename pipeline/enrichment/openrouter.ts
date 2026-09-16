@@ -23,6 +23,15 @@ export function loadDotEnv(text: string) {
   }, "");
 }
 
+/** Same .env scan as loadDotEnv, for the Z.ai key (ZAI_API_KEY=...). */
+async function loadZaiKey() {
+  try {
+    const text = await readFile(".env", "utf8");
+    return text.split(/\r?\n/).map((line) => line.match(/^\s*ZAI_API_KEY\s*=\s*(.*?)\s*$/)?.[1]?.replace(/^['"]|['"]$/g, "") ?? "").find(Boolean) ?? "";
+  } catch {
+    return "";
+  }
+}
 const SYSTEM_PROMPT = [
   "Размечай только фрагменты sourceEvidence. Верни строгий JSON.",
   "Темы выбирай только из allowedTopicIds; topicDefinitions задают границы включения/исключения. Тем может быть несколько или ни одной.",
@@ -210,38 +219,40 @@ const sleep = (ms: number) => {
   return promise;
 };
 
-async function callOpenRouter(job: EnrichmentJob, model: string, apiKey: string): Promise<EnrichmentResult> {
+interface ProviderSpec { name: string; endpoint: string; extraHeaders: Record<string, string> }
+const PROVIDERS: Record<string, ProviderSpec> = {
+  openrouter: { name: "openrouter", endpoint: "https://openrouter.ai/api/v1/chat/completions", extraHeaders: { "HTTP-Referer": "https://staniverse.xyz", "X-Title": "Staniverse enrichment pilot" } },
+  // Z.ai exposes an OpenAI-compatible chat/completions endpoint; GLM flash
+  // models may reject strict json_schema, so the caller retries schemaless.
+  zai: { name: "zai", endpoint: "https://api.z.ai/api/paas/v4/chat/completions", extraHeaders: {} },
+};
+
+async function callOpenRouter(job: EnrichmentJob, model: string, apiKey: string, provider: ProviderSpec = PROVIDERS.openrouter): Promise<EnrichmentResult> {
   const sourceEvidence = buildEvidenceFragments(job.sourceText);
-  const body = JSON.stringify({
-    model,
-    temperature: 0,
-    response_format: { type: "json_schema", json_schema: { name: "staniverse_enrichment", strict: true, schema: responseSchema } },
-    messages: [
-      { role: "system", content: SYSTEM_PROMPT },
-      { role: "user", content: JSON.stringify({ sourceKind: job.sourceKind, sourceTitle: job.sourceTitle, sourceUrl: job.sourceUrl, sourceEvidence, existingTags: job.existingTags, allowedTopicIds: job.allowedTopicIds, topicDefinitions: job.topicDefinitions }) },
-    ],
-  });
+  let useSchema = true;
   let lastError = "";
-  // Free-tier capacity is request-limited, so retries must not consume the
-  // requests reserved for the remaining pilot sources.
-  const maxAttempts = model.endsWith(":free") ? 1 : 3;
+  const maxAttempts = model.endsWith(":free") ? 1 : 4;
   for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
-    if (attempt > 0) {
-      const retryAfter = Number(lastError.match(/retry after (\d+)/i)?.[1] ?? 0);
-      await sleep(Math.min(60_000, (attempt === 1 ? 2_000 : 8_000) + retryAfter * 1000));
-    }
+    if (attempt > 0) await sleep(attempt === 1 ? 2_000 : 8_000);
     let response: Response;
     try {
-      response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      response = await fetch(provider.endpoint, {
         method: "POST",
-        headers: { Authorization: "Bearer " + apiKey, "Content-Type": "application/json", "HTTP-Referer": "https://staniverse.xyz", "X-Title": "Staniverse enrichment pilot" },
-        body,
+        headers: { Authorization: "Bearer " + apiKey, "Content-Type": "application/json", ...provider.extraHeaders },
+        body: JSON.stringify({
+          model,
+          temperature: 0,
+ ...(useSchema ? [{ response_format: { type: "json_schema", json_schema: { name: "staniverse_enrichment", strict: true, schema: responseSchema } } }] : []),
+          messages: [
+            { role: "system", content: SYSTEM_PROMPT },
+            { role: "user", content: JSON.stringify({ sourceKind: job.sourceKind, sourceTitle: job.sourceTitle, sourceUrl: job.sourceUrl, sourceEvidence, existingTags: job.existingTags, allowedTopicIds: job.allowedTopicIds, topicDefinitions: job.topicDefinitions }) },
+          ],
+        }),
         signal: AbortSignal.timeout(120_000),
       });
     } catch (error) {
       lastError = String(error instanceof Error ? error.message : error);
-      if (attempt + 1 < maxAttempts) continue;
-      throw new Error("OpenRouter request failed for " + job.id + " (" + lastError + ")");
+      continue;
     }
     if (response.ok) {
       const payload = await response.json() as { choices?: Array<{ message?: { content?: string } }> };
@@ -250,7 +261,7 @@ async function callOpenRouter(job: EnrichmentJob, model: string, apiKey: string)
       try {
         const parsed = retainGroundedTopics(hydrateEvidence(JSON.parse(text), sourceEvidence), job);
         if (!valid(parsed, job)) throw new Error(validationError(parsed, job));
-        return { ...parsed, id: job.id, textHash: job.textHash, promptVersion: PROMPT_VERSION, provider: "openrouter", model, createdAt: new Date().toISOString() };
+        return { ...parsed, id: job.id, textHash: job.textHash, promptVersion: PROMPT_VERSION, provider: provider.name, model, createdAt: new Date().toISOString() };
       } catch (error) {
         // Malformed or contract-invalid model output is retriable like a transport failure.
         lastError = String(error instanceof Error ? error.message : error);
@@ -258,10 +269,12 @@ async function callOpenRouter(job: EnrichmentJob, model: string, apiKey: string)
       }
     }
     const errorText = await response.text();
-    if (response.status === 429 || response.status >= 500) { lastError = response.status + ": " + errorText.slice(0, 200); continue; }
-    throw new Error("OpenRouter " + response.status + ": " + errorText.slice(0, 200));
+    lastError = response.status + ": " + errorText.slice(0, 200);
+    if (response.status === 429 || response.status >= 500) continue;
+    if (response.status === 400 && useSchema && /response_format|json_schema/i.test(errorText)) { useSchema = false; continue; }
+    throw new Error(provider.name + " " + response.status + ": " + errorText.slice(0, 200));
   }
-  throw new Error("OpenRouter retries exhausted for " + job.id + " (" + lastError + ")");
+  throw new Error(provider.name + " retries exhausted for " + job.id + " (" + lastError + ")");
 }
 
 function jobSplit(id: string): PilotSplit {
@@ -295,17 +308,22 @@ async function main() {
   const full = flag("--full");
   const split = (value("--split") ?? "all") as PilotSplit;
   const limit = Number(value("--limit"));
-  const positional = argv.filter((v, i) => !v.startsWith("--") && !["--pilot", "--full", "--split", "--limit"].includes(argv[i - 1] ?? ""));
+  const positional = argv.filter((v, i) => !v.startsWith("--") && !["--pilot", "--full", "--split", "--limit", "--provider"].includes(argv[i - 1] ?? ""));
   const input = positional[0] ?? "pipeline/enrichment/jobs/pilot.jsonl";
   const output = positional[1] ?? (full ? "pipeline/enrichment/review/full-openrouter.json" : "pipeline/enrichment/review/pilot-openrouter.json");
-  const model = positional[2] ?? process.env.OPENROUTER_MODEL ?? DEFAULT_MODEL;
-  if (!flag("--pilot") && !full) throw new Error("Refusing OpenRouter run: pass --pilot or --full explicitly.");
+  const providerName = value("--provider") ?? "openrouter";
+  const provider = PROVIDERS[providerName];
+  if (!provider) throw new Error(`Unknown provider "${providerName}"; known: ${Object.keys(PROVIDERS).join(", ")}.`);
+  const defaultModel = providerName === "zai" ? "glm-5.3-flash" : DEFAULT_MODEL;
+  const model = positional[2] ?? (providerName === "zai" ? process.env.ZAI_MODEL : process.env.OPENROUTER_MODEL) ?? defaultModel;
+  if (!flag("--pilot") && !full) throw new Error("Refusing enrichment run: pass --pilot or --full explicitly.");
   if (!full) {
     if (!["tuning", "holdout", "all"].includes(split)) throw new Error("--split must be tuning, holdout or all.");
     if (!Number.isInteger(limit) || limit < 1 || limit > 30) throw new Error("--limit must be a positive integer <= 30.");
   }
-  const apiKey = await keyFromEnv();
-  if (!apiKey) throw new Error("OPENROUTER_API_KEY is required (process environment or local .env).");
+  const envKey = providerName === "zai" ? "ZAI_API_KEY" : "OPENROUTER_API_KEY";
+  const apiKey = providerName === "zai" ? (process.env.ZAI_API_KEY ?? await loadZaiKey()) : await keyFromEnv();
+  if (!apiKey) throw new Error(envKey + " is required (process environment or local .env).");
   const jobs = (await readFile(resolve(input), "utf8")).split(/\r?\n/).filter(Boolean)
     .map((line) => JSON.parse(line) as EnrichmentJob)
     .filter((job) => full || split === "all" || jobSplit(job.id) === split);
@@ -339,7 +357,7 @@ async function main() {
         results.push(cached);
         return;
       }
-      const result = await callOpenRouter(job, model, apiKey);
+      const result = await callOpenRouter(job, model, apiKey, provider);
       results.push(result);
       await writeFile(cachePath, JSON.stringify(result), "utf8");
     } catch (error) {
@@ -354,7 +372,7 @@ async function main() {
       await processJob(job);
       completed += 1;
       if (completed % 10 === 0) await writeBundle(output, results, errors);
-      if (budgetFloor > 0 && completed % 25 === 0) {
+      if (provider.name === "openrouter" && budgetFloor > 0 && completed % 25 === 0) {
         const remaining = await remainingBudget(apiKey);
         if (remaining !== null && remaining < budgetFloor) stoppedForBudget = true;
       }
