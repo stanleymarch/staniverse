@@ -4,8 +4,11 @@ import { readPublications } from "./enrichment/prepare";
 
 const root = resolve(process.argv[2] ?? "public/media/telegram");
 const archivePath = process.argv[3] ?? "pipeline/telegram/archive/canonical.json";
-const maxFileBytes = Number(process.env.MEDIA_MAX_FILE_MB ?? 9.5) * 1024 * 1024;
-const maxTotalBytes = Number(process.env.MEDIA_MAX_TOTAL_MB ?? 250) * 1024 * 1024;
+// Caps track the real deploy platform limits: 100MB per file is Git's hard
+// ceiling (95 with headroom), 1GB is the GitHub Pages published-site limit
+// (950 with headroom). Tighter curation belongs to the import pipeline.
+const maxFileBytes = Number(process.env.MEDIA_MAX_FILE_MB ?? 95) * 1024 * 1024;
+const maxTotalBytes = Number(process.env.MEDIA_MAX_TOTAL_MB ?? 950) * 1024 * 1024;
 const files = await readdir(root);
 const sizes = await Promise.all(files.map(async (name) => ({ name, bytes: (await stat(resolve(root, name))).size })));
 const totalBytes = sizes.reduce((sum, file) => sum + file.bytes, 0);

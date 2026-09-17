@@ -263,7 +263,12 @@ async function callOpenRouter(job: EnrichmentJob, model: string, apiKey: string,
         body: JSON.stringify({
           model,
           temperature: 0,
- ...(useSchema ? [{ response_format: { type: "json_schema", json_schema: { name: "staniverse_enrichment", strict: true, schema: responseSchema } } }] : []),
+          // Only providers that honor every parameter (response_format incl.)
+          // may serve the request: without this OpenRouter load-balances onto
+          // backends without strict-schema support, the 400 fallback silently
+          // downgrades to schemaless answers, and evidence grounding dies.
+          ...(provider.name === "openrouter" ? [{ provider: { require_parameters: true } }] : []),
+          ...(useSchema ? [{ response_format: { type: "json_schema", json_schema: { name: "staniverse_enrichment", strict: true, schema: responseSchema } } }] : []),
           messages: [
             { role: "system", content: SYSTEM_PROMPT },
             { role: "user", content: JSON.stringify({ sourceKind: job.sourceKind, sourceTitle: job.sourceTitle, sourceUrl: job.sourceUrl, sourceEvidence, existingTags: job.existingTags, allowedTopicIds: job.allowedTopicIds, topicDefinitions: job.topicDefinitions }) },
