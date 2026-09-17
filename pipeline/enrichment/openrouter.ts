@@ -383,23 +383,27 @@ async function main() {
   let completed = 0;
   let stoppedForBudget = false;
 
+  // Cache reuse across models: a validated enrichment does not depend on which
+  // cheap model produced it. Weak results (no topics + needsReview) count as
+  // misses so a stronger model can re-tag them.
+  const FALLBACK_CACHE_MODELS = [DEFAULT_MODEL, "z-ai/glm-5.3-flash"].filter((candidate) => candidate !== model);
+  const readCache = async (path: string) =>
+    readFile(path, "utf8").then((text) => JSON.parse(text) as EnrichmentResult).catch(() => undefined);
+  const reusable = (cached: EnrichmentResult | undefined, job: EnrichmentJob): cached is EnrichmentResult =>
+    !!cached && cached.id === job.id && valid(cached, job) && (cached.topics.length > 0 || cached.needsReview !== true);
   const processJob = async (job: EnrichmentJob) => {
-    const legacyCachePath = model === DEFAULT_MODEL ? null : resolve(CACHE_DIR, cacheKey(job, DEFAULT_MODEL) + ".json");
-    const readCache = async (path: string | null) =>
-      path ? await readFile(path, "utf8").then((text) => JSON.parse(text) as EnrichmentResult).catch(() => undefined) : undefined;
     try {
       const cachePath = resolve(CACHE_DIR, cacheKey(job, model) + ".json");
       const cached = await readCache(cachePath);
-      if (cached && valid(cached, job) && cached.id === job.id) {
+      if (reusable(cached, job)) {
         results.push(cached);
         return;
       }
-      // deepseek-produced cache entries stay reusable under a new model: a
-      // validated enrichment does not depend on which cheap model produced it.
-      const legacy = await readCache(legacyCachePath);
-      if (legacy && valid(legacy, job) && legacy.id === job.id) {
+      for (const fallbackModel of FALLBACK_CACHE_MODELS) {
+        const legacy = await readCache(resolve(CACHE_DIR, cacheKey(job, fallbackModel) + ".json"));
+        if (!reusable(legacy, job)) continue;
         results.push(legacy);
-        await writeFile(resolve(CACHE_DIR, cacheKey(job, model) + ".json"), JSON.stringify(legacy), "utf8");
+        await writeFile(cachePath, JSON.stringify(legacy), "utf8");
         return;
       }
       const result = await callOpenRouter(job, model, apiKey, provider);

@@ -12,7 +12,6 @@ pipeline/telegram/archive/
 pipeline/telegram/private/
 pipeline/telegram/incoming/
 pipeline/enrichment/jobs/
-pipeline/enrichment/generated/full.json
 pipeline/enrichment/review/
 test-results/
 playwright-report/
