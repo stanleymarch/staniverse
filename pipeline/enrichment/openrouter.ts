@@ -132,7 +132,11 @@ function sourceIncludesQuote(sourceText: string, quote: string) {
 export function retainGroundedTopics(value: unknown, job: EnrichmentJob): unknown {
   if (!value || typeof value !== "object") return value;
   const raw = value as Record<string, unknown>;
-  if (!Array.isArray(raw.topics) || !Array.isArray(raw.topicEvidence)) return value;
+  if (!Array.isArray(raw.topics) || !Array.isArray(raw.topicEvidence)) {
+    // Schemaless fallback answers may omit arrays entirely: treat as empty
+    // (reviewable) instead of passing through and failing validation later.
+    return { ...raw, entities: Array.isArray(raw.entities) ? raw.entities : [], topics: [], topicEvidence: [], relations: [], needsReview: true };
+  }
 
   const topics: string[] = [];
   const topicEvidence: Array<{ topicId: string; quote: string }> = [];
@@ -165,19 +169,28 @@ export function retainGroundedTopics(value: unknown, job: EnrichmentJob): unknow
   if (topics.length !== raw.topics.length || topicEvidence.length !== raw.topicEvidence.length) repaired = true;
   const relations = Array.isArray(raw.relations) ? raw.relations : [];
   if (relations.length > 0) repaired = true;
-  return {
+  const fallbackArrays = {
     ...raw,
+    entities: Array.isArray(raw.entities) ? raw.entities : [],
+    ...(Array.isArray(raw.topics) ? {} : { topics: [] as string[] }),
+    ...(Array.isArray(raw.topicEvidence) ? {} : { topicEvidence: [] as unknown[] }),
+  };
+  return {
+    ...fallbackArrays,
     topics,
     topicEvidence,
     relations: [],
-    needsReview: typeof raw.needsReview === "boolean" ? raw.needsReview || repaired : raw.needsReview,
+    // Missing flag means the model skipped an explicit verdict: send to review.
+    needsReview: typeof raw.needsReview === "boolean" ? raw.needsReview || repaired : true,
   };
 }
 
 function validationError(value: unknown, job: EnrichmentJob): string | undefined {
   if (!value || typeof value !== "object") return "response is not an object";
   const v = value as Record<string, unknown>;
-  if (typeof v.summary !== "string") return "summary is missing";
+  // summary is a courtesy field (combine falls back to ""); models increasingly
+  // omit it under strict schemas, and rejecting for it alone burns paid attempts.
+  if (typeof v.summary !== "string" && !("topics" in v)) return "summary is missing";
   if (!Array.isArray(v.topics) || !Array.isArray(v.entities) || !Array.isArray(v.topicEvidence) || typeof v.needsReview !== "boolean") return "required arrays or needsReview are missing";
   const rawRelations = v.relations ?? [];
   if (!Array.isArray(rawRelations)) return "relations must be an array when present";
@@ -258,10 +271,11 @@ async function callOpenRouter(job: EnrichmentJob, model: string, apiKey: string,
       const payload = await response.json() as { choices?: Array<{ message?: { content?: string } }> };
       const text = payload.choices?.[0]?.message?.content;
       if (typeof text !== "string") { lastError = "no JSON content"; continue; }
+      const stripped = text.replace(/^\s*```(?:json)?\s*\n?/i, "").replace(/\n?\s*```\s*$/i, "");
       try {
-        const parsed = retainGroundedTopics(hydrateEvidence(JSON.parse(text), sourceEvidence), job);
+        const parsed = retainGroundedTopics(hydrateEvidence(JSON.parse(stripped), sourceEvidence), job);
         if (!valid(parsed, job)) throw new Error(validationError(parsed, job));
-        return { ...parsed, id: job.id, textHash: job.textHash, promptVersion: PROMPT_VERSION, provider: provider.name, model, createdAt: new Date().toISOString() };
+        return { ...parsed, summary: typeof parsed.summary === "string" ? parsed.summary : "", id: job.id, textHash: job.textHash, promptVersion: PROMPT_VERSION, provider: provider.name, model, createdAt: new Date().toISOString() };
       } catch (error) {
         // Malformed or contract-invalid model output is retriable like a transport failure.
         lastError = String(error instanceof Error ? error.message : error);
