@@ -169,14 +169,21 @@ export function retainGroundedTopics(value: unknown, job: EnrichmentJob): unknow
   if (topics.length !== raw.topics.length || topicEvidence.length !== raw.topicEvidence.length) repaired = true;
   const relations = Array.isArray(raw.relations) ? raw.relations : [];
   if (relations.length > 0) repaired = true;
-  const fallbackArrays = {
-    ...raw,
-    entities: Array.isArray(raw.entities) ? raw.entities : [],
-    ...(Array.isArray(raw.topics) ? {} : { topics: [] as string[] }),
-    ...(Array.isArray(raw.topicEvidence) ? {} : { topicEvidence: [] as unknown[] }),
-  };
+  // GLM flash sometimes returns entity objects ({name, kind}) instead of
+  // plain strings; salvage the label and drop the rest.
+  const entities = (Array.isArray(raw.entities) ? raw.entities : []).flatMap((entity) => {
+    if (typeof entity === "string") return entity.trim() ? [entity] : [];
+    if (entity && typeof entity === "object") {
+      const item = entity as Record<string, unknown>;
+      const label = [item.name, item.text, item.label, item.term].find((candidate) => typeof candidate === "string" && candidate.trim());
+      return typeof label === "string" ? [label] : [];
+    }
+    return [];
+  });
+  if (entities.length !== (Array.isArray(raw.entities) ? raw.entities.length : 0)) repaired = true;
   return {
-    ...fallbackArrays,
+    ...raw,
+    entities,
     topics,
     topicEvidence,
     relations: [],
@@ -189,12 +196,13 @@ function validationError(value: unknown, job: EnrichmentJob): string | undefined
   if (!value || typeof value !== "object") return "response is not an object";
   const v = value as Record<string, unknown>;
   // summary is a courtesy field (combine falls back to ""); models increasingly
-  // omit it under strict schemas, and rejecting for it alone burns paid attempts.
-  if (typeof v.summary !== "string" && !("topics" in v)) return "summary is missing";
   if (!Array.isArray(v.topics) || !Array.isArray(v.entities) || !Array.isArray(v.topicEvidence) || typeof v.needsReview !== "boolean") return "required arrays or needsReview are missing";
+  if (typeof v.summary !== "string" && !("topics" in v)) return "summary is missing";
   const rawRelations = v.relations ?? [];
   if (!Array.isArray(rawRelations)) return "relations must be an array when present";
-  if (v.topics.length > 8 || v.entities.length > 12 || rawRelations.length > 8 || v.topicEvidence.length !== v.topics.length) return "result exceeds limits or topic evidence count differs";
+  const rawEntities = v.entities as unknown[];
+  if (v.topics.length > 8 || rawEntities.length > 12 || rawRelations.length > 8 || v.topicEvidence.length !== v.topics.length) return "result exceeds limits or topic evidence count differs";
+  if (rawEntities.some((entity) => typeof entity !== "string")) return "an entity is not a string";
   const topics = v.topics as string[];
   if (topics.some((id) => !job.allowedTopicIds.includes(id))) return "an unknown topic was returned";
   if (new Set(topics).size !== topics.length) return "a topic was repeated";
@@ -272,8 +280,20 @@ async function callOpenRouter(job: EnrichmentJob, model: string, apiKey: string,
       const text = payload.choices?.[0]?.message?.content;
       if (typeof text !== "string") { lastError = "no JSON content"; continue; }
       const stripped = text.replace(/^\s*```(?:json)?\s*\n?/i, "").replace(/\n?\s*```\s*$/i, "");
+      const parseFirstObject = (raw: string): unknown => {
+        try {
+          return JSON.parse(raw);
+        } catch {
+          // GLM flash occasionally appends prose or a second fragment after
+          // the object; salvage the outermost {...} instead of failing.
+          const start = raw.indexOf("{");
+          const end = raw.lastIndexOf("}");
+          if (start >= 0 && end > start) return JSON.parse(raw.slice(start, end + 1));
+          throw new Error("no JSON object in response");
+        }
+      };
       try {
-        const parsed = retainGroundedTopics(hydrateEvidence(JSON.parse(stripped), sourceEvidence), job);
+        const parsed = retainGroundedTopics(hydrateEvidence(parseFirstObject(stripped), sourceEvidence), job);
         if (!valid(parsed, job)) throw new Error(validationError(parsed, job));
         return { ...parsed, summary: typeof parsed.summary === "string" ? parsed.summary : "", id: job.id, textHash: job.textHash, promptVersion: PROMPT_VERSION, provider: provider.name, model, createdAt: new Date().toISOString() };
       } catch (error) {
@@ -364,11 +384,22 @@ async function main() {
   let stoppedForBudget = false;
 
   const processJob = async (job: EnrichmentJob) => {
-    const cachePath = resolve(CACHE_DIR, cacheKey(job, model) + ".json");
+    const legacyCachePath = model === DEFAULT_MODEL ? null : resolve(CACHE_DIR, cacheKey(job, DEFAULT_MODEL) + ".json");
+    const readCache = async (path: string | null) =>
+      path ? await readFile(path, "utf8").then((text) => JSON.parse(text) as EnrichmentResult).catch(() => undefined) : undefined;
     try {
-      const cached = await readFile(cachePath, "utf8").then((text) => JSON.parse(text) as EnrichmentResult).catch(() => undefined);
+      const cachePath = resolve(CACHE_DIR, cacheKey(job, model) + ".json");
+      const cached = await readCache(cachePath);
       if (cached && valid(cached, job) && cached.id === job.id) {
         results.push(cached);
+        return;
+      }
+      // deepseek-produced cache entries stay reusable under a new model: a
+      // validated enrichment does not depend on which cheap model produced it.
+      const legacy = await readCache(legacyCachePath);
+      if (legacy && valid(legacy, job) && legacy.id === job.id) {
+        results.push(legacy);
+        await writeFile(resolve(CACHE_DIR, cacheKey(job, model) + ".json"), JSON.stringify(legacy), "utf8");
         return;
       }
       const result = await callOpenRouter(job, model, apiKey, provider);
