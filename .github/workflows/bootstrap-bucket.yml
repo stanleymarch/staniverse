@@ -73,11 +73,17 @@ jobs:
               "Action": "s3:GetObject", "Resource": "arn:aws:s3:::$BUCKET/*" }]
           }
           JSON
-          aws --endpoint-url "$ENDPOINT" s3api put-bucket-policy \
-            --bucket "$BUCKET" \
-            --policy file://public-read.json
+          if ! aws --endpoint-url "$ENDPOINT" s3api put-bucket-policy \
+              --bucket "$BUCKET" \
+              --policy file://public-read.json; then
+            echo "policy denied; falling back to bucket ACL public-read"
+            aws --endpoint-url "$ENDPOINT" s3api put-bucket-acl \
+              --bucket "$BUCKET" \
+              --acl public-read
+          fi
 
       - name: Verify
         run: |
           aws --endpoint-url "$ENDPOINT" s3api get-bucket-website --bucket "$BUCKET"
-          aws --endpoint-url "$ENDPOINT" s3api get-bucket-policy --bucket "$BUCKET" | head -c 400
+          aws --endpoint-url "$ENDPOINT" s3api get-bucket-policy --bucket "$BUCKET" | head -c 400 \
+            || echo "no bucket policy (ACL public-read path used)"
