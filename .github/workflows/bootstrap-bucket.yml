@@ -32,6 +32,17 @@ jobs:
           test -n "$ENDPOINT"
           test -n "$BUCKET"
 
+      # Distinguishes bad credentials (400 on a plain GET) from bucket-specific
+      # issues before anything is created.
+      - name: Verify credentials against the endpoint
+        run: |
+          set -o pipefail
+          aws --endpoint-url "$ENDPOINT" s3 ls 2>&1 | tee aws-list.log
+          if grep -qi "BadRequest\|InvalidAccessKeyId\|SignatureDoesNotMatch" aws-list.log; then
+            echo "::error::Credentials rejected by Yandex Object Storage. Check YC_ACCESS_KEY_ID / YC_SECRET_ACCESS_KEY for typos, trailing whitespace or swapped values."
+            exit 1
+          fi
+
       # Bucket name must equal the FQDN for own-domain website hosting.
       - name: Create bucket if missing
         run: |
