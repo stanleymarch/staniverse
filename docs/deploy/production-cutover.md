@@ -332,6 +332,21 @@ Yandex не гарантирует неизменность этих адрес�
 
 Обычный CNAME на apex поддерживается не всеми DNS-провайдерами.
 
+### Если DNS уже на Cloudflare
+
+NS-перенос в Yandex не нужен: Cloudflare делает CNAME flattening на apex
+автоматически (включая бесплатный тариф). Добавить записи:
+
+```text
+CNAME  @     staniverse.xyz.website.yandexcloud.net   DNS only (серое облако)
+CNAME  www   staniverse.xyz.website.yandexcloud.net   DNS only
+```
+
+Обязательно «DNS only»: прокси Cloudflare (оранжевое облако) ставит весь
+RU-трафик за его плечи, которые из РФ нестабильны. TLS в этой схеме — только
+сертификатом Яндекса (шаг выше); вариант «прокси + Flexible SSL» отвергнут
+сознательно.
+
 Безопасный порядок:
 
 1. Сохранить старые DNS-записи.
