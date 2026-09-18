@@ -43,17 +43,26 @@ jobs:
             exit 1
           fi
           if grep -qi "AccessDenied" aws-list.log; then
-            echo "::warning::Signature valid, but ListBuckets is denied — the service account probably lacks the storage.editor role on the folder. Bucket operations may still work; continuing."
+            echo "::warning::Signature valid, but ListBuckets is denied — bucket-scoped rights may still be present; continuing."
           fi
 
       # Bucket name must equal the FQDN for own-domain website hosting.
       - name: Create bucket if missing
         run: |
-          aws --endpoint-url "$ENDPOINT" s3api head-bucket --bucket "$BUCKET" \
-            && echo "bucket already exists" \
-            || aws --endpoint-url "$ENDPOINT" s3api create-bucket \
-                 --bucket "$BUCKET" \
-                 --region ru-central1
+          set +e
+          aws --endpoint-url "$ENDPOINT" s3api head-bucket --bucket "$BUCKET"
+          if [ $? -eq 0 ]; then
+            echo "bucket already exists"
+          else
+            err=$(aws --endpoint-url "$ENDPOINT" s3api create-bucket \
+              --bucket "$BUCKET" --region ru-central1 2>&1)
+            rc=$?
+            if [ $rc -ne 0 ] && ! echo "$err" | grep -q "BucketAlreadyOwnedByYou"; then
+              echo "$err"
+              exit $rc
+            fi
+            echo "create-bucket ok (or already owned by this account)"
+          fi
 
       - name: Attach website hosting (index.html / 404.html)
         run: |
