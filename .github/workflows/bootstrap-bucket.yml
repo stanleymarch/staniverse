@@ -64,14 +64,20 @@ jobs:
             echo "create-bucket ok (or already owned by this account)"
           fi
 
+      # Yandex IAM bindings propagate with flapping; retry each mutation a few times.
       - name: Attach website hosting (index.html / 404.html)
         run: |
           cat > website.json <<'JSON'
           { "IndexDocument": { "Suffix": "index.html" }, "ErrorDocument": { "Key": "404.html" } }
           JSON
-          aws --endpoint-url "$ENDPOINT" s3api put-bucket-website \
-            --bucket "$BUCKET" \
-            --website-configuration file://website.json
+          for attempt in 1 2 3 4; do
+            aws --endpoint-url "$ENDPOINT" s3api put-bucket-website \
+              --bucket "$BUCKET" \
+              --website-configuration file://website.json && break
+            [ "$attempt" = 4 ] && exit 1
+            echo "attempt $attempt denied; waiting for IAM propagation"
+            sleep 20
+          done
 
       - name: Allow public object reads
         run: |
@@ -82,14 +88,19 @@ jobs:
               "Action": "s3:GetObject", "Resource": "arn:aws:s3:::$BUCKET/*" }]
           }
           JSON
-          if ! aws --endpoint-url "$ENDPOINT" s3api put-bucket-policy \
-              --bucket "$BUCKET" \
-              --policy file://public-read.json; then
-            echo "policy denied; falling back to bucket ACL public-read"
-            aws --endpoint-url "$ENDPOINT" s3api put-bucket-acl \
-              --bucket "$BUCKET" \
-              --acl public-read
-          fi
+          for attempt in 1 2 3 4; do
+            if aws --endpoint-url "$ENDPOINT" s3api put-bucket-policy \
+                --bucket "$BUCKET" \
+                --policy file://public-read.json; then
+              exit 0
+            fi
+            echo "policy attempt $attempt denied; waiting"
+            sleep 20
+          done
+          echo "policy denied after retries; falling back to bucket ACL public-read"
+          aws --endpoint-url "$ENDPOINT" s3api put-bucket-acl \
+            --bucket "$BUCKET" \
+            --acl public-read
 
       - name: Verify
         run: |
