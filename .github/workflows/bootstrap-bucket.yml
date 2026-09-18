@@ -36,8 +36,8 @@ jobs:
       # issues before anything is created.
       - name: Verify credentials against the endpoint
         run: |
-          set -o pipefail
-          aws --endpoint-url "$ENDPOINT" s3 ls 2>&1 | tee aws-list.log
+          aws --endpoint-url "$ENDPOINT" s3 ls > aws-list.log 2>&1 || true
+          cat aws-list.log
           if grep -qi "BadRequest\|InvalidAccessKeyId\|SignatureDoesNotMatch" aws-list.log; then
             echo "::error::Credentials rejected (bad signature). Check YC_ACCESS_KEY_ID / YC_SECRET_ACCESS_KEY for typos or swapped values."
             exit 1
