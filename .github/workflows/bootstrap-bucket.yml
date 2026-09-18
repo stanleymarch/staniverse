@@ -64,6 +64,20 @@ jobs:
             echo "create-bucket ok (or already owned by this account)"
           fi
 
+      # Remove any legacy bucket policy first: Yandex evaluates a policy against
+      # every request, so an Allow-only policy locks out the owner console and
+      # every non-listed operation. storage.admin is exempt, hence this works.
+      - name: Remove lockout bucket policy
+        run: |
+          for attempt in 1 2 3 4; do
+            aws --endpoint-url "$ENDPOINT" s3api delete-bucket-policy \
+              --bucket "$BUCKET" && break
+            [ "$attempt" = 4 ] && { echo "policy delete still denied"; exit 1; }
+            echo "policy delete attempt $attempt denied; waiting"
+            sleep 20
+          done
+          echo "bucket policy removed"
+
       # Yandex IAM bindings propagate with flapping; retry each mutation a few times.
       - name: Attach website hosting (index.html / 404.html)
         run: |
