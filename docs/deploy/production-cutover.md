@@ -317,6 +317,19 @@ staniverse.xyz.website.yandexcloud.net
 - CNAME flattening;
 - эквивалентную запись Yandex Cloud DNS.
 
+
+Если ни ANAME, ни flattening у провайдера нет — apex можно указать прямыми
+A/AAAA-записями на текущий anycast endpoint (проверено 2026-09-18):
+
+```text
+A     213.180.193.247
+AAAA  2a02:6b8::1da
+```
+
+Yandex не гарантирует неизменность этих адресов: раз в несколько месяцев
+проверять `getent hosts website.yandexcloud.net`. `www` — обычный CNAME на
+`staniverse.xyz.website.yandexcloud.net`.
+
 Обычный CNAME на apex поддерживается не всеми DNS-провайдерами.
 
 Безопасный порядок:
