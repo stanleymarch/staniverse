@@ -1,0 +1,69 @@
+name: Bootstrap Yandex Object Storage bucket
+
+# One-shot infrastructure bootstrap, safe to re-run (idempotent): creates the
+# staniverse.xyz bucket if missing, attaches website hosting with the custom
+# 404.html error document, and sets the public-read object policy.
+# Playbook: docs/deploy/production-cutover.md (§5–7). Run manually only.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: ru-central1
+      AWS_EC2_METADATA_DISABLED: "true"
+      ENDPOINT: ${{ vars.YC_ENDPOINT }}
+      BUCKET: ${{ vars.YC_BUCKET }}
+
+    steps:
+      - name: Validate configuration
+        run: |
+          test -n "$AWS_ACCESS_KEY_ID"
+          test "$AWS_ACCESS_KEY_ID" != "REPLACE_WITH_YANDEX_ACCESS_KEY_ID"
+          test -n "$AWS_SECRET_ACCESS_KEY"
+          test "$AWS_SECRET_ACCESS_KEY" != "REPLACE_WITH_YANDEX_SECRET_ACCESS_KEY"
+          test -n "$ENDPOINT"
+          test -n "$BUCKET"
+
+      # Bucket name must equal the FQDN for own-domain website hosting.
+      - name: Create bucket if missing
+        run: |
+          aws --endpoint-url "$ENDPOINT" s3api head-bucket --bucket "$BUCKET" \
+            && echo "bucket already exists" \
+            || aws --endpoint-url "$ENDPOINT" s3api create-bucket \
+                 --bucket "$BUCKET" \
+                 --region ru-central1
+
+      - name: Attach website hosting (index.html / 404.html)
+        run: |
+          cat > website.json <<'JSON'
+          { "IndexDocument": { "Suffix": "index.html" }, "ErrorDocument": { "Key": "404.html" } }
+          JSON
+          aws --endpoint-url "$ENDPOINT" s3api put-bucket-website \
+            --bucket "$BUCKET" \
+            --website-configuration file://website.json
+
+      - name: Allow public object reads
+        run: |
+          cat > public-read.json <<JSON
+          {
+            "Version": "2012-10-17",
+            "Statement": [{ "Sid": "PublicRead", "Effect": "Allow", "Principal": "*",
+              "Action": "s3:GetObject", "Resource": "arn:aws:s3:::$BUCKET/*" }]
+          }
+          JSON
+          aws --endpoint-url "$ENDPOINT" s3api put-bucket-policy \
+            --bucket "$BUCKET" \
+            --policy file://public-read.json
+
+      - name: Verify
+        run: |
+          aws --endpoint-url "$ENDPOINT" s3api get-bucket-website --bucket "$BUCKET"
+          aws --endpoint-url "$ENDPOINT" s3api get-bucket-policy --bucket "$BUCKET" | head -c 400

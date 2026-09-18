@@ -16,3 +16,5 @@ pipeline/enrichment/review/
 test-results/
 playwright-report/
 .audit/
+.omp/
+tmp/
