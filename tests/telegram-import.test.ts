@@ -6,7 +6,68 @@ import { publicationDisplay } from "../pipeline/telegram/display";
 import { mergeMessages } from "../pipeline/telegram/incremental";
 import { enrichLocally } from "../pipeline/enrichment/catalog";
 import { mergeEnrichment } from "../pipeline/enrichment/merge";
+import { renderEntity } from "../pipeline/telegram/normalize";
+import { inlineTelegramMedia } from "../pipeline/telegram/inline-media";
+test("bold spanning a paragraph break closes inside each paragraph instead of leaking asterisks", () => {
+  const render = renderText({ id: 1, date: "2024-06-27T21:08:43", date_unixtime: "1",
+    text_entities: [
+      { type: "plain", text: "" },
+      { type: "bold", text: "Google релизнули Gemma 2\n\n" },
+      { type: "bold", text: "Можно скачать веса" },
+      { type: "plain", text: "\n\nДальше текст." },
+    ] });
+  // The closing marker must never land in the next paragraph: each paragraph's
+  // asterisk count stays even, so nothing renders as literal **.
+  assert.equal((render.match(/\*\*/g) ?? []).length % 2, 0);
+  render.split(/\n{2,}/).forEach((paragraph) => {
+    assert.equal((paragraph.match(/\*\*/g) ?? []).length % 2, 0, paragraph);
+  });
+  assert.match(render, /\*\*Google релизнули Gemma 2\*\*/);
+  assert.match(render, /\*\*Можно скачать веса\*\*/);
+  // Italic gets the same guarantee, and emphasis whitespace stays outside the markers.
+  const italic = renderEntity({ type: "italic", text: "  важно  " });
+  assert.equal(italic, "  _важно_  ");
+});
 
+test("a post opening with a continuation phrase merges into the previous publication", () => {
+  const posts = normalizeExport({messages:[
+    {id:270,date:"2026-01-10T10:00:00",date_unixtime:"10",text:"Моё увлечение аудиотехникой началось давно"},
+    {id:271,date:"2026-01-10T11:00:00",date_unixtime:"11",text:"продолжение поста\n\nВыбрал Premiera Eco BT"},
+  ]});
+  assert.equal(posts.length,1);
+  assert.equal(posts[0].sourceId,"270");
+  assert.deepEqual(posts[0].threadIds,["270","271"]);
+  assert.match(posts[0].body,/увлечение аудиотехникой/);
+  assert.match(posts[0].body,/Premiera Eco BT/);
+});
+
+test("начало-here chains merge transitively into the first post", () => {
+  const posts = normalizeExport({messages:[
+    {id:992,date:"2026-02-01T09:00:00",date_unixtime:"1",text:"Разбор года: часть первая"},
+    {id:993,date:"2026-02-01T10:00:00",date_unixtime:"2",text:"начало здесь\n2. Виртуальная и дополненная реальность"},
+    {id:994,date:"2026-02-01T11:00:00",date_unixtime:"3",text:"начало здесь\nА теперь самое вкусное"},
+  ]});
+  assert.equal(posts.length,1);
+  assert.equal(posts[0].sourceId,"992");
+  assert.deepEqual(posts[0].threadIds,["992","993","994"]);
+});
+
+test("a temporal «начало июня» is not a continuation and stays its own post", () => {
+  const posts = normalizeExport({messages:[
+    {id:99,date:"2026-06-01T09:00:00",date_unixtime:"1",text:"Предыдущая мысль"},
+    {id:101,date:"2026-06-02T09:00:00",date_unixtime:"2",text:"Ух, гайз, начало июня выдалось просто мега загруженным"},
+  ]});
+  assert.equal(posts.length,2);
+});
+
+test("an explicit numbered continuation keeps two pages and a continues relation", () => {
+  const posts = normalizeExport({messages:[
+    {id:5,date:"2026-03-01T09:00:00",date_unixtime:"1",text:"Первая часть мысли"},
+    {id:8,date:"2026-03-02T09:00:00",date_unixtime:"2",text:"продолжение поста №5\n\nВторая часть мысли"},
+  ]});
+  assert.equal(posts.length,2);
+  assert.equal(posts[1].relations.find((relation)=>relation.type==="continues")?.targetId,"publication:telegram:staniverse:5");
+});
 test("collects one album from consecutive media messages that share a timestamp", () => {
   const posts = normalizeExport({messages:[
     {id:100,date:"2026-04-24T20:00:00",date_unixtime:"1",photo:"photos/a.jpg",text:"Подпись"},
@@ -230,6 +291,19 @@ test("preserves the position of photos inside Telegram Articles",()=>{
   assert.match(article.body,/До фотографии[\s\S]*telegram-media:photos%2Finside\.jpg[\s\S]*Подпись[\s\S]*После фотографии/);
 });
 
+test("groups consecutive Telegram Article images into an inline carousel", () => {
+  const [article] = normalizeExport({ messages: [{ id: 13, date: "2026-08-23", rich_message: { blocks: [
+    { type: "heading", level: 1, text: "Галерея" },
+    { type: "slideshow", items: [{ type: "photo", photo: "photos/one.jpg" }, { type: "photo", photo: "photos/two.jpg" }] },
+    { type: "paragraph", text: "Текст после галереи" },
+  ] } }] });
+  article.media.forEach((item, index) => { item.publicPath = `/media/telegram/13-13-${index}.webp`; });
+  const materialized = inlineTelegramMedia(article.body, article);
+  assert.match(materialized, /class="media-carousel telegram-article-carousel"/);
+  assert.equal((materialized.match(/data-carousel-slide/g) ?? []).length, 2);
+  assert.ok(materialized.indexOf("data-media-carousel") < materialized.indexOf("Текст после галереи"));
+});
+
 test("incremental merge adds new messages and replaces edited ones by stable id",()=>{
   const result=mergeMessages([{id:1,text:"original"},{id:2,text:"same"}],[{id:2,text:"same"},{id:1,text:"edited",edited:"now"},{id:3,text:"new"}]);
   assert.deepEqual({added:result.added,updated:result.updated,unchanged:result.unchanged},{added:1,updated:1,unchanged:1});assert.deepEqual(result.messages.map((item)=>[item.id,item.text]),[[1,"edited"],[2,"same"],[3,"new"]]);
@@ -332,6 +406,14 @@ test("local enrichment keeps precise IoT, open-source and intimacy topics withou
   assert.ok(topics.includes("iot"));
   assert.ok(topics.includes("open source"));
   assert.ok(topics.includes("ai-компаньоны"));
+  const [intimacy]=normalizeExport({messages:[{id:931,text:"В VRChat говорят о близости, одиночестве и отношениях с ИИ-компаньонами."}]});
+  const intimacyTopics=enrichLocally(intimacy).topics;
+  assert.ok(intimacyTopics.includes("интим и близость"));
+  assert.ok(intimacyTopics.includes("ai-компаньоны"));
+  const [vtuber]=normalizeExport({messages:[{id:932,text:"Paper про AI VTubers и виртуальные эфиры."}]});
+  assert.ok(enrichLocally(vtuber).topics.includes("втюбинг и виртуальные персонажи"));
+  const [platform]=normalizeExport({messages:[{id:933,text:"У меня странные отношения с платформой: кнопки снова не работают."}]});
+  assert.equal(enrichLocally(platform).topics.includes("интим и близость"),false);
   const [spatial]=normalizeExport({messages:[{id:95,text:"Собрал 3D Gaussian Splats старой церкви и открыл сцену в WebXR."}]});
   assert.ok(enrichLocally(spatial).topics.includes("Gaussian Splatting"));
   const [noise]=normalizeExport({messages:[{id:94,text:"Во время экскурсии увидел сайт Белого дома в интернете и результаты голосования."}]});

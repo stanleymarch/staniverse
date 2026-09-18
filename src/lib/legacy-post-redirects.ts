@@ -3,7 +3,7 @@
  *
  * Sources: 633 notes of the published Quartz index
  * (https://staniverse.xyz/static/contentIndex.json), snapshot kept at
- * pipeline/legacy/content-index.json (captured 2026-09-15).
+ * pipeline/legacy/content-index.json (captured 2026-09-18).
  * Posts: 594 mapped, 0 unresolved.
  * Tags: 197 (36 canonical topics, the rest fall back to the garden query).
  */
@@ -386,7 +386,7 @@ export const legacyPostRedirects: Record<string, string> = {
   "garden/posts/2025-04-30_dumat-o-pokupke-3d-printera": "/garden/telegram/tg-589/",
   "garden/posts/2025-04-30_liga-chempionov-bar-za-million-i-vrchat": "/garden/telegram/tg-590/",
   "garden/posts/2025-05-01_amplify-shader-editor-za-2500-rubley": "/garden/telegram/tg-592/",
-  "garden/posts/2025-05-03_nachalo-v-predyduschem-poste": "/garden/telegram/tg-594/",
+  "garden/posts/2025-05-03_nachalo-v-predyduschem-poste": "/garden/telegram/tg-593/",
   "garden/posts/2025-05-03_post-iz-kanala-staniverse": "/garden/telegram/tg-595/",
   "garden/posts/2025-05-03_raskhlamlenie-kak-psikhoterapiya-s-veschami": "/garden/telegram/tg-593/",
   "garden/posts/2025-05-04_ya-teper-chut-bolshe-vr-razrabotchik-na-u": "/garden/telegram/tg-596/",
@@ -702,7 +702,7 @@ export const legacyTagRedirects: Record<string, string> = {
   "tags/iot": "/topics/iot/",
   "tags/itmo": "/garden/?q=itmo",
   "tags/jazz": "/garden/?q=jazz",
-  "tags/kirov": "/topics/kirov/",
+  "tags/kirov": "/topics/kirov-vyatka/",
   "tags/lab": "/garden/?q=lab",
   "tags/linux": "/garden/?q=linux",
   "tags/llm": "/topics/llm/",

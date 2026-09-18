@@ -1,0 +1,83 @@
+name: Deploy experiments to /lab
+
+# Each experiment is a standalone app in experiments/<name>/ that builds to
+# dist/ and syncs into the site bucket under /lab/<name>/. Only the experiments
+# changed by a push are built and deployed. Convention: experiments/README.md.
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "experiments/**"
+      - ".github/workflows/lab.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      labs: ${{ steps.filter.outputs.changes }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            hello-lab: experiments/hello-lab/**
+
+  deploy:
+    needs: changes
+    if: ${{ needs.changes.outputs.labs != '[]' && needs.changes.outputs.labs != '' }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        lab: ${{ fromJSON(needs.changes.outputs.labs) }}
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: ru-central1
+      AWS_EC2_METADATA_DISABLED: "true"
+      ENDPOINT: ${{ vars.YC_ENDPOINT }}
+      BUCKET: ${{ vars.YC_BUCKET }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+
+      - name: Validate deployment configuration
+        run: |
+          test -n "$AWS_ACCESS_KEY_ID"
+          test -n "$AWS_SECRET_ACCESS_KEY"
+          test "$AWS_ACCESS_KEY_ID" != "REPLACE_WITH_YANDEX_ACCESS_KEY_ID"
+          test "$AWS_SECRET_ACCESS_KEY" != "REPLACE_WITH_YANDEX_SECRET_ACCESS_KEY"
+          test -n "$ENDPOINT"
+          test -n "$BUCKET"
+
+      # hello-lab is plain static HTML — no build step, deploy the folder itself.
+      - name: Build (skip for static experiments)
+        if: ${{ matrix.lab != 'hello-lab' }}
+        working-directory: experiments/${{ matrix.lab }}
+        run: |
+          npm ci
+          npm run build
+
+      - name: Prepare deploy source
+        run: |
+          if [ "${{ matrix.lab }}" = "hello-lab" ]; then
+            cp -r experiments/hello-lab experiments-deploy
+          else
+            cp -r experiments/${{ matrix.lab }}/dist experiments-deploy
+          fi
+
+      - name: Sync ${{ matrix.lab }} → /lab/${{ matrix.lab }}/
+        run: |
+          aws s3 sync experiments-deploy/ "s3://$BUCKET/lab/${{ matrix.lab }}/" \
+            --delete \
+            --endpoint-url "$ENDPOINT" \
+            --cache-control "public, max-age=0, must-revalidate" \
+            --no-progress

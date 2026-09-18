@@ -1,108 +1,192 @@
 ---
-import { existsSync, readdirSync } from "node:fs";
 import Base from "../layouts/Base.astro";
 import ContentCard from "../components/ContentCard.astro";
 import { getCollection } from "astro:content";
-import { allEntries } from "../lib/content";
-import { buildGraph } from "../lib/graph";
-import UniverseScene from "../components/universe/UniverseScene.astro";
-import "../styles/universe.css";
+import { hrefFor, kindLabel, type AnyEntry } from "../lib/content";
 
-const stars = Array.from({ length: 96 }, (_, i) => ({
-  left: `${(i * 17.3) % 96}%`, top: `${(i * 29.7) % 88}%`,
-  opacity: .35 + ((i * 7) % 8) * .1,
-  size: 1.2 + ((i * 13) % 7) * .9,
-  delay: `${((i * 11) % 40) / 10}s`, duration: `${2.6 + ((i * 19) % 30) / 10}s`,
-}));
-const workById = new Map((await getCollection("works")).map((entry) => [entry.data.id, entry]));
-const works = ["work:virtualnyy-ofis-advokata", "work:maslenitsa-v-slobodskom", "work:ya-obmanyvat-sebya-ne-stanu", "work:arka-vyatskogo-kremlya"].flatMap((id) => {
-  const entry = workById.get(id);
-  return entry ? [entry] : [];
+/* Everything the home page needs comes from the two curated lists below: no full
+   catalogue pass, no graph build, no Three.js. The first screen has to stay cheap,
+   so the scene on it is DOM + SVG + CSS only. */
+const entryById = new Map<string, AnyEntry>();
+for (const entry of [...(await getCollection("works")), ...(await getCollection("projects")), ...(await getCollection("articles"))]) entryById.set(entry.data.id, entry);
+const pick = (ids: string[]) => ids.flatMap((id) => { const entry = entryById.get(id); return entry ? [entry] : []; });
+
+const works = pick(["work:virtualnyy-ofis-advokata", "work:maslenitsa-v-slobodskom", "work:ya-obmanyvat-sebya-ne-stanu", "work:arka-vyatskogo-kremlya"]);
+const projects = pick(["project:nearventure", "project:metavyatka", "project:albina", "project:omnipub", "project:mnemoform"]);
+
+/* Four concrete practices, each backed by a real entry. The audience statement
+   stays narrower than the skills list: no invented client segment for symmetry. */
+const directions = [
+  {
+    title: "XR и пространственные опыты",
+    text: "Виртуальные офисы, VR-сцены, AR-примерки, цифровые двойники и выставочные миры. Собираю в Unity и WebXR так, чтобы у пространства был сценарий, а не только геометрия.",
+    tags: ["WebXR", "Unity", "Blender"],
+    entryId: "work:virtualnyy-ofis-advokata",
+    proof: "Виртуальный офис адвоката",
+  },
+  {
+    title: "AI-автоматизация и агенты",
+    text: "Собираю модели, данные и инструменты в понятные рабочие процессы. На практике — от исследования и документов до системы знаний, где решения и вкус остаются человеку.",
+    tags: ["агенты", "Obsidian", "автоматизация"],
+    entryId: "article:ai-diploma",
+    proof: "Как я защитил диплом с ИИ-агентами",
+  },
+  {
+    title: "Цифровые архивы и культура",
+    text: "Фотограмметрия, звук, локальная история и музейные коллекции в формате, который живёт и онлайн, и в шлеме, и на экране в зале. Со вниманием к источнику и правам.",
+    tags: ["фотограмметрия", "архивы", "наследие"],
+    entryId: "project:metavyatka",
+    proof: "MetaVyatka — архив Вятки",
+  },
+  {
+    title: "Медиа и образование",
+    text: "Документальные истории, тексты, видео и методические материалы: от замысла и съёмки до образовательного продукта, публикации и передачи команде.",
+    tags: ["медиа", "образование", "ДПО"],
+    entryId: "work:prepodavanie-metodicheskaya-rabota-i-prodakshn-v-tsifrovykh-kafedrakh",
+    proof: "Методическая работа и продакшн",
+  },
+].flatMap((direction) => {
+  const entry = entryById.get(direction.entryId);
+  return entry ? [{ ...direction, href: hrefFor(entry) }] : [];
 });
-const projectById = new Map((await getCollection("projects")).map((entry) => [entry.data.id, entry]));
-const projects = ["project:nearventure", "project:metavyatka", "project:albina", "project:omnipub", "project:mnemoform"].flatMap((id) => {
-  const entry = projectById.get(id);
-  return entry ? [entry] : [];
-});
-const entries = await allEntries();
-const graph = buildGraph(entries);
-const publicationCount = entries.filter((entry) => entry.collection === "publications").length;
 
-/** Personal photo tile appears only when a real file exists; nothing is faked. */
-const portraitFile = existsSync("public/assets") && readdirSync("public/assets").find((file) => /^stas-portrait\.(jpe?g|png|webp|avif)$/i.test(file));
-const portraitSrc = portraitFile ? `/assets/${portraitFile}` : undefined;
+/* ---------------------------------------------------------------------------
+   Living map: a constellation of real works and projects. Layout is a two-node
+   band grid, so star centres always land on the cell centres the edges use.
+   --------------------------------------------------------------------------- */
+type SkyStar = { key: string; entry: AnyEntry; band: 0 | 1 | 2; side: "left" | "right"; tint: string; mag: number };
 
-const services: { title: string; text: string; tags: string[]; href: string; proof?: string; featured: boolean }[] = [
-  {
-    title: "AI-автоматизация бизнеса",
-    text: "Встраиваю AI в уже работающие процессы: приём и уточнение заказов, создание сделок в CRM, документы, уведомления и следующие шаги. Человек сохраняет контроль, а рутина перестаёт съедать день.",
-    tags: ["CRM", "n8n", "AI-агенты"],
-    href: "/works/chertezhi-tekhdiplomy/",
-    featured: true,
-  },
-  {
-    title: "XR и пространственные продукты",
-    text: "Собираю WebXR- и Unity-опыты, виртуальные офисы, AR-сцены и цифровые двойники. Могу подключиться к существующему продукту, разобраться в наследстве и довести идею до рабочего прототипа.",
-    tags: ["WebXR", "Unity", "Three.js"],
-    href: "/works/virtualnyy-ofis-advokata/",
-    featured: true,
-  },
-  {
-    title: "Персональные AI-агенты",
-    text: "Настрою OpenClaw, Hermes или PicoClaw под ваши задачи, данные и привычный набор инструментов. А может, отговорю от этих клешней в пользу чего-то более простого и предсказуемого.",
-    tags: ["OpenClaw", "Hermes", "PicoClaw"],
-    href: "/projects/albina/",
-    featured: false,
-  },
-  {
-    title: "Контентные системы",
-    text: "Не просто напишу пачку текстов: выстрою понятный процесс наполнения канала, сайта, каталога или медиатеки. Редакционный план, производство, автоматизация, публикация и передача команде.",
-    tags: ["контент", "продакшн", "автоматизация"],
-    href: "/articles/ai-diploma/",
-    proof: "Как я защитил диплом с ИИ-агентами →",
-    featured: false,
-  },
-  {
-    title: "Исследования и программы ДПО",
-    text: "Проведу прикладное исследование, соберу выводы в решение или разработаю образовательную программу для вуза и компании: учебный план, методички, оценочные средства и документы для согласования.",
-    tags: ["исследования", "методическая работа", "образование"],
-    href: "/works/prepodavanie-metodicheskaya-rabota-i-prodakshn-v-tsifrovykh-kafedrakh/",
-    featured: false,
-  },
+const skyPlan: Omit<SkyStar, "entry">[] = [
+  { key: "work:virtualnyy-ofis-advokata", band: 0, side: "left", tint: "cyan", mag: 13 },
+  { key: "work:arka-vyatskogo-kremlya", band: 0, side: "right", tint: "amber", mag: 10 },
+  { key: "project:albina", band: 1, side: "left", tint: "rose", mag: 8 },
+  { key: "project:metavyatka", band: 1, side: "right", tint: "violet", mag: 12 },
+  { key: "work:maslenitsa-v-slobodskom", band: 2, side: "left", tint: "mint", mag: 10 },
+  { key: "work:ya-obmanyvat-sebya-ne-stanu", band: 2, side: "right", tint: "steel", mag: 11 },
 ];
+const stars: SkyStar[] = skyPlan.flatMap((plan) => {
+  const entry = entryById.get(plan.key);
+  return entry ? [{ ...plan, entry }] : [];
+});
+const starByKey = new Map(stars.map((star) => [star.key, star]));
+
+/* Edges are the editorial relations already stored on the entries, filtered by the
+   same review rule the site graph uses — nothing invented for the picture. */
+const hiddenReviews = new Set(["rejected", "proposed", "pending", "needs-review"]);
+const isVisibleRelation = (relation: AnyEntry["data"]["relations"][number]) => {
+  const status = relation.status === "rejected" || relation.reviewStatus === "rejected" ? "rejected" : relation.reviewStatus ?? relation.status;
+  return !status || !hiddenReviews.has(status);
+};
+const linkPairs = new Map<string, { a: string; b: string }>();
+for (const star of stars) {
+  for (const relation of star.entry.data.relations) {
+    const other = starByKey.get(relation.target);
+    if (!other || other.key === star.key || !isVisibleRelation(relation)) continue;
+    const pairKey = [star.key, other.key].sort().join("|");
+    linkPairs.set(pairKey, linkPairs.get(pairKey) ?? { a: star.key, b: other.key });
+  }
+}
+const edges = [...linkPairs.values()];
+const links = new Map(stars.map((star) => [star.key, [] as string[]]));
+for (const edge of edges) {
+  links.get(edge.a)?.push(edge.b);
+  links.get(edge.b)?.push(edge.a);
+}
+
+/* Two coordinate sets, expressed in the same units as each board's viewBox: the wide
+   one also covers the 6-column tablet board, because both centre a node at 1/6 and 5/6
+   of the width. The mobile board stacks the same two-node bands one row at a time. */
+const edgeGeometry = (cols: number, span: number, rowSpan: number, vbw: number, vbh: number) =>
+  edges.map((edge) => {
+    const point = (key: string) => {
+      const star = starByKey.get(key)!;
+      const startCol = star.side === "left" ? 0 : cols - span;
+      return {
+        x: +(((startCol + span / 2) / cols) * vbw).toFixed(2),
+        y: +(((star.band * rowSpan + rowSpan / 2) / 6) * vbh).toFixed(2),
+      };
+    };
+    return { ...edge, from: point(edge.a), to: point(edge.b) };
+  });
+const wideEdges = edgeGeometry(12, 4, 2, 400, 300);
+const narrowEdges = edgeGeometry(4, 2, 1, 300, 400);
+
+/* Deep sky behind the scene: deterministic dust of different sizes, colours and
+   depths, split into three parallax layers. Depth is the translation amplitude in px. */
+const tints = ["#dfeaff", "#7fd4f0", "#ffd9a8", "#b9a6ff", "#ffb9d6"];
+const skyMotes = Array.from({ length: 54 }, (_, index) => {
+  const seed = (n: number) => { const x = Math.sin((index + 1) * n) * 43758.5453; return x - Math.floor(x); };
+  const bright = seed(3.7) > 0.82;
+  return {
+    layer: index % 3,
+    x: +(seed(12.9898) * 100).toFixed(2),
+    y: +(seed(78.233) * 100).toFixed(2),
+    size: +(bright ? 2.4 + seed(2.3) * 1.2 : 1 + seed(5.1) * 1.2).toFixed(2),
+    alpha: +(bright ? 0.6 + seed(9.4) * 0.32 : 0.24 + seed(4.4) * 0.42).toFixed(2),
+    tint: tints[index % tints.length],
+  };
+});
+const skyLayers = [0, 1, 2].map((layer) => skyMotes.filter((mote) => mote.layer === layer));
+const skyDepths = [4, 8, 13];
+
 const homepageJsonLd = {
   "@type": "ProfilePage",
   "@id": new URL("/#profile", Astro.site).href,
   url: new URL("/", Astro.site).href,
-  name: "станивёрс — Станислав Ермоленко: AI-автоматизация и XR",
-  description: "Портфолио и услуги Станислава Ермоленко: AI-автоматизация бизнес-процессов и CRM, AI-агенты, XR и WebXR, контентные системы, исследования и разработка ДПО.",
+  name: "Стас Ермоленко — XR, AI-автоматизация, цифровые архивы и медиа",
+  description: "Личная главная Станислава Ермоленко: пространственные XR-опыты, AI-автоматизация процессов и агенты, цифровые архивы и культура, медиа и образовательные продукты.",
+  about: "XR, AI-автоматизация, цифровые архивы и медиа — для бизнеса, музеев и культурных проектов.",
   inLanguage: "ru-RU",
   mainEntity: { "@id": new URL("/#stanislav-ermolenko", Astro.site).href },
 };
 ---
 
-<Base title="станивёрс" description="Станислав Ермоленко — AI-автоматизация бизнес-процессов и CRM, персональные AI-агенты, XR и WebXR, контентные системы, исследования и разработка ДПО." jsonLd={homepageJsonLd}>
+<Base title="Стас Ермоленко — XR, AI-автоматизация и цифровые архивы" description="XR-опыты и пространственные интерфейсы, AI-автоматизация и агенты, цифровые архивы, медиа и образовательные продукты. Работаю с бизнесом, музеями и культурными проектами." jsonLd={homepageJsonLd}>
   <div class="home-page">
-    <section class="hero hero-full" aria-labelledby="home-title">
-      <div class="hero-space" aria-hidden="true">
-        <i class="nebula nebula-a" data-parallax="0.055"></i><i class="nebula nebula-b" data-parallax="0.1"></i>
-        {[0, 1, 2].map((layer) => <div class="star-layer" data-parallax={String(.035 + layer * .035)}>{stars.filter((_, index) => index % 3 === layer).map((star) => <i class="star" style={`left:${star.left};top:${star.top};opacity:${star.opacity};--s:${star.size};--d:${star.delay};--t:${star.duration}`}></i>)}</div>)}
+    <section class="home-hero" data-scene aria-labelledby="home-title">
+      <div class="home-sky" aria-hidden="true">
+        <i class="sky-veil sky-veil-a" data-depth="3"></i>
+        <i class="sky-veil sky-veil-b" data-depth="5"></i>
+        <i class="sky-veil sky-veil-c" data-depth="7"></i>
+        <i class="sky-band sky-band-a" data-depth="4"></i>
+        <i class="sky-band sky-band-b" data-depth="6"></i>
+        {skyLayers.map((layer, index) => <div class="sky-layer" data-depth={String(skyDepths[index])}>{layer.map((mote) => <i class="sky-mote" style={`left:${mote.x}%;top:${mote.y}%;--s:${mote.size}px;--o:${mote.alpha};--c:${mote.tint}`}></i>)}</div>)}
       </div>
-      <div class="hero-copy">
-        <p class="hero-hello">👋 — это Стас</p>
-        <h1 id="home-title" class="display"><span style="display:block">Помогаю внедрять</span><span style="display:block">AI и XR</span><span style="display:block">в работающие процессы</span></h1>
-        <p class="hero-lead">Подключаю AI-агентов к реальным бизнес-процессам, собираю XR-опыты и сложные контентные системы. Могу войти в работающий проект, разобраться в наследстве и довести до предсказуемого результата — не обязательно начинать всё с нуля.</p>
-        <div class="hero-actions"><a class="button primary" href="/cv/Stanislav-Ermolenko-CV-RU.pdf" download>Скачать CV</a><a class="button" href="/works/">Смотреть работы</a><a class="button" href="mailto:stas@staniverse.xyz?subject=Проект для Стаса">Обсудить проект</a><a class="button cosmic" href="/universe/">Войти во вселенную ↗</a></div>
+
+      <div class="home-hero-copy">
+        <h1 id="home-title" class="display">Всем 👋 привет,<br />это Стас!</h1>
+        <p class="hero-lead">Делаю XR-пространства, AI-автоматизацию и цифровые архивы&nbsp;—<br class="home-break" /> для бизнеса, музеев и культурных проектов. Люблю задачи, где технология не шумит, а помогает людям работать, помнить и понимать.</p>
+        <div class="hero-actions">
+          <a class="button primary" href="/works/">Посмотреть работы</a>
+          <a class="button quiet" href="mailto:stas@staniverse.xyz?subject=Проект для Стаса">Написать мне</a>
+        </div>
       </div>
-      <div class="hero-bento" aria-label="Коротко о сайте">
-        {portraitSrc && <figure class="bento-tile bento-photo"><img src={portraitSrc} alt="Станислав Ермоленко" loading="eager" /></figure>}
-        <div class="bento-tile bento-now"><span class="section-kicker">Сейчас</span><strong>ИТМО · 2026 - н.в.</strong><p>Учусь в магистратуре «Цифровые методы в гуманитарных исследованиях», веду <a href="https://t.me/staniverse" target="_blank" rel="noreferrer">Telegram-канал Staniverse</a>, иногда возвращаюсь к YouTube — <a href="https://www.youtube.com/@staniverse" target="_blank" rel="noreferrer">Staniverse</a> и <a href="https://www.youtube.com/@yatygorod" target="_blank" rel="noreferrer">«я.ты.город»</a>.</p></div>
-        <div class="bento-tile bento-stats"><span><strong>{workById.size}</strong><small>работ в каталоге</small></span><span><strong>{projectById.size}</strong><small>проектов в каталоге</small></span><span><strong>{publicationCount}</strong><small>публикации в архиве</small></span></div>
-        <a class="bento-tile bento-cta" href="mailto:stas@staniverse.xyz?subject=Проект для Стаса"><strong>Обсудить проект?</strong><span>Напишите пару слов о задаче — разберём, что здесь реально поможет, и выберем следующий шаг →</span></a>
+
+      <div class="home-constellation" data-depth="2.5">
+        <div class="const-head">
+          <span class="section-kicker">Живая карта связей</span>
+        </div>
+        <div class="const-board" data-const-board role="group" aria-label="Избранные работы и проекты и связи между ними">
+          <svg class="const-edges const-edges-wide" viewBox="0 0 400 300" aria-hidden="true">
+            {wideEdges.map((edge) => <line class="const-edge" x1={edge.from.x} y1={edge.from.y} x2={edge.to.x} y2={edge.to.y} data-edge-a={edge.a} data-edge-b={edge.b} />)}
+          </svg>
+          <svg class="const-edges const-edges-narrow" viewBox="0 0 300 400" aria-hidden="true">
+            {narrowEdges.map((edge) => <line class="const-edge" x1={edge.from.x} y1={edge.from.y} x2={edge.to.x} y2={edge.to.y} data-edge-a={edge.a} data-edge-b={edge.b} />)}
+          </svg>
+          {stars.map((star) => (
+            <a class="const-node" href={hrefFor(star.entry)} data-node={star.key} data-links={links.get(star.key)?.join(" ") ?? ""} data-band={star.band} data-side={star.side} data-tint={star.tint} data-title={star.entry.data.title} aria-describedby="const-status" style={`--mag:${star.mag}`}>
+              <span class="const-figure" aria-hidden="true"><i class="const-glow"></i><i class="const-flare"></i><i class="const-core"></i></span>
+              <span class="const-label"><span class="const-kind">{kindLabel[star.entry.data.kind] ?? "Материал"}</span><span class="const-name">{star.entry.data.title}</span></span>
+            </a>
+          ))}
+        </div>
+        <p class="const-status" id="const-status" data-const-status>Наведите, сфокусируйте или коснитесь звезды — подсветятся связанные работы и проекты.</p>
+        <a class="const-universe-cta" href="/universe/">
+          <span>Открыть XR-вселенную</span>
+          <span class="const-universe-meta">3D · VR · AR <span aria-hidden="true">↗</span></span>
+        </a>
       </div>
     </section>
-
-    <UniverseScene {graph} embedded />
 
     <nav class="signal-strip" aria-label="Основные разделы">
       <a href="/works/"><strong>Работы</strong><span>реализованные работы</span></a>
@@ -111,22 +195,76 @@ const homepageJsonLd = {
       <button type="button" data-profile-open><strong>Обо мне</strong><span>опыт, навыки и контакты</span></button>
     </nav>
 
-    <section class="section home-services" aria-labelledby="services-title">
-      <div class="section-head"><div><div class="section-kicker">Работа со мной</div><h2 id="services-title">Чем могу быть полезен</h2></div><a class="text-link" href="mailto:stas@staniverse.xyz?subject=Проект для Стаса">Обсудить проект →</a></div>
-      <div class="services-grid">{services.map((service) => <article class:list={["service-tile", { "is-featured": service.featured }]}><h3>{service.title}</h3><p>{service.text}</p><div class="tag-row">{service.tags.map((tag) => <span>{tag}</span>)}</div><a class="service-proof" href={service.href}>{service.proof ?? "Посмотреть похожий опыт →"}</a></article>)}</div>
-      <p class="services-note"><strong>Не знаете, с чего начать?</strong> Напишите пару слов о задаче — за одну встречу разложим процесс, найдём узкое место и решим, нужен ли здесь AI, XR или обычная надёжная автоматизация. Большие внедрения оцениваю после диагностики и делю на этапы с понятным результатом.</p>
+    <section class="section home-directions" aria-labelledby="directions-title">
+      <div class="section-head">
+        <div><div class="section-kicker">Направления</div><h2 id="directions-title">Один способ работы,<br class="home-break" /> четыре входа</h2></div>
+        <a class="text-link" href="/works/">Все работы →</a>
+      </div>
+      <p class="section-copy">Чаще всего всё начинается с вопроса, что должно измениться. Бизнесу нужны процессы, предсказуемость и меньше ручной рутины; музеям и культурным институциям — сохранение, показ и разговор с посетителем; медиа- и образовательным проектам — сборка материала, тексты, видео и публикация. Ниже — четыре способа собрать такую работу.</p>
+      <div class="directions-grid">
+        {directions.map((direction) => (
+          <article class="direction-tile">
+            <h3>{direction.title}</h3>
+            <p>{direction.text}</p>
+            <div class="tag-row">{direction.tags.map((tag) => <span>{tag}</span>)}</div>
+            <a class="direction-proof" href={direction.href}>{direction.proof} →</a>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="works-title"><div class="section-head"><div><div class="section-kicker">Избранные работы</div><h2 id="works-title">То, что стало<br class="home-break" /> реальным</h2></div><a class="text-link" href="/works/">Все работы →</a></div><div class="card-grid">{works.map((entry, i) => <ContentCard entry={entry} large={i === 0 || i === 3} showDate={false} />)}</div></section>
+
+    <section class="section home-projects" aria-labelledby="projects-title">
+      <div class="section-head"><div><div class="section-kicker">Собственные проекты</div><h2 id="projects-title">То, что продолжает<br class="home-break" /> двигаться</h2></div><a class="text-link" href="/projects/">Все проекты →</a></div>
+      <p class="section-copy">Идеи, исследования и системы не обязаны быть законченными. У них есть статус, история и следующее действие.</p>
+      <div class="card-grid">{projects.map((entry) => <ContentCard entry={entry} showDate={false} />)}</div>
+    </section>
+
+    <section class="section home-profile" aria-labelledby="home-profile-title">
+      <div class="section-head">
+        <div><div class="section-kicker">Профиль</div><h2 id="home-profile-title">Проектирую цифровой опыт —<br class="home-break" /> от исследования до работающей системы</h2></div>
+        <a class="text-link" href="/about/">Обо мне →</a>
+      </div>
+      <div class="profile-band">
+        <div class="profile-band-cell">
+          <p class="profile-lead">Работаю на стыке XR, AI, веба и документального медиа: проектирую пространственный опыт, автоматизацию и системы, в которых технология помогает человеку помнить, понимать и присутствовать.</p>
+          <div class="profile-facts"><span><strong>1994</strong><small>год рождения</small></span><span><strong>11+</strong><small>лет в медиа</small></span><span><strong>XR · AI · Web</strong><small>рабочий фокус</small></span><span><strong>СПб · из Вятки</strong><small>живу в Петербурге</small></span></div>
+        </div>
+        <div class="profile-band-cell">
+          <span class="profile-label">Сейчас</span>
+          <p class="profile-now-lead"><strong>Самозанятый · студент магистратуры ИТМО</strong></p>
+          <p>Учусь в магистратуре ИТМО «Цифровые методы в гуманитарных исследованиях», веду <a href="https://t.me/staniverse" target="_blank" rel="noreferrer">Telegram-канал «станивёрс»</a>, иногда возвращаюсь к YouTube — <a href="https://www.youtube.com/@staniverse" target="_blank" rel="noreferrer">«станивёрс»</a> и <a href="https://www.youtube.com/@yatygorod" target="_blank" rel="noreferrer">«я.ты.город»</a>.</p>
+          <button class="button quiet" type="button" data-profile-open>Полный профиль</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="section home-invite" aria-labelledby="invite-title">
+      <div class="home-invite-inner">
+        <div>
+          <div class="section-kicker">Разговор</div>
+          <h2 id="invite-title">Расскажите,<br class="home-break" /> что у вас за задача</h2>
+          <p class="section-copy">Опишите пару слов: что происходит, где узкое место и какой результат был бы достаточным. Отвечу честно, нужен ли здесь XR, AI или обычная аккуратная автоматизация, и предложу следующий шаг — без больших внедрений вслепую.</p>
+        </div>
+        <div class="home-invite-actions">
+          <a class="button primary" href="mailto:stas@staniverse.xyz?subject=Проект для Стаса">Написать мне</a>
+          <a class="button quiet" href="/cv/Stanislav-Ermolenko-CV-RU.pdf" download>Скачать CV</a>
+          <a class="text-link" href="/contacts/">Другие контакты →</a>
+        </div>
+      </div>
     </section>
 
     <dialog class="profile-dialog" data-profile-dialog aria-labelledby="profile-title">
       <div class="profile-module">
       <form method="dialog" class="profile-close-form"><button class="profile-close" aria-label="Закрыть профиль">Закрыть ×</button></form>
-      <div class="profile-heading"><div><div class="section-kicker">Профиль</div><h2 id="profile-title">Режиссёр цифровых опытов,<br />исследователь и разработчик</h2></div><a class="text-link" href="/cv/Stanislav-Ermolenko-CV-RU.pdf" download>Скачать CV ↗</a></div>
+      <div class="profile-heading"><div><div class="section-kicker">Профиль</div><h2 id="profile-title">Проектирую цифровой опыт —<br />от исследования до работающей системы</h2></div><a class="text-link" href="/cv/Stanislav-Ermolenko-CV-RU.pdf" download>Скачать CV ↗</a></div>
       <div class="profile-grid">
-        <div class="profile-summary"><p>Работаю на стыке XR, AI, веба и документального медиа. Собираю понятные интерфейсы, образовательные продукты и системы, в которых технология помогает человеку помнить, понимать и присутствовать.</p><div class="profile-facts"><span><strong>1994</strong><small>год рождения</small></span><span><strong>11+</strong><small>лет в медиа</small></span><span><strong>XR · AI · Web</strong><small>рабочий фокус</small></span><span><strong>СПб · из Вятки</strong><small>живу в Петербурге</small></span></div></div>
-        <div class="profile-now"><span class="profile-label">Сейчас</span><strong>Самозанятый · АНО · ИТМО</strong><p>Фриланс, автоматизация, GenAI, XR, веб и медиа. Учусь в магистратуре ИТМО «Цифровые методы в гуманитарных исследованиях» (2026 - н.в.).</p></div>
+        <div class="profile-summary"><p>Работаю на стыке XR, AI, веба и документального медиа. Проектирую понятные интерфейсы, образовательные продукты и системы, в которых технология помогает человеку помнить, понимать и присутствовать.</p><div class="profile-facts"><span><strong>1994</strong><small>год рождения</small></span><span><strong>11+</strong><small>лет в медиа</small></span><span><strong>XR · AI · Web</strong><small>рабочий фокус</small></span><span><strong>СПб · из Вятки</strong><small>живу в Петербурге</small></span></div></div>
+        <div class="profile-now"><span class="profile-label">Сейчас</span><strong>Самозанятый · студент магистратуры ИТМО</strong><p>Фриланс, автоматизация, GenAI, XR, веб и медиа. Учусь в магистратуре ИТМО «Цифровые методы в гуманитарных исследованиях» (2026 - н.в.).</p></div>
       </div>
       <details class="profile-details"><summary>Развернуть опыт, образование и инструменты <span aria-hidden="true">+</span></summary><div class="profile-details-grid">
-        <div><span class="profile-label">Опыт</span><ul><li><strong>2025 - сейчас</strong> Специалист по информационным системам в АНО</li><li><strong>2023 - сейчас</strong> Самозанятый: автоматизация, GenAI, XR, Web, Media</li><li><strong>2023 - 2026</strong> Преподаватель и методист «Цифровых кафедр» ВятГУ; летом 2026 собрал курс «Основы продуктового менеджмента»</li><li><strong>2015 - 2023</strong> Оператор ЭВМ и куратор проектов Медиацентра ВятГУ</li></ul></div>
+        <div><span class="profile-label">Опыт</span><ul><li><strong>2025 - сейчас</strong> Специалист по информационным системам</li><li><strong>2023 - сейчас</strong> Самозанятый: автоматизация, GenAI, XR, Web, Media</li><li><strong>2023 - 2026</strong> Преподаватель и методист «Цифровых кафедр» ВятГУ; летом 2026 собрал курс «Основы продуктового менеджмента»</li><li><strong>2015 - 2023</strong> Оператор ЭВМ и куратор проектов Медиацентра ВятГУ</li></ul></div>
         <div><span class="profile-label">Образование и курсы</span><ul><li><strong>2026 - н.в.</strong> ИТМО, магистратура «Цифровые методы в гуманитарных исследованиях» (Digital Humanities), 45.04.04</li><li><strong>2026</strong> Бакалавр ГМУ, ВятГУ</li><li><strong>2026</strong> Somnium Space Academy</li><li><strong>2026</strong> Agents Week, ШАД Яндекса</li><li><strong>2026</strong> Premasters Art&amp;Science, ИТМО</li><li><strong>2025</strong> VR-разработка на Unity и XR Interaction Toolkit, Stepik</li><li><strong>2024</strong> Интернет-маркетинг и юриспруденция, ДПО ВятГУ</li><li><strong>2024</strong> Digital Autumn: Changing Perspective, интенсив по XR</li><li><strong>2024</strong> Unity Essential Pathway</li><li><strong>2022</strong> «Современные цифровые технологии», ВятГУ</li><li><strong>2021</strong> Цифровые технологии в журналистике и PR, ДПО ВятГУ</li><li><strong>2015</strong> MB110x: Introduction to the Music Business</li><li><strong>2015</strong> BMPR365x: Vocal Recording Technology</li></ul></div>
         <div><span class="profile-label">Инструменты</span><p>XR: Unity · Blender · Substance · WebXR · 8th Wall · Three.js<br />AI: n8n · LangChain · Dify · Supabase · Neo4j · ComfyUI · Python<br />Харнессы и агенты: Claude Code · Codex · OpenCode · OpenClaw · Hermes · Pico Claw · pi<br />Веб: Astro · Tilda · WordPress · Telegram Bot API<br />Инфраструктура: Linux · Docker · Nginx · Home Assistant<br />Медиа: DaVinci Resolve · Premiere · Photoshop · OBS Studio</p></div>
         <div><span class="profile-label">Достижения</span><p>Призёр XV Молодёжных Дельфийских игр России в тележурналистике, победитель «МедиаМастер-2019», финалист конкурса студенческих медиапроектов форума «Пространство Евразии», Топ-10 ArtMasters-2025 в компетенции «Дизайнер виртуальных миров».</p></div>
@@ -134,117 +272,259 @@ const homepageJsonLd = {
       <div class="profile-page-link"><a class="text-link" href="/about/">Открыть отдельную страницу и манифест →</a></div>
       </div>
     </dialog>
-
-    <section class="section" aria-labelledby="works-title"><div class="section-head"><div><div class="section-kicker">Избранные работы</div><h2 id="works-title">То, что стало реальным</h2></div><a class="text-link" href="/works/">Все работы →</a></div><div class="card-grid">{works.map((entry, i) => <ContentCard entry={entry} large={i === 0 || i === 3} />)}</div></section>
-    <section class="section home-projects" aria-labelledby="projects-title"><div class="section-head"><div><div class="section-kicker">Собственные проекты</div><h2 id="projects-title">То, что продолжает двигаться</h2></div><a class="text-link" href="/projects/">Все проекты →</a></div><p class="section-copy">Идеи, исследования и системы не обязаны быть законченными. У них есть статус, история и следующее действие.</p><div class="card-grid">{projects.map((entry) => <ContentCard entry={entry} />)}</div></section>
-    <section class="section" aria-labelledby="path-title"><div class="section-head"><div><div class="section-kicker">Карта опыта</div><h2 id="path-title">Не лента, а система связей</h2></div></div><div class="about-grid"><div class="fact-panel"><h2>Сад</h2><p>Telegram-посты, статьи и видео можно фильтровать по темам, сущностям и типам. Текст сохраняет авторский голос, а связи живут отдельным вычисляемым слоем.</p><a class="text-link" href="/garden/">Исследовать каталог →</a></div><div class="fact-panel"><h2>Вселенная</h2><p>Полноэкранный кинематографический граф с генеративным звуком: самостоятельный режим исследования. Локальные графы на страницах объясняют ближайший контекст.</p><a class="text-link" href="/universe/">Начать полёт →</a></div></div></section>
   </div>
 
   <script>
-    import { mountUniverse } from "../components/universe/UniverseRuntime";
-    mountUniverse();
-    const dialog = document.querySelector<HTMLDialogElement>("[data-profile-dialog]");
-    const trigger = document.querySelector<HTMLButtonElement>("[data-profile-open]");
-    trigger?.addEventListener("click", () => dialog?.showModal());
-    dialog?.addEventListener("click", (event) => {
-      if (event.target === dialog) dialog.close();
-    });
+    // Living map: hovering, focusing or tapping a star lights its own constellation
+    // edges and dims everything that is not part of it.
+    const board = document.querySelector<HTMLElement>("[data-const-board]");
+    const status = document.querySelector<HTMLElement>("[data-const-status]");
+    if (board && status) {
+      const nodes = [...board.querySelectorAll<HTMLElement>("[data-node]")];
+      const edges = [...board.querySelectorAll<SVGLineElement>(".const-edge")];
+      const byKey = new Map(nodes.map((node) => [node.dataset.node ?? "", node]));
+      const hint = status.textContent ?? "";
+      const list = (node: HTMLElement) => (node.dataset.links ?? "").split(" ").filter(Boolean);
 
-    // Gentle depth on the hero + section reveals; nothing moves when the visitor asked for calm.
-    const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (!calm) {
-      const layers = [...document.querySelectorAll<HTMLElement>("[data-parallax]")];
-      let frame = 0;
-      const onScroll = () => {
-        if (frame) return;
-        frame = requestAnimationFrame(() => {
-          frame = 0;
-          const y = scrollY;
-          for (const layer of layers) layer.style.translate = `0 ${(y * Number(layer.dataset.parallax)).toFixed(1)}px`;
-        });
+      const highlight = (key?: string) => {
+        if (key) board.dataset.hot = key;
+        else delete board.dataset.hot;
+        for (const node of nodes) {
+          const hot = node.dataset.node === key;
+          const linked = Boolean(key) && list(byKey.get(key!)!).includes(node.dataset.node ?? "");
+          node.classList.toggle("is-hot", hot);
+          node.classList.toggle("is-linked", linked);
+          node.classList.toggle("is-dim", Boolean(key) && !hot && !linked);
+        }
+        for (const edge of edges) {
+          const touches = Boolean(key) && (edge.dataset.edgeA === key || edge.dataset.edgeB === key);
+          edge.classList.toggle("is-hot", touches);
+          edge.classList.toggle("is-dim", Boolean(key) && !touches);
+        }
+        const active = key ? byKey.get(key) : undefined;
+        if (!active) { status.textContent = hint; return; }
+        const connected = list(active).map((linkedKey) => byKey.get(linkedKey)?.dataset.title).filter(Boolean);
+        status.textContent = connected.length
+          ? `${active.dataset.title} — связи: ${connected.join(", ")}.`
+          : `${active.dataset.title} — отдельная ветка, связи появятся позже.`;
       };
-      addEventListener("scroll", onScroll, { passive: true });
-      onScroll();
-      // Section reveals live in the shared Base script so every page shares one system.
+
+      const target = (event: Event) => (event.target as Element | null)?.closest<HTMLElement>("[data-node]");
+      board.addEventListener("pointerover", (event) => { const node = target(event); if (node) highlight(node.dataset.node); });
+      board.addEventListener("pointerout", (event) => { if (!(event.relatedTarget as Element | null)?.closest("[data-node]")) highlight(); });
+      board.addEventListener("pointerdown", (event) => { const node = target(event); if (node) highlight(node.dataset.node); });
+      board.addEventListener("focusin", (event) => { const node = target(event); if (node) highlight(node.dataset.node); });
+      board.addEventListener("focusout", () => highlight());
     }
+
+    // Gentle depth: the sky and the constellation drift with the pointer, by a few
+    // pixels, and only when the visitor has not asked for calm.
+    const scene = document.querySelector<HTMLElement>("[data-scene]");
+    if (scene && !matchMedia("(prefers-reduced-motion: reduce)").matches && matchMedia("(pointer: fine)").matches) {
+      const layers = [...scene.querySelectorAll<HTMLElement>("[data-depth]")];
+      let frame = 0;
+      let x = 0;
+      let y = 0;
+      const paint = () => {
+        frame = 0;
+        for (const layer of layers) {
+          const depth = Number(layer.dataset.depth ?? 0);
+          layer.style.translate = `${(x * depth).toFixed(2)}px ${(y * depth).toFixed(2)}px`;
+        }
+      };
+      addEventListener("pointermove", (event) => {
+        x = (event.clientX / innerWidth - .5) * 2;
+        y = (event.clientY / innerHeight - .5) * 2;
+        if (!frame) frame = requestAnimationFrame(paint);
+      }, { passive: true });
+    }
+
+    const dialog = document.querySelector<HTMLDialogElement>("[data-profile-dialog]");
+    for (const trigger of document.querySelectorAll<HTMLButtonElement>("[data-profile-open]")) trigger.addEventListener("click", () => dialog?.showModal());
+    dialog?.addEventListener("click", (event) => { if (event.target === dialog) dialog.close(); });
   </script>
 </Base>
 
 <style>
-  .home-page { --home-accent: #65ddf2; --home-ink: #f1f5ff; --home-muted: #9cafc9; --home-line: rgba(116, 157, 198, .22); }
+  /* Spectral tints for the map stars: the one place where colour carries meaning
+     (which world a node belongs to). Everything else comes from the contract tokens. */
+  .const-node[data-tint="cyan"] { --tint: #7fd4f0; }
+  .const-node[data-tint="amber"] { --tint: #ffc98a; }
+  .const-node[data-tint="violet"] { --tint: #a99bff; }
+  .const-node[data-tint="rose"] { --tint: #ff9ec4; }
+  .const-node[data-tint="mint"] { --tint: #8fe3c0; }
+  .const-node[data-tint="steel"] { --tint: #bcd0ff; }
 
-  /* Desktop hero fills the viewport below the real sticky header, not a second screen. */
-  .home-page .hero-full { min-height: calc(100svh - 4rem); display: grid; align-content: center; padding-block: clamp(3rem, 6vh, 4.5rem); }
-  @media (min-width: 1000px) { .home-page .hero-full { grid-template-columns: minmax(0, 1.12fr) minmax(20rem, .88fr); gap: clamp(2rem, 4vw, 4rem); align-items: center; } }
-  .home-page .hero-copy { max-width: 52rem; }
-  .hero-hello { margin: 0 0 var(--s-2); color: var(--home-accent); font-size: clamp(1rem, 1.4vw, 1.3rem); font-weight: 500; letter-spacing: .01em; }
-  .home-page .display { color: var(--home-ink); max-width: 11ch; font-size: clamp(2.4rem, 4.15vw, 3.6rem); }
+  .home-page { min-width: 0; }
+  .home-break { display: none; }
+  @media (min-width: 700px) { .home-break { display: block; } }
 
-  /* Deep-sky backdrop: layered nebulae + a dense twinkling starfield. */
-  .home-page .hero-space { inset: 0; background: radial-gradient(circle at 76% 35%, rgba(61, 122, 219, .2), transparent 26rem), radial-gradient(circle at 88% 62%, rgba(35, 205, 234, .16), transparent 22rem); }
-  .home-page .hero-space::before { border-color: rgba(73, 133, 220, .27); } .home-page .hero-space::after { border-color: rgba(100, 223, 244, .25); }
-  .star-layer { position: absolute; inset: 0; will-change: translate; }
-  .nebula { position: absolute; border-radius: 50%; filter: blur(46px); pointer-events: none; }
-  .nebula-a { top: 8%; right: 4%; width: 30rem; height: 22rem; background: rgba(64, 88, 190, .16); }
-  /* Desktop balance: smaller, dimmer rings and a capped portrait keep the copy in charge. */
-  @media (min-width: 1000px) {
-    .home-page .hero-space::before { width: min(34vw, 28rem); border-color: rgba(73, 133, 220, .18); }
-    .home-page .hero-space::after { width: min(23vw, 17rem); border-color: rgba(100, 223, 244, .14); }
-    .bento-photo img { max-height: 11rem; }
-  }
-  .home-page .star { width: calc(var(--s, 2) * 1px); height: calc(var(--s, 2) * 1px); background: #d6f9ff; box-shadow: 0 0 calc(var(--s, 2) * 4px) calc(var(--s, 2) * 1.4px) rgba(100, 223, 244, .5); animation: twinkle var(--t, 3s) ease-in-out var(--d, 0s) infinite alternate; }
-  @keyframes twinkle { from { opacity: .25; } to { opacity: 1; } }
-  @media (prefers-reduced-motion: reduce) { .home-page .star { animation: none; } }
+  /* ---------------------------------------------------------------- first screen */
+  .home-hero { position: relative; display: grid; align-content: center; gap: var(--s-6); min-width: 0; padding: var(--flow-section) var(--rail-inset); overflow: clip; }
+  @media (min-width: 1000px) { .home-hero { grid-template-columns: minmax(0, 1.02fr) minmax(24rem, .98fr); gap: clamp(2rem, 3.5vw, 4rem); min-height: calc(100svh - 4rem); } }
+  .home-hero-copy { position: relative; z-index: 1; align-self: center; min-width: 0; max-width: 42rem; }
+  .home-hero .display { max-width: 15ch; margin: var(--s-2) 0 var(--s-4); font-size: clamp(2.2rem, 1.5rem + 2.8vw, 3.5rem); }
+  .home-hero .hero-lead { max-width: 46rem; margin: 0; color: var(--ink-2); }
+  .home-hero .hero-actions { margin-top: var(--s-5); }
+  /* The one quiet action style on this page: hairline, no fill. */
+  .home-page .button.quiet { border-color: var(--line); background: transparent; color: var(--ink); }
+  .home-page .button.quiet:hover,
+  .home-page .button.quiet:focus-visible { border-color: color-mix(in srgb, var(--accent) 55%, transparent); }
 
-  .hero-bento { display: grid; gap: var(--s-2); }
-  .bento-tile { min-width: 0; padding: var(--s-3); border: 1px solid var(--home-line); border-radius: .85rem; background: rgba(10, 15, 26, .72); backdrop-filter: blur(8px); }
-  .bento-now strong { display: block; margin: var(--s-1) 0 var(--s-1); color: var(--home-ink); font-size: clamp(.95rem, 1.1vw, 1.05rem); }
-  .bento-now p { margin: 0; color: var(--home-muted); font-size: clamp(.78rem, .85vw, .84rem); line-height: 1.5; text-wrap: pretty; }
-  .bento-photo { margin: 0; overflow: hidden; padding: 0; }
-  .bento-photo img { display: block; width: 100%; height: 100%; max-height: 14rem; object-fit: cover; }
-  .bento-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-3); }
-  .bento-stats span { display: grid; align-content: start; gap: var(--s-1); }
-  .bento-stats strong { color: var(--home-ink); font: 500 clamp(1.25rem, 1.7vw, 1.7rem)/1 Unbounded; }
-  .bento-cta { display: grid; gap: var(--s-1); border-color: rgba(101, 221, 242, .4); background: linear-gradient(140deg, rgba(20, 52, 71, .75), rgba(10, 15, 26, .8)); }
-  .bento-cta strong { color: var(--home-ink); font-size: clamp(.9rem, 1vw, 1rem); }
-  .bento-cta span { color: var(--home-accent); font-size: clamp(.76rem, .85vw, .84rem); line-height: 1.45; text-wrap: pretty; }
-  .bento-cta:hover, .bento-cta:focus-visible { border-color: var(--home-accent); }
+  /* Deep sky: token-derived nebulae, then colour-varied dust at three depths. */
+  .home-sky { position: absolute; inset: 0; z-index: 0; overflow: clip; pointer-events: none; }
+  .home-sky::after { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 58%, var(--ground)); content: ""; }
+  .sky-veil { position: absolute; border-radius: var(--radius-pill); filter: blur(48px); }
+  .sky-veil-a { top: -8%; right: -6%; width: min(46rem, 72vw); aspect-ratio: 4 / 3; background: radial-gradient(closest-side, color-mix(in srgb, var(--accent) 26%, transparent), transparent); }
+  .sky-veil-b { bottom: -14%; left: -12%; width: min(38rem, 64vw); aspect-ratio: 3 / 2; background: radial-gradient(closest-side, color-mix(in srgb, var(--accent) 20%, transparent), transparent); filter: blur(56px) hue-rotate(44deg); }
+  .sky-veil-c { top: 30%; left: 40%; width: min(30rem, 48vw); aspect-ratio: 1; background: radial-gradient(closest-side, color-mix(in srgb, var(--accent) 14%, transparent), transparent); filter: blur(46px) hue-rotate(-30deg); }
+  /* Two long, soft bands: enough structure for the sky to read as deep space. */
+  .sky-band { position: absolute; width: 170%; aspect-ratio: 7 / 1; border-radius: var(--radius-pill); filter: blur(38px); opacity: .5; }
+  .sky-band-a { top: 6%; left: -34%; rotate: -16deg; background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent) 20%, transparent) 32%, color-mix(in srgb, var(--accent) 26%, transparent) 62%, transparent); }
+  .sky-band-b { bottom: 4%; right: -30%; rotate: 13deg; background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent) 22%, transparent) 40%, transparent); filter: blur(44px) hue-rotate(38deg); opacity: .42; }
+  .sky-layer { position: absolute; inset: 0; will-change: translate; }
+  .sky-mote { position: absolute; width: calc(var(--s, 1.4px) * var(--mote-scale, 1)); height: calc(var(--s, 1.4px) * var(--mote-scale, 1)); border-radius: var(--radius-pill); background: var(--c, var(--ink)); opacity: calc(var(--o, .5) * var(--mote-boost, 1)); box-shadow: 0 0 calc(var(--s, 1.4px) * 4) color-mix(in srgb, var(--c, var(--ink)) 55%, transparent); }
+  .sky-mote:nth-child(5n) { animation: sky-breathe calc(var(--dur-3) * 11) var(--ease) infinite alternate; }
+  @keyframes sky-breathe { from { opacity: calc(var(--o, .5) * var(--mote-boost, 1) * .4); } to { opacity: calc(var(--o, .5) * var(--mote-boost, 1)); } }
 
-  .home-page .section-kicker, .home-page .profile-label { color: var(--home-muted); }
-  .home-page .hero-lead, .home-page .section-copy { color: var(--home-muted); }
-  .home-page .button.primary, .home-page .profile-facts strong { background: var(--home-accent); border-color: var(--home-accent); color: #06131a; }
-  .home-page .button.cosmic { border-color: #426b89; background: #102331; } .home-page .text-link, .home-page .profile-details summary span { color: var(--home-accent); }
+  /* ------------------------------------------------------------ living map scene */
+  .home-constellation { position: relative; z-index: 1; display: grid; gap: var(--s-2); min-width: 0; }
+  .const-head { margin-bottom: var(--s-3); }
+  /* The way into the 3D map sits at the foot of the flat map it continues — a
+     hairline row like every other band on the site, not a pill in the corner. */
+  .const-universe-cta { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); min-height: 44px; margin-top: var(--s-2); padding-top: var(--s-3); border-top: 1px solid var(--line); color: var(--ink); font-size: .9rem; transition: color var(--dur-2) var(--ease); }
+  .const-universe-cta .const-universe-meta { color: var(--ink-2); font-size: .72rem; white-space: nowrap; transition: color var(--dur-2) var(--ease); }
+  .const-universe-cta:hover, .const-universe-cta:focus-visible,
+  .const-universe-cta:hover .const-universe-meta, .const-universe-cta:focus-visible .const-universe-meta { color: var(--accent); }
+  .const-status { margin: 0; color: var(--ink-2); font-size: .78rem; line-height: 1.45; text-wrap: pretty; }
 
-  /* Services: concrete offers, no card zoo. */
-  .home-services { background: #0a0f1a; }
-  .services-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 1px; border-block: 1px solid var(--home-line); background: var(--home-line); }
-  .service-tile { container-type: inline-size; grid-column: span 2; min-width: 0; padding: var(--s-5) var(--rail-inset); background: #0a0f1a; }
-  .service-tile.is-featured { grid-column: span 3; background: linear-gradient(145deg, #0d1724, #0a0f1a 72%); }
-  .service-tile h3 { margin: 0 0 var(--s-2); color: var(--home-ink); font: 500 var(--card-title)/1.25 Unbounded; letter-spacing: -.02em; }
-  .service-tile p { max-width: 46rem; margin: 0 0 var(--s-3); color: var(--home-muted); font-size: var(--card-text); line-height: 1.6; text-wrap: pretty; }
-  .service-proof { display: inline-block; margin-top: var(--s-3); color: var(--home-accent); font-size: .82rem; text-decoration-thickness: 1px; text-underline-offset: .2em; }
-  .services-note { max-width: 62rem; margin: var(--s-4) 0 0; color: var(--home-muted); font-size: .9rem; line-height: 1.6; text-wrap: pretty; }
-  .services-note strong { color: var(--home-ink); }
-  @media (max-width: 1000px) { .services-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .service-tile, .service-tile.is-featured { grid-column: span 1; } .service-tile:last-child:nth-child(odd) { grid-column: 1 / -1; } }
-  @media (max-width: 700px) { .services-grid { grid-template-columns: 1fr; } .service-tile, .service-tile.is-featured, .service-tile:last-child:nth-child(odd) { grid-column: 1; } }
+  /* Two nodes per band, three bands. Row lines are 1/3/5 so the same markup works
+     whether a band is one row (mobile) or two (tablet, desktop). */
+  .const-board { position: relative; display: grid; grid-template-columns: repeat(var(--cols, 12), minmax(0, 1fr)); grid-template-rows: repeat(6, minmax(0, 1fr)); aspect-ratio: 4 / 3; min-width: 0; --cols: 12; --span: 4; --row-span: 2; }
+  @media (max-width: 1050px) { .home-constellation { width: 100%; max-width: 34rem; margin-inline: auto; } .const-board { --cols: 6; --span: 2; } }
+  @media (max-width: 700px) { .const-board { --cols: 4; --span: 2; --row-span: 1; aspect-ratio: 3 / 4; } }
 
-  /* Reveals are owned by one site-wide system in global.css driven by the Base script. */
-  .profile-dialog { width: min(92vw, 1400px); max-width: none; max-height: min(90dvh, 980px); margin: auto; padding: 0; overflow: auto; border: 1px solid var(--home-line); background: #080d16; color: var(--home-ink); box-shadow: 0 2rem 8rem rgba(0, 0, 0, .72); }
-  .profile-dialog::backdrop { background: rgba(2, 5, 11, .78); backdrop-filter: blur(10px); }
+  .const-edges { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .const-edges-narrow { display: none; }
+  @media (max-width: 700px) { .const-edges-wide { display: none; } .const-edges-narrow { display: block; } }
+  .const-edge { stroke: color-mix(in srgb, var(--ink) 40%, transparent); stroke-width: 1; stroke-linecap: round; stroke-dasharray: 6 5; vector-effect: non-scaling-stroke; animation: const-drift calc(var(--dur-3) * 13) linear infinite; transition: stroke var(--dur-2) var(--ease), stroke-width var(--dur-2) var(--ease); }
+  .const-edge.is-hot { stroke: color-mix(in srgb, var(--accent) 92%, transparent); stroke-width: 1.5; animation-duration: calc(var(--dur-3) * 4); }
+  .const-edge.is-dim { stroke: color-mix(in srgb, var(--ink) 12%, transparent); }
+  @keyframes const-drift { to { stroke-dashoffset: -11; } }
+
+  .const-node { position: relative; display: block; margin: var(--s-1); min-width: 0; min-height: 44px; --tint: var(--accent); --mag-scale: 1; }
+  .const-node:hover,
+  .const-node.is-hot { --mag-scale: 1.3; }
+  .const-node[data-side="left"] { grid-column: 1 / span var(--span); }
+  .const-node[data-side="right"] { grid-column: calc(var(--cols) - var(--span) + 1) / span var(--span); }
+  .const-node[data-band="0"] { grid-row: 1 / span var(--row-span); }
+  .const-node[data-band="1"] { grid-row: 3 / span var(--row-span); }
+  .const-node[data-band="2"] { grid-row: 5 / span var(--row-span); }
+
+  /* A star: bright core, soft halo, and two diffraction spikes. */
+  .const-figure { position: absolute; top: 50%; left: 50%; width: calc(var(--mag, 8) * 1px * var(--mag-scale, 1)); aspect-ratio: 1; translate: -50% -50%; }
+  .const-glow { position: absolute; inset: -340%; border-radius: var(--radius-pill); background: radial-gradient(closest-side, color-mix(in srgb, var(--tint) 40%, transparent), transparent 76%); opacity: .72; transition: opacity var(--dur-2) var(--ease); }
+  .const-core { position: absolute; inset: 0; border-radius: var(--radius-pill); background: radial-gradient(circle, var(--ink) 0 24%, var(--tint) 52%, color-mix(in srgb, var(--tint) 45%, transparent) 100%); box-shadow: 0 0 calc(var(--mag, 8) * .9px) color-mix(in srgb, var(--tint) 60%, transparent); }
+  .const-flare::before,
+  .const-flare::after { position: absolute; top: 50%; left: 50%; width: 460%; height: 1px; background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--tint) 70%, transparent), transparent); content: ""; transform: translate(-50%, -50%); }
+  .const-flare::after { transform: translate(-50%, -50%) rotate(90deg); }
+
+  .const-label { position: absolute; top: calc(50% + var(--s-3)); left: 50%; display: grid; gap: var(--s-1); width: max-content; max-width: 100%; translate: -50% 0; text-align: center; text-shadow: 0 1px 6px var(--ground); transition: translate var(--dur-2) var(--ease), rotate var(--dur-2) var(--ease), opacity var(--dur-2) var(--ease); }
+  .const-kind { color: color-mix(in srgb, var(--ink) 45%, var(--ink-2)); font-size: .62rem; letter-spacing: .14em; text-transform: uppercase; }
+  .const-name { color: var(--ink); font-size: .84rem; line-height: 1.25; text-wrap: balance; hyphens: auto; }
+
+  .const-node.is-hot .const-glow,
+  .const-node.is-linked .const-glow { opacity: 1; }
+  .const-node.is-dim .const-figure,
+  .const-node.is-dim .const-label { opacity: .4; }
+  .const-node::after { position: absolute; top: 50%; left: 50%; width: calc(var(--mag, 8) * 3.4px * var(--mag-scale, 1)); aspect-ratio: 1; translate: -50% -50%; border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent); border-radius: var(--radius-pill); content: ""; opacity: 0; transition: opacity var(--dur-2) var(--ease); }
+  .const-node.is-linked::after { opacity: 1; }
+  .const-node:hover .const-label,
+  .const-node:focus-visible .const-label { translate: -50% -2px; rotate: -.4deg; }
+
+  /* ------------------------------------------------------------------ directions */
+  .directions-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; border-block: 1px solid var(--line); background: var(--line); }
+  .direction-tile { position: relative; display: flex; flex-direction: column; align-content: start; gap: var(--s-2); min-width: 0; padding: var(--s-5) var(--s-4); background: var(--ground); }
+  .direction-tile::after { position: absolute; inset: 0; border: 1px solid transparent; content: ""; pointer-events: none; transition: border-color var(--dur-2) var(--ease); }
+  .direction-tile:hover::after,
+  .direction-tile:focus-within::after { border-color: color-mix(in srgb, var(--accent) 45%, transparent); }
+  .direction-tile h3 { margin: 0; color: var(--ink); font: 500 clamp(1.02rem, .92rem + 1vw, 1.3rem) / 1.22 Unbounded; letter-spacing: -.02em; text-wrap: balance; transition: translate var(--dur-2) var(--ease); }
+  .direction-tile p { margin: 0; color: var(--ink-2); font-size: .88rem; line-height: 1.6; text-wrap: pretty; }
+  .direction-proof { margin-top: auto; color: var(--accent); font-size: .8rem; text-decoration-thickness: 1px; text-underline-offset: .2em; }
+  .direction-tile:hover h3,
+  .direction-tile:focus-within h3 { translate: 0 -2px; }
+  @media (max-width: 1050px) { .directions-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 700px) { .directions-grid { grid-template-columns: 1fr; } }
+
+  /* --------------------------------------------------------------------- profile */
+  .profile-band { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); gap: 1px; border-block: 1px solid var(--line); background: var(--line); }
+  .profile-band-cell { display: grid; align-content: start; gap: var(--s-3); min-width: 0; padding: var(--s-5) var(--s-4); background: var(--ground); }
+  .profile-lead { max-width: 48rem; margin: 0; color: var(--ink); font-size: clamp(1.02rem, 1.5vw, 1.25rem); line-height: 1.5; text-wrap: pretty; }
+  .profile-band-cell p { margin: 0; color: var(--ink-2); font-size: .86rem; line-height: 1.6; text-wrap: pretty; }
+  .profile-band-cell p strong { color: var(--ink); }
+  .profile-band-cell .button { justify-self: start; }
+  .profile-label { color: var(--ink-2); font-size: .7rem; letter-spacing: .14em; text-transform: uppercase; }
+  .profile-facts { display: flex; flex-wrap: wrap; gap: var(--s-4); margin-top: var(--s-2); }
+  .profile-facts span { display: grid; gap: var(--s-1); }
+  .profile-facts strong { width: fit-content; padding: .18rem .45rem; border-radius: var(--radius-1); background: var(--accent); color: var(--ground); font-size: .86rem; font-weight: 500; }
+  .profile-facts small { color: var(--ink-2); font-size: .72rem; }
+  .profile-band-cell .profile-now-lead { color: var(--ink); font-size: .96rem; }
+
+  /* ------------------------------------------------------------------- invitation */
+  .home-invite { border-top: 1px solid var(--line); }
+  .home-invite h2 { max-width: 22ch; margin: var(--s-1) 0 var(--s-4); font: 500 clamp(1.7rem, 2.8vw, 2.6rem) / 1.1 Unbounded; letter-spacing: -.03em; text-wrap: balance; }
+  .home-invite .section-copy { margin-bottom: 0; }
+  .home-invite-inner { display: grid; gap: var(--s-5); }
+  @media (min-width: 900px) { .home-invite-inner { grid-template-columns: minmax(0, 1.25fr) minmax(15rem, .75fr); align-items: end; gap: var(--flow-half); } }
+  .home-invite-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2); }
+
+  /* --------------------------------------------------------------- profile dialog */
+  .profile-dialog { width: min(92vw, 1400px); max-width: none; max-height: min(90dvh, 980px); margin: auto; padding: 0; overflow: auto; border: 1px solid var(--line); border-radius: var(--radius-1); background: var(--ground); color: var(--ink); }
+  .profile-dialog::backdrop { background: color-mix(in srgb, var(--ground) 82%, transparent); }
   .profile-module { position: relative; max-width: 1400px; margin: 0 auto; padding: var(--flow-section) var(--rail-inset); }
   .profile-close-form { position: sticky; z-index: 3; top: 0; display: flex; justify-content: flex-end; height: 0; margin: 0; }
-  .profile-close { min-height: 44px; padding: .65rem 1rem; border: 1px solid var(--home-line); background: #0d1724; color: var(--home-ink); cursor: pointer; }
-  .profile-close:hover, .profile-close:focus-visible { border-color: var(--home-accent); color: var(--home-accent); }
-  .profile-page-link { margin-top: var(--s-5); padding-top: var(--s-3); border-top: 1px solid var(--home-line); }
-  .profile-heading { display: flex; justify-content: space-between; align-items: end; gap: var(--s-5); margin-bottom: var(--s-5); } .profile-heading h2 { margin: .35rem 0 0; color: var(--home-ink); font: 500 clamp(1.8rem, 3.2vw, 3rem)/1.05 Unbounded; letter-spacing: -.04em; text-wrap: balance; }
-  .profile-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(260px, .75fr); gap: var(--flow-section); padding: var(--s-4) 0; border-top: 1px solid var(--home-line); }
-  .profile-summary p { max-width: 52rem; margin: 0; color: var(--home-ink); font-size: clamp(1.05rem, 1.7vw, 1.35rem); line-height: 1.45; } .profile-facts { display: flex; flex-wrap: wrap; gap: var(--s-5); margin-top: var(--s-5); }
-  .profile-facts span { display: grid; gap: .25rem; } .profile-facts strong { width: fit-content; padding: .18rem .45rem; font-size: .9rem; font-weight: 500; } .profile-facts small { color: var(--home-muted); font-size: .72rem; }
-  .profile-now { border-left: 1px solid var(--home-line); padding-left: var(--s-4); } .profile-now strong { display: block; margin: var(--s-2) 0 var(--s-2); color: var(--home-ink); font-size: 1.1rem; } .profile-now p, .profile-details-grid p, .profile-details-grid li { color: var(--home-muted); font-size: .82rem; line-height: 1.55; } .profile-now p { margin: 0; }
-  .profile-details { margin-top: var(--s-3); border-top: 1px solid var(--home-line); } .profile-details summary { display: flex; justify-content: space-between; gap: var(--s-3); padding: var(--s-3) 0; color: var(--home-ink); cursor: pointer; font-size: .86rem; list-style: none; } .profile-details summary::-webkit-details-marker { display: none; } .profile-details[open] summary { border-bottom: 1px solid var(--home-line); }
-  .profile-details-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s-4); padding-top: var(--s-4); } .profile-details-grid ul { display: grid; gap: var(--s-2); margin: var(--s-3) 0 0; padding: 0; list-style: none; } .profile-details-grid li strong { display: block; color: var(--home-ink); font-size: .72rem; font-weight: 500; } .profile-details-grid p { margin: var(--s-3) 0 0; }
-  .home-projects { background: transparent; } .home-page .content-card { border-color: var(--home-line); } .home-page .content-card:hover, .home-page .content-card:focus-visible { border-color: #58739a; }
-  @media (max-width: 900px) { .profile-heading { align-items: start; flex-direction: column; gap: var(--s-3); } .profile-heading .text-link { white-space: nowrap; } .profile-grid { grid-template-columns: 1fr; } .profile-now { border-top: 1px solid var(--home-line); border-left: 0; padding: var(--s-4) 0 0; } .profile-details-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-  @media (max-width: 700px) { .home-page .hero-full { min-height: calc(100svh - 4rem); padding-block: clamp(2.75rem, 7vh, 4rem); } .home-page .display { max-width: 100%; font-size: clamp(2.2rem, 10vw, 3.4rem); } .hero-bento { grid-template-columns: 1fr 1fr; } .bento-now { grid-column: 1 / -1; } .profile-dialog { width: calc(100vw - 1rem); max-height: calc(100dvh - 1rem); } .profile-heading h2 { font-size: clamp(1.6rem, 8vw, 2.4rem); } .profile-details-grid { grid-template-columns: 1fr; } .profile-facts { gap: var(--s-3) var(--s-4); } }
-  @media (max-width: 460px) { .hero-bento { grid-template-columns: 1fr; } .bento-stats { gap: var(--s-2); } }
+  .profile-close { min-height: 44px; padding: .65rem 1rem; border: 1px solid var(--line); border-radius: var(--radius-pill); background: var(--surface); color: var(--ink); cursor: pointer; transition: border-color var(--dur-1) var(--ease), color var(--dur-1) var(--ease); }
+  .profile-close:hover, .profile-close:focus-visible { border-color: var(--accent); color: var(--accent); }
+  .profile-page-link { margin-top: var(--s-5); padding-top: var(--s-3); border-top: 1px solid var(--line); }
+  .profile-heading { display: flex; justify-content: space-between; align-items: end; gap: var(--s-5); margin-bottom: var(--s-5); }
+  .profile-heading h2 { margin: var(--s-1) 0 0; color: var(--ink); font: 500 clamp(1.8rem, 3.2vw, 3rem) / 1.05 Unbounded; letter-spacing: -.04em; text-wrap: balance; }
+  .profile-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(260px, .75fr); gap: var(--flow-section); padding: var(--s-4) 0; border-top: 1px solid var(--line); }
+  .profile-summary p { max-width: 52rem; margin: 0; color: var(--ink); font-size: clamp(1.05rem, 1.7vw, 1.35rem); line-height: 1.45; }
+  .profile-now { border-left: 1px solid var(--line); padding-left: var(--s-4); }
+  .profile-now strong { display: block; margin: var(--s-2) 0; color: var(--ink); font-size: 1.05rem; }
+  .profile-now p, .profile-details-grid p, .profile-details-grid li { margin: 0; color: var(--ink-2); font-size: .82rem; line-height: 1.55; }
+  .profile-details { margin-top: var(--s-3); border-top: 1px solid var(--line); }
+  .profile-details summary { display: flex; justify-content: space-between; gap: var(--s-3); padding: var(--s-3) 0; color: var(--ink); cursor: pointer; font-size: .86rem; list-style: none; }
+  .profile-details summary::-webkit-details-marker { display: none; }
+  .profile-details summary span { color: var(--accent); }
+  .profile-details[open] summary { border-bottom: 1px solid var(--line); }
+  .profile-details-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s-4); padding-top: var(--s-4); }
+  .profile-details-grid ul { display: grid; gap: var(--s-2); margin: var(--s-3) 0 0; padding: 0; list-style: none; }
+  .profile-details-grid li strong { display: block; color: var(--ink); font-size: .72rem; font-weight: 500; }
+  .profile-details-grid p { margin: var(--s-3) 0 0; }
+  @media (max-width: 900px) { .profile-heading { align-items: start; flex-direction: column; gap: var(--s-3); } .profile-heading .text-link { white-space: nowrap; } .profile-grid { grid-template-columns: 1fr; } .profile-now { border-top: 1px solid var(--line); border-left: 0; padding: var(--s-4) 0 0; } .profile-details-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 700px) { .profile-dialog { width: calc(100vw - 1rem); max-height: calc(100dvh - 1rem); } .profile-heading h2 { font-size: clamp(1.6rem, 8vw, 2.4rem); } .profile-details-grid { grid-template-columns: 1fr; } }
+
+  /* ------------------------------------------------------------------- small screens */
+  @media (max-width: 999px) { .home-hero { align-content: start; } }
+  @media (max-width: 700px) {
+    .home-hero { gap: var(--flow-half); padding-block: var(--flow-half) var(--flow-section); }
+    .home-hero .display { max-width: 100%; font-size: clamp(2rem, 1.4rem + 5vw, 2.8rem); }
+    .const-node { --mag-scale: .8; }
+    /* A phone sees a slice of the sky at once: give the dust a little more presence. */
+    .home-sky { --mote-scale: 1.3; --mote-boost: 1.25; }
+    .const-kind { font-size: .64rem; letter-spacing: .08em; }
+    .const-name { font-size: .78rem; }
+    .profile-band { grid-template-columns: 1fr; }
+    .profile-facts { gap: var(--s-3) var(--s-4); }
+  }
+  @media (min-width: 1400px) { .const-node { --mag-scale: 1.12; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sky-mote, .const-edge { animation: none; }
+    .const-edge { stroke-dasharray: none; }
+    .sky-mote, .const-edge, .const-label, .const-glow, .const-node::after, .direction-tile::after, .direction-tile h3, .profile-close { transition: none; }
+    .const-node:hover .const-label, .const-node:focus-visible .const-label { translate: -50% 0; rotate: none; }
+    .direction-tile:hover h3, .direction-tile:focus-within h3 { translate: none; }
+  }
 </style>

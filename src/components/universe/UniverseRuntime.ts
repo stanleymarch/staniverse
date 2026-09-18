@@ -1,7 +1,7 @@
-import type { CanvasTexture, Group, Line, LineBasicMaterial, Material, Mesh, Points, Quaternion, Vector3, XRTargetRaySpace } from "three";
+import type { CanvasTexture, Group, Line, LineBasicMaterial, LineSegments, Material, Mesh, Points, Quaternion, Vector3, XRTargetRaySpace } from "three";
 import type { GraphEdge, GraphNode } from "../../lib/graph";
 import { provenanceField, relationLabel } from "../../lib/graph-visuals";
-import { applyRadialDeadzone, arContentLift, cameraRelativeStep, nextArPlacementState, nextSnapTurn, normalizedArContentTransform, VR_SPEED_METERS_PER_SECOND, type ArPlacementEvent, type ArPlacementState, type SnapTurnState } from "../../lib/xr-experience";
+import { applyRadialDeadzone, arContentLift, cameraRelativeStep, createGestureTracker, experienceStateForAr, nearestScreenTarget, nextArPlacementState, nextExperienceState, nextSnapTurn, normalizedArContentTransform, xrOffer, VR_SPEED_METERS_PER_SECOND, type ArPlacementEvent, type ArPlacementState, type ExperienceState, type SnapTurnState } from "../../lib/xr-experience";
 import { NODE_LABELS, UniverseWorld } from "./UniverseWorld";
 import { GenerativeUniverseAudio } from "./UniverseAudio";
 
@@ -135,16 +135,34 @@ export async function mountUniverse(scope: ParentNode = document) {
   if (!root || root.dataset.universeMounted === "true") return;
   root.dataset.universeMounted = "true";
 
+  // Every mode reports through one state, so the overlay can react before the first WebGL frame
+  // and without a pile of flags. `loading` is published synchronously, before three is fetched.
+  const experienceLayer = root.querySelector<HTMLElement>("[data-experience-layer]");
+  const experienceMessage = root.querySelector<HTMLElement>("[data-experience-message]");
+  let experienceState: ExperienceState = "loading";
+  const setExperienceState = (next: ExperienceState, message?: string) => {
+    experienceState = next;
+    root.dataset.experienceState = next;
+    if (message && experienceMessage) experienceMessage.textContent = message;
+    if (experienceLayer) experienceLayer.hidden = next !== "loading" && next !== "error";
+  };
+  setExperienceState("loading", "Загружаю созвездие…");
+
   let graph: GraphPayload;
   try {
     graph = JSON.parse(root.dataset.graph ?? "{}") as GraphPayload;
   } catch {
     root.dataset.motion = "reduced";
+    setExperienceState("error", "Данные карты повреждены — открыт список узлов");
+    root.querySelector<HTMLDetailsElement>(".universe-fallback")?.setAttribute("open", "");
     return;
   }
   const fallbackCleanup = mountFallback(root, graph);
   const canvas = root.querySelector<HTMLCanvasElement>(".universe-canvas");
-  if (!canvas) return;
+  if (!canvas) {
+    setExperienceState("error", "Сцена недоступна — открыт список узлов");
+    return;
+  }
 
   const compactViewport = root.dataset.embedded === "true" || window.matchMedia("(max-width: 780px)").matches;
   const focusFromUrl = () => new URLSearchParams(window.location.search).get("focus");
@@ -159,34 +177,6 @@ export async function mountUniverse(scope: ParentNode = document) {
     if (element) element.textContent = message;
   };
 
-  // Safari on iPhone/iPad has no immersive WebXR. Offer the explicit camera/SLAM adapter there;
-  // the query switch remains available in development for desktop SDK diagnostics.
-  const iosDevice = /iPad|iPhone|iPod/.test(navigator.userAgent)
-    || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-  const useIosArFallback = root.dataset.embedded !== "true" && iosDevice && !("xr" in navigator);
-  const useIosArDiagnostic = import.meta.env.DEV && new URLSearchParams(window.location.search).get("iosArSpike") === "1";
-  if (useIosArFallback || useIosArDiagnostic) {
-    try {
-      const { mountIosArSpike } = await import("./IosArSpike");
-      const disposeSpike = await mountIosArSpike(root, graph);
-      let disposed = false;
-      const cleanupSpike = () => {
-        if (disposed) return;
-        disposed = true;
-        controller.abort();
-        disposeSpike();
-        fallbackCleanup();
-        delete root.dataset.universeMounted;
-      };
-      root.addEventListener("universe:destroy", cleanupSpike, { once: true });
-      window.addEventListener("pagehide", cleanupSpike, { once: true });
-      return;
-    } catch (error) {
-      root.dataset.iosArSpike = "failed";
-      announce(`iOS AR spike недоступен: ${error instanceof Error ? error.message : String(error)}`);
-    }
-  }
-
   try {
     // Dynamic import is required: Three must stay out of the initial page chunk so the
     // accessible fallback list renders before the WebGL scene downloads.
@@ -195,9 +185,12 @@ export async function mountUniverse(scope: ParentNode = document) {
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: "high-performance" });
     let pixelRatioStep: "high" | "low" = "high";
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.8));
+    // The page paints the deep sky; the canvas stays transparent so AR can show the camera through it.
+    renderer.setClearColor(0x000000, 0);
     renderer.xr.enabled = true;
     const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x02060e, .012);
+    const deepSpaceFog = new THREE.FogExp2(0x02060e, .012);
+    scene.fog = deepSpaceFog;
     const camera = new THREE.PerspectiveCamera(58, 1, .1, 900);
     camera.rotation.order = "YXZ";
     // The rig owns the camera: desktop look/flight and XR locomotion move the rig,
@@ -335,6 +328,8 @@ export async function mountUniverse(scope: ParentNode = document) {
       // sudden travel is disorienting on screen and unsafe in headsets.
       root.querySelector<HTMLElement>("[data-intro]")?.setAttribute("data-hidden", "true");
       audio.select(node);
+      // Only a visitor who opted into sound hears this, and only for a star they picked themselves.
+      audio.accent();
       announce(`Выбрана звезда: ${node.title}. Связей рядом: ${world.neighbors.get(node.id)?.size ?? 0}. Закрыть выбор можно повторным нажатием, кнопкой «Закрыть» или Escape.`);
       onFocusCommitted?.();
     };
@@ -405,7 +400,9 @@ export async function mountUniverse(scope: ParentNode = document) {
     raycaster.params.Points.threshold = .42;
     const pointer = new THREE.Vector2();
     const pointers = new Map<number, { x: number; y: number }>();
-    let dragMoved = false;
+    // Tap versus drag is decided on the whole gesture, not on one sample: a slow finger travel
+    // accumulates past the slop threshold, while the few pixels a tap jitters never do.
+    const gesture = createGestureTracker();
     let lastPoint = { x: 0, y: 0 };
     let pinchDistance = 0;
     const keyFlight = { forward: 0, strafe: 0, rise: 0 };
@@ -427,7 +424,7 @@ export async function mountUniverse(scope: ParentNode = document) {
       // stale entry keeps look/rotation disabled for the rest of the session.
       pointers.clear();
       pinchDistance = 0;
-      dragMoved = false;
+      gesture.reset();
     };
     const syncLook = () => { pose.yaw = camera.rotation.y; pose.pitch = camera.rotation.x; };
     const setPointer = (event: PointerEvent) => {
@@ -438,7 +435,7 @@ export async function mountUniverse(scope: ParentNode = document) {
     canvas.addEventListener("pointerdown", (event) => {
       pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
       canvas.setPointerCapture(event.pointerId);
-      dragMoved = false;
+      gesture.start(event.clientX, event.clientY);
       lastPoint = { x: event.clientX, y: event.clientY };
       if (pointers.size === 2) pinchDistance = Math.hypot(event.clientX - lastPoint.x, event.clientY - lastPoint.y);
     }, { signal: controller.signal });
@@ -455,7 +452,7 @@ export async function mountUniverse(scope: ParentNode = document) {
       }
       const dx = event.clientX - lastPoint.x;
       const dy = event.clientY - lastPoint.y;
-      if (Math.abs(dx) + Math.abs(dy) > 2) dragMoved = true;
+      gesture.move(event.clientX, event.clientY);
       camera.rotation.y -= dx * .004;
       camera.rotation.x = THREE.MathUtils.clamp(camera.rotation.x - dy * .002, -1.2, 1.2);
       syncLook();
@@ -466,13 +463,38 @@ export async function mountUniverse(scope: ParentNode = document) {
     canvas.addEventListener("pointercancel", (event) => { stopPointer(event); resetInput(); }, { signal: controller.signal });
     canvas.addEventListener("lostpointercapture", stopPointer, { signal: controller.signal });
     canvas.addEventListener("wheel", (event) => { targetZoom = THREE.MathUtils.clamp(targetZoom + event.deltaY * .018, 16, 76); }, { passive: true, signal: controller.signal });
+    /**
+     * Screen-space fallback for a raycast that missed. Every star the current selection allows to
+     * be picked is projected to CSS pixels, so a fingertip only has to land inside one 44px target
+     * instead of exactly on a few rendered pixels.
+     */
+    const nearestNodeAt = (event: PointerEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      world.root.updateWorldMatrix(true, false);
+      const projected = new THREE.Vector3();
+      const targets: Array<{ id: string; x: number; y: number; visible: boolean }> = [];
+      world.visuals.forEach((visual, id) => {
+        // Mirrors pickableObjects(): the point cloud keeps every star pickable until a selection
+        // narrows the scene down to the revealed neighborhood.
+        if (selectedId && !visual.mesh?.visible) return;
+        projected.copy(visual.position).applyMatrix4(world.root.matrixWorld).project(camera);
+        if (projected.z > 1) return;
+        targets.push({
+          id,
+          x: (projected.x * .5 + .5) * rect.width,
+          y: (-projected.y * .5 + .5) * rect.height,
+          visible: true,
+        });
+      });
+      return nearestScreenTarget(targets, event.clientX - rect.left, event.clientY - rect.top);
+    };
     canvas.addEventListener("click", (event) => {
-      if (dragMoved) return;
+      if (gesture.dragged) return;
       setPointer(event);
       raycaster.setFromCamera(pointer, camera);
       const hit = raycaster.intersectObjects(world.pickableObjects(), false)[0];
       const nodeId = hit ? world.nodeIdFromPick(hit.object as Mesh | Points, hit.index) : undefined;
-      const node = nodeId ? world.byId.get(nodeId) : undefined;
+      const node = (nodeId ? world.byId.get(nodeId) : undefined) ?? world.byId.get(nearestNodeAt(event)?.id ?? "");
       if (node) focusNode(node);
     }, { signal: controller.signal });
     canvas.addEventListener("keydown", (event) => {
@@ -533,6 +555,12 @@ export async function mountUniverse(scope: ParentNode = document) {
     let preSessionPose: RigPose | undefined;
     root.dataset.xr = "screen";
     const xrNavigator = (navigator as Navigator & { xr?: XRSystem }).xr;
+    // One short, stable readout for the screen mode: the immersive detail lives in the two status
+    // chips, which only render while that session is running.
+    const screenModeLabel = () => {
+      const modes = [vrSupported ? "VR" : undefined, arSupported ? "AR" : undefined].filter(Boolean);
+      return modes.length ? `Экранный режим · ${modes.join(" и ")}` : "Экранный режим";
+    };
 
     const makeXrButton = (label: string) => {
       const button = document.createElement("button");
@@ -554,13 +582,18 @@ export async function mountUniverse(scope: ParentNode = document) {
       }
       if (!xrNavigator?.requestSession || button.disabled) return;
       button.disabled = true;
-      button.textContent = "Запуск…";
+      // The session request can take a permission prompt's worth of time: answer the click now,
+      // in the button and in the route state, instead of leaving a dead-looking overlay behind.
+      const launching = mode === "immersive-vr" ? "Запускаю VR…" : "Запускаю AR…";
+      button.textContent = launching;
+      if (xrStatus) xrStatus.textContent = launching;
+      setExperienceState("loading", launching);
       let requestedSession: XRSession | undefined;
       try {
         renderer.xr.setReferenceSpaceType(mode === "immersive-vr" ? "local-floor" : "local");
         const init: XRSessionInit = mode === "immersive-vr"
           ? { optionalFeatures: ["local-floor", "bounded-floor", "hand-tracking"] }
-          : { requiredFeatures: ["hit-test"], optionalFeatures: ["dom-overlay", "anchors", "local-floor"], domOverlay: { root } };
+          : { requiredFeatures: ["hit-test", "dom-overlay"], optionalFeatures: ["anchors", "local-floor"], domOverlay: { root } };
         requestedSession = await xrNavigator.requestSession(mode, init);
         activeXrMode = mode;
         await renderer.xr.setSession(requestedSession);
@@ -570,27 +603,27 @@ export async function mountUniverse(scope: ParentNode = document) {
         try { await requestedSession?.end(); } catch { /* session is already closed */ }
         if (xrStatus) xrStatus.textContent = mode === "immersive-vr" ? "VR: вход отменён" : "AR: вход отменён";
         button.textContent = mode === "immersive-vr" ? "Войти в VR" : "Войти в AR";
+        // A cancelled or refused entry is not a broken route: drop back to the screen experience.
+        setExperienceState(experienceStateForAr("idle"));
       } finally {
         button.disabled = false;
       }
     };
     vrButton.addEventListener("click", () => { void enterXr("immersive-vr", vrButton); }, { signal: controller.signal });
     arButton.addEventListener("click", () => { void enterXr("immersive-ar", arButton); }, { signal: controller.signal });
-    if (!xrNavigator) {
-      vrButton.remove(); arButton.remove();
-      if (xrStatus) xrStatus.textContent = "XR недоступен — экранный режим";
-      if (vrStatus) vrStatus.textContent = "VR недоступен";
-      if (arStatus) arStatus.textContent = "AR недоступен";
-    } else {
-      [vrSupported, arSupported] = await Promise.all((["immersive-vr", "immersive-ar"] as XRSessionMode[]).map((mode) => xrNavigator.isSessionSupported(mode).catch(() => false)));
-      vrButton.disabled = !vrSupported;
-      arButton.disabled = !arSupported;
-      if (!vrSupported) vrButton.remove();
-      if (!arSupported) arButton.remove();
-      if (vrStatus) vrStatus.textContent = vrSupported ? "VR готов" : "VR недоступен";
-      if (arStatus) arStatus.textContent = arSupported ? "AR готов" : "AR недоступен";
-      if (xrStatus) xrStatus.textContent = vrSupported || arSupported ? "XR готов" : "XR недоступен — экранный режим";
-    }
+    // Only a device that really answers `immersive-*` is offered that mode. There is no platform
+    // sniffing and no camera path here, so a phone without immersive-ar keeps the touch-3D view.
+    const immersiveSupport = await Promise.all((["immersive-vr", "immersive-ar"] as XRSessionMode[]).map((mode) => xrNavigator?.isSessionSupported(mode).catch(() => false) ?? Promise.resolve(false)));
+    const offer = xrOffer({ xrSystem: Boolean(xrNavigator?.requestSession), immersiveVr: immersiveSupport[0], immersiveAr: immersiveSupport[1] });
+    vrSupported = offer.vr;
+    arSupported = offer.ar;
+    vrButton.disabled = !vrSupported;
+    arButton.disabled = !arSupported;
+    if (!vrSupported) vrButton.remove();
+    if (!arSupported) arButton.remove();
+    if (vrStatus) vrStatus.textContent = vrSupported ? "VR готов" : "VR недоступен";
+    if (arStatus) arStatus.textContent = arSupported ? "AR готов" : "AR недоступен";
+    if (xrStatus) xrStatus.textContent = screenModeLabel();
 
     // AR transform hierarchy: placementRoot (surface pose) → contentRoot (scale/rotation).
     // Node coordinates inside the world are never rewritten by placement.
@@ -602,11 +635,91 @@ export async function mountUniverse(scope: ParentNode = document) {
     const arBase = normalizedArContentTransform([...world.visuals.values()].map((visual) => visual.position));
     let arScaleFactor = 1;
     let arRotation = 0;
+    const arBounds = world.contentBounds();
     const applyArTransform = () => {
       contentRoot.scale.setScalar(arBase.scale * arScaleFactor);
       contentRoot.position.set(0, arContentLift(arBase.offsetY, arScaleFactor), 0);
       contentRoot.rotation.y = arRotation;
+      // Point sprites shrink with the group scale; the world divides it back out so stars
+      // stay readable dots, and the ghost preview shows the very same transform.
+      world.setArContentScale(arBase.scale * arScaleFactor);
+      arPreview.scale.setScalar(arBase.scale * arScaleFactor);
+      arPreview.position.setY(arContentLift(arBase.offsetY, arScaleFactor));
+      arPreview.rotation.y = arRotation;
+      arShadow.scale.setScalar(1 + arScaleFactor * .55);
     };
+    const arGlow = (() => {
+      const canvas = document.createElement("canvas");
+      canvas.width = 128;
+      canvas.height = 128;
+      const context = canvas.getContext("2d");
+      if (context) {
+        const gradient = context.createRadialGradient(64, 64, 2, 64, 64, 63);
+        gradient.addColorStop(0, "rgba(255,255,255,.95)");
+        gradient.addColorStop(.4, "rgba(255,255,255,.28)");
+        gradient.addColorStop(1, "rgba(255,255,255,0)");
+        context.fillStyle = gradient;
+        context.fillRect(0, 0, 128, 128);
+      }
+      return new THREE.CanvasTexture(canvas);
+    })();
+    const arShadowTexture = (() => {
+      const canvas = document.createElement("canvas");
+      canvas.width = 128;
+      canvas.height = 128;
+      const context = canvas.getContext("2d");
+      if (context) {
+        const gradient = context.createRadialGradient(64, 64, 4, 64, 64, 63);
+        gradient.addColorStop(0, "rgba(0,0,0,.5)");
+        gradient.addColorStop(.55, "rgba(0,0,0,.22)");
+        gradient.addColorStop(1, "rgba(0,0,0,0)");
+        context.fillStyle = gradient;
+        context.fillRect(0, 0, 128, 128);
+      }
+      return new THREE.CanvasTexture(canvas);
+    })();
+
+    // Before placement: a cyan reticle on the surface plus a ghost outline of the real extent.
+    // The marker owns both, so it only ever has to be given one tracked pose per frame.
+    const arMarker = new THREE.Group();
+    arMarker.matrixAutoUpdate = false;
+    arMarker.visible = false;
+    scene.add(arMarker);
+    const reticle = new THREE.Mesh(new THREE.RingGeometry(.07, .095, 48).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0x7fd4f0, transparent: true, opacity: .9, side: THREE.DoubleSide }));
+    const reticleCore = new THREE.Mesh(new THREE.CircleGeometry(.012, 18).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0xd9fbff, transparent: true, opacity: .85 }));
+    const reticleTicks = new THREE.LineSegments(
+      new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(-.145, .002, 0), new THREE.Vector3(-.105, .002, 0),
+        new THREE.Vector3(.105, .002, 0), new THREE.Vector3(.145, .002, 0),
+        new THREE.Vector3(0, .002, -.145), new THREE.Vector3(0, .002, -.105),
+        new THREE.Vector3(0, .002, .105), new THREE.Vector3(0, .002, .145),
+      ]),
+      new THREE.LineBasicMaterial({ color: 0x7fd4f0, transparent: true, opacity: .55 }),
+    );
+    const reticleHalo = new THREE.Sprite(new THREE.SpriteMaterial({ map: arGlow, color: 0x7fd4f0, transparent: true, opacity: .5, blending: THREE.AdditiveBlending, depthWrite: false }));
+    reticleHalo.scale.setScalar(.42);
+    const arPreview = new THREE.Group();
+    arPreview.add(new THREE.LineSegments(
+      new THREE.EdgesGeometry(new THREE.BoxGeometry(Math.max(arBounds.size.x, .1), Math.max(arBounds.size.y, .1), Math.max(arBounds.size.z, .1))),
+      new THREE.LineBasicMaterial({ color: 0x7fd4f0, transparent: true, opacity: .3 }),
+    ));
+    arPreview.children[0].position.copy(arBounds.center);
+    arMarker.add(reticle, reticleCore, reticleTicks, reticleHalo, arPreview);
+
+    // After placement: a wide, soft ground shadow and a coloured rim, both lying flat on the
+    // detected surface. A billboard would stand up in the room, so these are real rotated planes.
+    const arShadow = new THREE.Group();
+    const shadowPad = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 1.5), new THREE.MeshBasicMaterial({ map: arShadowTexture, transparent: true, opacity: .55, depthWrite: false, side: THREE.DoubleSide }));
+    shadowPad.rotation.x = -Math.PI / 2;
+    shadowPad.position.y = .001;
+    shadowPad.renderOrder = 1;
+    const shadowRim = new THREE.Mesh(new THREE.PlaneGeometry(1.9, 1.9), new THREE.MeshBasicMaterial({ map: arGlow, color: 0x7fd4f0, transparent: true, opacity: .22, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }));
+    shadowRim.rotation.x = -Math.PI / 2;
+    shadowRim.position.y = .002;
+    shadowRim.renderOrder = 2;
+    arShadow.add(shadowPad, shadowRim);
+    arShadow.visible = false;
+    arRoot.add(arShadow);
 
     const controllerRayGeometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1)]);
     const xrControllers: XRTargetRaySpace[] = [];
@@ -619,8 +732,6 @@ export async function mountUniverse(scope: ParentNode = document) {
       xrControllers.push(xrController);
     }
 
-    const reticle = new THREE.Mesh(new THREE.RingGeometry(.08, .11, 28).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0x6de1f4 }));
-    reticle.matrixAutoUpdate = false; reticle.visible = false; scene.add(reticle);
     let arState: ArPlacementState = "idle";
     let hitTestSource: XRHitTestSource | undefined;
     let arReferenceSpace: XRReferenceSpace | undefined;
@@ -640,6 +751,10 @@ export async function mountUniverse(scope: ParentNode = document) {
     const setArState = (event: ArPlacementEvent) => {
       arState = nextArPlacementState(arState, event);
       root.dataset.arState = arState === "lost-placed" ? "lost" : arState;
+      // The route state follows the AR machine, so loading → searching → ready → placed → lost
+      // is observable from outside without a second set of flags.
+      setExperienceState(experienceStateForAr(arState));
+      arShadow.visible = arState === "placed" || arState === "lost-placed";
       const placedLabel = arAnchorMode ? "AR: размещено · якорь" : "AR: размещено · локальная поза";
       const label = ({ searching: "AR: ищу поверхность", ready: "AR: поверхность найдена", placed: placedLabel, lost: "AR: трекинг потерян", "lost-placed": "AR: трекинг потерян — созвездие сохранено", idle: arSupported ? "AR готов" : "AR недоступен" } as Record<ArPlacementState, string>)[arState];
       if (arStatus) arStatus.textContent = label;
@@ -653,7 +768,7 @@ export async function mountUniverse(scope: ParentNode = document) {
       lastHitMatrix = undefined;
       lastHitResult = undefined;
       lastHitAt = 0;
-      reticle.visible = false;
+      arMarker.visible = false;
     };
     const onArSessionStart = () => {
       const session = renderer.xr.getSession(); if (!session || activeXrMode !== "immersive-ar") return;
@@ -662,8 +777,13 @@ export async function mountUniverse(scope: ParentNode = document) {
       cameraRig.rotation.set(0, 0, 0);
       camera.position.set(0, 0, 0);
       camera.rotation.set(0, 0, 0);
+      // The camera feed is the background: no fog in front of it, and the sector landmarks and
+      // the heavy dust step aside so the constellation reads as coloured stars and links.
+      scene.fog = null;
+      world.setArPresentation(true);
       applyArTransform();
       contentRoot.visible = false;
+      arShadow.visible = false;
       relocating = false;
       arAnchor = undefined;
       savedPlacement = undefined;
@@ -683,14 +803,17 @@ export async function mountUniverse(scope: ParentNode = document) {
       arSessionIdentity += 1;
       arVisibilityCleanup?.();
       arVisibilityCleanup = undefined;
-      hitTestSource?.cancel(); hitTestSource = undefined; reticle.visible = false;
+      hitTestSource?.cancel(); hitTestSource = undefined; arMarker.visible = false;
       arAnchor?.delete();
       savedPlacement?.anchor?.delete();
       arAnchor = undefined; arAnchorMode = false; relocating = false; savedPlacement = undefined;
       clearHitEvidence();
       contentRoot.visible = true;
+      arShadow.visible = false;
       contentRoot.position.set(0, 0, 0); contentRoot.quaternion.identity(); contentRoot.scale.setScalar(1);
       arRoot.position.set(0, 0, 0); arRoot.quaternion.identity(); arRoot.scale.setScalar(1);
+      scene.fog = deepSpaceFog;
+      world.setArPresentation(false);
       if (activeXrMode === "immersive-ar") setArState("end");
     };
     const placeAr = () => {
@@ -832,11 +955,14 @@ export async function mountUniverse(scope: ParentNode = document) {
       if (!panelCanvas || !panelTexture) return;
       const context = panelCanvas.getContext("2d");
       if (!context) return;
-      context.fillStyle = "rgba(4,13,25,.92)";
-      context.fillRect(0, 0, 1024, 640);
+      context.clearRect(0, 0, 1024, 640);
+      context.beginPath();
+      context.roundRect(6, 6, 1012, 628, 22);
+      context.fillStyle = "rgba(6,8,15,.93)";
+      context.fill();
       context.strokeStyle = "rgba(109,225,244,.5)";
       context.lineWidth = 3;
-      context.strokeRect(6, 6, 1012, 628);
+      context.stroke();
       context.fillStyle = "#9dddec";
       context.font = "500 26px Geologica, sans-serif";
       const selected = selectedId ? world.byId.get(selectedId) : undefined;
@@ -869,10 +995,12 @@ export async function mountUniverse(scope: ParentNode = document) {
       context.fillText(`Соседи ${selected ? neighbors.length : 0} · страница ${panelPage + 1}/${pages}`, 36, 512);
       panelActions.forEach((action, index) => {
         const x = 36 + index * 140;
-        context.fillStyle = action === "exit" ? "rgba(229,168,209,.24)" : "rgba(109,225,244,.18)";
-        context.fillRect(x, 540, 128, 66);
-        context.strokeStyle = "rgba(109,225,244,.45)";
-        context.strokeRect(x, 540, 128, 66);
+        context.beginPath();
+        context.roundRect(x, 540, 128, 66, 14);
+        context.fillStyle = action === "exit" ? "rgba(229,168,209,.18)" : "rgba(109,225,244,.12)";
+        context.fill();
+        context.strokeStyle = action === "exit" ? "rgba(229,168,209,.42)" : "rgba(109,225,244,.42)";
+        context.stroke();
         context.fillStyle = "#dceefa";
         context.font = "500 24px Geologica, sans-serif";
         context.fillText(panelActionLabels[action], x + 12, 580);
@@ -977,6 +1105,9 @@ export async function mountUniverse(scope: ParentNode = document) {
       cameraRig.rotation.set(0, 0, 0);
       camera.position.set(0, 0, 0);
       camera.rotation.set(0, 0, 0);
+      // Entering VR re-arms the loader gate from the click handler's "Запускаю VR…": only the
+      // first actually presented XR frame may lift it, never the session event alone.
+      firstFrameRendered = false;
       // First XRFrame aligns the tracked head 2.2m from the focused constellation.
     };
     const onSessionStart = () => {
@@ -1008,6 +1139,7 @@ export async function mountUniverse(scope: ParentNode = document) {
       void audio.resumeIfEnabled();
       vrButton.textContent = "Войти в VR";
       arButton.textContent = "Войти в AR";
+      if (xrStatus) xrStatus.textContent = screenModeLabel();
       pendingVrAlignment = false;
       pendingVrPanel = false;
       vrButton.disabled = !vrSupported;
@@ -1041,6 +1173,7 @@ export async function mountUniverse(scope: ParentNode = document) {
     applyUrlFocus();
     updateBackButton();
     let lastFrame = performance.now(); let averageFrame = 16;
+    let firstFrameRendered = false;
     const easeInOut = (t: number) => t < .5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2;
     const tmpQuaternion = new THREE.Quaternion();
     const tmpForward = new THREE.Vector3();
@@ -1074,13 +1207,15 @@ export async function mountUniverse(scope: ParentNode = document) {
             lastHitMatrix = pose.transform.matrix as unknown as Float32Array;
             lastHitResult = hit;
             lastHitAt = performance.now();
-            reticle.matrix.fromArray(lastHitMatrix);
-            reticle.visible = arState !== "placed" || relocating;
+            arMarker.matrix.fromArray(lastHitMatrix);
+            arMarker.visible = arState !== "placed" || relocating;
+            // The reticle breathes while it waits for a tap, so a still surface still looks alive.
+            reticleHalo.material.opacity = motionReduced ? .45 : .32 + .2 * Math.sin(time / 320);
             if (arState === "searching") setArState("hit");
           }
         } else {
-          // Surface miss is not tracking loss: hide the reticle and go back to searching.
-          reticle.visible = false;
+          // Surface miss is not tracking loss: hide the marker and go back to searching.
+          arMarker.visible = false;
           if (arState === "ready") setArState("hit-missed");
         }
         if (trackingLost) {
@@ -1196,13 +1331,18 @@ export async function mountUniverse(scope: ParentNode = document) {
         audioSignal.dataset.theme = audioState.theme;
         audioSignal.toggleAttribute("data-active", audioState.enabled);
       }
-      world.update(time / 1000, audioState.energy);
+      world.update(time / 1000, audioState.energy, camera.getWorldPosition(tmpAudioListener));
       if (xrDiagnosticsEnabled && renderer.xr.isPresenting) {
         root.dataset.xrRig = `${cameraRig.position.x.toFixed(4)},${cameraRig.position.y.toFixed(4)},${cameraRig.position.z.toFixed(4)}`;
         root.dataset.xrYaw = rigYaw.toFixed(4);
         root.dataset.xrPanel = String(Boolean(panelGroup?.visible));
       }
       renderer.render(scene, camera);
+      if (!firstFrameRendered) {
+        firstFrameRendered = true;
+        // The sky is on screen: the loader steps aside and the canvas is left to breathe.
+        setExperienceState(nextExperienceState(experienceState, "loaded"));
+      }
     };
     renderer.setAnimationLoop(frame);
     announce(`Карта загружена: ${graph.nodes.length} узлов, ${graph.edges.length} связей. Секторы доступны для свободного полёта.`);
@@ -1227,9 +1367,24 @@ export async function mountUniverse(scope: ParentNode = document) {
         scene.remove(panelGroup);
       }
       panelTexture?.dispose();
-      reticle.geometry.dispose();
-      (reticle.material as Material).dispose();
-      scene.remove(reticle);
+      [reticle, reticleCore].forEach((mesh) => { mesh.geometry.dispose(); (mesh.material as Material).dispose(); });
+      reticleTicks.geometry.dispose();
+      (reticleTicks.material as Material).dispose();
+      (reticleHalo.material as Material).dispose();
+      arPreview.traverse((child) => {
+        const preview = child as LineSegments;
+        preview.geometry?.dispose();
+        (preview.material as Material | undefined)?.dispose?.();
+      });
+      arShadow.traverse((child) => {
+        const pad = child as Mesh;
+        pad.geometry?.dispose?.();
+        (pad.material as Material | undefined)?.dispose?.();
+      });
+      arGlow.dispose();
+      arShadowTexture.dispose();
+      scene.remove(arMarker);
+      arShadow.removeFromParent();
       xrControllers.forEach((item) => {
         const ray = item.children[0] as Line | undefined;
         if (ray) (ray.material as Material).dispose();
@@ -1244,6 +1399,7 @@ export async function mountUniverse(scope: ParentNode = document) {
       fallbackCleanup();
       delete root.dataset.xr;
       delete root.dataset.arState;
+      delete root.dataset.experienceState;
       delete root.dataset.universeMounted;
     };
     root.addEventListener("universe:destroy", cleanup, { once: true });
@@ -1253,6 +1409,7 @@ export async function mountUniverse(scope: ParentNode = document) {
     // leaving a dead canvas that still takes focus and page space.
     root.dataset.motion = "reduced";
     root.dataset.render = "unavailable";
+    setExperienceState("error", "3D-режим недоступен — открыт список узлов");
     const tools = root.querySelector<HTMLDetailsElement>(".universe-tools");
     if (tools) tools.open = true;
     const fallback = root.querySelector<HTMLDetailsElement>(".universe-fallback");

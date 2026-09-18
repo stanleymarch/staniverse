@@ -1,6 +1,6 @@
 # Staniverse
 
-Новый самостоятельный `staniverse.xyz`: портфолио работ, собственные живые проекты и каталог опыта из Telegram, статей и видео. Astro строит статический сайт для GitLab Pages; Obsidian и Quartz не участвуют в публикации.
+Новый самостоятельный `staniverse.xyz`: портфолио работ, собственные живые проекты и каталог опыта из Telegram, статей и видео. Astro строит статический сайт; production-деплой выполняет GitHub Actions в Yandex Object Storage. GitLab Pages сохраняется только как временный rollback до завершения DNS-cutover.
 
 ## Локальная работа
 

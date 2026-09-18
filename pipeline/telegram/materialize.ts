@@ -1,10 +1,10 @@
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import type { CanonicalPublication } from "./types";
 import type { EnrichmentBundle, ReviewBundle, ReviewDecision } from "../enrichment/types";
 import { publicationDisplay } from "./display";
 import { mergeEnrichment } from "../enrichment/merge";
 import { readPublications } from "../enrichment/prepare";
+import { inlineTelegramMedia } from "./inline-media";
 
 const [input = "pipeline/telegram/archive/canonical.json", output = "src/content/publications/telegram", enrichmentInput = "pipeline/enrichment/generated/telegram.json",reviewInput="pipeline/enrichment/review/decisions.json"] = process.argv.slice(2);
 const publications = await readPublications(input);
@@ -18,18 +18,6 @@ const destination = resolve(output);
 
 const yaml = (value: unknown) => JSON.stringify(value);
 
-function inlineMedia(body:string, publication:CanonicalPublication){
-  const bySource=new Map(publication.media.filter((item)=>item.publicPath).map((item)=>[item.sourcePath,item]));
-  return body.replace(/<!--telegram-media:([^>]+)-->/g,(_match,encoded:string)=>{
-    const sourcePath=decodeURIComponent(encoded);
-    const item=bySource.get(sourcePath);
-    if(!item?.publicPath)return "";
-    if(item.type==="image")return `![Иллюстрация из Telegram Article](${item.publicPath})`;
-    if(item.type==="video")return `<video class="telegram-inline-media" controls preload="metadata" src="${item.publicPath}">Видео из Telegram Article</video>`;
-    if(item.type==="audio")return `<audio class="telegram-inline-media" controls preload="metadata" src="${item.publicPath}">Аудио из Telegram Article</audio>`;
-    return `[Документ из Telegram Article](${item.publicPath})`;
-  });
-}
 
 await rm(destination, {recursive:true,force:true});
 await mkdir(destination, {recursive:true});
@@ -61,7 +49,7 @@ for (const publication of publications) {
     "",
   ].filter((line): line is string => line !== undefined).join("\n");
   const sourceLink = `[Оригинал в Telegram](${publication.sourceUrl})`;
-  const body=inlineMedia(displayBody,publication).replace(/[ \t]+$/gm,"");
+  const body=inlineTelegramMedia(displayBody,publication).replace(/[ \t]+$/gm,"");
   await writeFile(resolve(destination,`tg-${publication.sourceId}.md`),`${frontmatter}${body ? `${body}\n\n` : ""}${sourceLink}\n`,"utf8");
 }
 

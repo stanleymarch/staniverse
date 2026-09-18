@@ -62,5 +62,7 @@ Nearventure работает с открытыми данными OpenStreetMap,
 
 Проект вышел из стадии скрытого прототипа и работает как публичная бета. Следующий вопрос уже не «можно ли построить маршрут», а «получается ли маршрут действительно интересным и удобным в реальной поездке».
 
-- [Открыть Nearventure](https://nearventure.ru/)
-- [Telegram-бот @nearventure_bot](https://t.me/nearventure_bot)
+## Ссылки
+
+- [Код и документация Nearventure](https://github.com/stanleymarch/nearventure)
+- [poi-toolkit — конвейер открытых данных проекта](https://github.com/stanleymarch/poi-toolkit)

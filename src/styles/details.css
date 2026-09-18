@@ -99,6 +99,29 @@
 .media-gallery video { display: block; width: 100%; max-width: 100%; height: auto; aspect-ratio: auto 16 / 9; object-fit: contain; max-height: 70vh; border: 1px solid var(--line); border-radius: 1rem; background: #03070d; }
 .media-gallery audio { width: 100%; min-height: 2.6rem; align-self: center; }
 .media-document { display: grid!important; min-height: 8rem; place-items: center; padding: 1rem; color: var(--accent); text-align: center; }
+.media-carousel { min-width: 0; margin: 0 0 var(--s-6); }
+.media-carousel-viewport { min-width: 0; overflow-x: auto; overscroll-behavior-inline: contain; scroll-behavior: smooth; scroll-snap-type: x mandatory; scrollbar-width: none; }
+.media-carousel-viewport::-webkit-scrollbar { display: none; }
+.media-carousel-track { display: grid; grid-auto-flow: column; grid-auto-columns: 100%; gap: var(--s-3); }
+.media-carousel-slide { position: relative; min-width: 0; margin: 0; scroll-snap-align: start; scroll-snap-stop: always; }
+.media-carousel-slide a { display: grid; min-height: min(62vh, 38rem); place-items: center; overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius-1); background: var(--surface); }
+.media-carousel-slide img { display: block; width: 100%; height: min(62vh, 38rem); object-fit: contain; }
+.media-carousel-slide figcaption { position: absolute; right: var(--s-2); bottom: var(--s-2); padding: .25rem .5rem; border: 1px solid var(--line); border-radius: var(--radius-pill); background: color-mix(in srgb, var(--ground) 86%, transparent); color: var(--ink); font-size: .72rem; font-variant-numeric: tabular-nums; backdrop-filter: blur(8px); }
+.media-carousel-controls { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto 44px; gap: var(--s-2); align-items: center; margin-top: var(--s-2); }
+.media-carousel-controls > button { display: grid; width: 44px; height: 44px; place-items: center; padding: 0; border: 1px solid var(--line); border-radius: var(--radius-pill); background: transparent; color: var(--ink); cursor: pointer; }
+.media-carousel-controls > button:hover, .media-carousel-controls > button:focus-visible { border-color: var(--accent); color: var(--accent); }
+.media-carousel-controls > button:disabled { opacity: .35; cursor: default; }
+.media-carousel-dots { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; justify-content: center; min-width: 0; }
+.media-carousel-dots button { width: .48rem; height: .48rem; padding: 0; border: 0; border-radius: 50%; background: var(--line-strong); cursor: pointer; transition: width var(--dur-1) var(--ease), background var(--dur-1) var(--ease); }
+.media-carousel-dots button[aria-current="true"] { width: 1.4rem; border-radius: var(--radius-pill); background: var(--accent); }
+.media-carousel-controls output { min-width: 3.2rem; color: var(--ink-2); font-size: .75rem; font-variant-numeric: tabular-nums; text-align: center; }
+
+.entry-taxonomy { display: grid; gap: var(--s-3); margin-top: var(--s-6); padding-top: var(--s-4); border-top: 1px solid var(--line); }
+.entry-taxonomy h2 { margin: 0; font: 500 var(--text-h3) / 1.25 var(--font-display); }
+.entry-taxonomy .tag-group { margin: 0; }
+.entry-taxonomy .tag-row { margin-top: var(--s-2); }
+.entry-taxonomy .tag-row a { text-decoration: none; }
+.entry-taxonomy .tag-row a:hover, .entry-taxonomy .tag-row a:focus-visible { background: var(--accent-soft); color: var(--accent); }
 .telegram-inline-media { display: block; width: 100%; max-width: 100%; margin-block: 1.5rem; }
 
 /* Global prose styles give replaced media height:auto; that collapses iframes to
@@ -136,4 +159,8 @@ audio.telegram-inline-media { min-height: 2.6rem; }
   .media-gallery { grid-template-columns: minmax(0, 1fr); }
   .publication-facts { align-items: stretch; }
   .publication-facts span, .publication-facts a { flex: 1 1 100%; }
+  .media-carousel-slide a { min-height: min(56vh, 28rem); }
+  .media-carousel-slide img { height: min(56vh, 28rem); }
+  .media-carousel-controls { grid-template-columns: 44px minmax(0, 1fr) 44px; }
+  .media-carousel-controls output { display: none; }
 }

@@ -1,19 +1,26 @@
 ---
 import type { AnyEntry } from "../lib/content";
 import { hrefFor, kindLabel, projectStatus, workStatus } from "../lib/content";
-interface Props { entry: AnyEntry; large?: boolean; headingLevel?: "h2" | "h3" }
-const { entry, large = false, headingLevel: Heading = "h3" } = Astro.props;
-const status = entry.data.kind === "project" ? projectStatus[entry.data.status] : entry.data.kind === "work" ? workStatus[entry.data.status] : undefined;
+interface Props {
+  entry: AnyEntry; large?: boolean; headingLevel?: "h2" | "h3"; showDate?: boolean;
+  /* EN pages render the same card from the RU entry with translated strings. */
+  titleOverride?: string; summaryOverride?: string; hrefOverride?: string;
+  tagsOverride?: string[]; kindLabelOverride?: string; statusOverride?: string;
+}
+const { entry, large = false, headingLevel: Heading = "h3", showDate = true, titleOverride, summaryOverride, hrefOverride, tagsOverride, kindLabelOverride, statusOverride } = Astro.props;
+const status = statusOverride ?? (entry.data.kind === "project" ? projectStatus[entry.data.status] : entry.data.kind === "work" ? workStatus[entry.data.status] : undefined);
 const extraFilters = entry.data.kind === "work" ? entry.data.genres : entry.data.kind === "project" ? [entry.data.status, ...entry.data.domains] : [];
 // Video publications carry platform labels, not author hashtags; don't show them as tags.
 const showTags = !(entry.collection === "publications" && ["video", "youtube-video"].includes(entry.data.kind));
 const keepShortWords = (value: string) => value.replace(/(^|\s)(а|без|в|во|для|до|за|и|из|к|ко|на|не|но|о|об|от|по|с|со|у|я)\s+(?=\S)/giu, "$1$2\u00a0");
+const published = entry.data.date ?? entry.data.updated;
+/* EN twins render the same card: the date format and the featured badge follow the page language. */
+const isEn = Astro.url.pathname.startsWith("/en/");
+const publishedLabel = published ? new Intl.DateTimeFormat(isEn ? "en-GB" : "ru-RU", { day: "numeric", month: "short", year: "numeric" }).format(published) : "";
 ---
-<a class:list={["content-card", `kind-${entry.data.kind}`, { large }]} href={hrefFor(entry)} data-kind={entry.data.kind} data-tags={[...entry.data.tags, ...extraFilters].join(" ")} data-search={`${entry.data.title} ${entry.data.summary} ${entry.data.tags.join(" ")} ${extraFilters.join(" ")}`.toLowerCase()}>
-  <div class="card-meta"><span>{kindLabel[entry.data.kind]}</span>{status && <span class="status">{status}</span>}{entry.data.featured && <span class="featured">Избранное</span>}</div>
-  <div class="card-orbit" aria-hidden="true"><i></i><i></i><i></i></div>
-  <Heading>{keepShortWords(entry.data.title)}</Heading>
-  <p>{keepShortWords(entry.data.summary)}</p>
-  {showTags && <div class="tag-row">{entry.data.tags.slice(0, 4).map((tag) => <span>#{tag}</span>)}</div>}
-  <span class="card-arrow" aria-hidden="true">↗</span>
+<a class:list={["content-card", { large }]} href={hrefOverride ?? hrefFor(entry)} data-kind={entry.data.kind} data-date={published?.toISOString() ?? ""} data-tags={[...entry.data.tags, ...extraFilters].join(" ")} data-search={`${titleOverride ?? entry.data.title} ${summaryOverride ?? entry.data.summary} ${entry.data.tags.join(" ")} ${extraFilters.join(" ")}`.toLowerCase()}>
+  <div class="card-meta"><span>{kindLabelOverride ?? kindLabel[entry.data.kind]}</span>{status && <span class="status">{status}</span>}{entry.data.featured && <span class="featured">{isEn ? "Featured" : "Избранное"}</span>}{showDate && published && <time datetime={published.toISOString()}>{publishedLabel}</time>}</div>
+  <Heading>{keepShortWords(titleOverride ?? entry.data.title)}</Heading>
+  <p>{keepShortWords(summaryOverride ?? entry.data.summary)}</p>
+  {showTags && <div class="tag-row">{(tagsOverride ?? entry.data.tags.slice(0, 4)).map((tag) => <span>#{tag}</span>)}</div>}
 </a>

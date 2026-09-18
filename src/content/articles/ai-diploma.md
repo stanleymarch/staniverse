@@ -13,15 +13,15 @@ relations: [{"target":"work:sistema-sbora-i-analiza-trendov-na-n8n","type":"rela
 ---
 ## Содержание
 
-- [Признание](#priznanie)
-- [Вы правы — и нет](#vy-pravy-i-net)
-- [Базовый минимум](#bazovyy-minimum)
-- [Что-нибудь лёгкое и с пользой](#chto-nibud-lyogkoe-i-s-polzoy)
-- [ИИ-Агенты и инструменты в обвязках](#ii-agenty-i-instrumenty-v-obvyazkakh)
-- [Антихрупкая кухня в Markdown-коммуналке](#antikhrupkaya-kukhnya-v-markdown-kommunalke-obsidian-kak-edinyy-istochnik-istiny-dlya-ii)
-- [Thesis as a Project](#thesis-as-a-project-ili-kak-ne-otkryvat-word)
-- [Human in the Loop: Архитектор или читер?](#human-in-the-loop-arkhitektor-ili-chiter)
-- [Видеоверсия](#videoversiya)
+- [Признание](#признание)
+- [Вы правы — и нет](#вы-правы--и-нет)
+- [Базовый минимум](#базовый-минимум)
+- [Что-нибудь лёгкое и с пользой](#что-нибудь-лёгкое-и-с-пользой)
+- [ИИ-Агенты и инструменты в обвязках](#ии-агенты-и-инструменты-в-обвязках)
+- [Антихрупкая кухня в Markdown-коммуналке](#антихрупкая-кухня-в-markdown-коммуналке-obsidian-как-единый-источник-истины-для-ии)
+- [Thesis as a Project](#thesis-as-a-project-или-как-не-открывать-word)
+- [Human in the Loop: Архитектор или читер?](#human-in-the-loop-архитектор-или-читер)
+- [Видеоверсия](#видеоверсия)
 ---
 
 ## Признание

@@ -1,6 +1,8 @@
 ---
 import "../styles/global.css";
 import "../styles/details.css";
+import { analyticsEnabled, metrikaCounterId, webmasterVerification } from "../lib/analytics";
+import { alternatesFor } from "../lib/i18n";
 
 interface Props {
   title: string;
@@ -8,19 +10,101 @@ interface Props {
   immersive?: boolean;
   ogImage?: string;
   jsonLd?: Record<string, unknown>;
+  /** Adds the typed page node search engines look for on these two routes. */
+  pageType?: "AboutPage" | "ContactPage";
+  /** Page language; switches html lang, og:locale and the shared chrome. RU is the default. */
+  lang?: "ru" | "en";
+  /** Publish/update times for article-like pages (og:type=article). */
+  published?: Date;
+  modified?: Date;
 }
+// One description for the whole site: XR, AI-автоматизация, архивы и медиа для
+// бизнеса, музеев и культурных проектов — no audience is the afterthought here.
+const siteDescription = "Staniverse — портфолио Станислава Ермоленко: XR и WebXR, AI-автоматизация рабочих процессов, цифровые архивы, сайты и медиа — для бизнеса, музеев и культурных проектов.";
 const {
   title,
-  description = "Станивёрс — портфолио Станислава Ермоленко: XR и WebXR, AI-агенты, сайты, цифровые продукты и медиа.",
+  description = siteDescription,
   immersive = false,
   ogImage,
   jsonLd,
+  pageType,
+  lang = "ru",
+  published,
+  modified,
 } = Astro.props;
-const siteName = "станивёрс";
+/* Shared chrome (nav, search, footer, consent) stays bilingual in one place so an
+   EN page is a full citizen of the site, not a translated island. */
+const chrome = lang === "en" ? {
+  skipLink: "Skip to content",
+  nav: [
+    ["/works/", "Works"],
+    ["/projects/", "Projects"],
+    ["/garden/", "Garden"],
+    ["/about/", "About"],
+    ["/contacts/", "Contacts"],
+  ] as const,
+  search: "Search",
+  searchLabel: "Site search (Ctrl+K)",
+  map: "Connection map",
+  menu: "Menu",
+  tagline: "Connections between technology, memory, media and place.",
+  footerLinks: [
+    ["/works/", "Works"],
+    ["/projects/", "Projects"],
+    ["/videos/", "Video"],
+    ["/contacts/", "Contacts"],
+    ["/manifesto/", "Manifesto"],
+    ["/donate/", "Support"],
+    ["/privacy/", "Privacy"],
+    ["/lab/", "Lab"],
+  ] as const,
+  consentText: "Yandex Metrika shows which materials are useful. It loads only with your consent. See the",
+  consentMore: "privacy policy",
+  consentAccept: "Allow",
+  consentDecline: "Decline",
+} : {
+  skipLink: "К содержанию",
+  nav: [
+    ["/works/", "Работы"],
+    ["/projects/", "Проекты"],
+    ["/garden/", "Сад"],
+    ["/about/", "Обо мне"],
+    ["/contacts/", "Контакты"],
+  ] as const,
+  search: "Поиск",
+  searchLabel: "Поиск по сайту (Ctrl+K)",
+  map: "Карта связей",
+  menu: "Меню",
+  tagline: "Связи между технологиями, памятью, медиа и местом.",
+  footerLinks: [
+    ["/works/", "Работы"],
+    ["/projects/", "Проекты"],
+    ["/videos/", "Видео"],
+    ["/contacts/", "Контакты"],
+    ["/manifesto/", "Манифест"],
+    ["/donate/", "Поддержать"],
+    ["/privacy/", "Конфиденциальность"],
+    ["/lab/", "Лаборатория"],
+  ] as const,
+  consentText: "Яндекс Метрика помогает понять, какие материалы полезны. Она загрузится только с вашего согласия. Подробнее — в",
+  consentMore: "политике конфиденциальности",
+  consentAccept: "Разрешить",
+  consentDecline: "Не разрешать",
+};
+const localeTag = lang === "en" ? "en_US" : "ru_RU";
+const alternateLocale = lang === "en" ? "ru_RU" : "en_US";
+const inLanguage = lang === "en" ? "en" : "ru-RU";
+const alternateLinks = alternatesFor(Astro.url.pathname).map((alternate) => ({
+  ...alternate,
+  href: new URL(alternate.href, Astro.site).href,
+}));
+/* The channel is called Staniverse in Latin everywhere it is written, including
+   the header wordmark: the browser tab and every share card must match it. */
+const siteName = "Staniverse";
 const brandOnly = title.toLocaleLowerCase("ru-RU") === siteName;
 const pageTitle = brandOnly ? siteName : `${title} · ${siteName}`;
 // The share card is already branded, so a brand-only title must not repeat itself in the alt text.
-const imageAlt = brandOnly ? siteName : `станивёрс — ${title}`;
+const imageAlt = brandOnly ? siteName : `${siteName} — ${title}`;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const personId = new URL("/#stanislav-ermolenko", Astro.site).href;
 const websiteId = new URL("/#website", Astro.site).href;
@@ -30,9 +114,11 @@ const baseGraph: Record<string, unknown>[] = [
     "@id": websiteId,
     url: new URL("/", Astro.site).href,
     name: siteName,
-    alternateName: "Staniverse",
-    inLanguage: "ru-RU",
+    alternateName: "станивёрс",
+    description: siteDescription,
+    inLanguage,
     creator: { "@id": personId },
+    publisher: { "@id": personId },
   },
   {
     "@type": "Person",
@@ -40,81 +126,139 @@ const baseGraph: Record<string, unknown>[] = [
     name: "Станислав Ермоленко",
     alternateName: "Стас Ермоленко",
     url: new URL("/", Astro.site).href,
-    jobTitle: "Специалист по AI-автоматизации и XR-разработчик",
+    jobTitle: "XR-разработчик и специалист по AI-автоматизации",
+    description: "Делаю XR и WebXR, встраиваю AI в рабочие процессы, собираю цифровые архивы и медиа, интерфейсы и исследования. Работаю и с бизнесом, и с музеями, культурой и искусством.",
+    email: "mailto:stas@staniverse.xyz",
     homeLocation: { "@type": "Place", name: "Санкт-Петербург, Россия" },
-    knowsAbout: ["AI-автоматизация бизнес-процессов", "CRM-интеграции", "AI-агенты", "OpenClaw", "Hermes", "PicoClaw", "XR", "WebXR", "контентные системы", "прикладные исследования", "разработка программ ДПО"],
+    alumniOf: { "@type": "CollegeOrUniversity", name: "Вятский государственный университет" },
+    affiliation: { "@type": "CollegeOrUniversity", name: "ИТМО" },
+    knowsAbout: [
+      "XR и WebXR",
+      "виртуальные пространства",
+      "3D и Gaussian Splatting",
+      "AI-автоматизация бизнес-процессов",
+      "AI-агенты",
+      "интеграция CRM",
+      "n8n",
+      "цифровые архивы",
+      "медиа и видеопроизводство",
+      "контентные системы",
+      "музеи и культурное наследие",
+      "городские исследования",
+      "арт и сценография",
+      "веб-разработка",
+      "продуктовый менеджмент",
+      "образовательные программы и ДПО",
+      "прикладные исследования",
+    ],
     sameAs: ["https://t.me/staniverse", "https://vk.com/staniverse", "https://www.youtube.com/@staniverse"],
   },
+  ...(pageType
+    ? [{
+        "@type": pageType,
+        "@id": `${canonical.href}#page`,
+        url: canonical.href,
+        name: pageTitle,
+        description,
+        inLanguage,
+        isPartOf: { "@id": websiteId },
+        about: { "@id": personId },
+        mainEntity: { "@id": personId },
+      }]
+    : []),
   ...(jsonLd ? [jsonLd] : []),
 ];
 const structuredData = { "@context": "https://schema.org", "@graph": baseGraph };
 const sectionImages: Record<string, string> = { works: "/og/works.png", projects: "/og/projects.png", garden: "/og/garden.png", videos: "/og/videos.png", topics: "/og/topics.png", articles: "/og/articles.png", about: "/og/about.png", universe: "/og/universe.png", donate: "/og/donate.png" };
-const segment = Astro.url.pathname.split("/")[1] ?? "";
-const image = new URL(ogImage ?? sectionImages[segment] ?? "/og/staniverse.png", Astro.site);
-const articleLike = ["works", "projects", "garden", "articles", "topics"].includes(segment) && Astro.url.pathname.split("/").filter(Boolean).length > 1;
+const segments = Astro.url.pathname.split("/").filter(Boolean);
+/* EN twins live under /en/<section>/… — they are article-like exactly like their RU originals. */
+const sectionSegment = segments[0] === "en" ? segments[1] ?? "" : segments[0] ?? "";
+const image = new URL(ogImage ?? sectionImages[sectionSegment] ?? "/og/staniverse.png", Astro.site);
+/* YouTube thumbnails are 480×360; every own OG card is 1200×630. Lying dimensions
+   make scrapers crop the card, so the pair follows the actual image source. */
+const [imageWidth, imageHeight] = ogImage && !ogImage.startsWith("/") ? [480, 360] : [1200, 630];
+const articleLike = ["works", "projects", "garden", "articles", "topics"].includes(sectionSegment) && segments.length > (segments[0] === "en" ? 2 : 1);
 ---
 <!doctype html>
-<html lang="ru" class:list={{ immersive }}>
+<html lang={lang} class:list={{ immersive }}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="author" content="Станислав Ермоленко" />
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <meta name="description" content={description} />
-    <meta name="theme-color" content="#070a12" />
+    <meta name="theme-color" content="#06080f" />
+    <!-- The canvas is dark before any stylesheet arrives: without this, every
+         cross-document navigation paints a white flash between the two pages. -->
+    <meta name="color-scheme" content="dark" />
     <link rel="icon" href="/favicon.ico" sizes="48x48" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
+    <!-- Cyrillic carries the page copy, latin carries the brand and every
+         latin term inside that copy: both subsets sit on the first screen. -->
     <link rel="preload" href="/fonts/geologica-cyrillic.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/unbounded-cyrillic.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/geologica-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/unbounded-latin.woff2" as="font" type="font/woff2" crossorigin />
     <script is:inline>if ("IntersectionObserver" in window && !matchMedia("(prefers-reduced-motion: reduce)").matches) document.documentElement.classList.add("reveal-on");</script>
     <link rel="canonical" href={canonical} />
+    {alternateLinks.map((alternate) => <link rel="alternate" hreflang={alternate.lang} href={alternate.href} />)}
+    {alternateLinks.length > 0 && <link rel="alternate" hreflang="x-default" href={alternateLinks[0].href} />}
+    <link rel="alternate" type="application/rss+xml" title="Staniverse" href={new URL("/rss.xml", Astro.site).href} />
     <meta property="og:type" content={articleLike ? "article" : "website"} />
-    <meta property="og:site_name" content="станивёрс" />
-    <meta property="og:locale" content="ru_RU" />
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:locale" content={localeTag} />
+    {alternateLinks.some((alternate) => alternate.lang === "en") && <meta property="og:locale:alternate" content={alternateLocale} />}
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={image} />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
+    <meta property="og:image:width" content={String(imageWidth)} />
+    <meta property="og:image:height" content={String(imageHeight)} />
     <meta property="og:image:alt" content={imageAlt} />
+    {articleLike && published && <meta property="article:published_time" content={published.toISOString()} />}
+    {articleLike && modified && <meta property="article:modified_time" content={modified.toISOString()} />}
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={pageTitle} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={image} />
     <meta name="twitter:image:alt" content={imageAlt} />
+    {webmasterVerification && <meta name="yandex-verification" content={webmasterVerification} />}
     <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
     <title>{pageTitle}</title>
   </head>
   <body>
-    <a class="skip-link" href="#content">К содержанию</a>
+    <a class="skip-link" href="#content">{chrome.skipLink}</a>
     {!immersive && (
       <header class="site-header">
-        <a class="brand" href="/" aria-label="Staniverse, на главную"><span class="brand-mark">s</span><span>staniverse</span></a>
-        <nav id="primary-navigation" aria-label="Основная навигация">
-          <a href="/works/">Работы</a>
-          <a href="/projects/">Проекты</a>
-          <a href="/garden/">Сад</a>
-          <a href="/videos/">Видео</a>
-          <a href="/about/">Обо мне</a>
-          <a href="/contacts/">Контакты</a>
-          <a href="/donate/">Поддержать</a>
+        <a class="brand" href="/" aria-label="Staniverse"><span class="brand-mark">s</span><span>staniverse</span></a>
+        <nav id="primary-navigation" aria-label={chrome.menu}>
+          {chrome.nav.map(([href, label]) => <a href={href}>{label}</a>)}
+          <a href="/lab/">{lang === "en" ? "Lab" : "Лаборатория"}</a>
         </nav>
-        <button class="site-search-open" type="button" data-search-open aria-haspopup="dialog" aria-label="Поиск по сайту (Ctrl+K)">Поиск</button>
-        <a class="universe-link" href="/universe/">Вселенная <span aria-hidden="true">↗</span></a>
+        <button class="site-search-open" type="button" data-search-open aria-haspopup="dialog" aria-label={chrome.searchLabel}>{chrome.search}</button>
+        <a class="universe-link" href="/universe/" aria-label={chrome.map}><span class="universe-link-text">{chrome.map}</span> <span aria-hidden="true">↗</span></a>
         <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-navigation">
-          <span class="menu-toggle-label">Меню</span>
+          <span class="menu-toggle-label">{chrome.menu}</span>
           <span class="menu-toggle-icon" aria-hidden="true"></span>
         </button>
       </header>
     )}
     <main id="content"><slot /></main>
+    {analyticsEnabled && (
+      <aside class="consent-banner" data-consent-banner data-counter={metrikaCounterId} role="region" aria-label={lang === "en" ? "Statistics settings" : "Настройки статистики"} hidden>
+        <p>{chrome.consentText} <a href="/privacy/">{chrome.consentMore}</a>.</p>
+        <div class="consent-banner-actions">
+          <button type="button" class="button primary" data-consent-accept>{chrome.consentAccept}</button>
+          <button type="button" class="button" data-consent-decline>{chrome.consentDecline}</button>
+        </div>
+      </aside>
+    )}
     {!immersive && (
       <footer class="site-footer">
-        <div><strong>Staniverse</strong><p>Связи между технологиями, памятью, медиа и местом.</p></div>
-        <div class="footer-links"><a href="/contacts/">Контакты</a><a href="/about/#manifesto">Манифест</a><a href="/donate/">Поддержать</a><a href="mailto:stas@staniverse.xyz">Почта</a><a href="https://t.me/staniverse" target="_blank" rel="noreferrer">Telegram</a><a href="https://vk.com/staniverse" target="_blank" rel="noreferrer">VK</a><a href="https://www.youtube.com/@staniverse" target="_blank" rel="noreferrer">YouTube</a><a href="https://vk.com/yatygorod" target="_blank" rel="noreferrer">VK я.ты.город.</a><a href="https://www.youtube.com/@yatygorod" target="_blank" rel="noreferrer">YouTube я.ты.город.</a></div>
+        <div><strong>Staniverse</strong><p>{chrome.tagline}</p></div>
+        <div class="footer-links">{chrome.footerLinks.map(([href, label]) => <a href={href}>{label}</a>)}<a href="mailto:stas@staniverse.xyz">{lang === "en" ? "Email" : "Почта"}</a><a href="https://t.me/staniverse" target="_blank" rel="noreferrer">Telegram</a><a href="https://vk.com/staniverse" target="_blank" rel="noreferrer">VK</a><a href="https://www.youtube.com/@staniverse" target="_blank" rel="noreferrer">YouTube</a><a href="https://vk.com/yatygorod" target="_blank" rel="noreferrer">VK я.ты.город.</a><a href="https://www.youtube.com/@yatygorod" target="_blank" rel="noreferrer">YouTube я.ты.город.</a></div>
       </footer>
     )}
     {!immersive && (
@@ -130,6 +274,7 @@ const articleLike = ["works", "projects", "garden", "articles", "topics"].includ
       </div>
     )}
     <script is:inline type="module" src="/scripts/site-search.js"></script>
+    <script is:inline type="module" src="/scripts/consent.js"></script>
   </body>
 </html>
 

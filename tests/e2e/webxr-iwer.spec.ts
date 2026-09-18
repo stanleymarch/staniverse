@@ -18,10 +18,13 @@ interface IwerController {
 
 interface IwerDevice {
   readonly version: string;
-  readonly activeSession?: { end(): Promise<void> };
+  readonly activeSession?: { readonly enabledFeatures: readonly string[]; end(): Promise<void> };
   readonly controllers: Partial<Record<"left" | "right", IwerController>>;
   readonly remote: IwerRemote;
   readonly sem?: IwerSem;
+  stereoEnabled: boolean;
+  ipd: number;
+  fovy: number;
   updateVisibilityState(state: "visible" | "visible-blurred" | "hidden"): void;
 }
 
@@ -45,19 +48,28 @@ async function installOfficialIwer(page: Page) {
       installSEM(sem: new (device: IwerDevice) => IwerSem): void;
     }
     const host = globalThis as typeof globalThis & {
-      IWER: { XRDevice: new (config: unknown) => RuntimeDevice; metaQuest3: unknown };
+      IWER: {
+        XRDevice: new (config: unknown) => RuntimeDevice;
+        metaQuest3: { supportedFeatures: string[] };
+      };
       IWER_SEM: { SyntheticEnvironmentModule: new (device: IwerDevice) => IwerSem };
       __staniverseIwer: RuntimeDevice;
     };
-    const device = new host.IWER.XRDevice(host.IWER.metaQuest3);
+    const device = new host.IWER.XRDevice({
+      ...host.IWER.metaQuest3,
+      supportedFeatures: [...host.IWER.metaQuest3.supportedFeatures, "dom-overlay"],
+    });
+    device.stereoEnabled = true;
+    device.ipd = 0.063;
+    device.fovy = Math.PI / 2;
     device.installSEM(host.IWER_SEM.SyntheticEnvironmentModule);
     device.installRuntime({ forceInstall: true });
     host.__staniverseIwer = device;
   });
 }
 
-async function openUniverse(page: Page, testInfo: TestInfo) {
-  test.skip(testInfo.project.name !== "desktop", "Official IWER protocol runs once in desktop Chromium.");
+async function openUniverse(page: Page, testInfo: TestInfo, projects: readonly string[] = ["desktop"]) {
+  test.skip(!projects.includes(testInfo.project.name), `Official IWER protocol runs in ${projects.join(" and ")} Chromium.`);
   await installOfficialIwer(page);
   await page.goto("/universe/?focus=project%3Ametavyatka&xrDebug=1");
   await expect(page.locator(".universe-canvas")).toBeVisible();
@@ -65,6 +77,11 @@ async function openUniverse(page: Page, testInfo: TestInfo) {
   await expect(page.getByRole("button", { name: "Войти в VR" })).toBeEnabled();
   await expect(page.getByRole("button", { name: "Войти в AR" })).toBeEnabled();
   expect(await page.evaluate(() => window.__staniverseIwer.version)).toBe("2.4.0");
+  expect(await page.evaluate(() => ({
+    stereoEnabled: window.__staniverseIwer.stereoEnabled,
+    ipd: window.__staniverseIwer.ipd,
+    fovy: window.__staniverseIwer.fovy,
+  }))).toEqual({ stereoEnabled: true, ipd: 0.063, fovy: Math.PI / 2 });
 }
 
 async function clickXrButton(page: Page, name: string) {
@@ -91,6 +108,7 @@ test.describe("official IWER 2.4.0 WebXR protocol", () => {
     for (let cycle = 0; cycle < 3; cycle += 1) {
       await clickXrButton(page, "Войти в VR");
       await expect(page.locator(`${universe}[data-xr="vr"]`)).toBeVisible();
+      await expect(page.locator(`${universe}[data-experience-state="exploring"]`)).toBeVisible();
       await expect.poll(() => page.evaluate(() => Boolean(window.__staniverseIwer.activeSession))).toBe(true);
       if (cycle === 0) await page.screenshot({ path: testInfo.outputPath("iwer-vr-entry.png") });
       await clickXrButton(page, "Выйти из VR");
@@ -152,10 +170,11 @@ test.describe("official IWER 2.4.0 WebXR protocol", () => {
 
   test("distinguishes AR surface loss, placement, tracking recovery and relocate cancel", async ({ page }, testInfo) => {
     test.setTimeout(300_000);
-    await openUniverse(page, testInfo);
+    await openUniverse(page, testInfo, ["desktop", "mobile"]);
     await loadOfficeEnvironment(page);
     await clickXrButton(page, "Войти в AR");
     await expect(page.locator(`${universe}[data-xr="ar"]`)).toBeVisible();
+    expect(await page.evaluate(() => window.__staniverseIwer.activeSession?.enabledFeatures.includes("dom-overlay"))).toBe(true);
     await page.evaluate(async () => {
       await window.__staniverseIwer.remote.dispatch("look_at", { device: "headset", target: { x: 0, y: 0, z: -1 } });
     });

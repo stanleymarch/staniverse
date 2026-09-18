@@ -1,12 +1,19 @@
 /** Renders branded Open Graph images (1200x630) into dist/og/ after build.
- * Zero per-page runtime cost: one image per section plus the site default.
- * Sharp rasterizes an SVG template; system sans fonts keep it deterministic. */
+ * Zero per-page runtime cost. Sharp reads the same self-hosted Unbounded and
+ * Geologica files as the site through a project-local fontconfig. */
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import sharp from "sharp";
 
-const outDir = join(process.cwd(), "dist", "og");
+const root = process.cwd();
+const outDir = join(root, "dist", "og");
+const fontDir = join(root, "scripts", "fonts");
+const fontCacheDir = join(root, "tmp", "fontconfig-cache");
+const fontConfigPath = join(root, "tmp", "og-fontconfig.xml");
 await mkdir(outDir, { recursive: true });
+await mkdir(fontCacheDir, { recursive: true });
+await writeFile(fontConfigPath, `<?xml version="1.0"?><!DOCTYPE fontconfig SYSTEM "urn:fontconfig:fonts.dtd"><fontconfig><dir>${fontDir}</dir><cachedir>${fontCacheDir}</cachedir></fontconfig>`, "utf8");
+process.env.FONTCONFIG_FILE = fontConfigPath;
+const { default: sharp } = await import("sharp");
 
 const escape = (value) => value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 
@@ -32,9 +39,9 @@ const card = ({ label, title, accent = "#64dff4" }) => `
     }).join("")}
   </g>
   <rect x="72" y="96" width="88" height="8" fill="${accent}"/>
-  <text x="72" y="152" font-family="Arial, Segoe UI, sans-serif" font-size="30" letter-spacing="6" fill="${accent}">${escape(label.toUpperCase())}</text>
-  <text x="72" y="300" font-family="Arial, Segoe UI, sans-serif" font-weight="bold" font-size="96" fill="#eef3ff">${escape(title)}</text>
-  <text x="72" y="540" font-family="Arial, Segoe UI, sans-serif" font-size="34" fill="#97a6c2">staniverse.xyz · Станислав Ермоленко</text>
+  <text x="72" y="152" font-family="Geologica Thin Roman, sans-serif" font-weight="500" font-size="30" letter-spacing="6" fill="${accent}">${escape(label.toUpperCase())}</text>
+  <text x="72" y="300" font-family="Unbounded, sans-serif" font-weight="600" font-size="82" letter-spacing="-2" fill="#eef3ff">${escape(title)}</text>
+  <text x="72" y="540" font-family="Geologica Thin Roman, sans-serif" font-weight="450" font-size="34" fill="#97a6c2">staniverse.xyz · Станислав Ермоленко</text>
 </svg>`;
 
 const images = {

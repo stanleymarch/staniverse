@@ -1,0 +1,131 @@
+---
+import Base from "../../../layouts/Base.astro";
+import ContentCard from "../../../components/ContentCard.astro";
+import { getCollection } from "astro:content";
+const entries = (await getCollection("works"))
+  .sort((a,b) => Number(b.data.featured)-Number(a.data.featured));
+const genres = [...new Set(entries.flatMap((entry) => entry.data.genres))].sort();
+
+/* The filter keeps the Russian genre keys: catalog-filter.js matches them against
+   each card's data-tags, so only the label a visitor reads may be translated. */
+const genreLabels: Record<string, string> = {
+  ai: "AI",
+  animation: "Animation",
+  art: "Art",
+  audio: "Audio",
+  automation: "Automation",
+  community: "Community",
+  education: "Education",
+  heritage: "Heritage",
+  video: "Video",
+  web: "Web",
+  writing: "Writing",
+  xr: "XR",
+};
+const statusLabels: Record<string, string> = { ongoing: "Ongoing", completed: "Completed" };
+
+/* Only tags that are Russian words get a translated chip: the card keeps the
+   Russian tag list for filtering, so nothing here may touch data-tags. */
+const tagNames: Record<string, string> = { "киров/вятка": "kirov/vyatka" };
+const tagsOf = (entry: (typeof entries)[number]) => {
+  const tags = entry.data.tags.slice(0, 4);
+  return tags.some((tag) => tagNames[tag]) ? tags.map((tag) => tagNames[tag] ?? tag) : undefined;
+};
+
+/* English titles and summaries for the works collection, one line per entry. */
+const copy: Record<string, { title: string; summary: string }> = {
+  "work:ai-vayfu-i-virtualnye-pomoschniki": {
+    title: "AI waifus and virtual assistants",
+    summary: "Research and build digital companions and personal AI assistants that work not as a dumb chatbot but as an entity with memory, voice, character, an interface and a potential place in the daily life of a user…",
+  },
+  "work:arka-vyatskogo-kremlya": {
+    title: "The Arch of the Vyatka Kremlin",
+    summary: "Preserve and rethink in digital form a people's landmark of Kirov, draw attention to it and show how local cultural heritage can live in the metaverse, beyond the physical vulnerability of the original…",
+  },
+  "work:audiospektakl-saltykiada": {
+    title: "Audio play “Saltykiada”",
+    summary: "Deliver the full audio production of an audio play based on the works and the biography of M. E. Saltykov-Shchedrin: from recording the actors' voices to the final mastering.",
+  },
+  "work:chertezhi-tekhdiplomy": {
+    title: "Drawings + Technical Diplomas",
+    summary: "Build an e-commerce case on digital goods: move the shop between platforms and turn the catalogue into an automatic AI loop that runs a Telegram channel.",
+  },
+  "work:dver-kotoraya-zhdyot": {
+    title: "The Door That Waits",
+    summary: "A qualifying entry for ArtMasters (Virtual World Designer category, May 2025).",
+  },
+  "work:ermil-kostrov": {
+    title: "Ermil Kostrov",
+    summary: "Create the complete sound environment and edit an animated short film about the poet Ermil Kostrov — an outstanding native of the Kirov region and the first translator of the Iliad into Russian.",
+  },
+  "work:katalog-promyshlennoy-arkhitektury": {
+    title: "Catalogue of industrial architecture",
+    summary: "Create a digital catalogue of industrial architecture monuments of the Kirov region on the website of the Slobodskoy water tower (slbtower.ru). The catalogue has to be open for local history museums and activists to add to.",
+  },
+  "work:lending-prilozheniya-logoped-buduschego": {
+    title: "Landing page for the Logoped Budushchego app",
+    summary: "Prepare a landing page to present the Logoped Budushchego mobile app and gather the core information about the product in one place.",
+  },
+  "work:maslenitsa-v-slobodskom": {
+    title: "Maslenitsa in Slobodskoy",
+    summary: "Create a social VR experience on the Somnium Space platform that lets a European audience immerse themselves in the Russian Maslenitsa tradition — against the real architecture of Cathedral Square in the town of Slobodskoy.",
+  },
+  "work:prepodavanie-metodicheskaya-rabota-i-prodakshn-v-tsifrovykh-kafedrakh": {
+    title: "Teaching, methodology and production at the “Digital Departments”",
+    summary: "Take part in VyatSU's professional retraining programmes not only as a lecturer but as someone who helps assemble the content, methodology and media production side of an educational product.",
+  },
+  "work:rabota-k-yubileyu-goroda": {
+    title: "Every place in Kirov is beautiful",
+    summary: "Two lovers agreed to meet at the most beautiful place in the city. But at which one, if every place in Kirov is beautiful?",
+  },
+  "work:rubyspot": {
+    title: "RubySpot",
+    summary: "Quickly build a WebXR calling card for a studio that creates immersive content in game engines (Unreal Engine 5). The scene had to work for an event with potential investors and be available both in a flat browser and…",
+  },
+  "work:sayt-advokata-antona-okulova": {
+    title: "Website for the lawyer Anton Okulov",
+    summary: "Build a personal website for a lawyer that would work not only as a calling card but as a clear entry point into a consultation, an expert brand and related digital services.",
+  },
+  "work:sayt-programmy-razvitiya-vyatgu-na-2021-2030-gody": {
+    title: "Website for the VyatSU development programme 2021–2030",
+    summary: "Assemble an official website that publicly and clearly presents VyatSU's long-term development programme, its strategic projects, documents and results.",
+  },
+  "work:sayt-regionalnogo-tsentra-finansovoy-gramotnosti-kirovskoy-oblasti": {
+    title: "Website for the Regional Centre for Financial Literacy of the Kirov region",
+    summary: "Build an official website for the regional financial literacy centre that would work as a clear information hub for the residents of the Kirov region and as a working tool for collecting enquiries and applications.",
+  },
+  "work:sayt-vserossiyskogo-foruma-inklyuzivnogo-vysshego-obrazovaniya": {
+    title: "Website for the All-Russian Forum on Inclusive Higher Education",
+    summary: "Assemble the website of a nationwide event for VyatSU that would package the forum programme and work as a clear entry point for participants.",
+  },
+  "work:sistema-sbora-i-analiza-trendov-na-n8n": {
+    title: "Trend collection and analysis system on n8n",
+    summary: "Build a system that automatically monitors sources, pulls out signals and topics, filters the noise, helps with the analysis and turns it into publication drafts or finished content for different platforms.",
+  },
+  "work:tsifrovoy-sad-staniverse-xyz": {
+    title: "Digital garden staniverse.xyz",
+    summary: "A portfolio site is usually built on AIDA: attract attention, hold interest, create desire, prompt action. Email capture forms, SEO copy, a call to action on every screen. I went the other way. I do not need a…",
+  },
+  "work:tyaga": {
+    title: "Craving",
+    summary: "Build a web experience in p5.js that visualises the struggle with addiction — the moment when you hold on and hold on, but if you do not let the thought go at some point, you lose.",
+  },
+  "work:video-dlya-regionalnogo-operatora-po-obrascheniyu-s-tko": {
+    title: "Video for the regional municipal waste operator",
+    summary: "Produce video materials for the communication of the regional operator for municipal solid waste, explaining how the system works through real stories.",
+  },
+  "work:virtualnyy-ofis-advokata": {
+    title: "Virtual office for a lawyer",
+    summary: "Build a virtual office for a lawyer that works as a space for consultations, professional conversation and public talks rather than a decorative 3D location. Alongside it — build a personal…",
+  },
+  "work:ya-obmanyvat-sebya-ne-stanu": {
+    title: "I won't deceive myself",
+    summary: "Final work at ArtMasters (Virtual World Designer category, August 2025). Digital scenography for a multimedia piece marking the 130th anniversary of Sergei Yesenin.",
+  },
+};
+---
+<Base title="Works" description="Portfolio of Stanislav Ermolenko: XR and WebXR, virtual worlds, websites, automation, video and digital media for clients." lang="en">
+  <header class="catalog-hero"><div class="section-kicker">Portfolio</div><h1>Works</h1><p class="hero-lead">Delivered results for clients, organisations, competitions and outside briefs. Some of them keep evolving; my own projects live separately.</p><div class="catalog-controls" data-filter-controls><button class="filter-button active" data-filter="all">All</button>{genres.map((genre) => <button class="filter-button" data-filter={genre}>{genreLabels[genre] ?? genre}</button>)}</div></header>
+  <section class="section"><div class="card-grid" data-filter-grid>{entries.map((entry) => <ContentCard entry={entry} headingLevel="h2" titleOverride={copy[entry.data.id]?.title} summaryOverride={copy[entry.data.id]?.summary} kindLabelOverride="Work" statusOverride={statusLabels[entry.data.status]} tagsOverride={tagsOf(entry)} />)}</div><div class="empty-state">There are no works in this genre yet.</div></section>
+  <script is:inline src="/scripts/catalog-filter.js"></script>
+</Base>

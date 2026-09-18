@@ -3,14 +3,20 @@ import type { AnyEntry } from "../lib/content";
 import type { GraphEdge, GraphNode } from "../lib/graph";
 import Base from "../layouts/Base.astro";
 import LocalGraph from "./LocalGraph.astro";
+import TableOfContents from "./TableOfContents.astro";
 import { hrefFor, kindLabel, projectStatus, workStatus } from "../lib/content";
+import { buildRecommendations } from "../lib/recommendations";
 import { topicRoute } from "../lib/topics";
 import { getCollection, render } from "astro:content";
 import { getTopicDefinition, normalizeTopics } from "../lib/taxonomy";
 interface Props { entry: AnyEntry; nodes: GraphNode[]; edges: GraphEdge[]; chapters?: AnyEntry[] }
 const { entry, nodes, edges, chapters=[] } = Astro.props;
-const { Content } = await render(entry);
+const recommendations = buildRecommendations(entry.data.id, nodes, edges);
+const { Content, headings } = await render(entry);
 const status = entry.data.kind === "project" ? projectStatus[entry.data.status] : entry.data.kind === "work" ? workStatus[entry.data.status] : undefined;
+const published = entry.data.date ?? entry.data.updated;
+const publishedLabel = published ? new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "long", year: "numeric" }).format(published) : "";
+const showPublished = Boolean(published && ["article", "telegram-post", "telegram-article"].includes(entry.data.kind));
 const stageVertical = entry.collection === "publications" && entry.data.format === "short";
 const stageClass = ["video-stage", { "is-vertical": stageVertical }];
 const embedUrl = entry.collection === "publications" ? entry.data.embedUrl : undefined;
@@ -20,6 +26,8 @@ const publicationMeta = entry.collection === "publications" && entry.data.platfo
   sourceUrl: entry.data.sourceUrl,
 } : undefined;
 const gallery = entry.collection === "publications" && entry.data.kind !== "telegram-article" ? entry.data.media.filter((item) => item.publicPath) : [];
+const galleryImages = gallery.filter((item) => item.type === "image");
+const galleryRemainder = galleryImages.length > 1 ? gallery.filter((item) => item.type !== "image") : gallery;
 const channelVideos = entry.collection === "publications" && entry.data.channel?.key ? (await getCollection("publications"))
   .filter((video) => video.data.kind === "youtube-video" && video.data.channel?.key === entry.data.channel?.key && video.id !== entry.id && ["verified", "own"].includes(video.data.ownership ?? ""))
   .sort((a, b) => (b.data.date?.getTime() ?? 0) - (a.data.date?.getTime() ?? 0))
@@ -27,10 +35,13 @@ const channelVideos = entry.collection === "publications" && entry.data.channel?
 const sourceTags = entry.collection === "publications" ? entry.data.sourceTags ?? [] : entry.data.sourceTags ?? entry.data.tags;
 // A topic already implied by the author's own tag is not an "automatically found" hypothesis.
 const sourceTagIds = new Set(normalizeTopics(sourceTags));
-const sourceTagLinks = sourceTags.map((tag) => ({ tag, href: topicRoute(tag) }));
+const sourceTagLinks = sourceTags.map((tag) => ({ tag, href: topicRoute(tag) ?? `/garden/?source=${encodeURIComponent(tag)}` }));
 const inferredTopics = entry.data.topics
   .filter((topic) => !sourceTagIds.has(topic))
-  .map((topic) => ({ label: getTopicDefinition(topic)?.label ?? topic, href: topicRoute(topic) }));
+  .map((topic) => {
+    const label = getTopicDefinition(topic)?.label ?? topic;
+    return { label, href: topicRoute(topic) ?? `/garden/?q=${encodeURIComponent(label)}` };
+  });
 const plainCopy = (value: string) => value
   .replace(/```[\s\S]*?```/g, " ")
   .replace(/!\[([^\]]*)\]\([^)]*\)/g, "$1")
@@ -49,6 +60,15 @@ const schemaType = ["youtube-video", "video"].includes(entry.data.kind)
   : ["article", "telegram-post", "telegram-article"].includes(entry.data.kind)
     ? "Article"
     : "CreativeWork";
+/* Rich results need an image; a work or project falls back to its section card. */
+const schemaImage = entry.collection === "publications" && entry.data.thumbnailUrl
+  ? entry.data.thumbnailUrl
+  : new URL(`/og/${entry.collection === "projects" ? "projects" : entry.collection === "works" ? "works" : entry.collection === "articles" ? "articles" : "garden"}.png`, Astro.site).href;
+const parentCrumb = entry.collection === "works"
+  ? { name: "Работы", href: "/works/" }
+  : entry.collection === "projects"
+    ? { name: "Проекты", href: "/projects/" }
+    : { name: "Сад", href: "/garden/" };
 const entryJsonLd: Record<string, unknown> = {
   "@type": schemaType,
   "@id": new URL(`${hrefFor(entry)}#content`, Astro.site).href,
@@ -56,6 +76,7 @@ const entryJsonLd: Record<string, unknown> = {
   name: entry.data.title,
   headline: entry.data.title,
   description: entry.data.summary,
+  image: schemaImage,
   inLanguage: "ru-RU",
   author: { "@id": new URL("/#stanislav-ermolenko", Astro.site).href },
   isPartOf: { "@id": new URL("/#website", Astro.site).href },
@@ -63,16 +84,22 @@ const entryJsonLd: Record<string, unknown> = {
   ...(entry.data.updated ? { dateModified: entry.data.updated.toISOString() } : {}),
   ...(entry.collection === "publications" && entry.data.thumbnailUrl ? { thumbnailUrl: entry.data.thumbnailUrl } : {}),
   ...(entry.collection === "publications" && entry.data.embedUrl ? { embedUrl: entry.data.embedUrl } : {}),
+  breadcrumb: {
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: parentCrumb.name, item: new URL(parentCrumb.href, Astro.site).href },
+      { "@type": "ListItem", position: 2, name: entry.data.title, item: new URL(hrefFor(entry), Astro.site).href },
+    ],
+  },
 };
 ---
-<Base title={entry.data.title} description={entry.data.summary} ogImage={entry.collection === "publications" ? entry.data.thumbnailUrl : undefined} jsonLd={entryJsonLd}>
+<Base title={entry.data.title} description={entry.data.summary} ogImage={entry.collection === "publications" ? entry.data.thumbnailUrl : undefined} jsonLd={entryJsonLd} published={entry.data.date} modified={entry.data.updated ?? entry.data.date}>
   <article class="entry-shell">
     <header class="entry-hero">
-      <div class="section-kicker">{kindLabel[entry.data.kind]}{status && ` · ${status}`}</div>
+      <div class="entry-hero-meta"><span class="section-kicker">{kindLabel[entry.data.kind]}{status && ` · ${status}`}</span>{showPublished && published && <time datetime={published.toISOString()}>{publishedLabel}</time>}</div>
+      <nav class="entry-breadcrumbs" aria-label="Хлебные крошки"><a href="/">Staniverse</a> <span aria-hidden="true">/</span> <a href={parentCrumb.href}>{parentCrumb.name}</a> <span aria-hidden="true">/</span> <span aria-current="page">{entry.data.title}</span></nav>
       <h1 class:list={{ "is-long": entry.data.title.length > 64, "is-very-long": entry.data.title.length > 105 }}>{entry.data.title}</h1>
       {showSummary && <p class="entry-summary">{entry.data.summary}</p>}
-      {sourceTags.length > 0 && <div class="tag-group"><span class="tag-origin">{entry.collection === "publications" ? "Теги автора" : "Темы редакции"}</span><div class="tag-row">{sourceTagLinks.map(({ tag, href }) => href ? <a href={href}>#{tag}</a> : <span>#{tag}</span>)}</div></div>}
-      {inferredTopics.length > 0 && <details class="auto-topics"><summary>Автоматически найденные темы · {inferredTopics.length}</summary><p>Это навигационные гипотезы, а не ручная разметка.</p><div class="tag-row is-inferred">{inferredTopics.map(({ label, href }) => href ? <a href={href}>{label}</a> : <span>{label}</span>)}</div></details>}
       {entities.length > 0 && <details class="auto-topics entity-list"><summary>{entitySummary}</summary><div class="tag-row">{entities.map((entity) => <span>{entity}</span>)}</div></details>}
       {publicationMeta && <div class="publication-facts"><span>{publicationMeta.platform}</span><span>{publicationMeta.ownership}</span><a href={publicationMeta.sourceUrl}>Открыть оригинал ↗</a></div>}
       {entry.data.kind === "work" && <dl class="work-facts">
@@ -92,12 +119,51 @@ const entryJsonLd: Record<string, unknown> = {
     )}
     {embedUrl && !(entry.collection === "publications" && entry.data.kind === "youtube-video" && entry.data.thumbnailUrl) && <div class:list={stageClass}><iframe src={embedUrl} title={entry.data.title} loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>}
     {channelVideos.length > 0 && <section class="channel-gallery" aria-labelledby="channel-gallery-title"><h2 id="channel-gallery-title">Ещё видео канала</h2><div class="channel-gallery-grid">{channelVideos.map((video) => <a href={hrefFor(video)}><img src={video.data.thumbnailUrl} alt="" loading="lazy" decoding="async" width="320" height="180" /><strong>{video.data.title}</strong></a>)}</div></section>}
-    {gallery.length > 0 && <div class="media-gallery" aria-label="Медиа публикации">{gallery.map((item,index)=>item.type==="image"?<a href={item.publicPath}><img src={item.publicPath} alt={`${entry.data.title} · изображение ${index+1}`} loading={index>0?"lazy":"eager"} decoding="async" /></a>:item.type==="video"?<video controls playsinline preload="metadata" width="320" height="180" src={item.publicPath}>Видео из публикации</video>:item.type==="audio"?<audio controls preload="metadata" src={item.publicPath}>Аудио из публикации</audio>:<a class="media-document" href={item.publicPath}>Открыть документ ↗</a>)}</div>}
+    {galleryImages.length > 1 && (
+      <section class="media-carousel" data-media-carousel aria-label={`Фотографии публикации · ${galleryImages.length}`}>
+        <div class="media-carousel-viewport" data-carousel-viewport>
+          <div class="media-carousel-track">
+            {galleryImages.map((item,index)=><figure class="media-carousel-slide" data-carousel-slide><a href={item.publicPath}><img src={item.publicPath} alt={`${entry.data.title} · изображение ${index+1}`} loading={index>0?"lazy":"eager"} decoding="async" /></a><figcaption>{index+1} / {galleryImages.length}</figcaption></figure>)}
+          </div>
+        </div>
+        <div class="media-carousel-controls">
+          <button type="button" data-carousel-prev aria-label="Предыдущее фото">←</button>
+          <div class="media-carousel-dots" aria-label="Выбрать фото">{galleryImages.map((_,index)=><button type="button" data-carousel-dot={index} aria-label={`Фото ${index+1}`} aria-current={index===0?"true":"false"}></button>)}</div>
+          <output data-carousel-status aria-live="polite">1 / {galleryImages.length}</output>
+          <button type="button" data-carousel-next aria-label="Следующее фото">→</button>
+        </div>
+      </section>
+    )}
+    {galleryRemainder.length > 0 && <div class="media-gallery" aria-label="Медиа публикации">{galleryRemainder.map((item,index)=>item.type==="image"?<a href={item.publicPath}><img src={item.publicPath} alt={`${entry.data.title} · изображение ${index+1}`} loading={index>0?"lazy":"eager"} decoding="async" /></a>:item.type==="video"?<video controls playsinline preload="metadata" width="320" height="180" src={item.publicPath}>Видео из публикации</video>:item.type==="audio"?<audio controls preload="metadata" src={item.publicPath}>Аудио из публикации</audio>:<a class="media-document" href={item.publicPath}>Открыть документ ↗</a>)}</div>}
     <div class="entry-grid">
       <div class="prose"><Content />
         {chapters.length>0&&<section class="project-chapters" aria-labelledby="project-chapters-title"><h2 id="project-chapters-title">Главы и результаты проекта</h2><p>Материалы собраны здесь в контексте собственной инициативы, а не среди заказных работ.</p><div>{chapters.map((chapter)=><a href={hrefFor(chapter)}><small>{chapter.data.kind==="work"?chapter.data.year:""}</small><strong>{chapter.data.title}</strong><span>{chapter.data.summary}</span></a>)}</div></section>}
+        {recommendations.length > 0 && (
+          <section class="read-next" aria-labelledby="read-next-title">
+            <h2 id="read-next-title">Читать дальше</h2>
+            <ol class="read-next-list">
+              {recommendations.map((item) => (
+                <li>
+                  <a href={item.href}>
+                    <span class="read-next-kind">{kindLabel[item.kind] ?? "Материал"}</span>
+                    <strong>{item.title}</strong>
+                    <span class="read-next-reason">{item.reason}</span>
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </section>
+        )}
+        {(sourceTagLinks.length > 0 || inferredTopics.length > 0) && <footer class="entry-taxonomy" aria-label="Темы и теги материала">
+          <h2>Темы и теги</h2>
+          {sourceTagLinks.length > 0 && <div class="tag-group"><span class="tag-origin">Теги автора</span><div class="tag-row">{sourceTagLinks.map(({ tag, href }) => <a href={href}>#{tag}</a>)}</div></div>}
+          {inferredTopics.length > 0 && <div class="tag-group"><span class="tag-origin">Ещё по теме · найдено автоматически</span><div class="tag-row is-inferred">{inferredTopics.map(({ label, href }) => <a href={href}>{label}</a>)}</div></div>}
+        </footer>}
       </div>
-      <LocalGraph currentId={entry.data.id} nodes={nodes} edges={edges} />
+      <div class="entry-aside">
+        <TableOfContents headings={headings} />
+        <LocalGraph currentId={entry.data.id} nodes={nodes} edges={edges} />
+      </div>
     </div>
 <script>
   document.querySelectorAll<HTMLElement>("[data-video-stage]").forEach((stage) => {
@@ -114,6 +180,40 @@ const entryJsonLd: Record<string, unknown> = {
       stage.replaceChildren(iframe);
       iframe.focus();
     }, { once: true });
+  });
+  document.querySelectorAll<HTMLElement>("[data-media-carousel]").forEach((carousel) => {
+    const viewport = carousel.querySelector<HTMLElement>("[data-carousel-viewport]");
+    const slides = [...carousel.querySelectorAll<HTMLElement>("[data-carousel-slide]")];
+    const dots = [...carousel.querySelectorAll<HTMLButtonElement>("[data-carousel-dot]")];
+    const previous = carousel.querySelector<HTMLButtonElement>("[data-carousel-prev]");
+    const next = carousel.querySelector<HTMLButtonElement>("[data-carousel-next]");
+    const status = carousel.querySelector<HTMLOutputElement>("[data-carousel-status]");
+    if (!viewport || slides.length < 2 || !previous || !next || !status) return;
+    let current = 0;
+    let frame = 0;
+    const update = (index: number) => {
+      current = Math.max(0, Math.min(slides.length - 1, index));
+      dots.forEach((dot, dotIndex) => dot.setAttribute("aria-current", String(dotIndex === current)));
+      status.value = `${current + 1} / ${slides.length}`;
+      previous.disabled = current === 0;
+      next.disabled = current === slides.length - 1;
+    };
+    const go = (index: number) => {
+      const target = Math.max(0, Math.min(slides.length - 1, index));
+      viewport.scrollTo({ left: slides[target].offsetLeft, behavior: "smooth" });
+      update(target);
+    };
+    previous.addEventListener("click", () => go(current - 1));
+    next.addEventListener("click", () => go(current + 1));
+    dots.forEach((dot, index) => dot.addEventListener("click", () => go(index)));
+    viewport.addEventListener("scroll", () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const nearest = slides.reduce((best, slide, index) => Math.abs(slide.offsetLeft - viewport.scrollLeft) < Math.abs(slides[best].offsetLeft - viewport.scrollLeft) ? index : best, 0);
+        update(nearest);
+      });
+    }, { passive: true });
+    update(0);
   });
 </script>
 
@@ -133,6 +233,30 @@ const entryJsonLd: Record<string, unknown> = {
   .channel-gallery-grid strong { display: block; margin-top: var(--s-2); font-size: .82rem; font-weight: 500; line-height: 1.35; overflow-wrap: anywhere; }
   .channel-gallery-grid a:hover img, .channel-gallery-grid a:focus-visible img { border-color: var(--accent); }
   @media (max-width: 900px) { .channel-gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+  /* The right column carries the contents and the neighbourhood; it keeps its own
+     scroll so a long article never pushes the table of contents out of reach. */
+  .entry-aside { position: sticky; top: 7rem; display: grid; gap: var(--s-5); align-content: start; max-height: calc(100dvh - 8.5rem); overflow-y: auto; overscroll-behavior: contain; }
+  .entry-aside > * { min-width: 0; }
+  @media (max-width: 1050px) { .entry-aside { position: static; max-height: none; overflow-y: visible; } }
+
+  /* Recommendations close the text: the next step is a reviewed relation or a
+     shared topic, not a list of everything else in the catalogue. */
+  .read-next { margin: var(--s-6) 0 0; padding-top: var(--s-4); border-top: 1px solid var(--line); }
+  .read-next h2 { margin: 0 0 var(--s-3); font: 500 clamp(1.1rem, 1rem + .5vw, 1.35rem) / 1.25 var(--font-display); }
+  .read-next-list { display: grid; gap: var(--s-2); margin: 0; padding: 0; list-style: none; }
+  .read-next-list > li > a { display: grid; gap: .15rem; padding: var(--s-3); border: 1px solid var(--line); border-radius: var(--radius-1); color: var(--ink); text-decoration: none; transition: border-color var(--dur-2) var(--ease), background-color var(--dur-2) var(--ease); }
+  .read-next-list > li > a:hover,
+  .read-next-list > li > a:focus-visible { border-color: var(--accent-line); background: color-mix(in srgb, var(--surface) 90%, var(--accent)); }
+  .read-next-kind { color: var(--ink-2); font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; }
+  .read-next-list strong { font-size: .98rem; font-weight: 500; line-height: 1.3; }
+  .read-next-reason { color: var(--ink-2); font-size: .78rem; }
+
+  /* Breadcrumbs: structural signpost, quieter than the kicker it precedes. */
+  .entry-breadcrumbs { display: flex; flex-wrap: wrap; gap: .4rem; align-items: baseline; margin-bottom: var(--s-2); color: var(--ink-2); font-size: .72rem; letter-spacing: .02em; }
+  .entry-breadcrumbs a { color: var(--ink-2); }
+  .entry-breadcrumbs a:hover, .entry-breadcrumbs a:focus-visible { color: var(--accent); }
+  .entry-breadcrumbs [aria-current="page"] { color: var(--ink-3, var(--ink-2)); overflow-wrap: anywhere; }
 </style>
   </article>
 </Base>

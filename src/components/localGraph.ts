@@ -1,10 +1,9 @@
 import type { GraphEdge, GraphNode } from "../lib/graph";
+import { forceLayout } from "../lib/force-layout";
 import { isCausalRelation, isInferredGraphEdge, relationLabel, selectVisualEdges } from "../lib/graph-visuals";
 
 export interface LocalGraphNode extends GraphNode {
   depth: number;
-  x: number;
-  y: number;
 }
 
 export interface LocalGraphEdge extends GraphEdge {
@@ -49,19 +48,15 @@ function compareEdgeOrder(a: EdgeOrder, b: EdgeOrder) {
   return rankA - rankB || b.edge.confidence - a.edge.confidence || a.title.localeCompare(b.title, "ru");
 }
 
-function positionFor(index: number) {
-  // These are labelled cards, not mathematical points. A deterministic field
-  // gives each node a real hit target without collisions at narrow widths.
-  const columns = [18, 50, 82];
-  const row = Math.floor(index / columns.length);
-  return { x: columns[index % columns.length], y: 10 + row * 20 };
-}
+/** How many neighbours each ring may add: dots stay readable where cards could not. */
+const RING_BUDGET = [0, 12, 20, 26];
 
 /**
- * Projects the full graph into a small, deterministic neighbourhood. The
- * component can reveal one, two, or three hops without running a renderer.
+ * Projects the full graph into a deterministic neighbourhood of up to three hops.
+ * Topic hubs are capped, because traversing through one turns a neighbourhood
+ * into the whole archive.
  */
-export function buildLocalGraph(currentId: string, nodes: GraphNode[], edges: GraphEdge[], maxDepth = 3, maxNodes = 14): LocalGraphData {
+export function buildLocalGraph(currentId: string, nodes: GraphNode[], edges: GraphEdge[], maxDepth = 3): LocalGraphData {
   const nodeById = new Map(nodes.map((node) => [node.id, node]));
   const adjacent = new Map<string, Neighbour[]>();
   const link = (from: string, node: GraphNode, edge: GraphEdge) => {
@@ -85,7 +80,7 @@ export function buildLocalGraph(currentId: string, nodes: GraphNode[], edges: Gr
   if (nodeById.has(currentId)) depthById.set(currentId, 0);
   let frontier = [currentId];
   let topicCount = 0;
-  for (let depth = 1; depth <= maxDepth && frontier.length > 0 && depthById.size < maxNodes; depth += 1) {
+  for (let depth = 1; depth <= maxDepth && frontier.length > 0; depth += 1) {
     const candidates = new Map<string, Neighbour>();
     for (const id of frontier) {
       // A topic is useful local context, but traversing through a topic hub
@@ -97,7 +92,7 @@ export function buildLocalGraph(currentId: string, nodes: GraphNode[], edges: Gr
         if (!previous || compareEdgeOrder(candidate, previous) < 0) candidates.set(candidate.id, candidate);
       }
     }
-    const perDepthBudget = Math.min(5, maxNodes - depthById.size);
+    const perDepthBudget = RING_BUDGET[depth] ?? 0;
     const selected = [...candidates.values()]
       .sort(compareEdgeOrder)
       .filter(({ id }) => {
@@ -111,13 +106,9 @@ export function buildLocalGraph(currentId: string, nodes: GraphNode[], edges: Gr
     frontier.forEach((id) => depthById.set(id, depth));
   }
 
-  const orderedNodes = [...depthById.entries()].sort(([idA, a], [idB, b]) => a - b || (nodeById.get(idA)?.title ?? idA).localeCompare(nodeById.get(idB)?.title ?? idB, "ru"));
-  const localNodes = orderedNodes
-    .map(([id, depth], index) => {
-      const node = nodeById.get(id)!;
-      const position = positionFor(index);
-      return { ...node, depth, ...position };
-    });
+  const localNodes: LocalGraphNode[] = [...depthById.entries()]
+    .sort(([idA, a], [idB, b]) => a - b || (nodeById.get(idA)?.title ?? idA).localeCompare(nodeById.get(idB)?.title ?? idB, "ru"))
+    .map(([id, depth]) => ({ ...nodeById.get(id)!, depth }));
 
   const localIds = new Set(depthById.keys());
   const localEdges = selectVisualEdges(edges.filter((edge) => localIds.has(edge.source) && localIds.has(edge.target)), 120, 0)
@@ -135,6 +126,60 @@ export function buildLocalGraph(currentId: string, nodes: GraphNode[], edges: Gr
 }
 
 export type RelationDirectionId = "outgoing" | "incoming";
+
+/** Drawn geometry of the neighbourhood: where each dot, line and label sits. */
+export interface LocalGraphView {
+  nodes: Array<Pick<LocalGraphNode, "id" | "title" | "href" | "kind" | "depth"> & { x: number; y: number; r: number }>;
+  links: Array<{ key: string; source: string; target: string; depth: number; causal: boolean; dotted: boolean; x1: number; y1: number; x2: number; y2: number }>;
+  labels: Array<{ id: string; text: string; depth: number; x: number; y: number; anchor: "start" | "end" }>;
+  maxDepth: number;
+}
+
+const VIEW_WIDTH = 720;
+const VIEW_HEIGHT = 880;
+
+/**
+ * Places the neighbourhood as a force-directed graph. Positions come from the
+ * full projection, so revealing a deeper ring adds material without moving what
+ * the reader already located; parallel relations share one line between a pair.
+ */
+export function buildLocalGraphView(graph: LocalGraphData): LocalGraphView {
+  const positions = forceLayout(graph.nodes.map((node) => node.id), graph.edges.map((edge) => [edge.source, edge.target] as const), { width: VIEW_WIDTH, height: VIEW_HEIGHT });
+  const pairs = new Map<string, LocalGraphEdge>();
+  for (const edge of graph.edges) {
+    const key = [edge.source, edge.target].sort().join("|");
+    const kept = pairs.get(key);
+    if (!kept || (edge.causal && !kept.causal) || edge.confidence > kept.confidence) pairs.set(key, edge);
+  }
+  const degree = new Map<string, number>();
+  for (const edge of pairs.values()) {
+    degree.set(edge.source, (degree.get(edge.source) ?? 0) + 1);
+    degree.set(edge.target, (degree.get(edge.target) ?? 0) + 1);
+  }
+  const nodes = graph.nodes.map((node) => {
+    const point = positions.get(node.id)!;
+    const radius = 5 + Math.sqrt(degree.get(node.id) ?? 0) * 2.2 + (node.depth === 0 ? 1.6 : 0);
+    return { id: node.id, title: node.title, href: node.href, kind: node.kind, depth: node.depth, x: point.x, y: point.y, r: Math.round(radius * 10) / 10 };
+  });
+  const byId = new Map(nodes.map((node) => [node.id, node]));
+  const links = [...pairs.values()].flatMap((edge) => {
+    const from = byId.get(edge.source);
+    const to = byId.get(edge.target);
+    return from && to ? [{ key: `${edge.source}|${edge.target}`, source: edge.source, target: edge.target, depth: edge.depth, causal: edge.causal, dotted: edge.dotted, x1: from.x, y1: from.y, x2: to.x, y2: to.y }] : [];
+  });
+  const labels = [...nodes]
+    .sort((a, b) => (degree.get(b.id) ?? 0) - (degree.get(a.id) ?? 0) || a.title.localeCompare(b.title, "ru"))
+    .slice(0, 8)
+    .map((node) => {
+      const anchor = node.x > VIEW_WIDTH * 0.7 ? "end" as const : "start" as const;
+      const text = node.title.length > 30 ? `${node.title.slice(0, 28)}…` : node.title;
+      /* A topic is not part of this material's neighbourhood, it is a way out of
+         it: the arrow the rest of the site uses marks the difference. */
+      return { id: node.id, text: node.kind === "topic" ? `${text} ↗` : text, depth: node.depth, x: node.x + (anchor === "end" ? -(node.r + 5) : node.r + 5), y: node.y + 3.5, anchor };
+    });
+  const maxDepth = graph.nodes.reduce((deepest, node) => Math.max(deepest, node.depth), 0);
+  return { nodes, links, labels, maxDepth };
+}
 
 /** One end of a directed edge, resolved to the node a reader can open. */
 export interface LocalRelation {

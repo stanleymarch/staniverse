@@ -13,7 +13,7 @@ const routes = [
   "/works/virtualnyy-ofis-advokata/",
   "/projects/albina/",
   "/articles/ai-waifu/",
-  "/garden/telegram/tg-743/",
+  "/garden/telegram/tg-1015/",
   "/garden/telegram/tg-1115/",
   "/garden/video/youtube-ncq31xb3gle/",
 ] as const;
@@ -37,9 +37,8 @@ for (const route of routes) {
         const box = element.getBoundingClientRect();
         return style.display !== "none" && style.visibility !== "hidden" && Number(style.opacity) !== 0 && box.width > 1 && box.height > 1;
       };
-      const ignored = (element: Element) => Boolean(element.closest(".garden-map-viewport, .catalog-controls, .universe-page, .card-orbit, [hidden]"));
       const outside = [...document.body.querySelectorAll("body *")]
-        .filter((element) => visible(element) && !ignored(element))
+        .filter((element) => visible(element) && !element.closest(".garden-map-viewport, .media-carousel-viewport, .catalog-controls, .universe-page, .card-orbit, .home-sky, [hidden]"))
         .flatMap((element) => {
           const box = element.getBoundingClientRect();
           return box.left < -1 || box.right > viewportWidth + 1

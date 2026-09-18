@@ -208,6 +208,7 @@ function noiseBuffer(context: AudioContext, seconds: number, seed: number) {
 export class GenerativeUniverseAudio {
   private context?: AudioContext;
   private gate?: GainNode;
+  private accentBus?: GainNode;
   private tone?: BiquadFilterNode;
   private pulse?: GainNode;
   private pulseDepth?: GainNode;
@@ -288,6 +289,35 @@ export class GenerativeUniverseAudio {
       this.swapTimbre(now);
       this.nextBarAt = now + this.barSeconds();
     }
+  }
+
+  /**
+   * Short accent for a star the visitor just chose: two partials of the current chord root,
+   * plucked and released, so a selection is audible without a UI blip. It rides the same opt-in
+   * envelope as everything else — it never starts the context and stays silent while sound is off.
+   */
+  accent() {
+    const context = this.context;
+    const bus = this.accentBus;
+    if (this.disposed || !this.enabled || !context || !bus || context.state !== "running") return;
+    const now = context.currentTime + 0.01;
+    [2, 3].forEach((ratio, index) => {
+      const oscillator = context.createOscillator();
+      oscillator.type = index === 0 ? "sine" : "triangle";
+      oscillator.frequency.value = this.root * ratio;
+      oscillator.detune.value = (this.spec.drift * (index === 0 ? -1 : 1)) / 2;
+      const envelope = context.createGain();
+      envelope.gain.setValueAtTime(0, now);
+      envelope.gain.linearRampToValueAtTime(index === 0 ? 0.32 : 0.12, now + 0.014);
+      envelope.gain.exponentialRampToValueAtTime(0.0001, now + (index === 0 ? 0.8 : 0.55));
+      oscillator.connect(envelope).connect(bus);
+      oscillator.start(now);
+      oscillator.stop(now + 1);
+      oscillator.addEventListener("ended", () => {
+        oscillator.disconnect();
+        envelope.disconnect();
+      });
+    });
   }
 
   /**
@@ -372,6 +402,7 @@ export class GenerativeUniverseAudio {
     this.pan = [];
     this.feedback = [];
     this.gate = undefined;
+    this.accentBus = undefined;
     this.tone = undefined;
     this.pulse = undefined;
     this.pulseDepth = undefined;
@@ -475,6 +506,10 @@ export class GenerativeUniverseAudio {
 
     const master = context.createGain();
     master.gain.value = 0.18;
+    // The selection accent joins the mix before the opt-in gate, so the gate keeps the final say.
+    const accentBus = context.createGain();
+    accentBus.gain.value = 0.5;
+    accentBus.connect(master);
     const gate = context.createGain();
     gate.gain.value = 0;
     // Safety net: five voices plus air can stack, the listener should never hear clipping.
@@ -514,6 +549,7 @@ export class GenerativeUniverseAudio {
     });
 
     this.gate = gate;
+    this.accentBus = accentBus;
     this.tone = tone;
     this.pulse = pulse;
     this.pulseDepth = pulseDepth;

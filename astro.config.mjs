@@ -20,6 +20,13 @@ export default defineConfig({
   site,
   base,
   output: "static",
-  build: { format: "directory" },
+  /* Stylesheets are inlined into every document. As external files they were
+     render-blocking: the tab stayed blank for as long as the CSS round trip took,
+     which read as a white flash between pages. Inlining paints the first frame
+     styled and costs the same total bytes. */
+  build: { format: "directory", inlineStylesheets: "always" },
   markdown: { shikiConfig: { theme: "github-dark" } },
+  /* Hovering a link starts fetching its document, so a click paints the next page
+     from cache instead of waiting a round trip on a dark canvas. */
+  prefetch: { prefetchAll: true, defaultStrategy: "hover" },
 });

@@ -1,3 +1,6 @@
+# Transitional rollback while Yandex Object Storage and DNS cutover are verified.
+# Disable this pipeline after the rollback window; production deploys from GitHub Actions.
+
 image: node:24
 
 cache:

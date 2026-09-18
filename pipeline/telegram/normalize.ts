@@ -5,16 +5,29 @@ import type { CanonicalPublication, CanonicalRelation, CanonicalSourceLink, Tele
 const escapeMarkdown = (value: string) => value.replace(/([\\`*_[\]<>])/g, "\\$1");
 const safeUrl = (url: string) => /^https?:\/\//i.test(url) ? url : "";
 
+/**
+ * Markdown emphasis cannot span a blank line, and Telegram entities routinely cover
+ * the line breaks around a phrase, so a naive `**${text}**` puts the closing marker
+ * into the next paragraph and renders as literal asterisks. Whitespace stays outside
+ * the markers, a blank line splits the span into separate wrapped segments, and an
+ * empty emphasis is left unwrapped.
+ */
+const wrapEmphasis = (marker: string, value: string) =>
+  value.split(/\n{2,}/).map((segment) => {
+    const match = /^(\s*)([\s\S]*?)(\s*)$/.exec(segment);
+    const core = match?.[2] ?? "";
+    return core ? `${match![1]}${marker}${core}${marker}${match![3]}` : segment;
+  }).join("\n\n");
+
 export function renderEntity(entity: TelegramTextEntity): string {
   const text = escapeMarkdown(entity.text);
-  if (entity.type === "bold") return `**${text}**`;
-  if (entity.type === "italic") return `_${text}_`;
-  if (entity.type === "code") return `\`${entity.text.replace(/`/g,"\\`")}\``;
+  if (entity.type === "bold") return wrapEmphasis("**", text);
+  if (entity.type === "italic") return wrapEmphasis("_", text);
+  if (entity.type === "code") return `\`${entity.text.replace(/`/g, "\\`")}\``;
   if (entity.type === "pre") return `\n\`\`\`${entity.language ?? ""}\n${entity.text}\n\`\`\`\n`;
   if (["link", "text_link"].includes(entity.type) && entity.href && safeUrl(entity.href)) return `[${text}](${entity.href})`;
   return text;
 }
-
 export function renderText(message: TelegramMessage): string {
   if(message.rich_message) return renderRichBlocks(message.rich_message.blocks);
   if (message.text_entities?.length) return message.text_entities.map(renderEntity).join("").trim();
@@ -28,7 +41,7 @@ export function renderRichText(node: TelegramRichNode|TelegramRichNode[]|string|
   if(!node)return "";if(typeof node==="string")return escapeMarkdown(node);
   if(Array.isArray(node))return node.map((part)=>renderRichText(part)).join("");
   const value=Array.isArray(node.text)?node.text.map((part)=>renderRichText(part)).join(""):typeof node.text==="object"?renderRichText(node.text):escapeMarkdown(node.text??"");
-  if(node.type==="bold")return `**${value}**`;if(node.type==="italic")return `_${value}_`;if(node.type==="code")return `\`${value}\``;
+  if(node.type==="bold")return wrapEmphasis("**",value);if(node.type==="italic")return wrapEmphasis("_",value);if(node.type==="code")return `\`${value}\``;
   if(node.type==="text_link"&&node.href&&safeUrl(cleanHref(node.href)))return `[${value}](${cleanHref(node.href)})`;
   if(node.type==="mention")return value;return value;
 }

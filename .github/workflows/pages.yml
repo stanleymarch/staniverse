@@ -1,10 +1,9 @@
-# GitHub Pages preview of the Astro rebuild.
+# GitHub Pages preview of the Astro site.
 #
-# Production stays where it is: staniverse.xyz is published by the GitLab Pages
-# job in .gitlab-ci.yml, and that job keeps building root-based output. This
-# workflow only produces the project-site preview at
-# https://stanleymarch.github.io/staniverse/, driven entirely by environment
-# variables so the site source is not duplicated or rewritten.
+# Production is deployed by deploy-storage.yml to Yandex Object Storage.
+# GitLab Pages remains a temporary rollback only until that deployment and the
+# DNS cutover are verified; this workflow publishes an independent project-site
+# preview at https://stanleymarch.github.io/staniverse/.
 #
 # Required repository setting (one-time): Settings -> Pages -> Build and
 # deployment -> Source: "GitHub Actions". actions/configure-pages fails with an
@@ -30,10 +29,12 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # Same predeploy gates as .gitlab-ci.yml, run against the production-default
-  # configuration: no SITE_URL/BASE_PATH means base "/" and site
-  # https://staniverse.xyz.
+  # Same predeploy gates as production, but without production analytics:
+  # no SITE_URL/BASE_PATH means root output for https://staniverse.xyz.
   gates:
+    # GitHub Free cannot publish Pages from a private repository. Production
+    # does not depend on Pages; it deploys to Yandex Object Storage instead.
+    if: ${{ github.event.repository.private == false }}
     name: Predeploy gates
     runs-on: ubuntu-latest
     steps:
@@ -56,6 +57,7 @@ jobs:
         run: npm run videos:verify
 
   preview:
+    if: ${{ github.event.repository.private == false }}
     name: Build and deploy preview
     needs: gates
     runs-on: ubuntu-latest
@@ -83,6 +85,8 @@ jobs:
         env:
           SITE_URL: ${{ steps.pages.outputs.base_url }}
           BASE_PATH: ${{ steps.pages.outputs.base_path }}
+          # Preview traffic must not pollute the production Metrika counter.
+          PUBLIC_YANDEX_METRIKA_ID: ""
         run: npm run build
       # The site is authored with root-absolute URLs, which is correct for the
       # root-based production build. Instead of refactoring source and content

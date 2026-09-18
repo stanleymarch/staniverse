@@ -1,6 +1,6 @@
 ---
 import type { GraphEdge, GraphNode } from "../lib/graph";
-import { buildDirectedRelations, buildLocalGraph } from "./localGraph";
+import { buildDirectedRelations, buildLocalGraph, buildLocalGraphView } from "./localGraph";
 import { provenanceField } from "../lib/graph-visuals";
 
 interface Props {
@@ -11,10 +11,13 @@ interface Props {
 
 const { currentId, nodes, edges } = Astro.props;
 const graph = buildLocalGraph(currentId, nodes, edges, 3);
+const view = buildLocalGraphView(graph);
 const directions = buildDirectedRelations(currentId, nodes, edges);
 const connected = graph.nodes.some((node) => node.depth > 0);
 const depthWord = (depth: number) => depth === 1 ? "уровень" : "уровня";
-const nodeLabel = (node: typeof graph.nodes[number]) => node.depth === 0 ? "текущий материал" : `${node.depth} ${depthWord(node.depth)}`;
+const nodeLabel = (node: { depth: number; kind?: string }) => node.kind === "topic" ? "тема, ведёт на страницу темы" : node.depth === 0 ? "текущий материал" : `${node.depth} ${depthWord(node.depth)}`;
+const maxGraphDepth = Math.max(0, ...graph.nodes.map((node) => node.depth));
+const availableDepths = [1, 2, 3].filter((depth) => depth <= maxGraphDepth);
 const arrowMarkerId = `local-graph-arrow-${currentId.replace(/[^a-z0-9]+/gi, "-")}`;
 ---
 
@@ -22,17 +25,17 @@ const arrowMarkerId = `local-graph-arrow-${currentId.replace(/[^a-z0-9]+/gi, "-"
   <header class="local-graph__header">
     <p class="local-graph__kicker">Локальный граф</p>
     <h2 id="local-graph-title">Связи рядом</h2>
-    <p class="local-graph__intro">Один шаг показывает прямой контекст. Увеличьте глубину, чтобы увидеть соседние слои.</p>
+    <p class="local-graph__intro">{maxGraphDepth > 1 ? "Один шаг показывает прямой контекст. Увеличьте глубину, чтобы увидеть соседние слои." : "Здесь показан прямой контекст материала."}</p>
   </header>
 
-  <div class="local-graph__controls" role="group" aria-label="Глубина графа">
+  {maxGraphDepth > 1 && <div class="local-graph__controls" role="group" aria-label="Глубина графа">
     <span class="local-graph__controls-label">Глубина</span>
-    {[1, 2, 3].map((depth) => (
+    {availableDepths.map((depth) => (
       <button type="button" class="local-graph__depth-button" data-depth-button={depth} aria-pressed={depth === 1 ? "true" : "false"}>
         {depth} <span>{depthWord(depth)}</span>
       </button>
     ))}
-  </div>
+  </div>}
 
   {connected ? (
     <>
@@ -42,54 +45,68 @@ const arrowMarkerId = `local-graph-arrow-${currentId.replace(/[^a-z0-9]+/gi, "-"
         <span class="local-graph__legend-item"><i class="local-graph__legend-line is-directional" aria-hidden="true"></i>Причинная связь</span>
       </div>
 
-      <div class="local-graph__stage" data-depth="1" aria-describedby="local-graph-keyboard-help">
-        <svg class="local-graph__edges" aria-hidden="true" viewBox="0 0 100 100" preserveAspectRatio="none">
-          <defs>
-            <marker id={arrowMarkerId} class="local-graph__arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
-              <path d="M 0 0 L 10 5 L 0 10 z" />
-            </marker>
-          </defs>
-          {graph.edges.map((edge) => {
-            const source = graph.nodes.find((node) => node.id === edge.source);
-            const target = graph.nodes.find((node) => node.id === edge.target);
-            const dx = source && target ? target.x - source.x : 0;
-            const dy = source && target ? target.y - source.y : 0;
+      <svg
+        class="local-graph__stage"
+        data-local-graph-stage
+        data-depth="1"
+        viewBox="0 0 720 880"
+        role="img"
+        aria-label={`Граф окрестности: ${view.nodes.length} узлов, ${view.links.length} связей`}
+        aria-describedby="local-graph-keyboard-help"
+      >
+        <defs>
+          <marker id={arrowMarkerId} class="local-graph__arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" />
+          </marker>
+        </defs>
+        <g data-graph-view>
+          <g class="local-graph__edges" aria-hidden="true">
+          {view.links.map((link) => {
+            const dx = link.x2 - link.x1;
+            const dy = link.y2 - link.y1;
             const distance = Math.hypot(dx, dy) || 1;
-            const inset = edge.causal ? 6 : 0;
-            return source && target ? (
+            const inset = link.causal ? 9 : 0;
+            return (
               <line
-                class={`local-graph__edge ${edge.dotted ? "is-dotted" : "is-solid"}`}
-                data-edge-depth={edge.depth}
-                data-edge-type={edge.type}
-                data-edge-causal={edge.causal ? "true" : "false"}
-                x1={source.x + (dx / distance) * inset}
-                y1={source.y + (dy / distance) * inset}
-                x2={target.x - (dx / distance) * inset}
-                y2={target.y - (dy / distance) * inset}
-                marker-end={edge.causal ? `url(#${arrowMarkerId})` : undefined}
+                class:list={["local-graph__edge", link.causal ? "is-causal" : link.dotted ? "is-dotted" : "is-solid"]}
+                data-edge-depth={link.depth}
+                data-edge-source={link.source}
+                data-edge-target={link.target}
+                x1={link.x1 + (dx / distance) * inset}
+                y1={link.y1 + (dy / distance) * inset}
+                x2={link.x2 - (dx / distance) * inset}
+                y2={link.y2 - (dy / distance) * inset}
+                marker-end={link.causal ? `url(#${arrowMarkerId})` : undefined}
               />
-            ) : null;
+            );
           })}
-        </svg>
-        <div class="local-graph__nodes" role="list" aria-label="Узлы локального графа">
-          {graph.nodes.map((node) => (
+        </g>
+        <g class="local-graph__labels" aria-hidden="true">
+          {view.labels.map((label) => (
+            <text class="local-graph__label" data-label-depth={label.depth} x={label.x} y={label.y} text-anchor={label.anchor}>{label.text}</text>
+          ))}
+        </g>
+        <g class="local-graph__nodes" role="list" aria-label="Узлы локального графа">
+          {view.nodes.map((node) => (
             <a
               class:list={["local-graph__node", node.depth === 0 && "is-current", node.kind === "topic" && "is-topic"]}
               data-node-depth={node.depth}
               data-node-id={node.id}
               data-focus-node
+              hidden={node.depth > 1}
               href={node.href}
               aria-current={node.depth === 0 ? "page" : undefined}
               aria-label={`${node.title}, ${nodeLabel(node)}`}
-              style={`--node-x:${node.x}%;--node-y:${node.y}%`}
             >
-              <span>{node.title}</span>
-              <small>{node.depth === 0 ? "сейчас" : node.kind === "topic" ? "тема" : `шаг ${node.depth}`}</small>
+              <title>{`${node.title} — ${nodeLabel(node)}`}</title>
+              <circle class="local-graph__hit" cx={node.x} cy={node.y} r="15" />
+              <circle class="local-graph__dot" cx={node.x} cy={node.y} r={node.r} />
             </a>
           ))}
-        </div>
-      </div>
-      <p class="local-graph__keyboard-help" id="local-graph-keyboard-help">Клавиши стрелок переходят между узлами. Enter открывает выбранный материал.</p>
+        </g>
+        </g>
+      </svg>
+      <p class="local-graph__keyboard-help" id="local-graph-keyboard-help">Клавиши стрелок переходят между узлами, Enter открывает выбранный материал. Колесо приближает, протягивание сдвигает, двойной клик возвращает исходный вид.</p>
 
       <section class="local-graph__directions" aria-labelledby="local-graph-directions-title">
         <h3 class="local-graph__directions-title" id="local-graph-directions-title">Связи по направлениям</h3>
@@ -129,7 +146,7 @@ const arrowMarkerId = `local-graph-arrow-${currentId.replace(/[^a-z0-9]+/gi, "-"
         <summary>Показать список узлов</summary>
         <ol class="local-graph__list" aria-label="Список узлов локального графа">
           {graph.nodes.map((node) => (
-            <li data-list-depth={node.depth}>
+            <li data-list-depth={node.depth} hidden={node.depth > 1}>
               <a href={node.href} aria-current={node.depth === 0 ? "page" : undefined}>{node.title}</a>
               <span>{nodeLabel(node)}</span>
             </li>
@@ -141,7 +158,7 @@ const arrowMarkerId = `local-graph-arrow-${currentId.replace(/[^a-z0-9]+/gi, "-"
         <summary>Показать доказательства связей</summary>
         <ol class="local-graph__relations" aria-label="Доказательства связей">
           {graph.edges.map((edge) => (
-            <li data-relation-depth={edge.depth}>
+            <li data-relation-depth={edge.depth} hidden={edge.depth > 1}>
               <details>
                 <summary>
                   <span>{edge.sourceNode?.title ?? edge.source} → {edge.targetNode?.title ?? edge.target}</span>
@@ -182,32 +199,72 @@ const arrowMarkerId = `local-graph-arrow-${currentId.replace(/[^a-z0-9]+/gi, "-"
 </aside>
 
 <script>
+  import { pluralRu } from "../lib/plural";
+  import { mountGraphView } from "../lib/svg-graph-view";
+
   const roots = document.querySelectorAll<HTMLElement>("[data-local-graph]");
 
   roots.forEach((root) => {
-    const stage = root.querySelector<HTMLElement>(".local-graph__stage");
+    const stage = root.querySelector<SVGSVGElement>("[data-local-graph-stage]");
+    if (stage) mountGraphView(stage, { touch: true });
     const depthButtons = [...root.querySelectorAll<HTMLButtonElement>("[data-depth-button]")];
-    const visualNodes = [...root.querySelectorAll<HTMLElement>("[data-focus-node]")];
     const status = root.querySelector<HTMLElement>("[data-graph-status]");
+    const drawnNodes = [...root.querySelectorAll<SVGElement>("[data-focus-node]")];
+    const drawnEdges = [...root.querySelectorAll<SVGLineElement>("[data-edge-depth]")];
+    const isHidden = (element: Element) => element.hasAttribute("hidden");
+    const setHidden = (element: Element, hidden: boolean) => element.toggleAttribute("hidden", hidden);
+    const dataset = (element: Element) => (element as HTMLElement).dataset;
     let selectedDepth = 1;
+
+    /* Pointing at a dot answers with that node's own neighbourhood: everything
+       outside it steps back, the way a graph view reads under the pointer. */
+    const neighbours = new Map<string, Set<string>>();
+    for (const edge of drawnEdges) {
+      const source = edge.dataset.edgeSource ?? "";
+      const target = edge.dataset.edgeTarget ?? "";
+      neighbours.set(source, (neighbours.get(source) ?? new Set()).add(target));
+      neighbours.set(target, (neighbours.get(target) ?? new Set()).add(source));
+    }
+    const highlight = (id?: string) => {
+      for (const node of drawnNodes) {
+        const key = dataset(node).nodeId ?? "";
+        const linked = Boolean(id) && (key === id || neighbours.get(id ?? "")?.has(key));
+        node.classList.toggle("is-hot", key === id);
+        node.classList.toggle("is-linked", Boolean(linked) && key !== id);
+        node.classList.toggle("is-dim", Boolean(id) && !linked);
+      }
+      for (const edge of drawnEdges) {
+        const touches = Boolean(id) && (edge.dataset.edgeSource === id || edge.dataset.edgeTarget === id);
+        edge.classList.toggle("is-hot", touches);
+        edge.classList.toggle("is-dim", Boolean(id) && !touches);
+      }
+    };
+    const nodeFrom = (target: EventTarget | null) => (target instanceof Element ? target.closest<SVGElement>("[data-focus-node]") : null);
+    stage?.addEventListener("pointerover", (event) => {
+      const node = nodeFrom(event.target);
+      if (node) highlight(dataset(node).nodeId);
+    });
+    stage?.addEventListener("pointerout", (event) => {
+      if (!nodeFrom(event.relatedTarget)) highlight();
+    });
+    stage?.addEventListener("focusin", (event) => {
+      const node = nodeFrom(event.target);
+      if (node) highlight(dataset(node).nodeId);
+    });
+    stage?.addEventListener("focusout", () => highlight());
 
     const sync = () => {
       stage?.setAttribute("data-depth", String(selectedDepth));
-      depthButtons.forEach((button) => {
-        const active = Number(button.dataset.depthButton) === selectedDepth;
-        button.setAttribute("aria-pressed", String(active));
-      });
-      root.querySelectorAll<HTMLElement>("[data-node-depth]").forEach((node) => {
-        node.hidden = Number(node.dataset.nodeDepth) > selectedDepth;
-      });
-      root.querySelectorAll<HTMLElement>("[data-list-depth]").forEach((node) => {
-        node.hidden = Number(node.dataset.listDepth) > selectedDepth;
-      });
-      root.querySelectorAll<HTMLElement>("[data-edge-depth], [data-relation-depth]").forEach((edge) => {
-        edge.hidden = Number(edge.dataset.edgeDepth ?? edge.dataset.relationDepth) > selectedDepth;
-      });
-      const count = visualNodes.filter((node) => !node.hidden).length;
-      if (status) status.textContent = `${count} ${count === 1 ? "узел" : count < 5 ? "узла" : "узлов"} · глубина ${selectedDepth}`;
+      for (const button of depthButtons) button.setAttribute("aria-pressed", String(Number(button.dataset.depthButton) === selectedDepth));
+      for (const node of drawnNodes) setHidden(node, Number(dataset(node).nodeDepth) > selectedDepth);
+      for (const edge of drawnEdges) setHidden(edge, Number(edge.dataset.edgeDepth) > selectedDepth);
+      root.querySelectorAll("[data-list-depth]").forEach((item) => setHidden(item, Number(dataset(item).listDepth) > selectedDepth));
+      root.querySelectorAll("[data-relation-depth]").forEach((item) => setHidden(item, Number(dataset(item).relationDepth) > selectedDepth));
+      if (status) {
+        const shownNodes = drawnNodes.filter((node) => !isHidden(node)).length;
+        const shownEdges = drawnEdges.filter((edge) => !isHidden(edge)).length;
+        status.textContent = `${pluralRu(shownNodes, "узел", "узла", "узлов")} · ${pluralRu(shownEdges, "связь", "связи", "связей")}`;
+      }
     };
 
     depthButtons.forEach((button) => {
@@ -218,16 +275,16 @@ const arrowMarkerId = `local-graph-arrow-${currentId.replace(/[^a-z0-9]+/gi, "-"
     });
 
     root.addEventListener("keydown", (event) => {
-      if (!(event.target instanceof HTMLElement) || !event.target.matches("[data-focus-node]")) return;
-      const currentIndex = visualNodes.filter((node) => !node.hidden).indexOf(event.target);
+      if (!(event.target instanceof Element) || !event.target.matches("[data-focus-node]")) return;
+      const visible = drawnNodes.filter((node) => !isHidden(node));
+      const currentIndex = visible.indexOf(event.target as SVGElement);
       if (currentIndex < 0) return;
-      const visibleNodes = visualNodes.filter((node) => !node.hidden);
       const forward = event.key === "ArrowRight" || event.key === "ArrowDown";
       const backward = event.key === "ArrowLeft" || event.key === "ArrowUp";
-      const targetIndex = forward ? (currentIndex + 1) % visibleNodes.length : backward ? (currentIndex - 1 + visibleNodes.length) % visibleNodes.length : event.key === "Home" ? 0 : event.key === "End" ? visibleNodes.length - 1 : -1;
+      const targetIndex = forward ? (currentIndex + 1) % visible.length : backward ? (currentIndex - 1 + visible.length) % visible.length : event.key === "Home" ? 0 : event.key === "End" ? visible.length - 1 : -1;
       if (targetIndex < 0) return;
       event.preventDefault();
-      visibleNodes[targetIndex]?.focus();
+      (visible[targetIndex] as SVGElement & { focus?: () => void }).focus?.();
     });
 
     sync();
@@ -244,9 +301,6 @@ const arrowMarkerId = `local-graph-arrow-${currentId.replace(/[^a-z0-9]+/gi, "-"
     --local-text: #e8f3fb;
     --local-cyan: #66dff4;
     --local-cyan-soft: rgba(102, 223, 244, .2);
-    position: sticky;
-    top: 7rem;
-    scroll-margin-top: 6rem;
     min-width: 0;
     padding: clamp(1rem, 2vw, 1.35rem);
     border: 1px solid var(--local-line);
@@ -259,6 +313,7 @@ const arrowMarkerId = `local-graph-arrow-${currentId.replace(/[^a-z0-9]+/gi, "-"
     outline: 2px solid var(--local-cyan);
     outline-offset: 3px;
   }
+  .local-graph-v2 [hidden] { display: none !important; }
 
   .local-graph__header { display: grid; gap: .45rem; }
   .local-graph__kicker { margin: 0; color: var(--local-cyan); font: 600 .65rem/1.2 ui-monospace, SFMono-Regular, monospace; letter-spacing: .14em; text-transform: uppercase; }
@@ -280,22 +335,30 @@ const arrowMarkerId = `local-graph-arrow-${currentId.replace(/[^a-z0-9]+/gi, "-"
   .local-graph__legend-line.is-directional { position: relative; border-top-color: #f1b7dd; }
   .local-graph__legend-line.is-directional::after { position: absolute; top: -5px; right: -1px; border-top: 4px solid transparent; border-bottom: 4px solid transparent; border-left: 6px solid #f1b7dd; content: ""; }
 
-  .local-graph__stage { position: relative; min-height: 480px; margin: 0 -.15rem .75rem; overflow: hidden; border: 1px solid rgba(102, 223, 244, .16); border-radius: .8rem; background: linear-gradient(145deg, #101e2e, #0a121f 72%); }
-  .local-graph__stage::before { position: absolute; inset: 12%; border: 1px solid rgba(102, 223, 244, .08); border-radius: 50%; content: ""; }
-  .local-graph__edges { position: absolute; inset: 0; width: 100%; height: 100%; }
-  .local-graph__edge { stroke-width: .45; vector-effect: non-scaling-stroke; }
-  .local-graph__edge.is-solid { stroke: #63b9cf; }
-  .local-graph__edge.is-dotted { stroke: #7289a3; stroke-dasharray: 1.4 2.2; }
-  .local-graph__edge[data-edge-causal="true"] { stroke: #f1b7dd; stroke-width: .65; }
+  /* The neighbourhood is drawn as dots on a force layout: deeper rings appear
+     where the force put them, without moving what the reader already located. */
+  .local-graph__stage { display: block; width: 100%; height: auto; margin: 0 -.15rem .75rem; border: 1px solid rgba(102, 223, 244, .16); border-radius: .8rem; background: linear-gradient(145deg, #101e2e, #0a121f 72%); cursor: grab; touch-action: pan-y; user-select: none; }
+  .local-graph__stage.is-panning { cursor: grabbing; }
+  .local-graph__edges, .local-graph__labels { pointer-events: none; }
+  .local-graph__edge { stroke: #63b9cf; stroke-width: 1; vector-effect: non-scaling-stroke; transition: opacity .2s ease, stroke-width .2s ease; }
+  .local-graph__edge.is-dotted { stroke: #7289a3; stroke-dasharray: 2.5 3.5; }
+  .local-graph__edge.is-causal { stroke: #f1b7dd; stroke-width: 1.4; }
+  .local-graph__edge.is-dim { opacity: .12; }
+  .local-graph__edge.is-hot { stroke-width: 2.2; }
   .local-graph__arrow path { fill: #f1b7dd; }
-  .local-graph__nodes { position: absolute; inset: 0; }
-  .local-graph__node { position: absolute; z-index: 1; top: var(--node-y); left: var(--node-x); display: grid; gap: .16rem; width: min(8.4rem, 23%); min-width: 4.5rem; max-height: 4.4rem; padding: .42rem .5rem; overflow: hidden; transform: translate(-50%, -50%); border: 1px solid #38516c; border-radius: .6rem; background: var(--local-surface); color: var(--local-text); font-size: .68rem; line-height: 1.25; text-align: center; text-decoration: none; overflow-wrap: anywhere; transition: border-color .2s ease, background .2s ease, transform .2s ease; }
-  .local-graph__node > span { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
-  .local-graph__node:hover { border-color: var(--local-cyan); background: var(--local-surface-raised); transform: translate(-50%, calc(-50% - 2px)); }
-  .local-graph__node.is-current { border-color: var(--local-cyan); background: #132f3b; color: var(--local-cyan); }
-  .local-graph__node.is-topic { border-style: dashed; }
-  .local-graph__node small { color: var(--local-muted); font-size: .58rem; }
-  .local-graph__node.is-current small { color: #9de9f7; }
+  .local-graph__node { cursor: pointer; transition: opacity .2s ease; }
+  .local-graph__node.is-dim { opacity: .25; }
+  .local-graph__hit { fill: transparent; pointer-events: all; }
+  .local-graph__dot { fill: var(--local-cyan); stroke: var(--local-bg); stroke-width: 2; vector-effect: non-scaling-stroke; }
+  .local-graph__node.is-topic .local-graph__dot { fill: var(--local-bg); stroke: var(--local-cyan); }
+  .local-graph__node.is-linked .local-graph__dot,
+  .local-graph__node.is-current .local-graph__dot,
+  .local-graph__node:hover .local-graph__dot,
+  .local-graph__node:focus-visible .local-graph__dot { stroke: #ffffff; }
+  .local-graph__label { fill: var(--local-muted); font-size: 13px; paint-order: stroke; stroke: var(--local-bg); stroke-width: 4px; stroke-linejoin: round; }
+  /* Labels follow the stage depth in CSS, so the rings stay correct without scripts. */
+  .local-graph__stage[data-depth="1"] .local-graph__label:not([data-label-depth="1"]),
+  .local-graph__stage[data-depth="2"] .local-graph__label[data-label-depth="3"] { display: none; }
   .local-graph__keyboard-help { margin: 0 0 .75rem; color: var(--local-muted); font-size: .68rem; line-height: 1.45; }
 
   .local-graph__directions { margin: 0 0 .35rem; border-top: 1px solid rgba(102, 223, 244, .16); }
@@ -340,13 +403,11 @@ const arrowMarkerId = `local-graph-arrow-${currentId.replace(/[^a-z0-9]+/gi, "-"
   .local-graph__empty h3 { margin: 0 0 .35rem; color: var(--local-text); font-size: .9rem; }
   .local-graph__empty p { margin: 0; color: var(--local-muted); font-size: .78rem; line-height: 1.5; }
 
-  @media (max-width: 1050px) { .local-graph-v2 { position: static; } }
   @media (max-width: 620px) {
-    .local-graph__stage { min-height: 480px; }
-    .local-graph__node { width: min(7rem, 24%); min-width: 4.2rem; font-size: .62rem; }
     .local-graph__list li { align-items: flex-start; flex-direction: column; gap: .1rem; }
+    .local-graph__label { font-size: 15px; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .local-graph__depth-button, .local-graph__node { transition: none; }
+    .local-graph__depth-button, .local-graph__node, .local-graph__edge { transition: none; }
   }
 </style>

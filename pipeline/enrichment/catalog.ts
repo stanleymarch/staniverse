@@ -8,6 +8,8 @@ export const topicRules: Rule[] = [
   { label: "iot", patterns: [/\biot\b/iu, /internet of things/iu, /интернет\s+вещей/iu, /esp(?:32|8266)/iu, /zigbee/iu, /умн(?:ый|ого|ом)\s+дом/iu] },
   { label: "open source", patterns: [/open[ -]?source/iu, /открыт(?:ый|ого|ым)\s+(?:исходн(?:ый|ого|ым)\s+)?код/iu, /github\.com/iu, /gitlab\.com/iu, /\bfoss\b/iu] },
   { label: "ai-компаньоны", patterns: [/ии[- ]?(?:вайфу|компаньон)/iu, /ai[- ]?(?:waifu|companion)/iu, /виртуальн(?:ый|ого|ым)\s+(?:партн[её]р|компаньон)/iu, /character\.ai/iu, /replika\b/iu, /sillytavern/iu, /эмоциональн(?:ый|ого|ым)\s+компаньон/iu] },
+  { label: "втюбинг и виртуальные персонажи", patterns: [/\bvtub(?:er|ing)s?\b/iu, /в[и]?т[ьюу]бер/iu, /виртуальн(?:ый|ого|ые)\s+ютубер/iu] },
+  { label: "интим и близость", patterns: [/интим/iu, /близост/iu, /одиночеств/iu, /(?:романтическ|любовн)\w*\s+отношен/iu, /отношен\w*\s+с\s+(?:ии|ai)[- ]?(?:компаньон|вайфу)/iu, /дейтинг/iu, /свидани/iu] },
   { label: "искусственный интеллект", patterns: [/(?:^|[^\p{L}])ии(?:$|[^\p{L}])/iu, /нейросет/iu, /\bai\b/iu, /machine learning/iu, /deepseek/iu, /openai/iu, /anthropic/iu, /gemini/iu] },
   { label: "llm", patterns: [/\bllm/iu, /языков[\p{L}-]*\s+модел/iu, /chatgpt/iu, /claude/iu, /qwen/iu] },
   { label: "агенты и автоматизация", patterns: [/агентн/iu, /автоматизац/iu, /n8n/iu, /workflow/iu, /воркфлоу/iu, /mcp\b/iu] },
@@ -18,7 +20,11 @@ export const topicRules: Rule[] = [
   { label: "цифровая культура", patterns: [/цифров[\p{L}-]*\s+культур/iu, /интернет[- ]культур/iu, /медиаарт/iu, /киберкультур/iu, /виртуальн[\p{L}-]*\s+мир/iu] },
   { label: "видео и продакшн", patterns: [/видео/iu, /съ[её]м/iu, /монтаж/iu, /продакшн/iu, /youtube/iu, /документальн/iu] },
   { label: "образование", patterns: [/образован/iu, /преподав/iu, /студент/iu, /школьник/iu, /университет/iu, /диплом/iu, /(?:^|[^\p{L}])курс(?:ы|а|е|ом|ов)?(?:$|[^\p{L}])/iu] },
-  { label: "город и наследие", patterns: [/киров/iu, /вятк/iu, /наследи/iu, /архитектур/iu, /краевед/iu, /туризм/iu, /музе/iu, /памятник/iu] },
+  /* Киров and Слободской need a word start: "заблокированный"/"разблокировать"
+     contain киров, "Новослободской" contains слободск, and neither is the region.
+     Вятка stays unguarded on purpose — it also lives inside «МетаВятка». */
+  { label: "город и наследие", patterns: [/(?:^|[^\p{L}])киров/iu, /вятк/iu, /наследи/iu, /архитектур/iu, /краевед/iu, /туризм/iu, /музе/iu, /памятник/iu] },
+  { label: "киров/вятка", patterns: [/(?:^|[^\p{L}])киров/iu, /вятк/iu, /(?:^|[^\p{L}])слободск/iu, /котельнич/iu, /нолинск/iu, /яранск/iu, /омутнинск/iu, /\bkirov/iu, /vyatka/iu] },
   { label: "путешествия", patterns: [/путешеств/iu, /поездк/iu, /экспедиц/iu, /турист/iu, /маршрут/iu] },
   { label: "игры", patterns: [/(?:^|[^\p{L}])игр(?:а|ы|е|у|ой|ами|ать|аю|овой|овый|ового)/iu, /гейм/iu, /steam/iu, /playstation/iu, /xbox/iu] },
   { label: "музыка и звук", patterns: [/музык/iu, /звук/iu, /аудио/iu, /саунд/iu, /озвуч/iu, /синтез\s+голос/iu] },

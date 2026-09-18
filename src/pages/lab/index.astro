@@ -1,0 +1,55 @@
+---
+import Base from "../../layouts/Base.astro";
+import { experiments } from "../../data/experiments";
+
+const jsonLd = {
+  "@type": "CollectionPage",
+  "@id": new URL("/lab/#page", Astro.site).href,
+  url: new URL("/lab/", Astro.site).href,
+  name: "Лаборатория — эксперименты Staniverse",
+  description: "Отдельные WebXR- и браузерные эксперименты: каждое приложение собирается из своего каталога и деплоится в бакет под /lab/<имя>/.",
+  inLanguage: "ru-RU",
+  isPartOf: { "@id": new URL("/#website", Astro.site).href },
+  hasPart: experiments.map((experiment) => ({
+    "@type": "CreativeWork",
+    name: experiment.title,
+    description: experiment.summary,
+    url: experiment.href ? new URL(experiment.href, Astro.site).href : undefined,
+  })),
+};
+---
+
+<Base title="Лаборатория" description="Отдельные WebXR- и браузерные эксперименты Станислава Ермоленко: каждое приложение живёт в своём каталоге и деплоится в облако через git." jsonLd={jsonLd}>
+  <header class="catalog-hero">
+    <div class="section-kicker">Лаборатория</div>
+    <h1>Эксперименты</h1>
+    <p class="hero-lead">Небольшие самостоятельные приложения: WebXR-сцены, демо SDK, пространственные механики. Каждое собирается из своего каталога <code>experiments/&lt;имя&gt;/</code> и публикуется по адресу <code>/lab/&lt;имя&gt;/</code> тем же git-пушем, что и основной сайт — без ручных загрузок.</p>
+  </header>
+  <section class="section">
+    <div class="card-grid">
+      {experiments.map((experiment) => (
+        <article class:list={["content-card", { "is-soon": experiment.status === "soon" }]} data-kind="experiment">
+          <div class="card-meta">
+            <span>Эксперимент</span>
+            {experiment.status === "live"
+              ? <span class="status">Работает</span>
+              : <span class="status">Скоро</span>}
+          </div>
+          <h2>{experiment.title}</h2>
+          <p>{experiment.summary}</p>
+          <div class="tag-row">{experiment.stack.map((item) => <span>#{item}</span>)}</div>
+          {experiment.status === "live" && experiment.href
+            ? <a class="card-arrow-link" href={experiment.href}>Открыть эксперимент <span class="card-arrow" aria-hidden="true">↗</span></a>
+            : <span class="card-arrow-link is-muted">Ещё в работе</span>}
+        </article>
+      ))}
+    </div>
+  </section>
+</Base>
+
+<style>
+  .content-card.is-soon { border-style: dashed; }
+  .card-arrow-link { display: inline-flex; align-items: center; gap: 6px; margin-top: auto; padding-top: var(--s-3); color: var(--accent); font-size: .8rem; letter-spacing: .04em; }
+  .card-arrow-link.is-muted { color: var(--ink-2); }
+  .hero-lead code { font-family: ui-monospace, monospace; font-size: .85em; color: var(--ink); }
+</style>

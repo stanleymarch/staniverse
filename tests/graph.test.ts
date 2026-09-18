@@ -65,6 +65,10 @@ test("normalizes aliases into canonical multi-label topics", () => {
   assert.deepEqual(normalizeTopics(["AI/LLM", "WebXR", "Gaussian Splats", "IoT", "opensource"]), ["ai", "llm", "xr", "gaussian-splatting", "iot", "open-source"]);
 });
 
+test("normalizes every public topic label back to its canonical id", () => {
+  assert.deepEqual(normalizeTopics(["интим и близость", "втюбинг и виртуальные персонажи"]), ["intimate-tech", "vtubing"]);
+});
+
 test("keeps IoT, XR and open source as coexisting labels", () => {
   const topics = collectTopics([entry("project:lab", "project", ["WebXR", "IoT", "open source"])]);
   assert.deepEqual(topics.filter((topic) => topic.catalog).map((topic) => topic.id).sort(), ["iot", "open-source", "xr"]);

@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { applyRadialDeadzone, AR_SURFACE_CLEARANCE, arContentLift, cameraRelativeStep, missingIosArPrerequisites, nextArPlacementState, nextSnapTurn, normalizedArContentTransform } from "../src/lib/xr-experience";
+import { applyRadialDeadzone, AR_SURFACE_CLEARANCE, arContentLift, cameraRelativeStep, createGestureTracker, experienceStateForAr, GESTURE_DRAG_THRESHOLD_PX, MIN_TOUCH_TARGET_PX, nearestScreenTarget, nextArPlacementState, nextExperienceState, nextSnapTurn, normalizedArContentTransform, xrOffer } from "../src/lib/xr-experience";
 
 test("flight motion follows the viewed direction", () => {
   assert.deepEqual(cameraRelativeStep({ forward: 1, strafe: 0, rise: 0 }, 0, 2), { x: 0, y: 0, z: -2 });
@@ -71,13 +71,62 @@ test("AR content lift keeps the lowest node on the surface while the scale contr
   }
 });
 
-test("iOS AR hardware gate reports every unavailable prerequisite without treating desktop as hardware proof", () => {
-  assert.deepEqual(missingIosArPrerequisites({
-    secureContext: true,
-    camera: true,
-    webgl: true,
-    wasmSimd: true,
-    deviceOrientation: false,
-    iosDevice: false,
-  }), ["device-orientation", "iphone-or-ipad"]);
+test("the loader leaves loading exactly once and an error is terminal", () => {
+  assert.equal(nextExperienceState("loading", "loaded"), "exploring");
+  assert.equal(nextExperienceState("exploring", "loaded"), "exploring");
+  assert.equal(nextExperienceState("searching", "loaded"), "searching");
+  assert.equal(nextExperienceState("loading", "failed"), "error");
+  assert.equal(nextExperienceState("error", "loaded"), "error");
+});
+
+test("AR placement maps onto the published experience states", () => {
+  assert.equal(experienceStateForAr("idle"), "exploring");
+  assert.equal(experienceStateForAr("searching"), "searching");
+  assert.equal(experienceStateForAr("ready"), "ready");
+  assert.equal(experienceStateForAr("placed"), "placed");
+  assert.equal(experienceStateForAr("lost"), "lost");
+  assert.equal(experienceStateForAr("lost-placed"), "lost");
+});
+
+test("only a device that really supports immersive-ar is offered AR and no camera probe backs it", () => {
+  assert.deepEqual(xrOffer({ xrSystem: false, immersiveVr: false, immersiveAr: false }), { vr: false, ar: false, screen: "touch-3d" });
+  assert.deepEqual(xrOffer({ xrSystem: true, immersiveVr: true, immersiveAr: false }), { vr: true, ar: false, screen: "touch-3d" });
+  assert.deepEqual(xrOffer({ xrSystem: true, immersiveVr: false, immersiveAr: true }), { vr: false, ar: true, screen: "touch-3d" });
+  // A browser that reports immersive modes without an XR system may not be trusted with either.
+  assert.deepEqual(xrOffer({ xrSystem: false, immersiveVr: true, immersiveAr: true }), { vr: false, ar: false, screen: "touch-3d" });
+});
+
+test("gesture slop is cumulative, so a slow drag is never read as a tap", () => {
+  assert.ok(GESTURE_DRAG_THRESHOLD_PX >= 8 && GESTURE_DRAG_THRESHOLD_PX <= 12, `slop ${GESTURE_DRAG_THRESHOLD_PX}px sits inside the 8-12px band`);
+  const tap = createGestureTracker();
+  tap.start(200, 300);
+  // A finger never reports a clean position: jitter around the origin stays a tap.
+  assert.equal(tap.move(201, 301), false);
+  assert.equal(tap.move(200, 301), false);
+  assert.equal(tap.move(201, 300), false);
+  assert.equal(tap.dragged, false);
+
+  const drag = createGestureTracker();
+  drag.start(0, 0);
+  // 30 samples of 1px each are a real drag, even though no single sample is large.
+  for (let index = 0; index < 30; index += 1) drag.move(index + 1, 0);
+  assert.equal(drag.dragged, true);
+  assert.equal(drag.travelled, 30);
+  drag.reset();
+  assert.equal(drag.dragged, false);
+});
+
+test("a near miss still selects the nearest visible star inside one touch target", () => {
+  const targets = [
+    { id: "far", x: 400, y: 400, visible: true },
+    { id: "near", x: 100, y: 112, visible: true },
+    { id: "hidden", x: 100, y: 100, visible: false },
+    { id: "exact", x: 100, y: 100, visible: true },
+  ];
+  assert.equal(nearestScreenTarget(targets, 100, 100)?.id, "exact");
+  assert.equal(nearestScreenTarget(targets, 100, 121)?.id, "near");
+  // 23px away is outside one 44px target, and the next visible star is further still.
+  assert.equal(nearestScreenTarget(targets, 100, 135), undefined);
+  assert.equal(nearestScreenTarget([targets[2]], 100, 100), undefined);
+  assert.equal(MIN_TOUCH_TARGET_PX, 44);
 });

@@ -2,10 +2,12 @@ import { test, expect } from "@playwright/test";
 
 test("homepage presents identity, works, own projects and universe", async ({ page }, testInfo) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: /Соединяю вещи и смотрю/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Всем 👋 привет, это Стас!" })).toBeVisible();
+  await expect(page.locator(".hero-actions a")).toHaveCount(2);
   await expect(page.locator('.hero-actions a[href="/works/"]')).toBeVisible();
-  await expect(page.locator('.hero-actions a[download]')).toHaveAttribute("href", /Stanislav-Ermolenko-CV-RU\.pdf/);
-  await expect(page.getByRole("link", { name: /Войти во вселенную/i })).toBeVisible();
+  await expect(page.locator('.hero-actions a[href^="mailto:"]')).toBeVisible();
+  await expect(page.locator(".home-constellation")).toBeVisible();
+  await expect(page.locator("canvas")).toHaveCount(0);
   await expect(page.getByRole("heading", { name: /То, что стало реальным/ })).toBeVisible();
   await expect(page.locator('.card-grid a[href="/works/virtualnyy-ofis-advokata/"]')).toHaveCount(1);
   await expect(page.locator('.card-grid a[href="/works/ya-obmanyvat-sebya-ne-stanu/"]')).toHaveCount(1);
@@ -13,7 +15,7 @@ test("homepage presents identity, works, own projects and universe", async ({ pa
   await expect(page.getByRole("heading", { name: /То, что продолжает двигаться/ })).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath("homepage.png"), fullPage: true });
   await page.getByRole("button", { name: /Обо мне/ }).click();
-  await expect(page.getByRole("heading", { name: /Режиссёр цифровых опытов/ })).toBeVisible();
+  await expect(page.locator("[data-profile-dialog]").getByRole("heading", { name: /Проектирую цифровой опыт/ })).toBeVisible();
   await page.locator(".profile-details summary").click();
   await expect(page.getByText(/MB110x: Introduction to the Music Business/)).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath("profile-dialog.png") });
@@ -49,25 +51,28 @@ test("migrated commissioned work keeps role, client, features and full narrative
 
 test("garden searches across publication formats", async ({ page }) => {
   await page.goto("/garden/");
-  await expect(page.getByRole("button", { name: "Каталог" })).toBeVisible();
-  if (["tablet", "mobile"].includes(test.info().project.name)) await page.getByRole("button", { name: "Фильтры" }).click();
-  await expect(page.getByText("Тип материала")).toBeVisible();
-  await page.getByRole("searchbox", { name: "Поиск по материалам" }).fill("виртуальных помощников");
+  await expect(page.getByRole("button", { name: "Список" })).toBeVisible();
+  await page.getByRole("button", { name: "Ещё фильтры" }).click();
+  await expect(page.locator("[data-garden-facets] legend").first()).toHaveText("Формат");
+  await page.locator("[data-garden-search]").fill("виртуальных помощников");
   await expect(page.locator('.garden-row[href="/articles/ai-waifu/"]')).toBeVisible();
   await expect(page.locator('[href="/garden/youtube-cultural-travel/"]')).toHaveCount(0);
+  await page.locator("[data-garden-search]").fill("интимейт");
+  await expect(page.locator('.garden-row[href="/garden/telegram/tg-1153/"]')).toBeVisible();
+  await page.locator("[data-garden-search]").fill("vtuber");
+  await expect(page.locator('.garden-row[href="/garden/telegram/tg-1153/"]')).toBeVisible();
 });
 
 test("garden catalog includes projects and commissioned experience without mixing ownership", async ({ page }) => {
   await page.goto("/garden/");
-  if (["tablet", "mobile"].includes(test.info().project.name)) await page.getByRole("button", { name: "Фильтры" }).click();
-  await expect(page.getByText("Собственные проекты", { exact: true })).toBeVisible();
-  await page.locator('[data-kind-filter][value="project"]').check();
+  await page.getByRole("button", { name: "Ещё фильтры" }).click();
+  await expect(page.locator('[data-kind-filter][value="project"]')).toBeVisible();
+  await page.locator('label:has([data-kind-filter][value="project"])').click();
   await expect(page.locator('.garden-row[href="/projects/mnemoform/"]')).toBeVisible();
   await expect(page.locator('.garden-row[href="/works/virtualnyy-ofis-advokata/"]')).toHaveCount(0);
-  await page.locator('[data-kind-filter][value="project"]').uncheck();
-  await page.locator('[data-kind-filter][value="work"]').check();
+  await page.locator('label:has([data-kind-filter][value="project"])').click();
+  await page.locator('label:has([data-kind-filter][value="work"])').click();
   await expect(page.locator('[data-topic-filter][value="iot"]')).toBeVisible();
-  if (["tablet", "mobile"].includes(test.info().project.name)) await page.locator("[data-filter-close]").click();
   const commissionedRow = page.locator('.garden-row[href="/works/virtualnyy-ofis-advokata/"]');
   for (let expand = 0; !(await commissionedRow.count()) && expand < 4; expand += 1) {
     const more = page.locator("[data-garden-more]");
@@ -80,8 +85,8 @@ test("garden catalog includes projects and commissioned experience without mixin
 
 test("garden exposes removable filter chips and persists filter state", async ({ page }) => {
   await page.goto("/garden/");
-  if (["tablet", "mobile"].includes(test.info().project.name)) await page.locator("[data-filter-toggle]").click();
-  await page.locator('[data-topic-filter][value="iot"]').check();
+  await page.locator("[data-filter-toggle]").click();
+  await page.locator('label:has([data-topic-filter][value="iot"])').click();
   await expect(page.locator(".garden-filter-chip")).toHaveCount(1);
   await expect(page).toHaveURL(/topic=iot/);
   await page.reload();
@@ -104,6 +109,18 @@ test("garden map reflects the currently filtered catalogue", async ({ page }, te
   await page.screenshot({ path: testInfo.outputPath("garden-map.png"), fullPage: true });
 });
 
+test("multi-photo publication uses a working carousel and moves taxonomy below the text", async ({ page }) => {
+  await page.goto("/garden/telegram/tg-1015/");
+  await expect(page.locator("[data-carousel-slide]")).toHaveCount(4);
+  await expect(page.locator("[data-carousel-status]")).toHaveText("1 / 4");
+  await page.locator("[data-carousel-next]").click();
+  await expect(page.locator("[data-carousel-status]")).toHaveText("2 / 4");
+  const taxonomy = page.locator(".entry-taxonomy");
+  await expect(taxonomy).toContainText("Теги автора");
+  await expect(taxonomy).toContainText("Ещё по теме · найдено автоматически");
+  await expect(taxonomy.locator('a[href="/topics/intim-i-blizost/"]')).toBeVisible();
+});
+
 test("topic index explains navigation and connects different content formats",async({page})=>{
   await page.goto("/topics/");
   await expect(page.getByRole("heading",{name:"По темам",exact:true})).toBeVisible();
@@ -113,12 +130,20 @@ test("topic index explains navigation and connects different content formats",as
   await topic.click();
   await expect(page.getByRole("heading",{name:"#искусственный интеллект"})).toBeVisible();
   await expect(page.locator(".content-card").first()).toBeVisible();
+  await expect(page.locator("[data-topic-sort]")).toHaveValue("newest");
+  const newestDates = await page.locator(".content-card time").evaluateAll((items) => items.map((item) => Date.parse(item.getAttribute("datetime") || "")).filter(Number.isFinite));
+  expect(newestDates).toEqual([...newestDates].sort((a, b) => b - a));
+  await page.locator("[data-topic-sort]").selectOption("oldest");
+  await expect(page).toHaveURL(/sort=oldest/);
+  const oldestDates = await page.locator(".content-card time").evaluateAll((items) => items.map((item) => Date.parse(item.getAttribute("datetime") || "")).filter(Number.isFinite));
+  expect(oldestDates).toEqual([...oldestDates].sort((a, b) => a - b));
 });
 
 test("long article connects to a channel-verified video", async ({ page }) => {
   await page.goto("/articles/ai-waifu/");
   await expect(page.getByRole("heading", { name: "Оглавление" })).toBeVisible();
   await expect(page.locator(".prose").getByText(/браки заключаются на небесах/)).toBeVisible();
+  await expect(page.locator(".entry-hero-meta time")).toBeVisible();
   await expect(page.locator('.local-graph a[href="/garden/video/youtube-ncq31xb3gle/"]').first()).toBeVisible();
   await page.goto("/garden/video/youtube-ncq31xb3gle/");
   await expect(page.locator("[data-video-play]")).toBeVisible();
@@ -131,8 +156,8 @@ test("long article connects to a channel-verified video", async ({ page }) => {
 
 test("garden filters verified YouTube feeds by author channel", async ({ page }) => {
   await page.goto("/garden/");
-  if (["tablet", "mobile"].includes(test.info().project.name)) await page.getByRole("button", { name: "Фильтры" }).click();
-  await page.locator('[data-channel-filter][value="ya-ty-gorod"]').check();
+  await page.getByRole("button", { name: "Ещё фильтры" }).click();
+  await page.locator('label:has([data-channel-filter][value="ya-ty-gorod"])').click();
   await expect(page.locator('.garden-row.has-thumbnail').first()).toBeVisible();
   await expect(page.locator('.garden-row-meta').first()).toContainText("я.ты.город.");
 });
@@ -140,11 +165,10 @@ test("garden filters verified YouTube feeds by author channel", async ({ page })
 test("garden exposes Gaussian Splatting and sorts in both date directions", async ({ page }) => {
   await page.goto("/garden/");
   await expect(page.locator('[data-garden-sort]')).toHaveValue("newest");
-  if (["tablet", "mobile"].includes(test.info().project.name)) await page.getByRole("button", { name: "Фильтры" }).click();
+  await page.getByRole("button", { name: "Ещё фильтры" }).click();
   await expect(page.locator('[data-topic-filter][value="gaussian-splatting"]')).toBeVisible();
-  await page.locator('[data-topic-filter][value="gaussian-splatting"]').check();
-  await expect(page.locator(".garden-row-topics").first()).toContainText("Gaussian Splatting");
-  if (["tablet", "mobile"].includes(test.info().project.name)) await page.getByRole("button", { name: /Закрыть/ }).click();
+  await page.locator('label:has([data-topic-filter][value="gaussian-splatting"])').click();
+  await expect(page.locator(".garden-filter-chip")).toContainText("Gaussian Splatting");
   await page.locator('[data-garden-sort]').selectOption("oldest");
   await expect(page).toHaveURL(/sort=oldest/);
   const dates = await page.locator(".garden-row-date").evaluateAll((items) => items.map((item) => Date.parse(item.getAttribute("datetime") || "")).filter(Number.isFinite));
@@ -152,10 +176,10 @@ test("garden exposes Gaussian Splatting and sorts in both date directions", asyn
 });
 
 test("Telegram mixed-media threads preserve playable videos in order", async ({ page }) => {
-  await page.goto("/garden/telegram/tg-743/");
+  await page.goto("/garden/telegram/tg-839/");
   await expect(page.locator(".media-gallery img").first()).toBeVisible();
   await expect(page.locator(".media-gallery video").first()).toBeVisible();
-  await expect(page.locator(".media-gallery video").first()).toHaveAttribute("src", /\/media\/telegram\/743-751-8\.mp4/);
+  await expect(page.locator(".media-gallery video").first()).toHaveAttribute("src", /\/media\/telegram\/839-840-1\.mp4/);
 });
 
 test("Telegram Article preserves structured text, media and project causality", async ({ page }, testInfo) => {
@@ -165,6 +189,12 @@ test("Telegram Article preserves structured text, media and project causality", 
   await expect(page.locator(".prose img")).toHaveCount(8);
   await expect(page.locator('.local-graph a[href="/projects/nearventure/"]').first()).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath("telegram-article.png"), fullPage: true });
+  await page.goto("/garden/telegram/tg-1152/");
+  const inlineCarousel = page.locator(".prose [data-media-carousel]").first();
+  await expect(inlineCarousel).toBeVisible();
+  await expect(inlineCarousel.locator("[data-carousel-status]")).toHaveText("1 / 5");
+  await inlineCarousel.locator("[data-carousel-next]").click();
+  await expect(inlineCarousel.locator("[data-carousel-status]")).toHaveText("2 / 5");
 });
 
 test("about and footer expose both media ecosystems", async ({ page }) => {
@@ -174,10 +204,10 @@ test("about and footer expose both media ecosystems", async ({ page }) => {
   }
 });
 
-test("manifesto lives inside the canonical about page", async ({ page }) => {
+test("manifesto has a canonical article route", async ({ page }) => {
   await page.goto("/manifesto/");
-  await expect(page).toHaveURL(/\/about\/#manifesto$/);
-  await expect(page.locator("#manifesto")).toBeVisible();
+  await expect(page).toHaveURL(/\/articles\/manifesto\/$/);
+  await expect(page.getByRole("heading", { name: /манифест/i })).toBeVisible();
 });
 
 test("support page preserves canonical public payment routes", async ({ page }, testInfo) => {
@@ -193,10 +223,24 @@ test("content page has compact local graph with universe handoff", async ({ page
   await page.goto("/projects/albina/");
   const graph = page.locator(".local-graph");
   await expect(graph).toBeVisible();
-  expect(await graph.locator("[data-focus-node]").count()).toBeLessThanOrEqual(32);
+  /* Ring budgets 12 + 20 + 26 plus the current material. */
+  expect(await graph.locator("[data-focus-node]").count()).toBeLessThanOrEqual(59);
   expect(await graph.locator("[data-relation-depth]").count()).toBeLessThanOrEqual(120);
   await expect(graph.locator('a[href="/articles/ai-waifu/"]').first()).toBeVisible();
   await expect(graph.getByRole("link", { name: /Открыть во Вселенной/ })).toHaveAttribute("href", /focus=project%3Aalbina/);
+  const depthButtons = graph.locator("[data-depth-button]");
+  if (await depthButtons.count() > 1) {
+    const visibleAtOne = await graph.locator("[data-focus-node]:not([hidden])").count();
+    await depthButtons.last().click();
+    await expect.poll(() => graph.locator("[data-focus-node]:not([hidden])").count()).toBeGreaterThan(visibleAtOne);
+  }
+});
+
+test("privacy page explains optional analytics and exposes the footer route", async ({ page }) => {
+  await page.goto("/privacy/");
+  await expect(page.getByRole("heading", { name: "Конфиденциальность" })).toBeVisible();
+  await expect(page.getByText(/только после вашего явного согласия/)).toBeVisible();
+  await expect(page.locator('a[href="/privacy/"]').last()).toBeVisible();
 });
 
 test("fullscreen universe is separate, interactive and sound is opt-in", async ({ page }, testInfo) => {

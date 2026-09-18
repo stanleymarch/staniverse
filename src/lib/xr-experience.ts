@@ -80,35 +80,115 @@ export function nextArPlacementState(current: ArPlacementState, event: ArPlaceme
 }
 
 /**
- * Boundary for an optional self-hosted iOS adapter. An 8th Wall engine binary
- * with a real camera/SLAM implementation must be loaded by the host app here.
- * This site deliberately has no fake camera overlay or simulated tracking.
+ * One state, published as `data-experience-state`, for the whole route: the loader, the screen
+ * session and the AR session all report through it, so the overlay never has to guess what is
+ * happening from a dozen flags.
  */
-export interface IosArAdapter {
-  supported(): Promise<boolean>;
-  start(): Promise<void>;
-  stop(): void;
+export type ExperienceState = "loading" | "exploring" | "searching" | "ready" | "placed" | "lost" | "error";
+export type ExperienceEvent = "loaded" | "failed";
+
+/** The loader only ever leaves `loading` once, and `error` is terminal: a late chunk cannot undo either. */
+export function nextExperienceState(current: ExperienceState, event: ExperienceEvent): ExperienceState {
+  if (event === "failed") return "error";
+  return current === "loading" ? "exploring" : current;
 }
 
-export type IosArPrerequisite = "https" | "camera" | "webgl" | "wasm-simd" | "device-orientation" | "iphone-or-ipad";
-
-export interface IosArCapabilities {
-  secureContext: boolean;
-  camera: boolean;
-  webgl: boolean;
-  wasmSimd: boolean;
-  deviceOrientation: boolean;
-  iosDevice: boolean;
+/** AR placement states projected onto the route state; the screen modes are simply `exploring`. */
+export function experienceStateForAr(state: ArPlacementState): ExperienceState {
+  if (state === "searching") return "searching";
+  if (state === "ready") return "ready";
+  if (state === "placed") return "placed";
+  if (state === "lost" || state === "lost-placed") return "lost";
+  return "exploring";
 }
 
-/** Explicit hardware gate for the optional 8th Wall SLAM spike; desktop can verify only SDK loading. */
-export function missingIosArPrerequisites(capabilities: IosArCapabilities): IosArPrerequisite[] {
-  const missing: IosArPrerequisite[] = [];
-  if (!capabilities.secureContext) missing.push("https");
-  if (!capabilities.camera) missing.push("camera");
-  if (!capabilities.webgl) missing.push("webgl");
-  if (!capabilities.wasmSimd) missing.push("wasm-simd");
-  if (!capabilities.deviceOrientation) missing.push("device-orientation");
-  if (!capabilities.iosDevice) missing.push("iphone-or-ipad");
-  return missing;
+export interface XrCapabilities {
+  /** `"xr" in navigator`. */
+  xrSystem: boolean;
+  immersiveVr: boolean;
+  immersiveAr: boolean;
+}
+
+export interface XrOffer {
+  vr: boolean;
+  ar: boolean;
+  /** The single non-immersive experience: a camera-free touch-3D view of the same graph. */
+  screen: "touch-3d";
+}
+
+/**
+ * Which immersive modes the overlay may offer. The decision reads the two `isSessionSupported`
+ * answers and nothing else — no user-agent sniffing, no camera probe, no vendor SDK — so a device
+ * that has no `immersive-ar` gets the touch-3D screen mode instead of a camera prompt.
+ */
+export function xrOffer(capabilities: XrCapabilities): XrOffer {
+  const xrSystem = capabilities.xrSystem === true;
+  return {
+    vr: xrSystem && capabilities.immersiveVr === true,
+    ar: xrSystem && capabilities.immersiveAr === true,
+    screen: "touch-3d",
+  };
+}
+
+/** Cumulative travel, in CSS pixels, that turns a press into a look/flight drag. */
+export const GESTURE_DRAG_THRESHOLD_PX = 10;
+/** Minimum footprint of every interactive target, in-scene picks included. */
+export const MIN_TOUCH_TARGET_PX = 44;
+
+export interface GestureTracker {
+  /** Path length travelled since `start`, in CSS pixels. */
+  readonly travelled: number;
+  /** True once the accumulated travel passed the slop threshold. */
+  readonly dragged: boolean;
+  start(x: number, y: number): void;
+  /** Records one pointer sample and reports whether the gesture is now a drag. */
+  move(x: number, y: number): boolean;
+  reset(): void;
+}
+
+/**
+ * Tap-versus-drag tracker. Judging each sample on its own lets a slow, high-frequency drag read as
+ * a tap and select a star by accident; accumulating the whole path since the press instead keeps
+ * real drags working and ignores the few pixels of jitter a tap produces.
+ */
+export function createGestureTracker(threshold = GESTURE_DRAG_THRESHOLD_PX): GestureTracker {
+  let travelled = 0;
+  let lastX = 0;
+  let lastY = 0;
+  let active = false;
+  return {
+    get travelled() { return travelled; },
+    get dragged() { return travelled >= threshold; },
+    start(x, y) { active = true; travelled = 0; lastX = x; lastY = y; },
+    move(x, y) {
+      if (!active) return travelled >= threshold;
+      travelled += Math.hypot(x - lastX, y - lastY);
+      lastX = x; lastY = y;
+      return travelled >= threshold;
+    },
+    reset() { active = false; travelled = 0; },
+  };
+}
+
+export interface ScreenTarget {
+  id: string;
+  /** Projected pointer position, in CSS pixels relative to the canvas. */
+  x: number;
+  y: number;
+  visible: boolean;
+}
+
+/**
+ * Fallback for a raycast that missed: the nearest visible star inside one touch target of the
+ * pointer still counts as a hit, so a fingertip does not have to land exactly on a few pixels.
+ */
+export function nearestScreenTarget<T extends ScreenTarget>(targets: readonly T[], x: number, y: number, radius = MIN_TOUCH_TARGET_PX / 2): T | undefined {
+  let best: T | undefined;
+  let bestDistance = radius;
+  for (const target of targets) {
+    if (!target.visible) continue;
+    const distance = Math.hypot(target.x - x, target.y - y);
+    if (distance <= bestDistance) { bestDistance = distance; best = target; }
+  }
+  return best;
 }

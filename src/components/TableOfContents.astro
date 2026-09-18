@@ -1,0 +1,89 @@
+---
+import type { MarkdownHeading } from "astro";
+
+interface Props {
+  headings: MarkdownHeading[];
+  /** Heading levels worth listing; deeper ones are labels, not sections. */
+  minDepth?: number;
+  maxDepth?: number;
+  label?: string;
+}
+
+const { headings, minDepth = 2, maxDepth = 3, label = "Содержание" } = Astro.props;
+const items = headings.filter((heading) => heading.depth >= minDepth && heading.depth <= maxDepth);
+/* Two sections are a paragraph, not a table of contents. */
+const worthListing = items.length >= 3;
+---
+
+{worthListing && (
+  <nav class="toc" aria-labelledby="toc-title" data-toc>
+    <details class="toc__box" open>
+      <summary id="toc-title" class="toc__title">
+        <span>{label}</span>
+        <span class="toc__count" aria-hidden="true">{items.length}</span>
+      </summary>
+      <ol class="toc__list">
+        {items.map((heading) => (
+          <li class:list={["toc__item", heading.depth > minDepth && "is-sub"]}>
+            <a href={`#${heading.slug}`} data-toc-link={heading.slug}>{heading.text}</a>
+          </li>
+        ))}
+      </ol>
+    </details>
+  </nav>
+)}
+
+<script>
+  /* The reader only needs one question answered here: which section am I in?
+     The current section is the last heading that passed under the header. */
+  const toc = document.querySelector<HTMLElement>("[data-toc]");
+  if (toc) {
+    const links = [...toc.querySelectorAll<HTMLAnchorElement>("[data-toc-link]")];
+    const sections = links.flatMap((link) => {
+      const section = document.getElementById(link.dataset.tocLink ?? "");
+      return section ? [{ link, section }] : [];
+    });
+    const header = document.querySelector<HTMLElement>(".site-header");
+    let frame = 0;
+    const paint = () => {
+      frame = 0;
+      const offset = (header?.offsetHeight ?? 64) + 72;
+      let current = "";
+      for (const { section } of sections) if (section.getBoundingClientRect().top <= offset) current = section.id;
+      for (const { link, section } of sections) {
+        const active = section.id === current;
+        link.classList.toggle("is-active", active);
+        if (active) link.setAttribute("aria-current", "location");
+        else link.removeAttribute("aria-current");
+      }
+    };
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(paint);
+    };
+    addEventListener("scroll", schedule, { passive: true });
+    addEventListener("resize", schedule, { passive: true });
+    toc.addEventListener("click", schedule);
+    paint();
+  }
+</script>
+
+<style>
+  .toc { min-width: 0; }
+  .toc__box { border-top: 1px solid var(--line); }
+  .toc__title { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-3); padding: var(--s-3) 0; color: var(--ink); font-size: .82rem; cursor: pointer; list-style: none; }
+  .toc__title::-webkit-details-marker { display: none; }
+  .toc__title::after { color: var(--accent); content: "+"; }
+  .toc__box[open] .toc__title::after { content: "−"; }
+  .toc__count { margin-left: auto; color: var(--ink-2); font-size: .72rem; font-variant-numeric: tabular-nums; }
+  .toc__box[open] .toc__count { margin-right: .4rem; }
+  .toc__list { display: grid; gap: .3rem; margin: 0 0 var(--s-4); padding: 0 0 0 var(--s-1); list-style: none; border-left: 1px solid var(--line); }
+  .toc__item { min-width: 0; }
+  .toc__item.is-sub { padding-left: var(--s-3); }
+  .toc__item a { display: block; padding: .12rem 0 .12rem var(--s-3); color: var(--ink-2); font-size: .8rem; line-height: 1.4; text-decoration: none; text-wrap: pretty; }
+  .toc__item a:hover,
+  .toc__item a:focus-visible { color: var(--ink); }
+  .toc__item a.is-active { color: var(--accent); }
+  @media (prefers-reduced-motion: no-preference) {
+    .toc__item a { transition: color var(--dur-2) var(--ease); }
+  }
+</style>

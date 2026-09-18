@@ -1,0 +1,97 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+
+/* The structural facts stay bound to the Russian entry — status, domains and the
+   update date are read from the collection, never retyped for the translation. */
+const source = (await getCollection("projects")).find((item) => item.data.id === "project:ya-ty-gorod");
+const statusLabels: Record<string, string> = { idea: "Idea", planned: "Planned", development: "In development", active: "Active", paused: "Paused", completed: "Completed", archived: "Archived" };
+const domainLabels: Record<string, string> = { web: "Web", video: "Video", writing: "Writing", community: "Community" };
+const status = source ? statusLabels[source.data.status] ?? source.data.status : "Archived";
+const domains = source?.data.domains.map((domain) => domainLabels[domain] ?? domain) ?? [];
+const updated = source?.data.updated ? new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric" }).format(source.data.updated) : "";
+
+const pageTitle = "я.ты.город. (I. You. City.) — media project about the Kirov region";
+const description = "я.ты.город. (“I. You. City.”) is an authored media project about the cultural and natural wealth of the Kirov region. It existed from 2018 to 2024: from short photo and video publications on YouTube and VK to longreads with 360° panoramas and virtual spaces.";
+const projectJsonLd = {
+  "@type": "CreativeWork",
+  "@id": new URL("/en/projects/ya-ty-gorod/#content", Astro.site).href,
+  url: new URL("/en/projects/ya-ty-gorod/", Astro.site).href,
+  name: "я.ты.город.",
+  alternateName: "I. You. City.",
+  headline: "я.ты.город.",
+  description,
+  inLanguage: "en",
+  author: { "@id": new URL("/#stanislav-ermolenko", Astro.site).href },
+  isPartOf: { "@id": new URL("/#website", Astro.site).href },
+  ...(source?.data.updated ? { dateModified: source.data.updated.toISOString() } : {}),
+};
+---
+<Base title={pageTitle} description={description} lang="en" jsonLd={projectJsonLd}>
+  <article class="entry-shell">
+    <header class="entry-hero">
+      <div class="entry-hero-meta"><span class="section-kicker">Own project · {status}</span></div>
+      <h1>я.ты.город.</h1>
+      <p class="entry-summary">{description}</p>
+      <dl class="work-facts">
+        <div><dt>Status</dt><dd>{status}</dd></div>
+        <div><dt>Domains</dt><dd>{domains.join(" · ")}</dd></div>
+        {updated && <div><dt>Updated</dt><dd>{updated}</dd></div>}
+      </dl>
+    </header>
+    <div class="prose">
+      <h2>The essence</h2>
+      <p>An authored media project about the cultural and natural wealth of the Kirov region. It existed from 2018 to 2024 — from short photo and video publications on <a href="https://youtube.com/@yatygorod">YouTube</a> and <a href="https://vk.com/yatygorod">VK</a> to longreads with 360° panoramas and virtual spaces. We filmed cultural and architectural monuments, natural areas and nature reserves, cycling tourism around the region, industrial heritage, and neighbouring towns.</p>
+      <p>A separate and no less important layer is grassroots initiatives: community clean-up days, volunteer actions, festivals that restore the historic environment (including the local Tom Sawyer Fest, which later officially completed the restoration of the Arch of the Vyatka Kremlin — the very object that became the basis for a separate <a href="/works/arka-vyatskogo-kremlya/">digital project</a>), street festivals such as &ldquo;Nature in the City&rdquo;, and public spaces that residents made themselves. The project did not simply show the territory — it was part of what was happening on that territory.</p>
+
+      <h2>Key works</h2>
+      <p><strong>Documentary film &ldquo;Kirov Urban Forum: from ideas to results&rdquo;</strong><br />
+      A report on urbanism featuring leading Russian urbanists and the head of the Kirov city administration.<br />
+      <a href="https://www.youtube.com/watch?v=JEcMoYVeAFk">Watch on YouTube</a> · <a href="https://1istochnik.ru/news/75089">About the film in the media</a></p>
+      <p><strong>One-hour interview film &ldquo;Kirov: don&rsquo;t put up with it, change it&rdquo;</strong><br />
+      A conversation with activists who are changing the city. The premiere took place on 30 September 2020 at the &ldquo;Boiling Point&rdquo; coworking space of VyatSU.<br />
+      <a href="https://www.youtube.com/watch?v=ELDl2_hnIl0">Watch on YouTube</a> · <a href="https://www.vyatsu.ru/internet-gazeta/smirit-sya-nel-zya-izmenit.html">About the premiere on the VyatSU website</a> · <a href="https://vkvideo.ru/video-179999256_456239117">Recording of the presentation and discussion at &ldquo;Boiling Point&rdquo;</a></p>
+
+      <h2>Production</h2>
+      <p>Production inside the project was a full cycle: idea, shooting, editing, text editing, publication and linking with the site. Some materials lived on YouTube, some on the site as longreads and photo reports, some worked in the logic of archiving and future reuse: travel videos, footage of nature, small towns, architecture and local events, aerial shooting on a DJI Mini 2. Later ideas about 360° video, XR and digital twins of a territory grew out of this practice. The case &ldquo;Production for я.ты.город.&rdquo; no longer lives separately in the portfolio: it describes work inside the project itself.</p>
+
+      <h2>Project website</h2>
+      <p>The WordPress site was not an auxiliary app for social media but the archival and content foundation of the project: a multi-page resource with longreads, photo stories and video that gathered long texts and turned scattered publications into a coherent authored medium — almost a museum function for testimonies of trips and local stories. In May 2025 the resource was closed as a legacy site: I did not want to keep paying for an expensive shared hosting plan and maintaining WordPress for a small amount of traffic. The case &ldquo;Website for the я.ты.город. project&rdquo; no longer lives separately in the portfolio either: its story continued with the revival of the site described below.</p>
+
+      <h2>Achievements</h2>
+      <ul>
+        <li>Winner of the regional &ldquo;MediaMaster-2019&rdquo; competition (blogger of the year, Kirov) — <a href="https://www.vyatsu.ru/internet-gazeta/nashi-novosti/komanda-proekta-ya-tyi-gorod-rasskazala-o-rabote-n.html">confirmation on the VyatSU website</a></li>
+        <li>Finalist in &ldquo;Best student media project&rdquo; — International Forum &ldquo;Space of Eurasia&rdquo; (Moscow, 2019)</li>
+        <li>Shortlisted for the VmesteMedia.University competition (2018)</li>
+        <li>Recognised repeatedly at student media competitions: &ldquo;University&rdquo; (<a href="https://mediauniversity.ru/novosti-universiti/itogi-konkursa-universiti-2020/">2020 competition results</a>, best project host — Karina Aloyan), &ldquo;Space of Eurasia&rdquo; (<a href="https://kirov.online/nauka-i-obrazovanie-v-gorode/studentka-vatgu-lucsij-videobloger-evrazii">best video blogger</a>)</li>
+      </ul>
+
+      <h2>Role</h2>
+      <p>Author, producer, editor and site developer. I came up with the topics and the general direction, shot video and photos (including aerial footage), did the editing and packaging of episodes, wrote texts and assembled longreads.</p>
+
+      <h2>Stack</h2>
+      <ul>
+        <li>YouTube, VK — distribution</li>
+        <li>DaVinci Resolve — editing</li>
+        <li>Photoshop, Lightroom — photo processing</li>
+        <li>Tilda — landing pages and special projects</li>
+        <li>WordPress — the site, longreads and photo stories</li>
+        <li>DJI Mini 2 — aerial shooting</li>
+      </ul>
+
+      <h2>Result</h2>
+      <p>The project gathered a library of video, photo and text about the Kirov region. If you treat a territory attentively, it stops being a &ldquo;province for its own people&rdquo; and starts to sound like cultural material that can live for a long time. The archive and the skills became the foundation for MetaVyatka and other projects.</p>
+
+      <h2>Revival of the site</h2>
+      <p>In 2026 the site <a href="https://yatygorod.ru">yatygorod.ru</a> was restored — rebuilt on <a href="https://astro.build">Astro</a> and hosted on GitLab Pages. The project archive is now available as a static site with the whole structure of the materials preserved.</p>
+
+      <h2>Links</h2>
+      <ul>
+        <li><a href="https://youtube.com/@yatygorod">https://youtube.com/@yatygorod</a></li>
+        <li><a href="https://vk.com/yatygorod">https://vk.com/yatygorod</a></li>
+      </ul>
+
+      <p class="entry-original"><a class="text-link" href="/projects/ya-ty-gorod/">Original (Russian) →</a></p>
+    </div>
+  </article>
+</Base>

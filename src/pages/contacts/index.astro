@@ -1,50 +1,77 @@
 ---
 import Base from "../../layouts/Base.astro";
 ---
-<Base title="Контакты" description="Как связаться со Станиславом Ермоленко: почта, Telegram-канал, YouTube и социальные сети.">
+<Base title="Контакты" description="Как связаться со Станиславом Ермоленко: почта, Telegram, YouTube и соцсети. XR и WebXR, AI-автоматизация, цифровые архивы и медиа — для бизнеса, музеев и культурных проектов." pageType="ContactPage">
   <header class="catalog-hero">
     <div class="section-kicker">Связь</div>
     <h1>Контакты</h1>
     <p class="hero-lead">Проще всего написать на почту или в Telegram. Читаю всё сам, отвечаю по мере сил — обычно в течение пары дней.</p>
   </header>
-  <section class="section" aria-label="Способы связи">
+  <section class="section" aria-labelledby="channels-title">
+    <div class="section-head"><div><div class="section-kicker">Каналы</div><h2 id="channels-title">Куда написать</h2></div></div>
     <div class="card-grid">
       <a class="content-card" href="mailto:stas@staniverse.xyz">
         <div class="card-meta"><span>Почта</span></div>
-        <h2>stas@staniverse.xyz</h2>
+        <h3>stas@staniverse.xyz</h3>
         <p>Для предложений, вопросов и всего, что требует текста подлиннее.</p>
         <span class="card-arrow" aria-hidden="true">↗</span>
       </a>
       <a class="content-card" href="https://t.me/staniverse" target="_blank" rel="noreferrer">
         <div class="card-meta"><span>Канал</span></div>
-        <h2>Telegram · @staniverse</h2>
+        <h3>Telegram · @staniverse</h3>
         <p>Основной живой дневник: XR, ИИ-агенты, город и процесс работы. Личные сообщения открыты.</p>
         <span class="card-arrow" aria-hidden="true">↗</span>
       </a>
       <a class="content-card" href="https://www.youtube.com/@staniverse" target="_blank" rel="noreferrer">
         <div class="card-meta"><span>Видео</span></div>
-        <h2>YouTube · @staniverse</h2>
+        <h3>YouTube · @staniverse</h3>
         <p>Разборы, впечатления от шлемов и заметки из виртуальных миров.</p>
         <span class="card-arrow" aria-hidden="true">↗</span>
       </a>
       <a class="content-card" href="https://www.youtube.com/@yatygorod" target="_blank" rel="noreferrer">
         <div class="card-meta"><span>Городской проект</span></div>
-        <h2>YouTube · я.ты.город.</h2>
+        <h3>YouTube · я.ты.город.</h3>
         <p>Видеозарисовки о городской среде и локальной истории — архив проекта.</p>
         <span class="card-arrow" aria-hidden="true">↗</span>
       </a>
       <a class="content-card" href="https://vk.com/staniverse" target="_blank" rel="noreferrer">
         <div class="card-meta"><span>Соцсеть</span></div>
-        <h2>VK · staniverse</h2>
+        <h3>VK · staniverse</h3>
         <p>Дубль основных публикаций для тех, кто живёт там.</p>
-        <span class="card-arrow" aria-hidden="true">↗</span>
-      </a>
-      <a class="content-card" href="/donate/">
-        <div class="card-meta"><span>Поддержка</span></div>
-        <h2>Поддержать работу</h2>
-        <p>Если архив и опыты приносят пользу — есть страница поддержки.</p>
         <span class="card-arrow" aria-hidden="true">↗</span>
       </a>
     </div>
   </section>
+  <section class="section brief" aria-labelledby="brief-title">
+    <div class="section-head"><div><div class="section-kicker">Что написать</div><h2 id="brief-title">Письма, на которые легко ответить</h2></div></div>
+    <div class="brief-grid">
+      <article><h3>Задача</h3><p>Что нужно сделать и как выглядит результат: процесс, который пора автоматизировать, XR-опыт, архив, сайт, съёмка.</p></article>
+      <article><h3>Контекст</h3><p>Кто вы и где это будет жить: компания, музей, культурный проект, учреждение или собственный эксперимент.</p></article>
+      <article><h3>Сроки и рамки</h3><p>Когда нужен результат и в какие ограничения нужно попасть — если они уже понятны.</p></article>
+      <article><h3>Ссылки и материалы</h3><p>Текущий сайт, прототип, референсы: всё, что помогает понять задачу без переписки на неделю.</p></article>
+    </div>
+    <p class="brief-note">Пишите своими словами, без брифа на десять страниц — уточняющие вопросы задам сам. Если задача не моя, скажу об этом прямо.</p>
+  </section>
 </Base>
+
+<style>
+  /* Local composition only: the brief reuses the shared 12/6/4 grid, type
+     scale and lines, so nothing here needs a palette of its own. */
+  .brief-grid {
+    display: grid;
+    grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr));
+    gap: var(--s-4) var(--s-3);
+  }
+  .brief-grid article {
+    grid-column: span 3;
+    padding-top: var(--s-3);
+    border-top: 1px solid var(--line);
+  }
+  .brief-grid h3 { margin: 0 0 var(--s-2); font: 500 var(--text-h3) / 1.3 var(--font-display); }
+  .brief-grid p { margin: 0; color: var(--ink-2); font-size: .9rem; line-height: 1.6; }
+  .brief-note { max-width: 52rem; margin: var(--s-4) 0 0; color: var(--ink-2); font-size: .9rem; }
+
+  @media (max-width: 700px) {
+    .brief-grid article { grid-column: 1 / -1; }
+  }
+</style>

@@ -14,17 +14,36 @@ const pluralRu = (count: number, one: string, few: string, many: string) => {
 };
 const catalogue = `${nodeCount} ${pluralRu(nodeCount, "узел", "узла", "узлов")} · ${edgeCount} ${pluralRu(edgeCount, "связь", "связи", "связей")}`;
 ---
-
-<section class:list={["universe-page", embedded && "universe-embedded"]} data-universe data-embedded={embedded ? "true" : undefined} data-graph={JSON.stringify(graph)}>
+<!--
+  Two stable regions, never a pile of floating panels: identity, mode and sound live in the top
+  strip, every control lives in the bottom dock. The scene keeps its own state in
+  `data-experience-state`, so the loader, the screen session and an AR session all read the same way.
+-->
+<section
+  class:list={["universe-page", embedded && "universe-embedded"]}
+  data-universe
+  data-embedded={embedded ? "true" : undefined}
+  data-graph={JSON.stringify(graph)}
+  data-experience-state="loading"
+>
   <canvas class="universe-canvas" tabindex="0" aria-label="Пространственный граф связей Staniverse" aria-describedby="universe-help"></canvas>
   <div class="universe-ui">
+    <div class="universe-loading" data-experience-layer role="status" aria-live="polite" hidden>
+      <span class="universe-loading-orbit" aria-hidden="true"><i></i><i></i><i></i></span>
+      <p class="universe-loading-message" data-experience-message>Загружаю созвездие…</p>
+    </div>
     {!embedded && (
-      <div class="universe-top" aria-label="Управление вселенной">
+      <header class="universe-top" aria-label="Управление вселенной">
         <div class="universe-top-row">
           <a class="universe-logo" href="/" aria-label="Вернуться на главную">
             <span class="universe-logo-mark" aria-hidden="true"></span>
-            <span class="universe-logo-name">← станивёрс</span>
+            <span class="universe-logo-name">← Staniverse</span>
           </a>
+          <p class="universe-mode">
+            <span class="xr-status" data-xr-status>Проверяю режим…</span>
+            <span class="xr-status" data-xr-vr-status>VR — проверка</span>
+            <span class="xr-status" data-xr-ar-status>AR — проверка</span>
+          </p>
           <div class="universe-actions" data-universe-actions>
             <button class="icon-button" type="button" data-sound aria-pressed="false">Звук: выкл</button>
             <div class="audio-signal" data-audio-signal aria-hidden="true">
@@ -34,40 +53,17 @@ const catalogue = `${nodeCount} ${pluralRu(nodeCount, "узел", "узла", "�
             </div>
           </div>
         </div>
-        <details class="universe-tools">
-          <summary>Управление</summary>
-          <div class="universe-tool-panel">
-            <label class="node-search"><span class="sr-only">Найти узел</span><input data-node-search type="search" list="universe-nodes" placeholder="Найти узел…" autocomplete="off" /></label>
-            <datalist id="universe-nodes">{graph.nodes.map((node) => <option value={node.title} />)}</datalist>
-            <div class="universe-tool-actions">
-              <button class="icon-button" type="button" data-history-back disabled>Предыдущий выбор</button>
-              <button class="icon-button" type="button" data-reset>Сбросить вид</button>
-            </div>
-            <div class="universe-status">
-              <span class="xr-status" data-xr-status>Проверяю XR…</span>
-              <span class="xr-status" data-xr-vr-status>VR — проверка</span>
-              <span class="xr-status" data-xr-ar-status>AR — проверка</span>
-            </div>
-            <details class="universe-fallback"><summary>Доступный список узлов</summary><ol class="universe-node-list" data-node-list>{graph.nodes.map((node) => <li><button type="button" data-node-id={node.id}>{node.title}</button><span>{node.kind}</span></li>)}</ol></details>
-          </div>
-        </details>
-      </div>
+      </header>
     )}
-    <nav class="universe-ar-actions" data-ar-actions aria-label="Размещение созвездия в дополненной реальности">
-      <button class="icon-button" type="button" data-ar-place disabled>Разместить</button>
-      <button class="icon-button" type="button" data-ar-relocate disabled>Перенести</button>
-      <button class="icon-button" type="button" data-ar-relocate-cancel hidden>Отмена</button>
-      <button class="icon-button" type="button" data-ar-scale-down data-ar-adjust disabled aria-label="Уменьшить созвездие">−</button>
-      <button class="icon-button" type="button" data-ar-scale-up data-ar-adjust disabled aria-label="Увеличить созвездие">+</button>
-      <button class="icon-button" type="button" data-ar-rotate data-ar-adjust disabled>Повернуть</button>
-    </nav>
     <section class="universe-intro" data-intro>
       <div class="intro-head">
-        <span class="section-kicker">{embedded ? "живая карта связей" : "карта станивёрса"}</span>
+        <span class="section-kicker">Живая карта связей</span>
         <span class="intro-readout">{catalogue}</span>
       </div>
-      <IntroHeading>{embedded ? "Карта связей" : "Вселенная"}</IntroHeading>
-      <p class="intro-note">Тяните мышью или пальцем — осмотритесь. Нажмите на звезду, чтобы открыть её контекст; повторный выбор или «Закрыть» вернёт всю карту без перемещения камеры.</p>
+      <IntroHeading>{embedded ? "Карта связей" : "Летай между идеями"}</IntroHeading>
+      <p class="intro-note">{embedded
+        ? "Тяните мышью или пальцем — осмотритесь. Нажмите на звезду, чтобы открыть её контекст; повторный выбор или «Закрыть» вернёт всю карту без перемещения камеры."
+        : "Космос из ваших материалов: тяните — обзор, тап по звезде — контекст и живые связи, колесо или пинч — дистанция."}</p>
       <dl class="flight-keys" id="universe-help">
         <div><dt>обзор</dt><dd>мышь · палец</dd></div>
         <div><dt>ход</dt><dd>W A S D</dd></div>
@@ -76,7 +72,31 @@ const catalogue = `${nodeCount} ${pluralRu(nodeCount, "узел", "узла", "�
       </dl>
       {embedded && <a class="button intro-cta" href="/universe/">Открыть Вселенную ↗</a>}
     </section>
-    <div class="flight-joystick" data-flight-joystick aria-label="Виртуальный джойстик"><span data-joystick-knob></span><small>ход</small></div>
+    <div class="universe-dock" data-universe-dock aria-label="Управление картой">
+      <div class="flight-joystick" data-flight-joystick aria-label="Виртуальный джойстик"><span data-joystick-knob></span><small>ход</small></div>
+      <label class="node-search"><span class="sr-only">Найти узел</span><input data-node-search type="search" list="universe-nodes" placeholder="Найти узел…" autocomplete="off" /></label>
+      <datalist id="universe-nodes">{graph.nodes.map((node) => <option value={node.title} />)}</datalist>
+      <nav class="universe-ar-actions" data-ar-actions aria-label="Размещение созвездия в дополненной реальности">
+        <button class="icon-button" type="button" data-ar-place disabled>Разместить</button>
+        <button class="icon-button" type="button" data-ar-relocate disabled>Перенести</button>
+        <button class="icon-button" type="button" data-ar-relocate-cancel hidden>Отмена</button>
+        <button class="icon-button" type="button" data-ar-scale-down data-ar-adjust disabled aria-label="Уменьшить созвездие">−</button>
+        <button class="icon-button" type="button" data-ar-scale-up data-ar-adjust disabled aria-label="Увеличить созвездие">+</button>
+        <button class="icon-button" type="button" data-ar-rotate data-ar-adjust disabled>Повернуть</button>
+      </nav>
+      {!embedded && (
+        <details class="universe-tools">
+          <summary>Управление</summary>
+          <div class="universe-tool-panel">
+            <div class="universe-tool-actions">
+              <button class="icon-button" type="button" data-history-back disabled>Назад</button>
+              <button class="icon-button" type="button" data-reset>Сбросить вид</button>
+            </div>
+            <details class="universe-fallback"><summary>Доступный список узлов</summary><ol class="universe-node-list" data-node-list>{graph.nodes.map((node) => <li><button type="button" data-node-id={node.id}>{node.title}</button><span>{node.kind}</span></li>)}</ol></details>
+          </div>
+        </details>
+      )}
+    </div>
     <aside class="node-card" data-node-card aria-label="Выбранный узел" aria-live="polite" hidden>
       <div class="node-head"><span class="section-kicker" data-node-kind></span><button class="node-close" type="button" data-node-close aria-label="Закрыть выбранную звезду">Закрыть</button></div>
       <h2 data-node-title></h2>

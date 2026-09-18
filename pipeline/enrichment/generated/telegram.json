@@ -126,7 +126,7 @@
     },
     {
       "id": "publication:telegram:staniverse:11",
-      "textHash": "31f3eae00c89c68857966a4bc7baa8f4ad64b7eb4a522a0dd54ddcbd9a954f36",
+      "textHash": "9b2cf6d63ecfc12c256043931b52bbc2da13c54d0203d77be9d92ff91ebe6fe2",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -135,6 +135,7 @@
       "topics": [
         "видео и продакшн",
         "город и наследие",
+        "киров/вятка",
         "путешествия"
       ],
       "entities": [],
@@ -197,7 +198,7 @@
     },
     {
       "id": "publication:telegram:staniverse:17",
-      "textHash": "ab7788980c024ad396b25fa901f94dcdb6b4724c567514d9f5fdb2e70fa296ee",
+      "textHash": "43147f93246ea0f8b5f0f3df5d304b2a20a7c1c5a1914286e03cd55c2ae3d56a",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -255,6 +256,7 @@
       "summary": "",
       "topics": [
         "искусственный интеллект",
+        "киров/вятка",
         "музыка и звук"
       ],
       "entities": [],
@@ -306,7 +308,7 @@
     },
     {
       "id": "publication:telegram:staniverse:39",
-      "textHash": "3aa2159a6ab037c24af6383a719a8b24918e1a6d359daf20d4c239358dac8470",
+      "textHash": "d2a07b8ad3e816b947fc1fa3eba7326d239ff8e9b5ba7542c6e821258309d707",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -334,7 +336,7 @@
     },
     {
       "id": "publication:telegram:staniverse:44",
-      "textHash": "345d8a197a20de0982f15560684640f603e3bc25bacf5014391a1e0dfb1bbf59",
+      "textHash": "04e98b41ec26d258c3d5d3b0712505cc04d9e47f73f375ae995070aa1a1de34f",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -351,7 +353,7 @@
     },
     {
       "id": "publication:telegram:staniverse:46",
-      "textHash": "37ef1edcf9670177d7335947e98357e9fe7bbbd41dc03d341cdf2d5a7ba25497",
+      "textHash": "32c90c2dfb238c8fbac533d69dc1124890be7d2ac8e653ba0c2b6f0954a09b1f",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -380,7 +382,7 @@
     },
     {
       "id": "publication:telegram:staniverse:48",
-      "textHash": "37eb626167f72ae4ff16a026b3c04b0c9e240db0b5f54b58d73444f69595fc73",
+      "textHash": "a76cab1fca41b2c662ac7e99e33dfe673c16a24f1f96fdc20d6e75b7bd745a0e",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -431,14 +433,15 @@
     },
     {
       "id": "publication:telegram:staniverse:60",
-      "textHash": "4e0d96e55365b31546fa0cb43e0bf56dc618232e509a9763901a1888ac656de2",
+      "textHash": "f334f687457d4a6b46bdc50718c299a7713f2e8d06b14561f06967400928fa3e",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
       "topics": [
-        "город и наследие"
+        "город и наследие",
+        "киров/вятка"
       ],
       "entities": [],
       "relations": [],
@@ -446,7 +449,7 @@
     },
     {
       "id": "publication:telegram:staniverse:61",
-      "textHash": "1f0100c5e24b5bab0fd46d0e7f5297d04db2dddbe7c07bcdcb018cee8833180d",
+      "textHash": "e7ed80fe70573abd04981e1a22d1e82d72a63092ff574720b7f28c89fe761315",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -459,14 +462,15 @@
     },
     {
       "id": "publication:telegram:staniverse:63",
-      "textHash": "9a8eb41d59206cb99333756a42e878ed36638ce8237ebd37ce0a283a8a1d1b54",
+      "textHash": "eae2666c2ae14c11a0aed1dccd0c935d3bea50bc23b2a0e2cb218ffb435fb904",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
       "topics": [
-        "город и наследие"
+        "город и наследие",
+        "киров/вятка"
       ],
       "entities": [],
       "relations": [],
@@ -481,7 +485,8 @@
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
       "topics": [
-        "город и наследие"
+        "город и наследие",
+        "киров/вятка"
       ],
       "entities": [],
       "relations": [],
@@ -489,7 +494,7 @@
     },
     {
       "id": "publication:telegram:staniverse:65",
-      "textHash": "4408c02881d254e6364b71f064b54b9378c1a2c33afc69891058da05c4bb00d5",
+      "textHash": "d396e3aadb80ee84b028140170b6ff13a8937f762a91feef7ff406314daa993d",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -538,7 +543,7 @@
     },
     {
       "id": "publication:telegram:staniverse:68",
-      "textHash": "4338a451f9340ffa74d26c59c99a90fe545508b0e5eaf4ad8c614dbc071ec937",
+      "textHash": "a085083a739a442978aedf9f1fda2f5bad3355efe000b1e9fd527a3725fc954a",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -547,6 +552,7 @@
       "topics": [
         "3d и пространственные медиа",
         "город и наследие",
+        "киров/вятка",
         "игры"
       ],
       "entities": [],
@@ -594,7 +600,7 @@
     },
     {
       "id": "publication:telegram:staniverse:72",
-      "textHash": "4c773b8b85be6b17393ad8fc90b52f274359c3f66858ed3e73bb82716d08c32a",
+      "textHash": "671d8dfe8adee141c6d58e8a0bd542c4ab387b8c6851329b2faac18816b183e0",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -645,7 +651,7 @@
     },
     {
       "id": "publication:telegram:staniverse:75",
-      "textHash": "398a1602aac067a4899b04fe06976b87a2b86f2debacc24c7d3bc5dddd69156a",
+      "textHash": "0550f7a3303e3ffeeb6d8757ec70c85907c7c715ca3a20847cf1b4ee17c28090",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -664,7 +670,7 @@
     },
     {
       "id": "publication:telegram:staniverse:76",
-      "textHash": "47dee8806da812b2f037369d8edd2a02c172d8d81cd318b18cf0d117c016245c",
+      "textHash": "eb26c10fd5f39197727a5d106fba002def0377b458a02f16edf208ea40de1566",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -683,7 +689,7 @@
     },
     {
       "id": "publication:telegram:staniverse:77",
-      "textHash": "26a6b3be5ad65f958c90b1dfee7207da4768ffe66c9265a706bf787f87e0aeca",
+      "textHash": "cf70681a213a0b09a6d9ffafd4195e6436ecb427d01ecc8e2e95dd10ec04134f",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -696,7 +702,7 @@
     },
     {
       "id": "publication:telegram:staniverse:78",
-      "textHash": "7b98d9ff5f1ead0077e52211914af3a9e5c018abadc08f5fdfc8ea58a08d92b1",
+      "textHash": "3194d64d933b845e42b6f3a8cd85d6d7c006d9098e27d11b988e10ef716af805",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -797,7 +803,7 @@
     },
     {
       "id": "publication:telegram:staniverse:86",
-      "textHash": "02adcf7d10cb92c470d2f121cc13a14d53affb548ce0ac26f9f8ddd0d5edfd02",
+      "textHash": "176a10cd6c13fa7a0878c656773d30939de43c2033019ad6c0edd16ab4d18475",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -830,7 +836,7 @@
     },
     {
       "id": "publication:telegram:staniverse:91",
-      "textHash": "026e6a5d1271dd092bc226780c8f9dfce01da009bed16b6885ed008c73655766",
+      "textHash": "5a738cf88a1d28f2fdc7ae8f432e2c6362dae176c6bb3a4c73f43ebab4c68b40",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -841,6 +847,7 @@
         "llm",
         "образование",
         "город и наследие",
+        "киров/вятка",
         "музыка и звук"
       ],
       "entities": [
@@ -851,7 +858,7 @@
     },
     {
       "id": "publication:telegram:staniverse:92",
-      "textHash": "f7ff207b7d6ce7f6fdf23222e96669e0aeff5cec62265d0a91be13aaaed31060",
+      "textHash": "0a1506b66c453d59ace802aaaaee73c65a03d912c53bb333c394f4156f99736f",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -864,13 +871,14 @@
     },
     {
       "id": "publication:telegram:staniverse:93",
-      "textHash": "d0eeac0b9ba1033ae07a08c69f6c5089776187ec888eb4c08617ce7b8d0e8433",
+      "textHash": "bef8e5fff80cb6665b6f07fff63fe605014326ce2c9b003d370675d959bc2e4f",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
       "topics": [
+        "интим и близость",
         "искусственный интеллект"
       ],
       "entities": [
@@ -911,7 +919,7 @@
     },
     {
       "id": "publication:telegram:staniverse:96",
-      "textHash": "902764486e635b3380df116bcc2d69baec5bfdced8cb4fe2c4823959fcc6257e",
+      "textHash": "aa34556a90fb890038050f4f843117dea6f5535569530ea65e7654b6926643f8",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -946,7 +954,7 @@
     },
     {
       "id": "publication:telegram:staniverse:101",
-      "textHash": "9e0b557583f65f444133f4a25b2bf26bcafb714bf5d0da97fed006b4abeb8f06",
+      "textHash": "6a81f38596048d6d8e87c7ae305ef3562e8086315ac0ac3ae397facf8e34607b",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -983,7 +991,7 @@
     },
     {
       "id": "publication:telegram:staniverse:103",
-      "textHash": "b3166b64e63ab225c65c5aa2d6cd1276efe5134cd61241d78a5388c31b2ced95",
+      "textHash": "033d95a20a2d6c5edd8a0e613858faa0ac2c5a4e14a9eeea77f2f23047c4e022",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -998,7 +1006,7 @@
     },
     {
       "id": "publication:telegram:staniverse:106",
-      "textHash": "7c16273dd878023588098f5386b65824ec9217c18fec0183384d1d820cd8cd24",
+      "textHash": "aa7cf98b70c5c9b4722d49b89bee986f9834c05e4d31e6b83a30079c9fb808b4",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -1007,6 +1015,7 @@
       "topics": [
         "llm",
         "город и наследие",
+        "киров/вятка",
         "музыка и звук"
       ],
       "entities": [
@@ -1030,7 +1039,7 @@
     },
     {
       "id": "publication:telegram:staniverse:108",
-      "textHash": "5ec7884e802361c136d122fca734a118124062f042f7188c88cbbfe42fca77ec",
+      "textHash": "38c29a18a72eec6db499da6ae0e64d37bba92f77b7fa9640befa43d3b7152081",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -1052,14 +1061,16 @@
       "model": "deterministic-v1",
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
-      "topics": [],
+      "topics": [
+        "интим и близость"
+      ],
       "entities": [],
       "relations": [],
       "needsReview": false
     },
     {
       "id": "publication:telegram:staniverse:110",
-      "textHash": "a5551205955d41bb247f36381b67702df79b13eab5bbd1346cb328ca45fdfc5f",
+      "textHash": "c8d033734862033c62588d2d5c894b2f41aef59b5d0149cced5b249c9dea35eb",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -1119,7 +1130,8 @@
       "summary": "",
       "topics": [
         "видео и продакшн",
-        "город и наследие"
+        "город и наследие",
+        "киров/вятка"
       ],
       "entities": [],
       "relations": [],
@@ -1161,6 +1173,7 @@
       "summary": "",
       "topics": [
         "город и наследие",
+        "киров/вятка",
         "игры"
       ],
       "entities": [],
@@ -1200,7 +1213,8 @@
       "summary": "",
       "topics": [
         "видео и продакшн",
-        "город и наследие"
+        "город и наследие",
+        "киров/вятка"
       ],
       "entities": [
         "YouTube"
@@ -1231,6 +1245,7 @@
       "summary": "",
       "topics": [
         "город и наследие",
+        "киров/вятка",
         "общество"
       ],
       "entities": [],
@@ -1315,7 +1330,7 @@
     },
     {
       "id": "publication:telegram:staniverse:137",
-      "textHash": "c17699b3118491da2d20f8d05163f493adffc3b729dd28a5c08eaadc725a2ba1",
+      "textHash": "316a7c156c2a0db6d98c84c6de2c3b27db55912902a01e50f03c15c0e5eec854",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -1362,7 +1377,8 @@
         "llm",
         "3d и пространственные медиа",
         "видео и продакшн",
-        "город и наследие"
+        "город и наследие",
+        "киров/вятка"
       ],
       "entities": [
         "Staniverse",
@@ -1387,7 +1403,7 @@
     },
     {
       "id": "publication:telegram:staniverse:140",
-      "textHash": "330b93f1615189d1cabac2b6f3853df3df89c99069c7f666f22fad0decbf6515",
+      "textHash": "1472984ecfa973c766672ea3e1245764a9972c768c1bf1e83454ea36d7d53da4",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -1417,6 +1433,7 @@
         "xr",
         "3d и пространственные медиа",
         "город и наследие",
+        "киров/вятка",
         "музыка и звук"
       ],
       "entities": [],
@@ -1464,7 +1481,7 @@
     },
     {
       "id": "publication:telegram:staniverse:144",
-      "textHash": "201964ccb9429383c280512248ea4f26c5a0917b356fb05a1b8f49ed031e90bc",
+      "textHash": "9e8b49eb575c1879cdc237ea931c543265f288894e5b32d19c8defd09be87909",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -1482,7 +1499,7 @@
     },
     {
       "id": "publication:telegram:staniverse:145",
-      "textHash": "f818945f3c237fdd6a7f8d6679fea134aa66e617d782c81cf8ede07db804d8aa",
+      "textHash": "dd673aa5a8cf19fcd22632941b78d2e81bf033488faa6722c0d3533e1f12fcbf",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -1501,7 +1518,7 @@
     },
     {
       "id": "publication:telegram:staniverse:153",
-      "textHash": "5d57e1dcd85937546e5a9d07a385454490ac0748c544e579c2a608a8011d19a9",
+      "textHash": "ff306a7c22ed81a2295d3f78953d1b7e9d7576e9580f3a22d9024eba62d6d35b",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -1547,7 +1564,7 @@
     },
     {
       "id": "publication:telegram:staniverse:156",
-      "textHash": "17fde873ea62826b8c7a5f413d389f9887fc847445dd4877ec03bc58d4c0b4c0",
+      "textHash": "4d09632011dfed359a2b5390c28c504abc520fbf10f6191c7c3950bdaf8f2fd5",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -1575,6 +1592,7 @@
         "llm",
         "xr",
         "город и наследие",
+        "киров/вятка",
         "технологии",
         "общество"
       ],
@@ -1595,6 +1613,7 @@
       "topics": [
         "видео и продакшн",
         "город и наследие",
+        "киров/вятка",
         "путешествия",
         "игры",
         "общество"
@@ -1649,13 +1668,14 @@
     },
     {
       "id": "publication:telegram:staniverse:167",
-      "textHash": "3e283795f32143f7a450c593df0ff500b02b1098309e5946bb75e8f28f9bc23a",
+      "textHash": "973233f0e362b4cb0e8c4b32de2949e61abef556dcd4d6bceca7154343f81b97",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
       "topics": [
+        "интим и близость",
         "искусственный интеллект",
         "агенты и автоматизация",
         "игры",
@@ -1745,7 +1765,8 @@
       "summary": "",
       "topics": [
         "искусственный интеллект",
-        "город и наследие"
+        "город и наследие",
+        "киров/вятка"
       ],
       "entities": [],
       "relations": [],
@@ -1759,9 +1780,7 @@
       "model": "deterministic-v1",
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
-      "topics": [
-        "город и наследие"
-      ],
+      "topics": [],
       "entities": [
         "Staniverse"
       ],
@@ -1784,7 +1803,8 @@
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
       "topics": [
-        "город и наследие"
+        "город и наследие",
+        "киров/вятка"
       ],
       "entities": [],
       "relations": [],
@@ -1840,7 +1860,7 @@
     },
     {
       "id": "publication:telegram:staniverse:180",
-      "textHash": "2c8e3730080e2fe50a7ab124d4a38a703f4748a77355d1b8f1690ab24001cfc4",
+      "textHash": "30ca841b0ce316029f6de05485e53bdcacc0993b19648afc5c29f72895059ef0",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -1936,7 +1956,7 @@
     },
     {
       "id": "publication:telegram:staniverse:212",
-      "textHash": "574677490c4c29f490c3472fc1d23f37abbf91931945447bb19f374dbb2323f0",
+      "textHash": "f54c292b484f97ddb59870f8792b20964017f4fa5548b5794580960d9e06e45b",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -2008,7 +2028,8 @@
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
       "topics": [
-        "город и наследие"
+        "город и наследие",
+        "киров/вятка"
       ],
       "entities": [
         "Telegram"
@@ -2018,7 +2039,7 @@
     },
     {
       "id": "publication:telegram:staniverse:218",
-      "textHash": "b5f0ba161a5e80c4c482f68c2b5b67e1a94d867202a0d05177d777aee79036c0",
+      "textHash": "b4be773b93914606911dfdcd77cbd8e096837c10b9ad78c245c735fe614247d8",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -2052,7 +2073,7 @@
     },
     {
       "id": "publication:telegram:staniverse:220",
-      "textHash": "73fb6c9f3334295709a5829e94b85d4e78c93f11fc0c629c71b39867e0eaee26",
+      "textHash": "a583db37e24045173903a1f7b2b8eb9b1ff6a563ae3000f86ec382d434277a50",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -2119,7 +2140,6 @@
         "искусственный интеллект",
         "3d и пространственные медиа",
         "образование",
-        "город и наследие",
         "игры",
         "общество"
       ],
@@ -2150,7 +2170,7 @@
     },
     {
       "id": "publication:telegram:staniverse:226",
-      "textHash": "72c1d3c81b38dece03c7c29369ecf9f774f49f6fee4d337b482053158066190a",
+      "textHash": "a93043f526259a0eeac501ee16b25b8470252e7c3cdaa64048de96d7c5fc2ca5",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -2388,7 +2408,8 @@
       "summary": "",
       "topics": [
         "видео и продакшн",
-        "город и наследие"
+        "город и наследие",
+        "киров/вятка"
       ],
       "entities": [],
       "relations": [],
@@ -2427,10 +2448,12 @@
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
       "topics": [
+        "интим и близость",
         "искусственный интеллект",
         "llm",
         "образование",
         "город и наследие",
+        "киров/вятка",
         "путешествия",
         "музыка и звук",
         "технологии"
@@ -2465,7 +2488,8 @@
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
       "topics": [
-        "город и наследие"
+        "город и наследие",
+        "киров/вятка"
       ],
       "entities": [],
       "relations": [],
@@ -2486,7 +2510,7 @@
     },
     {
       "id": "publication:telegram:staniverse:255",
-      "textHash": "4518d5a3aa47962876ed62bbbe800e9153c9db3640d32d84c8bc13978302710d",
+      "textHash": "e52df6552c41e4d6a10e96f4167e04feb9d4bbc5dca20f67ee54c5ea0e8afe96",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -2494,6 +2518,7 @@
       "summary": "",
       "topics": [
         "ai-компаньоны",
+        "интим и близость",
         "искусственный интеллект",
         "llm",
         "технологии"
@@ -2504,7 +2529,7 @@
     },
     {
       "id": "publication:telegram:staniverse:256",
-      "textHash": "5d999866c77b997d52fe16ebc1e145938783c6fc11e8df6dd6586b9901fcf5c2",
+      "textHash": "c9d5fe1d3bb79f851448d7e5438fea5c3f7833c01c3f896148e1bc06b3bfae56",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -2513,7 +2538,8 @@
       "topics": [
         "xr",
         "образование",
-        "город и наследие"
+        "город и наследие",
+        "киров/вятка"
       ],
       "entities": [
         "Метавятка"
@@ -2530,13 +2556,14 @@
     },
     {
       "id": "publication:telegram:staniverse:257",
-      "textHash": "dcf2074f4052db7a61f279d81ea94f8da197088c930cea07d5a69ea481d8ab71",
+      "textHash": "7b13ff091cd3030a377fc67c6ecfb0bfe7c77d344a3047544d08652390df8973",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
       "topics": [
+        "интим и близость",
         "искусственный интеллект",
         "видео и продакшн"
       ],
@@ -2563,7 +2590,7 @@
     },
     {
       "id": "publication:telegram:staniverse:259",
-      "textHash": "544d38b18478f21d12a0c55bc79e4b118e6096ed759995cf05682950435c8b14",
+      "textHash": "ba64eb5f24d3c780fd08ed8083914b6f7d9093c658690a376722d30afd3aed5d",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -2578,7 +2605,7 @@
     },
     {
       "id": "publication:telegram:staniverse:260",
-      "textHash": "5193b32b1fb0d6c288a1968e79b5fd3ef0745807a4b38009cc30d43e7120c557",
+      "textHash": "c300727a51d831211b563393ec26647f71219d09e90cd1c542838a4a5ddb9b17",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -2591,14 +2618,15 @@
     },
     {
       "id": "publication:telegram:staniverse:261",
-      "textHash": "c79882672d95852141d471eaee435c91b9ae2b0bbb7853226b5210cb9fbb2e0c",
+      "textHash": "465fc59f8246f58b6a84a3dca0d14f03c26ecfbc7c43f7abb190aac8801e1fbf",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
       "topics": [
-        "видео и продакшн"
+        "видео и продакшн",
+        "киров/вятка"
       ],
       "entities": [],
       "relations": [],
@@ -2652,6 +2680,7 @@
         "видео и продакшн",
         "образование",
         "город и наследие",
+        "киров/вятка",
         "общество"
       ],
       "entities": [
@@ -2675,7 +2704,9 @@
       "model": "deterministic-v1",
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
-      "topics": [],
+      "topics": [
+        "киров/вятка"
+      ],
       "entities": [
         "Я, ты, город"
       ],
@@ -2691,7 +2722,7 @@
     },
     {
       "id": "publication:telegram:staniverse:266",
-      "textHash": "5836d2843841fed7fa2891ba3c226c351f5e21667fa7cc5708c8ba0ec062a35c",
+      "textHash": "bbc4e13af9f533414edf20a16b931dcb6153578827acf5a2d018cdda51955b7f",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -2757,7 +2788,7 @@
     },
     {
       "id": "publication:telegram:staniverse:270",
-      "textHash": "747ab7575669430827452f7eb2359122e94bd79e084db65ea8a1e1d960d0dcc2",
+      "textHash": "1d2699e8aab8bdc3e777008e77fa7dffc7435d93298e864c598c01ee2afdfa7f",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -2766,32 +2797,9 @@
       "topics": [
         "образование",
         "город и наследие",
+        "киров/вятка",
         "музыка и звук",
-        "технологии"
-      ],
-      "entities": [
-        "Staniverse"
-      ],
-      "relations": [
-        {
-          "targetId": "project:staniverse",
-          "type": "mentions",
-          "explanation": "Точное упоминание «Staniverse» в исходном тексте.",
-          "confidence": 0.98
-        }
-      ],
-      "needsReview": false
-    },
-    {
-      "id": "publication:telegram:staniverse:271",
-      "textHash": "cad2c9bc68930df251426723c90af36514c33b9c15a51e7ce2c7da4c2e8203ce",
-      "promptVersion": "staniverse-local-topology-v1",
-      "provider": "local-rules",
-      "model": "deterministic-v1",
-      "createdAt": "1970-01-01T00:00:00.000Z",
-      "summary": "",
-      "topics": [
-        "музыка и звук",
+        "технологии",
         "общество"
       ],
       "entities": [
@@ -2809,7 +2817,7 @@
     },
     {
       "id": "publication:telegram:staniverse:272",
-      "textHash": "b4a194914861e0479e7b31f5ecc96b94c2cea63e3b7a4b9be4d6c2354776138b",
+      "textHash": "dc7187f2e123fffcad1ca5453cad7f780d30e1f63c4f8992f59e8474c69a02d9",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -2840,7 +2848,7 @@
     },
     {
       "id": "publication:telegram:staniverse:274",
-      "textHash": "952d7c6950caa28008675b62680f4bd2d85f2ad17f201c18032d842aa865b88b",
+      "textHash": "45154bfd606be140d616d580e5466845ba15034bd8d7b905cd10a5a221f42fdf",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -2915,6 +2923,7 @@
       "topics": [
         "видео и продакшн",
         "город и наследие",
+        "киров/вятка",
         "игры",
         "общество"
       ],
@@ -2962,6 +2971,7 @@
       "summary": "",
       "topics": [
         "город и наследие",
+        "киров/вятка",
         "общество"
       ],
       "entities": [],
@@ -2970,7 +2980,7 @@
     },
     {
       "id": "publication:telegram:staniverse:288",
-      "textHash": "debaf840ef31e835e68f7d1403021ce1533bacdf121d8a53235238e3114ab1db",
+      "textHash": "3d7028a2df0d79222e38f1cdebc9bc13b13e8cd3317146817353d3ca502d4e2b",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -3022,7 +3032,8 @@
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
       "topics": [
-        "город и наследие"
+        "город и наследие",
+        "киров/вятка"
       ],
       "entities": [
         "Метавятка"
@@ -3051,6 +3062,7 @@
         "видео и продакшн",
         "образование",
         "город и наследие",
+        "киров/вятка",
         "путешествия",
         "технологии"
       ],
@@ -3093,7 +3105,7 @@
     },
     {
       "id": "publication:telegram:staniverse:301",
-      "textHash": "1c319ff75f7fcc1b1a8b10d270b9b95c1779abc7b3a164653a1c9c762005652e",
+      "textHash": "d38fe188b68e285baa91dcc11c2f87f96dc9deadb1c80effd3c9c7c6e2c9483e",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -3107,6 +3119,7 @@
         "3d и пространственные медиа",
         "образование",
         "город и наследие",
+        "киров/вятка",
         "технологии",
         "общество"
       ],
@@ -3148,7 +3161,7 @@
     },
     {
       "id": "publication:telegram:staniverse:315",
-      "textHash": "24ef66aac183ef9b6d2541dd6790fcbddeed0050661d72b0322165e088ac6f27",
+      "textHash": "f5bb747ba3d313b9caec1212e64f445153d2aec4509246e8f9ee18f8d7316ff1",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -3171,7 +3184,8 @@
       "summary": "",
       "topics": [
         "3d и пространственные медиа",
-        "видео и продакшн"
+        "видео и продакшн",
+        "киров/вятка"
       ],
       "entities": [],
       "relations": [],
@@ -3197,7 +3211,7 @@
     },
     {
       "id": "publication:telegram:staniverse:331",
-      "textHash": "4ae65f2c98e417048984f0657687ac756cd083be4a9770f9f88c88c8411ee63a",
+      "textHash": "4043e4b087286b29f761e0bff31864cab17b1aa9d61fc2361177faad9762325c",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -3214,7 +3228,7 @@
     },
     {
       "id": "publication:telegram:staniverse:332",
-      "textHash": "22eb255b425c5811fd6e46eee437e88e5c0753ad4dcb48b6b7f375426d6ce2c5",
+      "textHash": "e3630f1bfd25ddd922a0d79a8a02e627bc3d7db0e1be0786018b91741e64eb58",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -3244,7 +3258,8 @@
         "xr",
         "цифровая культура",
         "видео и продакшн",
-        "город и наследие"
+        "город и наследие",
+        "киров/вятка"
       ],
       "entities": [
         "VRChat"
@@ -3254,15 +3269,17 @@
     },
     {
       "id": "publication:telegram:staniverse:339",
-      "textHash": "0db9de126f19124c86005ace22495528a8e967b45710ae466bcb8c0764a66a30",
+      "textHash": "39988a25628ee79fd3e2c386020aa9f9f75224a842a4bb9ecd17c2395745fa01",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
       "topics": [
+        "интим и близость",
         "видео и продакшн",
         "город и наследие",
+        "киров/вятка",
         "путешествия",
         "музыка и звук"
       ],
@@ -3298,6 +3315,7 @@
       "topics": [
         "видео и продакшн",
         "город и наследие",
+        "киров/вятка",
         "технологии"
       ],
       "entities": [],
@@ -3342,7 +3360,9 @@
       "model": "deterministic-v1",
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
-      "topics": [],
+      "topics": [
+        "интим и близость"
+      ],
       "entities": [],
       "relations": [],
       "needsReview": false
@@ -3357,6 +3377,7 @@
       "summary": "",
       "topics": [
         "город и наследие",
+        "киров/вятка",
         "технологии"
       ],
       "entities": [],
@@ -3375,7 +3396,8 @@
         "искусственный интеллект",
         "xr",
         "образование",
-        "город и наследие"
+        "город и наследие",
+        "киров/вятка"
       ],
       "entities": [
         "VRChat"
@@ -3385,7 +3407,7 @@
     },
     {
       "id": "publication:telegram:staniverse:346",
-      "textHash": "09b71949c6baa11bda785752120cf219e0c2127201ee093ab2ecdaa1a38537fb",
+      "textHash": "4038eae1382230072079b235b178bb92cca42460d87912ee53e0a4f6bf4e0bf7",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -3394,7 +3416,8 @@
       "topics": [
         "3d и пространственные медиа",
         "видео и продакшн",
-        "город и наследие"
+        "город и наследие",
+        "киров/вятка"
       ],
       "entities": [],
       "relations": [],
@@ -3412,7 +3435,8 @@
         "искусственный интеллект",
         "агенты и автоматизация",
         "видео и продакшн",
-        "город и наследие"
+        "город и наследие",
+        "киров/вятка"
       ],
       "entities": [
         "OpenAI",
@@ -3466,6 +3490,7 @@
         "3d и пространственные медиа",
         "видео и продакшн",
         "город и наследие",
+        "киров/вятка",
         "игры"
       ],
       "entities": [
@@ -3513,6 +3538,7 @@
         "искусственный интеллект",
         "видео и продакшн",
         "город и наследие",
+        "киров/вятка",
         "игры"
       ],
       "entities": [
@@ -3538,7 +3564,7 @@
     },
     {
       "id": "publication:telegram:staniverse:356",
-      "textHash": "51f1fdf36c9bcd64042a5e3f650c929fc3873c669bfef1c398913db37c50dd1a",
+      "textHash": "c5efb33ff7b15fe00279acadd15aeee49a1e0e96d5b664f75c5cfb0670b8ea56",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -3571,6 +3597,7 @@
         "видео и продакшн",
         "образование",
         "город и наследие",
+        "киров/вятка",
         "общество"
       ],
       "entities": [],
@@ -3579,7 +3606,7 @@
     },
     {
       "id": "publication:telegram:staniverse:359",
-      "textHash": "e1dc67832af550b72509f057e1045de206d33f042dc2afa1ae48ac43ce738060",
+      "textHash": "ea46f84902e1dde40bae584e8bb9e8c630f54e09bdcc63765d32de10206cc6a3",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -3696,7 +3723,7 @@
     },
     {
       "id": "publication:telegram:staniverse:366",
-      "textHash": "c424ef994cef08474c45c49d9455bf45846a28d47937c4948a596995d2daed7c",
+      "textHash": "f8214538a084db2354d61086e31a3bd3a21a694cf44beacabbae048dad92e4d3",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -3709,7 +3736,7 @@
     },
     {
       "id": "publication:telegram:staniverse:367",
-      "textHash": "9db2f7483061668db608020e2d59c79f044ccd6b917acfd2fef9c87ccb965bb3",
+      "textHash": "ccb304190e18fab839b04ca3eef9b2b9e6a91a9b682a88e51860ffb34cafec51",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -3732,7 +3759,7 @@
     },
     {
       "id": "publication:telegram:staniverse:368",
-      "textHash": "978db1db8a65767d930cf2b6553020d283a072080b79295a5718ba9f8a61877f",
+      "textHash": "11080da72da0926a44038b7cf31a02b9467a1ba09b10741b626b0d4c63d83c01",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -3740,7 +3767,6 @@
       "summary": "",
       "topics": [
         "видео и продакшн",
-        "город и наследие",
         "общество"
       ],
       "entities": [
@@ -3783,7 +3809,7 @@
     },
     {
       "id": "publication:telegram:staniverse:371",
-      "textHash": "8f9015ca31c59d743bf85b45a78e9cec2119c9cca11cf46261c3d63b2f79dc84",
+      "textHash": "c4c84178c1b0d2318cfea940bc44076ca56358936be5e1fd9380676ed63b74a1",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -3891,6 +3917,7 @@
       "topics": [
         "xr",
         "город и наследие",
+        "киров/вятка",
         "игры",
         "общество"
       ],
@@ -3900,7 +3927,7 @@
     },
     {
       "id": "publication:telegram:staniverse:382",
-      "textHash": "9d5e0e6de9395ea8c451c168fe43d0401a8862bf67a657fb7c85a989c75694c3",
+      "textHash": "181c647ca7ea21c84f38ba54c4354c0b167b831a97fe8f9bbb5d4224aaec3305",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -3969,6 +3996,7 @@
         "llm",
         "xr",
         "видео и продакшн",
+        "киров/вятка",
         "технологии",
         "общество"
       ],
@@ -3988,6 +4016,7 @@
       "summary": "",
       "topics": [
         "город и наследие",
+        "киров/вятка",
         "технологии"
       ],
       "entities": [],
@@ -4122,7 +4151,6 @@
         "искусственный интеллект",
         "llm",
         "видео и продакшн",
-        "город и наследие",
         "технологии"
       ],
       "entities": [
@@ -4179,7 +4207,7 @@
     },
     {
       "id": "publication:telegram:staniverse:399",
-      "textHash": "84761fceff5dda1e2082b8229e5f590450df73eea28da238dd704b280875d826",
+      "textHash": "9d23bf78ebbdeafa4baf16093aa231b3860ce65a02e51fde81ff6f6c40fd38dc",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -4258,6 +4286,7 @@
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
       "topics": [
+        "интим и близость",
         "видео и продакшн",
         "образование",
         "путешествия"
@@ -4299,6 +4328,7 @@
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
       "topics": [
+        "втюбинг и виртуальные персонажи",
         "искусственный интеллект",
         "llm",
         "xr",
@@ -4332,7 +4362,7 @@
     },
     {
       "id": "publication:telegram:staniverse:407",
-      "textHash": "81938e7c9e59457d906577e11e529387df4d6d126e0d4f12c8c3ae2b6bb65831",
+      "textHash": "2214f62c7cd682a7662db74279940416cbc776b7a87921da5c8a7409d3bdb41c",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -4419,7 +4449,7 @@
     },
     {
       "id": "publication:telegram:staniverse:412",
-      "textHash": "2d1f08e7fd005b6a8413bb350715373ac3e1c0dd451fa52a655bbf331fc68efa",
+      "textHash": "d99207b606be59412e19922e426a750136e2fa3d763df150609fc8ae5925100f",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -4428,7 +4458,8 @@
       "topics": [
         "искусственный интеллект",
         "llm",
-        "город и наследие"
+        "город и наследие",
+        "киров/вятка"
       ],
       "entities": [],
       "relations": [],
@@ -4455,7 +4486,7 @@
     },
     {
       "id": "publication:telegram:staniverse:414",
-      "textHash": "9e4fcdd11547b6321466c3f3d11dbb71820ed4271fccaff66f27e7fa3073e8e8",
+      "textHash": "48a32bdffc037ce2e9590230eafa9629f9643e524070d7862881604517c6972a",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -4485,7 +4516,7 @@
     },
     {
       "id": "publication:telegram:staniverse:415",
-      "textHash": "45a1cdc30897d0d8ddae4c1a634994f9d9651ab0933694515852627861377914",
+      "textHash": "80b5e3cee2654e9becbe7a8a39d56716f8310a7edb704b78932d6b1aaf0311d4",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -4509,6 +4540,7 @@
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
       "topics": [
+        "интим и близость",
         "искусственный интеллект",
         "llm",
         "технологии"
@@ -4521,7 +4553,7 @@
     },
     {
       "id": "publication:telegram:staniverse:417",
-      "textHash": "10d86f24575eb6f1969a189ea95ae6d5e43384890a61484a56a35a6aeb991263",
+      "textHash": "709f9f510abd4e26aab8918b3c2ce85926bbeb809165de029de6e42d54b1e0ac",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -4537,14 +4569,15 @@
     },
     {
       "id": "publication:telegram:staniverse:418",
-      "textHash": "d02e6506553f536d7727a6461befc27d6dbf4f4c560ad321d26e56a165c47986",
+      "textHash": "60b2eb2b707817107cf7b5a369d4ed11e9410e937edd91acc8364865d2a1400d",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
       "topics": [
-        "образование"
+        "образование",
+        "киров/вятка"
       ],
       "entities": [
         "Я, ты, город"
@@ -4567,7 +4600,9 @@
       "model": "deterministic-v1",
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
-      "topics": [],
+      "topics": [
+        "киров/вятка"
+      ],
       "entities": [],
       "relations": [],
       "needsReview": false
@@ -4590,7 +4625,7 @@
     },
     {
       "id": "publication:telegram:staniverse:421",
-      "textHash": "27adaf9a2a1ca0c799736228fdf5f1ac36d4586631c7209b5f4c40ecc22858a0",
+      "textHash": "3639dbc21978817d61c5ec9a1df104d27cbceb2545fad46fd6c6366b9f757f51",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -4607,7 +4642,7 @@
     },
     {
       "id": "publication:telegram:staniverse:422",
-      "textHash": "d1977652ddbce9d8fe34a3b2adcac5fa48b8a8f376c6b964292d9a3138e0859a",
+      "textHash": "08dff462b48dc457d45da5e0ed0b0098938f518c602719f8d723b8d892ccd3c8",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -4657,6 +4692,7 @@
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
       "topics": [
+        "втюбинг и виртуальные персонажи",
         "игры"
       ],
       "entities": [],
@@ -4731,7 +4767,7 @@
     },
     {
       "id": "publication:telegram:staniverse:436",
-      "textHash": "0815f610b210ae02d9eae8229da351f88a2bfd52d63f5ca143f1b290d2c41069",
+      "textHash": "78b28fbfd1d67b27388aac1296224a234da9ca02b815d0ad4f6d2d362275b173",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -4740,6 +4776,7 @@
       "topics": [
         "искусственный интеллект",
         "город и наследие",
+        "киров/вятка",
         "технологии",
         "общество"
       ],
@@ -4749,7 +4786,7 @@
     },
     {
       "id": "publication:telegram:staniverse:439",
-      "textHash": "4db90f2395cc4b36f270fc29f78328952a51833be1a96679ba48a3405b6ecc89",
+      "textHash": "e9ab752046f97b41b33e118c26de70daa7aded68811ed5db49b2f76b9e7d690e",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -4768,7 +4805,7 @@
     },
     {
       "id": "publication:telegram:staniverse:440",
-      "textHash": "a6a6d6649efff35ed1d3ac84c86ebfeb2fb8cb23801ebfed1748bd71808fb57f",
+      "textHash": "af85ba8b8be43131de7d28ffe9ed2ce3f3bd3e1fa2fb307ac708d3e5aefdc281",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -4817,13 +4854,14 @@
     },
     {
       "id": "publication:telegram:staniverse:443",
-      "textHash": "b8e98883659633f33991fea4d8e6e689e65636be5177680274e119c952ce605e",
+      "textHash": "dde8ce18cf212bbab8a4b0f3bf3c44869f7fa0e4df3bd44f33bc47fda83326b5",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
       "topics": [
+        "интим и близость",
         "искусственный интеллект",
         "xr",
         "видео и продакшн",
@@ -4845,6 +4883,7 @@
       "summary": "",
       "topics": [
         "ai-компаньоны",
+        "втюбинг и виртуальные персонажи",
         "искусственный интеллект",
         "видео и продакшн"
       ],
@@ -4897,7 +4936,7 @@
     },
     {
       "id": "publication:telegram:staniverse:449",
-      "textHash": "25b16d1e7147b8fb1d4eb397e5b6712549bfb39ddb1631e7ae33a3f0219653b3",
+      "textHash": "49817833c9ff73df7f35f9be9f9b02709e306c3ace02d1b732cdc8ea7080bd50",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -4910,7 +4949,7 @@
     },
     {
       "id": "publication:telegram:staniverse:450",
-      "textHash": "8475564b400cc73a513af017c04477dd35283ce83f03d42c85a2e634dcc7ae35",
+      "textHash": "9e3177c5d097892c1549873254f4d753061dcda478f727df86f919273f154242",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -4927,7 +4966,7 @@
     },
     {
       "id": "publication:telegram:staniverse:451",
-      "textHash": "25aa8e645b6cae97c69f15a5cb7d5797f9a872728b012968392025efdc2bf151",
+      "textHash": "22ce11d560824053436089b9aa45592e0357dc6d8ceb6601f1633f335d9bf0ee",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -4935,6 +4974,7 @@
       "summary": "",
       "topics": [
         "ai-компаньоны",
+        "интим и близость",
         "искусственный интеллект",
         "llm",
         "агенты и автоматизация",
@@ -5002,6 +5042,7 @@
       "topics": [
         "iot",
         "ai-компаньоны",
+        "интим и близость",
         "искусственный интеллект",
         "агенты и автоматизация",
         "xr",
@@ -5011,6 +5052,7 @@
         "видео и продакшн",
         "образование",
         "город и наследие",
+        "киров/вятка",
         "путешествия",
         "игры",
         "музыка и звук",
@@ -5115,7 +5157,7 @@
     },
     {
       "id": "publication:telegram:staniverse:462",
-      "textHash": "ca2bc99181d7dd0acc93212f0680b0b28cc42dd9ff4acf9d56e9b18cbfac52bf",
+      "textHash": "1d2fbe8f3a1eda89480a1f89a2eaeff47677ee7e5ea5c2051e51f9e032c1c540",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -5129,6 +5171,7 @@
         "3d и пространственные медиа",
         "видео и продакшн",
         "город и наследие",
+        "киров/вятка",
         "игры",
         "музыка и звук",
         "общество"
@@ -5225,6 +5268,7 @@
       "summary": "",
       "topics": [
         "город и наследие",
+        "киров/вятка",
         "общество"
       ],
       "entities": [],
@@ -5445,7 +5489,8 @@
         "xr",
         "3d и пространственные медиа",
         "видео и продакшн",
-        "город и наследие"
+        "город и наследие",
+        "киров/вятка"
       ],
       "entities": [],
       "relations": [],
@@ -5557,7 +5602,7 @@
     },
     {
       "id": "publication:telegram:staniverse:491",
-      "textHash": "2b12f707a766c913e2fafec15f47d30f83612a80a64e98e00d2335e7bceb977a",
+      "textHash": "473d71721a6f0ac03eced406dc38dd7331ea9069383fe0b0a29485e78951aace",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -5649,6 +5694,7 @@
       "summary": "",
       "topics": [
         "город и наследие",
+        "киров/вятка",
         "игры"
       ],
       "entities": [],
@@ -5670,7 +5716,7 @@
     },
     {
       "id": "publication:telegram:staniverse:499",
-      "textHash": "939c6d4b8dd406084f2655594790ae697218965fa594752e57f7a812855d6cc7",
+      "textHash": "dd833d6a9a8c60feaf40fd759b8100f12f95e5fc2e1b7f29878e962d44a63bbe",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -5678,7 +5724,8 @@
       "summary": "",
       "topics": [
         "видео и продакшн",
-        "город и наследие"
+        "город и наследие",
+        "киров/вятка"
       ],
       "entities": [
         "YouTube"
@@ -5720,6 +5767,7 @@
         "агенты и автоматизация",
         "видео и продакшн",
         "город и наследие",
+        "киров/вятка",
         "технологии"
       ],
       "entities": [
@@ -5730,7 +5778,7 @@
     },
     {
       "id": "publication:telegram:staniverse:502",
-      "textHash": "15653b14f3fbf4b066c36e48b680ebed61b17500de31ef2956de004a93d5553b",
+      "textHash": "9a59c9f73aef52e0300abdd1ef3d1c27c68d47a50ae84885506a1dec0d9c4ac8",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -5793,7 +5841,7 @@
     },
     {
       "id": "publication:telegram:staniverse:514",
-      "textHash": "07adb6698528d8bb7bc9abe0daa9c963bb6a44061e89d88754fdf998d1d968cf",
+      "textHash": "ba80040e1bf360c483a12c4a9742d2923697977d0f8a66027625f9256ac7c41b",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -5928,6 +5976,7 @@
         "3d и пространственные медиа",
         "видео и продакшн",
         "город и наследие",
+        "киров/вятка",
         "игры",
         "музыка и звук"
       ],
@@ -5978,7 +6027,7 @@
     },
     {
       "id": "publication:telegram:staniverse:528",
-      "textHash": "79287b21a2796fca28e2b3fa99759aa86b803b493e92161d5d5fe14ef6da343c",
+      "textHash": "8db900bf1bdc96fbd108a3913f2d7d9bfa1040dc5629972875dd0a7cb0a1e1c8",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -5986,7 +6035,6 @@
       "summary": "",
       "topics": [
         "xr",
-        "город и наследие",
         "музыка и звук",
         "общество"
       ],
@@ -5998,7 +6046,7 @@
     },
     {
       "id": "publication:telegram:staniverse:529",
-      "textHash": "3e785303b38ad57df371fa914bedd650c8e6a4d6ce0c69ed31c0e63c70189f52",
+      "textHash": "8fec446d13e26214d433f693de2b7b1c40352a578680a9cc9cf23fdbb8651506",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -6011,7 +6059,7 @@
     },
     {
       "id": "publication:telegram:staniverse:530",
-      "textHash": "60bb17332295a38db9d0fbb4405850cb114c5b47a24df9288e5010b933ff7665",
+      "textHash": "2430e8ece754309ab92d791ec16935558303562c7f1445c1482c35ffefe7b663",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -6078,6 +6126,7 @@
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
       "topics": [
+        "втюбинг и виртуальные персонажи",
         "искусственный интеллект",
         "xr",
         "3d и пространственные медиа",
@@ -6105,7 +6154,7 @@
     },
     {
       "id": "publication:telegram:staniverse:535",
-      "textHash": "955bd69e8eb96816ffa4c467ddcd50393933b2afef3fd14196a12366e43ac7e2",
+      "textHash": "f73d11807dfe43169f8c7ffbd5c1b193bd16aaadad06c6884e514d9063e7b68b",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -6137,6 +6186,7 @@
         "видео и продакшн",
         "образование",
         "город и наследие",
+        "киров/вятка",
         "технологии"
       ],
       "entities": [
@@ -6194,7 +6244,6 @@
         "llm",
         "xr",
         "видео и продакшн",
-        "город и наследие",
         "общество"
       ],
       "entities": [
@@ -6252,6 +6301,7 @@
       "summary": "",
       "topics": [
         "город и наследие",
+        "киров/вятка",
         "игры",
         "общество"
       ],
@@ -6271,6 +6321,7 @@
         "xr",
         "видео и продакшн",
         "город и наследие",
+        "киров/вятка",
         "технологии",
         "общество"
       ],
@@ -6283,7 +6334,7 @@
     },
     {
       "id": "publication:telegram:staniverse:547",
-      "textHash": "85e884b7b1b907fa8556ef7d4b59ab38743aff85b16efb1fc9569c655099a0c0",
+      "textHash": "58e79fe7fc8899411541d1ee07ae7aad966a433235ef8b2af8401fc2b92e4955",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -6311,7 +6362,8 @@
       "topics": [
         "искусственный интеллект",
         "видео и продакшн",
-        "город и наследие"
+        "город и наследие",
+        "киров/вятка"
       ],
       "entities": [
         "YouTube"
@@ -6328,6 +6380,7 @@
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
       "topics": [
+        "интим и близость",
         "искусственный интеллект",
         "технологии",
         "общество"
@@ -6386,6 +6439,7 @@
         "3d и пространственные медиа",
         "видео и продакшн",
         "город и наследие",
+        "киров/вятка",
         "путешествия",
         "игры"
       ],
@@ -6468,7 +6522,7 @@
     },
     {
       "id": "publication:telegram:staniverse:557",
-      "textHash": "95dbfa4b0de14c841903996e849f1ff56a4f0e5ff4fe2b377de05c11e1c95334",
+      "textHash": "dffd19d2081b44be8f88d9248731551fc42c20b3a022006152a73e13ab0dc948",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -6483,7 +6537,7 @@
     },
     {
       "id": "publication:telegram:staniverse:558",
-      "textHash": "8c8af39261a844994b9dfd7f605a71dbeb72940e7ef9c72001f3343eea733c06",
+      "textHash": "876cbf363d15206492edb2d19ed8ec7247bf0d87c6a02273d834bde8f8aa029e",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -6591,6 +6645,7 @@
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
       "topics": [
+        "интим и близость",
         "xr",
         "образование",
         "технологии"
@@ -6630,6 +6685,7 @@
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
       "topics": [
+        "интим и близость",
         "искусственный интеллект"
       ],
       "entities": [],
@@ -6684,6 +6740,7 @@
       "topics": [
         "xr",
         "город и наследие",
+        "киров/вятка",
         "игры",
         "общество"
       ],
@@ -6734,7 +6791,7 @@
     },
     {
       "id": "publication:telegram:staniverse:576",
-      "textHash": "8cad6fffcb9a2dfe7088e41d8fec2bc6ae784058f60ef8c57fc16f7e57b88842",
+      "textHash": "42302b68a57ff4ea094504c86728880b8164246b84b813ae06599869a9d8ccdd",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -6762,7 +6819,8 @@
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
       "topics": [
-        "город и наследие"
+        "город и наследие",
+        "киров/вятка"
       ],
       "entities": [],
       "relations": [],
@@ -6791,7 +6849,7 @@
     },
     {
       "id": "publication:telegram:staniverse:579",
-      "textHash": "157033f5b648fea17fe6f3d3406b771c7ab1a93c9c384e16d33e2bf09fa41082",
+      "textHash": "f8dcc02fee7758da0768e2be41e14e0fe44ea8709fd0bd35ed7915ea2d52c9fe",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -6799,10 +6857,12 @@
       "summary": "",
       "topics": [
         "ai-компаньоны",
+        "интим и близость",
         "искусственный интеллект",
         "llm",
         "видео и продакшн",
-        "город и наследие"
+        "город и наследие",
+        "киров/вятка"
       ],
       "entities": [
         "Staniverse",
@@ -6843,6 +6903,7 @@
       "topics": [
         "видео и продакшн",
         "город и наследие",
+        "киров/вятка",
         "музыка и звук"
       ],
       "entities": [
@@ -6867,6 +6928,7 @@
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
       "topics": [
+        "втюбинг и виртуальные персонажи",
         "искусственный интеллект",
         "видео и продакшн"
       ],
@@ -6956,7 +7018,8 @@
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
       "topics": [
-        "xr"
+        "xr",
+        "киров/вятка"
       ],
       "entities": [
         "VRChat"
@@ -6984,33 +7047,7 @@
     },
     {
       "id": "publication:telegram:staniverse:593",
-      "textHash": "e8f12d25b5337da2c75ac3c4f235ae4dec31f1b917e531000b43e42d195155e8",
-      "promptVersion": "staniverse-local-topology-v1",
-      "provider": "local-rules",
-      "model": "deterministic-v1",
-      "createdAt": "1970-01-01T00:00:00.000Z",
-      "summary": "",
-      "topics": [
-        "город и наследие",
-        "игры",
-        "музыка и звук"
-      ],
-      "entities": [
-        "Staniverse"
-      ],
-      "relations": [
-        {
-          "targetId": "project:staniverse",
-          "type": "mentions",
-          "explanation": "Точное упоминание «Staniverse» в исходном тексте.",
-          "confidence": 0.98
-        }
-      ],
-      "needsReview": false
-    },
-    {
-      "id": "publication:telegram:staniverse:594",
-      "textHash": "ce57b01b55a0eb6dabd0f8197e6d455d48d1146aeeb5cac0288692a339e4318f",
+      "textHash": "fb9b0ebda78803091b1cc260d96eaebb6329f6fedcafe6aeb7b96da414b0e8ec",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -7019,7 +7056,9 @@
       "topics": [
         "видео и продакшн",
         "город и наследие",
+        "киров/вятка",
         "путешествия",
+        "игры",
         "музыка и звук"
       ],
       "entities": [
@@ -7137,6 +7176,7 @@
         "xr",
         "3d и пространственные медиа",
         "город и наследие",
+        "киров/вятка",
         "игры",
         "музыка и звук",
         "технологии"
@@ -7157,7 +7197,8 @@
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
       "topics": [
-        "город и наследие"
+        "город и наследие",
+        "киров/вятка"
       ],
       "entities": [
         "ВятГУ"
@@ -7215,7 +7256,7 @@
     },
     {
       "id": "publication:telegram:staniverse:609",
-      "textHash": "31e5aed7ef5c009c85aa09376cb3dcdc7560a6bd6447f71e2bb78475c66fc174",
+      "textHash": "129474aa5ea12adbe23244980cbe5aa136fd3326fca13c3f5f0b36ef381c5796",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -7290,6 +7331,7 @@
         "xr",
         "веб-разработка",
         "город и наследие",
+        "киров/вятка",
         "игры",
         "общество"
       ],
@@ -7331,6 +7373,7 @@
         "видео и продакшн",
         "образование",
         "город и наследие",
+        "киров/вятка",
         "игры",
         "технологии"
       ],
@@ -7355,16 +7398,18 @@
     },
     {
       "id": "publication:telegram:staniverse:615",
-      "textHash": "e52b75bb7a213064c07c7be84599ed376a8a5cd8c942fc4f36e600fe5eb58d01",
+      "textHash": "44420f427def0f2ce7e6315943151c962bf30a5d19f1b2444bade8c6498c199a",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
       "topics": [
+        "интим и близость",
         "искусственный интеллект",
         "xr",
-        "видео и продакшн"
+        "видео и продакшн",
+        "киров/вятка"
       ],
       "entities": [
         "YouTube",
@@ -7387,7 +7432,8 @@
         "агенты и автоматизация",
         "xr",
         "3d и пространственные медиа",
-        "веб-разработка"
+        "веб-разработка",
+        "киров/вятка"
       ],
       "entities": [
         "Метавятка"
@@ -7404,7 +7450,7 @@
     },
     {
       "id": "publication:telegram:staniverse:617",
-      "textHash": "e3b7cea0e5f6497b092147732ea32e5046213ab66f0e51a1730d630697ffe05f",
+      "textHash": "b6b60966c3672b69002bbb0f7a054392805a82535e02a6ebf40de245f69341b3",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -7512,6 +7558,7 @@
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
       "topics": [
+        "интим и близость",
         "цифровая культура",
         "музыка и звук",
         "технологии",
@@ -7536,13 +7583,14 @@
     },
     {
       "id": "publication:telegram:staniverse:625",
-      "textHash": "3a2ae483dd67659271d2cb87674946ae9bf46f663ccc63b37167fc58a9a9f7a8",
+      "textHash": "b2bf3fc7c1a931569b9277d0f31ec247566d125c3c43ba13870791c1a357202f",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
       "topics": [
+        "интим и близость",
         "3d и пространственные медиа",
         "видео и продакшн"
       ],
@@ -7579,7 +7627,8 @@
         "iot",
         "ai-компаньоны",
         "искусственный интеллект",
-        "город и наследие"
+        "город и наследие",
+        "киров/вятка"
       ],
       "entities": [],
       "relations": [],
@@ -7587,7 +7636,7 @@
     },
     {
       "id": "publication:telegram:staniverse:628",
-      "textHash": "680c89f9f4f5a1d65c7a248442802277bb2d0ac5aa2952975f3c7aaee68d6754",
+      "textHash": "521cd9a93b5b34c9057bc224cbf977c6008e9956e72b4c995b8cb49653c242d6",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -7621,6 +7670,7 @@
         "3d и пространственные медиа",
         "видео и продакшн",
         "город и наследие",
+        "киров/вятка",
         "технологии"
       ],
       "entities": [],
@@ -7629,7 +7679,7 @@
     },
     {
       "id": "publication:telegram:staniverse:631",
-      "textHash": "d1c91d662279ce7ed3b9076f735efacb0e9c135544be26c8285206e5da6eaf10",
+      "textHash": "ae8e968d1912d86de00bbb9644fe76951b053143b258ee93d797fac6c20ccf97",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -7642,7 +7692,7 @@
     },
     {
       "id": "publication:telegram:staniverse:632",
-      "textHash": "7c5a0095c023dc056fa815f279b74e484c7c64fff21f3382943efd5e31cb750e",
+      "textHash": "6d1a830867e9acbd38c8e07a7bbdf70ce75fe65d90a7cdab59ab1f81910841f0",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -7672,7 +7722,7 @@
     },
     {
       "id": "publication:telegram:staniverse:637",
-      "textHash": "997b3f731ffd22d9a35f8dd6a3b9d7500353f5ce6178d9f73d61f837cee4a0f9",
+      "textHash": "f0afe459b1dc517ef1d603e9683e38c09a31a1a4fe844e6f277b7d5f72d18fb0",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -7700,7 +7750,8 @@
       "topics": [
         "искусственный интеллект",
         "3d и пространственные медиа",
-        "город и наследие"
+        "город и наследие",
+        "киров/вятка"
       ],
       "entities": [],
       "relations": [],
@@ -7708,7 +7759,7 @@
     },
     {
       "id": "publication:telegram:staniverse:648",
-      "textHash": "3264bbf9adaafe1f11da948152b92bb3f76b7e3e8393c3f737a9f097f3811e3d",
+      "textHash": "e5d16483594703dabaa8d272fe16ac28d49992f1846600e64c56b83cea6db098",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -7834,6 +7885,7 @@
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
       "topics": [
+        "киров/вятка",
         "музыка и звук"
       ],
       "entities": [],
@@ -7884,6 +7936,7 @@
       "topics": [
         "видео и продакшн",
         "город и наследие",
+        "киров/вятка",
         "путешествия",
         "игры"
       ],
@@ -7907,6 +7960,7 @@
         "видео и продакшн",
         "образование",
         "город и наследие",
+        "киров/вятка",
         "технологии"
       ],
       "entities": [],
@@ -7926,6 +7980,7 @@
         "агенты и автоматизация",
         "видео и продакшн",
         "город и наследие",
+        "киров/вятка",
         "технологии",
         "общество"
       ],
@@ -7952,7 +8007,7 @@
     },
     {
       "id": "publication:telegram:staniverse:666",
-      "textHash": "34e4cab5bc4ab2b608cf931e9ffd41193e80bfdf4d373b4aece5abea0445704c",
+      "textHash": "3def5322dc0d670d9ab54874926518ce2cfbd5cbb1bc2d04c3fa486ec0396693",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -7989,7 +8044,6 @@
       "topics": [
         "open source",
         "xr",
-        "город и наследие",
         "игры",
         "музыка и звук",
         "технологии",
@@ -8003,7 +8057,7 @@
     },
     {
       "id": "publication:telegram:staniverse:679",
-      "textHash": "a8edc0c69f3a5dd661f29b6bb23377e89e3d0d7ef92194ae1727e95f884ae251",
+      "textHash": "b03ef12f5dfe435a3fbd03a3a543062d2e01c355059fdf946724e246ff18812f",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -8043,9 +8097,11 @@
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
       "topics": [
+        "интим и близость",
         "xr",
         "видео и продакшн",
-        "город и наследие"
+        "город и наследие",
+        "киров/вятка"
       ],
       "entities": [
         "Staniverse",
@@ -8063,7 +8119,7 @@
     },
     {
       "id": "publication:telegram:staniverse:690",
-      "textHash": "d2585f0a097868c9173c2780009ce373c42ac766b2604402a88d5c81fcdef625",
+      "textHash": "78dbabb69fa83d91cf097fa9b140c38caa6e7911e1af18852b3fc6cb467c7f05",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -8072,6 +8128,7 @@
       "topics": [
         "видео и продакшн",
         "город и наследие",
+        "киров/вятка",
         "игры",
         "технологии"
       ],
@@ -8182,12 +8239,14 @@
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
       "topics": [
+        "интим и близость",
         "искусственный интеллект",
         "xr",
         "3d и пространственные медиа",
         "видео и продакшн",
         "образование",
         "город и наследие",
+        "киров/вятка",
         "технологии",
         "общество"
       ],
@@ -8219,13 +8278,14 @@
     },
     {
       "id": "publication:telegram:staniverse:706",
-      "textHash": "4ff3879fe8e83c380863e6d68ba38ed31148a72f9fc16a843e02169c9eefe0aa",
+      "textHash": "4fedc5d84f3a84c94146c7975f76f5d9be6b96c2e04246418774b340b121b638",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
       "topics": [
+        "втюбинг и виртуальные персонажи",
         "искусственный интеллект",
         "видео и продакшн"
       ],
@@ -8280,6 +8340,7 @@
       "summary": "",
       "topics": [
         "ai-компаньоны",
+        "интим и близость",
         "искусственный интеллект",
         "llm",
         "xr",
@@ -8383,7 +8444,7 @@
     },
     {
       "id": "publication:telegram:staniverse:719",
-      "textHash": "7c934eb7c70368e7008660fb7cf42714f3d826bc0499b877b6b682cdb39c5e38",
+      "textHash": "6fd5be79b4e8e7aabcdda13a07a1a6f94dac2ba155954721be2f14612a6f8927",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -8432,7 +8493,8 @@
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
       "topics": [
-        "город и наследие"
+        "город и наследие",
+        "киров/вятка"
       ],
       "entities": [],
       "relations": [],
@@ -8535,7 +8597,7 @@
     },
     {
       "id": "publication:telegram:staniverse:728",
-      "textHash": "4c22d278bace3c0bb01d87681a7c88f83519477ac253c7719841d854ef9c8d18",
+      "textHash": "1019b6394c48dfe1939397a787a08d5977e688a248e7ebab584850734d179122",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -8544,6 +8606,7 @@
       "topics": [
         "видео и продакшн",
         "город и наследие",
+        "киров/вятка",
         "музыка и звук"
       ],
       "entities": [],
@@ -8622,6 +8685,7 @@
       "summary": "",
       "topics": [
         "xr",
+        "киров/вятка",
         "технологии"
       ],
       "entities": [],
@@ -8630,7 +8694,7 @@
     },
     {
       "id": "publication:telegram:staniverse:733",
-      "textHash": "457fba1bd3a1b9b9baf9ad56aeb4d066dc63ab44bd482ca37f8ad1b5b3b281b2",
+      "textHash": "3d45e04ec2258a3b61424aa5dd1fdf2756d546cf4cc3fa6cce0711c073b4d576",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -8667,6 +8731,7 @@
       "summary": "",
       "topics": [
         "город и наследие",
+        "киров/вятка",
         "общество"
       ],
       "entities": [],
@@ -8682,9 +8747,11 @@
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
       "topics": [
+        "интим и близость",
         "искусственный интеллект",
         "xr",
         "город и наследие",
+        "киров/вятка",
         "общество"
       ],
       "entities": [
@@ -8907,7 +8974,7 @@
     },
     {
       "id": "publication:telegram:staniverse:796",
-      "textHash": "c07ea6d39a2dff0d3738067676ef5399e5b5b659abffba2bd5dfe027a8cddd0d",
+      "textHash": "c3447d0336c4fa5a65a48b2983b7128a0154e41440b57b807faaa5e641decd2b",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -8958,8 +9025,7 @@
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
       "topics": [
-        "видео и продакшн",
-        "город и наследие"
+        "видео и продакшн"
       ],
       "entities": [],
       "relations": [],
@@ -9046,6 +9112,7 @@
       "summary": "",
       "topics": [
         "город и наследие",
+        "киров/вятка",
         "игры"
       ],
       "entities": [],
@@ -9177,6 +9244,7 @@
         "видео и продакшн",
         "образование",
         "город и наследие",
+        "киров/вятка",
         "игры"
       ],
       "entities": [
@@ -9268,6 +9336,7 @@
       "topics": [
         "образование",
         "город и наследие",
+        "киров/вятка",
         "путешествия"
       ],
       "entities": [],
@@ -9283,7 +9352,8 @@
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
       "topics": [
-        "город и наследие"
+        "город и наследие",
+        "киров/вятка"
       ],
       "entities": [],
       "relations": [],
@@ -9298,6 +9368,7 @@
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
       "topics": [
+        "втюбинг и виртуальные персонажи",
         "искусственный интеллект",
         "llm",
         "видео и продакшн",
@@ -9331,7 +9402,8 @@
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
       "topics": [
-        "город и наследие"
+        "город и наследие",
+        "киров/вятка"
       ],
       "entities": [],
       "relations": [],
@@ -9420,7 +9492,7 @@
     },
     {
       "id": "publication:telegram:staniverse:872",
-      "textHash": "409b1333070dd347831c9a701ac853c33d6f49f9550dc1961f04bbed65c64cb9",
+      "textHash": "458807ae4e7708435cd55ddac6c7c2af290b711e84ef350b288ecf4719e4d74a",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -9431,6 +9503,7 @@
         "3d и пространственные медиа",
         "видео и продакшн",
         "город и наследие",
+        "киров/вятка",
         "путешествия",
         "музыка и звук",
         "общество"
@@ -9472,7 +9545,7 @@
     },
     {
       "id": "publication:telegram:staniverse:878",
-      "textHash": "1884781f96dc8cbb6cb22162056aa236e6ba4db2095a3cf98d4f49d84daee7ee",
+      "textHash": "dcfa6d7308b175a0273f5e9cfcea638abffa528d2f8d6524328718a51de3bf72",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -9510,9 +9583,11 @@
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
       "topics": [
+        "интим и близость",
         "искусственный интеллект",
         "видео и продакшн",
-        "город и наследие"
+        "город и наследие",
+        "киров/вятка"
       ],
       "entities": [
         "Staniverse"
@@ -9590,7 +9665,8 @@
       "summary": "",
       "topics": [
         "3d и пространственные медиа",
-        "город и наследие"
+        "город и наследие",
+        "киров/вятка"
       ],
       "entities": [],
       "relations": [],
@@ -9598,7 +9674,7 @@
     },
     {
       "id": "publication:telegram:staniverse:886",
-      "textHash": "6c23be1bc39f3317d7074b061909b59c9310cd2957932db3097f14d901087b84",
+      "textHash": "e228865df00af9026e918acf0baffcd8ce68582ca158d7c5e3d2b376cdc24b0a",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -9606,6 +9682,7 @@
       "summary": "",
       "topics": [
         "город и наследие",
+        "киров/вятка",
         "игры",
         "технологии",
         "общество"
@@ -9623,7 +9700,8 @@
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
       "topics": [
-        "город и наследие"
+        "город и наследие",
+        "киров/вятка"
       ],
       "entities": [
         "Staniverse"
@@ -9653,7 +9731,7 @@
     },
     {
       "id": "publication:telegram:staniverse:889",
-      "textHash": "f212a35ece29ba3126d4f3dbe722ca6da27494e7e097d82a6942a9a321ee6426",
+      "textHash": "3e9feefe33e2a6e385f23d0aa989999cce6fa81768a0c7cc1d3a8d8342fce123",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -9732,7 +9810,8 @@
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
       "topics": [
-        "город и наследие"
+        "город и наследие",
+        "киров/вятка"
       ],
       "entities": [],
       "relations": [],
@@ -9740,7 +9819,7 @@
     },
     {
       "id": "publication:telegram:staniverse:895",
-      "textHash": "2cc7b550121419eaa0b0acf2e54acec166fa0a6c5fa623ccd2a0819840e302bd",
+      "textHash": "64b07e4729fa43fbd235398f967a4f32ccee5ecc3da6b9571e50966bd408cb30",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -9753,6 +9832,7 @@
         "xr",
         "3d и пространственные медиа",
         "видео и продакшн",
+        "киров/вятка",
         "игры",
         "технологии",
         "общество"
@@ -9783,6 +9863,7 @@
       "summary": "",
       "topics": [
         "ai-компаньоны",
+        "интим и близость",
         "искусственный интеллект",
         "llm",
         "xr",
@@ -9832,7 +9913,9 @@
       "model": "deterministic-v1",
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
-      "topics": [],
+      "topics": [
+        "киров/вятка"
+      ],
       "entities": [],
       "relations": [],
       "needsReview": false
@@ -9873,6 +9956,7 @@
       "summary": "",
       "topics": [
         "видео и продакшн",
+        "киров/вятка",
         "технологии"
       ],
       "entities": [],
@@ -10150,6 +10234,7 @@
       "topics": [
         "iot",
         "ai-компаньоны",
+        "интим и близость",
         "искусственный интеллект",
         "llm",
         "музыка и звук",
@@ -10188,6 +10273,7 @@
         "Gaussian Splatting",
         "3d и пространственные медиа",
         "видео и продакшн",
+        "киров/вятка",
         "игры",
         "технологии"
       ],
@@ -10197,7 +10283,7 @@
     },
     {
       "id": "publication:telegram:staniverse:924",
-      "textHash": "5872baedcce37aeeff75d3880f0b3e246b7ed06231bed6877318ebf6f0456483",
+      "textHash": "8894c7f2580d534e09bc9926ac190b690df1fa5d6e5922467713906aebc94b9a",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -10225,6 +10311,7 @@
       "topics": [
         "3d и пространственные медиа",
         "образование",
+        "киров/вятка",
         "путешествия"
       ],
       "entities": [
@@ -10242,42 +10329,19 @@
     },
     {
       "id": "publication:telegram:staniverse:928",
-      "textHash": "b6b64990491d7b7bde8c158e15e09381f666b8207b32c3c3aae5ba7b6090b66d",
+      "textHash": "7a145aba9a2428ef2e8aaf10f727384b6d6db905eb46951a49d7e58b624e9274",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
       "topics": [
+        "интим и близость",
         "xr",
         "3d и пространственные медиа",
-        "город и наследие",
-        "общество"
-      ],
-      "entities": [
-        "Staniverse"
-      ],
-      "relations": [
-        {
-          "targetId": "project:staniverse",
-          "type": "mentions",
-          "explanation": "Точное упоминание «Staniverse» в исходном тексте.",
-          "confidence": 0.98
-        }
-      ],
-      "needsReview": false
-    },
-    {
-      "id": "publication:telegram:staniverse:929",
-      "textHash": "aa5d48816c5bd9de6ad92c9041b81226ad2b52766e3fde315ea97f124048b1be",
-      "promptVersion": "staniverse-local-topology-v1",
-      "provider": "local-rules",
-      "model": "deterministic-v1",
-      "createdAt": "1970-01-01T00:00:00.000Z",
-      "summary": "",
-      "topics": [
-        "3d и пространственные медиа",
         "образование",
+        "город и наследие",
+        "киров/вятка",
         "путешествия",
         "общество"
       ],
@@ -10342,6 +10406,7 @@
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
       "topics": [
+        "интим и близость",
         "3d и пространственные медиа",
         "образование"
       ],
@@ -10364,7 +10429,7 @@
     },
     {
       "id": "publication:telegram:staniverse:938",
-      "textHash": "90de5bc696aed3dda6e5d43775e66cfca627f862b103ea919ad8832c89577787",
+      "textHash": "9bf8d5863c555c7f69e2d70ce9f32eb7b6f91d7610a4e88f40a384857046b470",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -10373,7 +10438,7 @@
       "topics": [
         "искусственный интеллект",
         "llm",
-        "город и наследие",
+        "киров/вятка",
         "игры",
         "технологии",
         "общество"
@@ -10396,6 +10461,7 @@
         "видео и продакшн",
         "образование",
         "город и наследие",
+        "киров/вятка",
         "путешествия"
       ],
       "entities": [
@@ -10506,7 +10572,6 @@
       "topics": [
         "искусственный интеллект",
         "xr",
-        "город и наследие",
         "технологии"
       ],
       "entities": [
@@ -10549,7 +10614,7 @@
     },
     {
       "id": "publication:telegram:staniverse:949",
-      "textHash": "cf01736448d11f603cfbc8a0b8ad3fe0b24582b9fe3b7949e3feb4d99d5231bc",
+      "textHash": "30c9c3a414f4802cf13caa9b531e16e47ed7c9d48bfcc4d3438cd9dbe180a04b",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -10557,6 +10622,8 @@
       "summary": "",
       "topics": [
         "ai-компаньоны",
+        "втюбинг и виртуальные персонажи",
+        "интим и близость",
         "искусственный интеллект",
         "xr",
         "3d и пространственные медиа",
@@ -10613,7 +10680,7 @@
     },
     {
       "id": "publication:telegram:staniverse:952",
-      "textHash": "84e9a2f2dad8d0afa4c209a0f424841fb4da28a84a6c3d4aa7e4e5444d60451d",
+      "textHash": "a79f97671a7aab4259cedbd409aa25016379a94b91d018e7a9e7db0ca651c2ea",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -10677,12 +10744,14 @@
       "summary": "",
       "topics": [
         "ai-компаньоны",
+        "интим и близость",
         "искусственный интеллект",
         "llm",
         "3d и пространственные медиа",
         "видео и продакшн",
         "образование",
         "город и наследие",
+        "киров/вятка",
         "игры",
         "технологии"
       ],
@@ -10734,7 +10803,7 @@
     },
     {
       "id": "publication:telegram:staniverse:958",
-      "textHash": "ebec234c7d565eea1afef515226c98cc3b1ea4f522a6fd08fdab9225195946b0",
+      "textHash": "4153bc95e86b9d438809a4576839bac2116c6421d2a0759f0b35d6356aa91471",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -10778,6 +10847,7 @@
         "open source",
         "llm",
         "агенты и автоматизация",
+        "киров/вятка",
         "игры"
       ],
       "entities": [
@@ -10825,7 +10895,7 @@
     },
     {
       "id": "publication:telegram:staniverse:963",
-      "textHash": "003db01058c5c5dc9a08a8340f64ae7708acd0516567b14dd2982dce89406c31",
+      "textHash": "aa403ffe57c26ea08a91e02668b17f6b5fe4d032839fa5dc02d6c5fcc5327858",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -10835,6 +10905,7 @@
         "xr",
         "видео и продакшн",
         "город и наследие",
+        "киров/вятка",
         "игры",
         "общество"
       ],
@@ -10903,7 +10974,7 @@
     },
     {
       "id": "publication:telegram:staniverse:967",
-      "textHash": "edd53d26651adaa9e75c5a687cf78a8866e8f5d37f0f63594e7d8b5d1375b54b",
+      "textHash": "0993c603f6657ed0dde8065cec7d036d7bd1618a4013c21659a37e8403f15254",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -10951,6 +11022,7 @@
         "llm",
         "агенты и автоматизация",
         "город и наследие",
+        "киров/вятка",
         "музыка и звук",
         "технологии"
       ],
@@ -11004,6 +11076,7 @@
       "summary": "",
       "topics": [
         "open source",
+        "интим и близость",
         "искусственный интеллект",
         "llm",
         "xr",
@@ -11018,17 +11091,18 @@
     },
     {
       "id": "publication:telegram:staniverse:978",
-      "textHash": "26be8ff6cb3cf20b2e12ce6e94d8be14a1392cbbf6b13dfd4198d5898983e13f",
+      "textHash": "3989629abf6df0762f687984e3d8dce495d080f717d3b3cb32f29a2c6e91a422",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
       "topics": [
+        "втюбинг и виртуальные персонажи",
         "искусственный интеллект",
         "llm",
         "образование",
-        "город и наследие",
+        "киров/вятка",
         "игры",
         "технологии"
       ],
@@ -11065,7 +11139,7 @@
     },
     {
       "id": "publication:telegram:staniverse:980",
-      "textHash": "64e2e2911be74e0ac4679cbf75b202cbf2e5ce119840dac42c872fbaead87adc",
+      "textHash": "52554f0476d323942913789dfc4e07c7c15c4ec08046d9e5158bd6616e7b94d5",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -11096,7 +11170,7 @@
     },
     {
       "id": "publication:telegram:staniverse:982",
-      "textHash": "beaf6f4cc91b25a3bfcfa013159d820839efbbd980291c5988c41f285d629fcc",
+      "textHash": "a53dd785752240253ebd97ea2256fc29fecd73ec1bc8e738d073e0309b7ed955",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -11129,6 +11203,7 @@
       "summary": "",
       "topics": [
         "видео и продакшн",
+        "киров/вятка",
         "технологии"
       ],
       "entities": [],
@@ -11137,7 +11212,7 @@
     },
     {
       "id": "publication:telegram:staniverse:984",
-      "textHash": "49236b511edba227fab75b86e81e0993c56641e1dd775c085593b6d74faf835c",
+      "textHash": "bb78f8cfdb905b4de73db17b3f395a845029e5c01aa4c86d3b3f0124f7022a6c",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -11168,6 +11243,7 @@
         "искусственный интеллект",
         "xr",
         "3d и пространственные медиа",
+        "киров/вятка",
         "технологии",
         "общество"
       ],
@@ -11248,7 +11324,7 @@
     },
     {
       "id": "publication:telegram:staniverse:991",
-      "textHash": "ec465d9207cc9fd97873159a69e209dcac04423e4c46c9e4fc01c4a2e0330b73",
+      "textHash": "6841dde423035335f364dda3580cdbbead3ca574c76c16154938e00c9df4bd1c",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -11269,47 +11345,23 @@
     },
     {
       "id": "publication:telegram:staniverse:992",
-      "textHash": "24986aed9065b388ba95d344baf8883cf867b8f7dbf6e9d2fd399c6327464f46",
+      "textHash": "c6b8b22ec5cadf2da98e8c21ad932c2850e5091ebf2b0debe2ca7a6d91aceae9",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
       "topics": [
-        "образование",
-        "город и наследие",
-        "путешествия",
-        "игры",
-        "технологии"
-      ],
-      "entities": [
-        "Staniverse"
-      ],
-      "relations": [
-        {
-          "targetId": "project:staniverse",
-          "type": "mentions",
-          "explanation": "Точное упоминание «Staniverse» в исходном тексте.",
-          "confidence": 0.98
-        }
-      ],
-      "needsReview": false
-    },
-    {
-      "id": "publication:telegram:staniverse:993",
-      "textHash": "72ab6f08a3ea73207bd64d786d698a763628440f6947e597bf2407cc7bac95c2",
-      "promptVersion": "staniverse-local-topology-v1",
-      "provider": "local-rules",
-      "model": "deterministic-v1",
-      "createdAt": "1970-01-01T00:00:00.000Z",
-      "summary": "",
-      "topics": [
+        "искусственный интеллект",
         "llm",
         "xr",
         "3d и пространственные медиа",
         "образование",
         "город и наследие",
-        "путешествия"
+        "киров/вятка",
+        "путешествия",
+        "игры",
+        "технологии"
       ],
       "entities": [
         "Staniverse",
@@ -11341,33 +11393,6 @@
           "targetId": "project:zapovednaya-vyatka-360",
           "type": "mentions",
           "explanation": "Точное упоминание «Заповедная Вятка» в исходном тексте.",
-          "confidence": 0.98
-        }
-      ],
-      "needsReview": false
-    },
-    {
-      "id": "publication:telegram:staniverse:994",
-      "textHash": "90f94fd5c90c77ca15fd0860f2bf1218341dd476a4307004a69621e7d5eab8cc",
-      "promptVersion": "staniverse-local-topology-v1",
-      "provider": "local-rules",
-      "model": "deterministic-v1",
-      "createdAt": "1970-01-01T00:00:00.000Z",
-      "summary": "",
-      "topics": [
-        "искусственный интеллект",
-        "xr",
-        "3d и пространственные медиа",
-        "путешествия"
-      ],
-      "entities": [
-        "Staniverse"
-      ],
-      "relations": [
-        {
-          "targetId": "project:staniverse",
-          "type": "mentions",
-          "explanation": "Точное упоминание «Staniverse» в исходном тексте.",
           "confidence": 0.98
         }
       ],
@@ -11479,7 +11504,7 @@
     },
     {
       "id": "publication:telegram:staniverse:1000",
-      "textHash": "ffae82804564858bf0e68db59caae3ca57b94332501d2deaebbac4b8e213266e",
+      "textHash": "a7d816752cd4d89b7287d234c85d55006b53a5c2a82b1d6ba10b00fde0090600",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -11493,30 +11518,6 @@
         "город и наследие",
         "технологии",
         "общество"
-      ],
-      "entities": [
-        "Staniverse"
-      ],
-      "relations": [
-        {
-          "targetId": "project:staniverse",
-          "type": "mentions",
-          "explanation": "Точное упоминание «Staniverse» в исходном тексте.",
-          "confidence": 0.98
-        }
-      ],
-      "needsReview": false
-    },
-    {
-      "id": "publication:telegram:staniverse:1001",
-      "textHash": "b8917ec7422f882f17f594bf37c23ce3cd6986f046adc9dd7b7fd569a4dcd023",
-      "promptVersion": "staniverse-local-topology-v1",
-      "provider": "local-rules",
-      "model": "deterministic-v1",
-      "createdAt": "1970-01-01T00:00:00.000Z",
-      "summary": "",
-      "topics": [
-        "искусственный интеллект"
       ],
       "entities": [
         "Staniverse"
@@ -11643,6 +11644,7 @@
         "веб-разработка",
         "образование",
         "город и наследие",
+        "киров/вятка",
         "общество"
       ],
       "entities": [
@@ -11662,7 +11664,6 @@
       "topics": [
         "open source",
         "xr",
-        "город и наследие",
         "игры"
       ],
       "entities": [
@@ -11673,19 +11674,21 @@
     },
     {
       "id": "publication:telegram:staniverse:1010",
-      "textHash": "a82974a66334add4d77457d4ab0cb100bd5bb636304c1fb84e8ac3fd6852f29d",
+      "textHash": "82ad98206e8fe8d006b0b3ab146611216d9d48f0f8c0c30bd318346022e708e0",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
       "topics": [
+        "интим и близость",
         "искусственный интеллект",
         "Gaussian Splatting",
         "3d и пространственные медиа",
         "видео и продакшн",
         "образование",
         "город и наследие",
+        "киров/вятка",
         "технологии",
         "общество"
       ],
@@ -11787,7 +11790,7 @@
     },
     {
       "id": "publication:telegram:staniverse:1015",
-      "textHash": "1facfec231cb650c83191346557eda8de7a89c96b8ae0d6de656b5973bcca382",
+      "textHash": "3da8bd4c72150a670bc96310954dc2bdd5d81f14a4940643bc198b280aa8c6bb",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -11796,6 +11799,7 @@
       "topics": [
         "iot",
         "ai-компаньоны",
+        "интим и близость",
         "искусственный интеллект",
         "llm",
         "xr",
@@ -11962,7 +11966,8 @@
         "искусственный интеллект",
         "llm",
         "видео и продакшн",
-        "образование"
+        "образование",
+        "киров/вятка"
       ],
       "entities": [
         "Anthropic"
@@ -11993,7 +11998,7 @@
     },
     {
       "id": "publication:telegram:staniverse:1032",
-      "textHash": "50118d244c15e829a04045e550083d25b4d5e23d22166973f9e6318da7647b3a",
+      "textHash": "aa59e49cc6db954f86ba72f9a521a1a962ea5e35289acdfe2c6e85c861de971c",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -12055,6 +12060,7 @@
       "createdAt": "1970-01-01T00:00:00.000Z",
       "summary": "",
       "topics": [
+        "втюбинг и виртуальные персонажи",
         "xr",
         "видео и продакшн",
         "музыка и звук",
@@ -12097,7 +12103,7 @@
     },
     {
       "id": "publication:telegram:staniverse:1053",
-      "textHash": "f349fb5c88b2cf5edc0037048744f824cf8b351e43e7cf30e26d4aa062cd6eb8",
+      "textHash": "4fcac99a3916f609b937332ec7c1146c09e4ab250877f0c6b303b25dd175c922",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -12106,7 +12112,6 @@
       "topics": [
         "xr",
         "видео и продакшн",
-        "город и наследие",
         "путешествия",
         "игры",
         "музыка и звук"
@@ -12168,7 +12173,8 @@
         "Gaussian Splatting",
         "3d и пространственные медиа",
         "образование",
-        "город и наследие"
+        "город и наследие",
+        "киров/вятка"
       ],
       "entities": [
         "Staniverse",
@@ -12319,7 +12325,7 @@
     },
     {
       "id": "publication:telegram:staniverse:1093",
-      "textHash": "b84adba144b9851f671690b65b1331408d7ef91e785a9e89d1d1706e49130ac2",
+      "textHash": "b83f6ce557aa1fad84e9143ce67273e96e054ec2ba918c1b08261ca1fea1ea8a",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -12369,7 +12375,7 @@
     },
     {
       "id": "publication:telegram:staniverse:1099",
-      "textHash": "08827adf91582d6255852d84c8bc7db715b6d42b4ebbd5502553578008378d8a",
+      "textHash": "9db3c6d711388b2b29329d12cd6598594938a195d9997da0a5ef68d70f56b9eb",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -12397,11 +12403,13 @@
       "summary": "",
       "topics": [
         "open source",
+        "втюбинг и виртуальные персонажи",
         "искусственный интеллект",
         "Gaussian Splatting",
         "3d и пространственные медиа",
         "видео и продакшн",
         "город и наследие",
+        "киров/вятка",
         "игры"
       ],
       "entities": [
@@ -12448,7 +12456,7 @@
     },
     {
       "id": "publication:telegram:staniverse:1102",
-      "textHash": "b750828ac8e081486628a16e47890bce560ebc706846aed8b2ddc5f67fdfddb0",
+      "textHash": "9c11a0ea656019dcccc7a7bd8cb207583b3b79db9a6383fffcdc9eb5f48a766e",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -12531,7 +12539,7 @@
     },
     {
       "id": "publication:telegram:staniverse:1114",
-      "textHash": "3c9bb02265bdaba26a76f4f5055923c0f54dd4aa168997345bf882cf1047c4cc",
+      "textHash": "e606b61f5815ded5d93c3b4ff9a0de974ab4c764a0ba9742071c9422bf812a63",
       "promptVersion": "staniverse-local-topology-v1",
       "provider": "local-rules",
       "model": "deterministic-v1",
@@ -12544,6 +12552,7 @@
         "видео и продакшн",
         "образование",
         "город и наследие",
+        "киров/вятка",
         "общество"
       ],
       "entities": [
@@ -12584,6 +12593,7 @@
         "3d и пространственные медиа",
         "видео и продакшн",
         "город и наследие",
+        "киров/вятка",
         "путешествия",
         "игры",
         "технологии",
@@ -12662,6 +12672,7 @@
       "topics": [
         "видео и продакшн",
         "город и наследие",
+        "киров/вятка",
         "игры"
       ],
       "entities": [
@@ -12732,6 +12743,7 @@
         "видео и продакшн",
         "образование",
         "город и наследие",
+        "киров/вятка",
         "технологии"
       ],
       "entities": [
@@ -12760,6 +12772,7 @@
       "topics": [
         "xr",
         "город и наследие",
+        "киров/вятка",
         "игры",
         "музыка и звук",
         "технологии"
@@ -12780,6 +12793,7 @@
       "summary": "",
       "topics": [
         "город и наследие",
+        "киров/вятка",
         "игры"
       ],
       "entities": [
@@ -12831,6 +12845,7 @@
       "topics": [
         "видео и продакшн",
         "город и наследие",
+        "киров/вятка",
         "путешествия"
       ],
       "entities": [
@@ -12849,6 +12864,8 @@
       "summary": "",
       "topics": [
         "open source",
+        "втюбинг и виртуальные персонажи",
+        "интим и близость",
         "искусственный интеллект",
         "llm",
         "xr",

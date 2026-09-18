@@ -5,7 +5,7 @@ title: "я.ты.город."
 summary: "Авторский медиапроект о культурных и природных богатствах Кировской области. Существовал с 2018 по 2024 год — от коротких фото- и видеопубликаций на YouTube и VK до лонгридов с 360-панорамами и виртуальных пространств.…"
 status: "archived"
 domains: ["web","video","writing","community"]
-tags: ["web","video","writing","community"]
+tags: ["web","video","writing","community","киров/вятка"]
 entities: []
 featured: true
 updated: "2026-09-14"

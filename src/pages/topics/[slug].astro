@@ -8,8 +8,60 @@ export async function getStaticPaths() {
   return collectTopics(await allEntries(), true).map((topic) => ({ params: { slug: topic.slug }, props: { topic } }));
 }
 const { topic } = Astro.props;
+const topicEntries = [...topic.entries].sort((first, second) => {
+  const firstTime = (first.data.date ?? first.data.updated)?.getTime() ?? Number.NEGATIVE_INFINITY;
+  const secondTime = (second.data.date ?? second.data.updated)?.getTime() ?? Number.NEGATIVE_INFINITY;
+  return secondTime - firstTime;
+});
 ---
 <Base title={`Тема: ${topic.name}`} description={`${topic.name}: ${topic.entries.length} материалов Станислава Ермоленко — работы, проекты, статьи, видео и публикации.`}>
   <header class="catalog-hero"><div class="section-kicker"><a href="/topics/">Все темы</a></div><h1>#{topic.name}</h1><p class="hero-lead">{topic.entries.length} материалов разных форматов образуют этот маршрут через опыт.</p></header>
-  <section class="section"><div class="card-grid">{topic.entries.map((entry) => <ContentCard entry={entry} headingLevel="h2" />)}</div></section>
+  <section class="section topic-results">
+    <div class="topic-toolbar">
+      <p>{topic.entries.length} материалов</p>
+      <label>Порядок
+        <select data-topic-sort>
+          <option value="newest">Сначала новые</option>
+          <option value="oldest">Сначала старые</option>
+        </select>
+      </label>
+    </div>
+    <div class="card-grid" data-topic-grid>{topicEntries.map((entry) => <ContentCard entry={entry} headingLevel="h2" />)}</div>
+  </section>
+  <script>
+    const grid = document.querySelector<HTMLElement>("[data-topic-grid]");
+    const sort = document.querySelector<HTMLSelectElement>("[data-topic-sort]");
+    if (grid && sort) {
+      const applySort = () => {
+        const direction = sort.value === "oldest" ? 1 : -1;
+        const cards = [...grid.querySelectorAll<HTMLElement>(".content-card")];
+        cards.sort((first, second) => {
+          const firstTime = Date.parse(first.dataset.date ?? "");
+          const secondTime = Date.parse(second.dataset.date ?? "");
+          if (!Number.isFinite(firstTime)) return Number.isFinite(secondTime) ? 1 : 0;
+          if (!Number.isFinite(secondTime)) return -1;
+          return direction * (firstTime - secondTime);
+        });
+        grid.append(...cards);
+        const url = new URL(location.href);
+        sort.value === "oldest" ? url.searchParams.set("sort", "oldest") : url.searchParams.delete("sort");
+        history.replaceState(null, "", url);
+      };
+      sort.value = new URL(location.href).searchParams.get("sort") === "oldest" ? "oldest" : "newest";
+      sort.addEventListener("change", applySort);
+      applySort();
+    }
+  </script>
+  <style>
+    .topic-results { padding-block-start: 0; }
+    .topic-toolbar { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); margin-bottom: var(--s-4); padding-block: var(--s-3); border-block: 1px solid var(--line); color: var(--ink-2); }
+    .topic-toolbar p { margin: 0; }
+    .topic-toolbar label { display: flex; align-items: center; gap: var(--s-2); white-space: nowrap; }
+    .topic-toolbar select { min-height: 2.6rem; padding: .5rem 2.1rem .5rem .8rem; border: 1px solid var(--line); border-radius: var(--radius-pill); background: var(--surface); color: var(--ink); }
+    @media (max-width: 560px) {
+      .topic-toolbar { align-items: stretch; flex-direction: column; }
+      .topic-toolbar label { justify-content: space-between; }
+      .topic-toolbar select { flex: 1; min-width: 0; }
+    }
+  </style>
 </Base>

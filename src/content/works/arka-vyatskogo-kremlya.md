@@ -8,7 +8,7 @@ genres: ["xr","community"]
 role: "Снял объект на DJI Mini 2; Собрал фотограмметрическую модель в RealityCapture; Почистил и доработал скан в Blender"
 client: "Проект: MetaVyatka"
 status: completed
-tags: ["xr","community"]
+tags: ["xr","community","киров/вятка"]
 entities: []
 featured: false
 features: ["Снял объект на DJI Mini 2","Собрал фотограмметрическую модель в RealityCapture","Почистил и доработал скан в Blender","Опубликовал и оформил пространство в Spatial","Собрал вокруг объекта небольшую выставочную драматургию, а не просто залил меш в интернет"]

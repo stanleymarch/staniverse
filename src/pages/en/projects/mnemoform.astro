@@ -1,0 +1,157 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+
+/* The structural facts stay bound to the Russian entry — status, domains and the
+   update date are read from the collection, never retyped for the translation. */
+const source = (await getCollection("projects")).find((item) => item.data.id === "project:mnemoform");
+const statusLabels: Record<string, string> = { idea: "Idea", planned: "Planned", development: "In development", active: "Active", paused: "Paused", completed: "Completed", archived: "Archived" };
+const domainLabels: Record<string, string> = { ai: "AI", fabrication: "Fabrication", sensors: "Sensors", memory: "Memory" };
+const status = source ? statusLabels[source.data.status] ?? source.data.status : "Planned";
+const domains = source?.data.domains.map((domain) => domainLabels[domain] ?? domain) ?? [];
+const updated = source?.data.updated ? new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric" }).format(source.data.updated) : "";
+
+const pageTitle = "Mnemoform — memories and biosignals turned into tangible form";
+const description = "Mnemoform is a project about translating memories, bodily signals and personal stories into tangible forms — not only physical objects, but also generative graphics and sound. What interests me here is not an abstract art metaphor but a working pipeline: how an experience, a voice, a pulse, the spectrum of an audio signal or another biosensor becomes a form that can be printed, used and kept.";
+const projectJsonLd = {
+  "@type": "CreativeWork",
+  "@id": new URL("/en/projects/mnemoform/#content", Astro.site).href,
+  url: new URL("/en/projects/mnemoform/", Astro.site).href,
+  name: "Mnemoform",
+  headline: "Mnemoform",
+  description,
+  inLanguage: "en",
+  author: { "@id": new URL("/#stanislav-ermolenko", Astro.site).href },
+  isPartOf: { "@id": new URL("/#website", Astro.site).href },
+  ...(source?.data.updated ? { dateModified: source.data.updated.toISOString() } : {}),
+};
+---
+<Base title={pageTitle} description={description} lang="en" jsonLd={projectJsonLd}>
+  <article class="entry-shell">
+    <header class="entry-hero">
+      <div class="entry-hero-meta"><span class="section-kicker">Own project · {status}</span></div>
+      <h1>Mnemoform</h1>
+      <p class="entry-summary">{description}</p>
+      <dl class="work-facts">
+        <div><dt>Status</dt><dd>{status}</dd></div>
+        <div><dt>Domains</dt><dd>{domains.join(" · ")}</dd></div>
+        {updated && <div><dt>Updated</dt><dd>{updated}</dd></div>}
+      </dl>
+    </header>
+    <div class="prose">
+      <h2>The essence</h2>
+      <p><code>Mnemoform</code> is a project about translating memories, bodily signals and personal stories into tangible forms — not only physical objects, but also generative graphics and sound. What interests me here is not an abstract art metaphor but a working pipeline: how an experience, a voice, a pulse, the spectrum of an audio signal or another biosensor become a form that can be printed, used and kept — or experienced through generative visualisation in <code>TouchDesigner</code> and <code>MIDI</code> signals for music in <code>Ableton</code>.</p>
+
+      <h2>Status and horizon</h2>
+      <p>Right now this is a project-research contour with a demo that already exists. An important next step is to describe it not only as a beautiful idea but as a reproducible pipeline: from a story about a memory, a biosignal or telemetry to the form, geometry, parametric variation, texture and function of a physical object — or to generative graphics and a musical pattern.</p>
+
+      <h2>Why now</h2>
+      <p>The theme of memory and digital identity often stays either in text or in a purely visual metaphor. <code>Mnemoform</code> matters as an attempt to translate it into a physical thing that can be interacted with by hand, kept and built into everyday life. But the project is not limited to 3D printing — the same data can become generative graphics in real time through <code>TouchDesigner</code> or a musical pattern through <code>MIDI</code> in <code>Ableton</code>. What interests me here is precisely the bridge between an abstract experience and a material form across different sensory modalities.</p>
+      <p>In an art&amp;science optics this can be read as a study of how data acquires a body and memories acquire a form: when subjective experience stops being just a number on a screen and turns into a tangible object, a living visualisation or a sound. And in applied logic it is an attempt to make sure that a memory or a state does not dissolve in the archive of a phone but gets a medium — be it a physical object, a generative scene or a sound pattern.</p>
+
+      <h2>Goals</h2>
+      <ul>
+        <li>Turn memories into objects that work not only as souvenirs but as useful things</li>
+        <li>Explore how biosignals can influence the form and the properties of an object</li>
+        <li>Link generative technologies, parametric design and digital manufacturing</li>
+        <li>Give a person a more bodily way to keep important states and events</li>
+      </ul>
+
+      <h2>What has been done</h2>
+      <ul>
+        <li>The idea of the project itself has been formulated</li>
+        <li>There is a working demo</li>
+        <li>A public prototype <code>Mnemoform</code> is up, where memories turn into parametric objects for <code>3D</code> printing</li>
+        <li>The demo already carries an important logic: audio and photo analysis runs entirely on the client</li>
+        <li>A connection has been found with the broader lines about memory, digital companions and sensory interfaces</li>
+        <li>There is an understanding that the project can live both as art-tech and as an applied service</li>
+        <li>Right now the working demonstration already takes at least audio and photo as an input signal for generating a form</li>
+      </ul>
+
+      <h2>Immediate focus</h2>
+      <ul>
+        <li>Settle what exactly the current demo does and on which stack</li>
+        <li>Describe which types of objects suit a first release best</li>
+        <li>Separate the scenarios: a memory through an interview, watch data, pulse, EEG, a mixed mode</li>
+        <li>Decide what in the MVP is made generatively and what is set by the designer&rsquo;s hand</li>
+        <li>Give a link to the web demo earlier in the public presentation, so that it is immediately visible that the project already exists not only as text</li>
+      </ul>
+
+      <h2>The logic of the project</h2>
+      <p>At the core of <code>Mnemoform</code> lies the idea that a memory, an emotional pattern or a biosignal can become not just a picture but a physical object. It can be:</p>
+      <ul>
+        <li>an object born from a story about an important memory;</li>
+        <li>a form changing under <code>EEG</code> data;</li>
+        <li>a surface or the rhythm of a structure depending on the pulse;</li>
+        <li>an object assembled from the telemetry of wearable devices, including smart watches;</li>
+        <li>a thing where function and memory do not contradict each other.</li>
+      </ul>
+      <p>There is strong potential here for working with <code>EEG</code>, pulse sensors, voice and wearable electronics. This is no longer only about the symbolic &ldquo;here is an artefact of my memory&rdquo; but also about a more living biofeedback: how the body and the state take part directly in creating the form.</p>
+      <p>A separate scenario I want to develop is the correlation of wearable telemetry with a photograph. Apple Health already aggregates pulse, steps, sleep and other patterns — they lie there waiting for someone to match them with a photo from the same day and hour. In that case the object gets a double texture: not only what was seen but also what was happening inside at that moment. This turns wearable data from personal statistics into material for form.</p>
+      <p>Speaking more technically, I am interested in the very parametric logic of translating a signal into an object. For instance, the amplitude, rhythm, spectral richness or other characteristics of audio can control the height, thickness, periodicity, density, curvature and other morphological parameters of the future thing. That is, it is not just about a &ldquo;beautiful wave&rdquo; but about a system of correspondences between a digital signal and geometry.</p>
+
+      <h2>Format and artefacts</h2>
+      <ul>
+        <li>parametrically generated objects</li>
+        <li>3D printing or another kind of digital manufacturing</li>
+        <li>a pipeline demo</li>
+        <li>a project presentation</li>
+        <li>the <code>Mnemoform</code> web demo</li>
+      </ul>
+
+      <h2>Interfaces and platforms</h2>
+      <ul>
+        <li>a web demo as the public entry point;</li>
+        <li>a generative pipeline that turns input data into form;</li>
+        <li>a digital manufacturing layer: <code>3D</code> printing and possibly other ways of making;</li>
+        <li>a sensory layer: pulse, <code>EEG</code>, wearable devices, voice, interviews.</li>
+      </ul>
+
+      <h2>Stack and tools</h2>
+      <ul>
+        <li>generative AI</li>
+        <li>parametric modelling</li>
+        <li>3D printing</li>
+        <li><code>EEG</code> / <code>BCI</code></li>
+        <li>pulse sensors</li>
+        <li>wearable device data</li>
+        <li><code>OSC</code> and other signal transfer interfaces</li>
+      </ul>
+
+      <h2>What is needed next</h2>
+      <ul>
+        <li>describe the MVP not as an idea but as a demonstrable scenario;</li>
+        <li>understand which types of objects work best in the first release;</li>
+        <li>strengthen the project with people who can help with fabrication, materials and biodata interfaces;</li>
+        <li>turn the demo into a convincing proof of concept for partners and the team.</li>
+      </ul>
+      <p>To be honest, it is very easy here to drift into beautiful speculative design without a clear user experience. That is why expressiveness alone is not enough for me: subject-matter persuasiveness matters too, so that it is clear why this object is the way it is, what exactly influenced it and what makes it valuable beyond its unusualness.</p>
+
+      <h2>Skills and roles</h2>
+      <ul>
+        <li>conceptual design</li>
+        <li>translating data and experiences into form</li>
+        <li>connecting digital and physical manufacturing</li>
+        <li>researching sensory interfaces</li>
+      </ul>
+
+      <h2>Potential applications</h2>
+      <ul>
+        <li>commemorative and functional objects for private users</li>
+        <li>art objects and installations</li>
+        <li>therapeutic and reflective practices</li>
+        <li>custom items tied to bodily data and a person&rsquo;s history</li>
+      </ul>
+
+      <h2>Results / potential</h2>
+      <p><code>Mnemoform</code> is good because it translates a very abstract theme of memory and digital identity into a clear material gesture. Here art, sensors, fabrication and personal stories can be joined in a form that is understandable even to someone outside XR and AI contexts, and the existence of a demo already gives the project not only an idea but also proof of viability. The expansion into generative graphics and sound makes the project multimodal — a memory can sound and move, not just stand on a shelf. This is one of those projects where I especially like the meeting of the digital and the tactile.</p>
+
+      <h2>Links</h2>
+      <ul>
+        <li><a href="https://parametrick.staniverse.xyz/">https://parametrick.staniverse.xyz/</a></li>
+      </ul>
+
+      <p class="entry-original"><a class="text-link" href="/projects/mnemoform/">Original (Russian) →</a></p>
+    </div>
+  </article>
+</Base>

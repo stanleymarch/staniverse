@@ -33,15 +33,24 @@ export function pointViewport(): PointViewport {
   };
 }
 
+/**
+ * Photospheric tints, cool to hot. Every star keeps the hue of what it stands for and
+ * borrows a temperature from this ramp, so a field of stars reads as a real sky instead
+ * of one repeated white dot.
+ */
+export const SPECTRAL_TINTS = [0xffc9a0, 0xffe0b8, 0xfff6e4, 0xe8f0ff, 0xc2d8ff, 0x9fc0ff] as const;
+
 export interface PointCloudAttributes {
   positions: Float32Array;
   colors: Float32Array;
   sizes: Float32Array;
   phases: Float32Array;
   twinkles: Float32Array;
+  /** Per-star diffraction strength: 0 keeps dust and nebulae soft, 1 gives a star its flares. */
+  spikes: Float32Array;
 }
 
-/** Buffers for one point cloud: position, colour, world size, twinkle phase and depth. */
+/** Buffers for one point cloud: position, colour, world size, twinkle phase, depth and flares. */
 export function pointCloudAttributes(count: number): PointCloudAttributes {
   return {
     positions: new Float32Array(count * 3),
@@ -49,6 +58,7 @@ export function pointCloudAttributes(count: number): PointCloudAttributes {
     sizes: new Float32Array(count),
     phases: new Float32Array(count),
     twinkles: new Float32Array(count),
+    spikes: new Float32Array(count),
   };
 }
 
@@ -59,6 +69,7 @@ export function pointCloudGeometry(THREE: ThreeModule, attributes: PointCloudAtt
   geometry.setAttribute("aSize", new THREE.BufferAttribute(attributes.sizes, 1));
   geometry.setAttribute("aPhase", new THREE.BufferAttribute(attributes.phases, 1));
   geometry.setAttribute("aTwinkle", new THREE.BufferAttribute(attributes.twinkles, 1));
+  geometry.setAttribute("aSpikes", new THREE.BufferAttribute(attributes.spikes, 1));
   return geometry;
 }
 
@@ -71,19 +82,21 @@ export interface PointCloudStyle {
   additive: boolean;
   /** Device-pixel cap for one sprite: stars stay specks, nebulae are allowed to spread. */
   maxSize?: number;
+  /** Broad irregular gas profile instead of a point-source diffraction profile. */
+  nebula?: boolean;
 }
 
 /**
- * Round star shader. Points are quads; `gl_PointCoord` turns each one into a soft
- * disc with a bright core, a wide corona and depth attenuation, in one draw call.
- * Two uniforms (`uSoftness`/`uCore`) cover both stars and nebulae, so every point
- * cloud in the universe shares one shader program.
+ * Point-source shader with two deliberate profiles. Stars use a compact Airy core and narrow
+ * diffraction rays, never a filled disc; nebulae use a warped low-frequency envelope so their
+ * large quads read as gas rather than oversized stars.
  */
 const POINT_VERTEX_SHADER = `
   attribute vec3 color;
   attribute float aSize;
   attribute float aPhase;
   attribute float aTwinkle;
+  attribute float aSpikes;
   uniform float uPixelRatio;
   uniform float uScale;
   uniform float uTime;
@@ -91,6 +104,7 @@ const POINT_VERTEX_SHADER = `
   uniform float uMaxSize;
   varying vec3 vColor;
   varying float vBrightness;
+  varying float vSpikes;
   #include <fog_pars_vertex>
   void main() {
     vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
@@ -98,6 +112,7 @@ const POINT_VERTEX_SHADER = `
     float twinkle = 1.0 + aTwinkle * 0.26 * sin(uTime * (0.55 + aPhase) + aPhase * 39.4784) * step(0.0001, uTime);
     float pulse = uEnergy * (0.6 + 0.4 * sin(uTime * 2.7 + aPhase * 6.2832));
     vColor = color;
+    vSpikes = aSpikes;
     vBrightness = twinkle * (1.0 + 0.7 * pulse);
     float depth = max(-mvPosition.z, 0.02);
     gl_PointSize = clamp(aSize * uPixelRatio * uScale / depth * (1.0 + 0.5 * pulse), 1.25, uMaxSize);
@@ -109,20 +124,38 @@ const POINT_FRAGMENT_SHADER = `
   uniform float uOpacity;
   uniform float uSoftness;
   uniform float uCore;
+  uniform float uNebula;
   varying vec3 vColor;
   varying float vBrightness;
+  varying float vSpikes;
   #include <fog_pars_fragment>
   void main() {
-    float radius = length(gl_PointCoord - vec2(0.5)) * 2.0;
-    if (radius > 1.0) discard;
-    float falloff = 1.0 - radius;
-    float corona = pow(falloff, uSoftness);
-    float core = exp(-radius * radius * uCore);
-    float alpha = clamp(corona * 0.7 + core, 0.0, 1.0) * uOpacity;
-    gl_FragColor = vec4(vColor * (0.55 + 0.75 * core) * vBrightness, alpha);
+    vec2 offset = gl_PointCoord - vec2(0.5);
+    float radius = length(offset) * 2.0;
+    float angle = atan(offset.y, offset.x);
+    float alpha;
+    vec3 colour;
+    if (uNebula > 0.5) {
+      float contour = 1.0 + 0.11 * sin(angle * 3.0 + 1.7) + 0.065 * sin(angle * 7.0 - 0.8);
+      float cloud = pow(max(0.0, 1.0 - radius / contour), uSoftness);
+      float filament = 0.72 + 0.28 * sin(offset.x * 15.0 + sin(offset.y * 11.0) * 1.8);
+      alpha = cloud * filament * uOpacity;
+      colour = vColor * (0.42 + cloud * 0.72) * vBrightness;
+    } else {
+      if (radius > 1.0) discard;
+      float photosphere = exp(-radius * radius * uCore * 3.2);
+      float halo = exp(-radius * 8.5) * 0.16;
+      float airy = exp(-pow((radius - 0.27) * 19.0, 2.0)) * 0.075;
+      vec2 arms = abs(offset);
+      float cross = exp(-min(arms.x, arms.y) * 115.0) * exp(-max(arms.x, arms.y) * 4.2);
+      float diagonal = exp(-abs(arms.x - arms.y) * 92.0) * exp(-(arms.x + arms.y) * 5.5);
+      float flares = (cross + diagonal * 0.18) * vSpikes;
+      alpha = clamp(photosphere + halo + airy * vSpikes + flares, 0.0, 1.0) * uOpacity;
+      colour = vColor * (0.42 + 1.18 * photosphere + 0.42 * flares) * vBrightness;
+    }
+    if (alpha < 0.004) discard;
+    gl_FragColor = vec4(colour, alpha);
     #include <fog_fragment>
-    // Match three's built-in point/sprite output path so these colours land in the same
-    // colour space as the node meshes and glows they sit beside.
     #include <tonemapping_fragment>
     #include <colorspace_fragment>
   }
@@ -141,6 +174,7 @@ export function createPointCloudMaterial(THREE: ThreeModule, style: PointCloudSt
       uSoftness: { value: style.softness },
       uCore: { value: style.core },
       uMaxSize: { value: style.maxSize ?? 64 },
+      uNebula: { value: style.nebula ? 1 : 0 },
     },
   ]);
   return new THREE.ShaderMaterial({
@@ -161,9 +195,32 @@ export interface UniverseBackdropHost {
   compact: boolean;
 }
 
+/** Optical density of each cloud per presentation: a bright sky on screen, a readable one over a camera. */
+interface BackdropTone {
+  dustOpacity: number;
+  dustMaxSize: number;
+  depthOpacity: number;
+  nebulaOpacity: number;
+  nebulaMaxSize: number;
+}
+
+const TONES: Record<BackdropPresentation, BackdropTone> = {
+  screen: { dustOpacity: .5, dustMaxSize: 64, depthOpacity: .34, nebulaOpacity: .34, nebulaMaxSize: 240 },
+  // WebGL points are clipped by their centre before the sprite quad is expanded. A 240px nebula
+  // near an eye's frustum edge can therefore exist in one eye and disappear in the other. VR keeps
+  // the colour atmosphere, but caps it below the size where that monocular rivalry dominates.
+  vr: { dustOpacity: .46, dustMaxSize: 52, depthOpacity: .3, nebulaOpacity: .2, nebulaMaxSize: 68 },
+  // Over a camera feed, hundreds of additive background points become glare and compete with the
+  // tracked constellation. AR keeps only a trace of dust for motion; the semantic stars and their
+  // links remain opaque/readable in UniverseWorld.
+  ar: { dustOpacity: .035, dustMaxSize: 10, depthOpacity: 0, nebulaOpacity: 0, nebulaMaxSize: 48 },
+};
+
+export type BackdropPresentation = "screen" | "ar" | "vr";
+
 /**
- * Deep-space dressing for the graph: a seeded dust field and a handful of procedural
- * nebulae, both drawn as round shader points. Two draw calls at every device tier,
+ * Deep-space dressing for the graph: a near dust field, a far field for depth and a handful of
+ * procedural nebulae, all drawn as round shader points. Three draw calls at every device tier,
  * deterministic from the dust offset alone, never a texture or remote asset.
  */
 export class UniverseBackdrop {
@@ -174,6 +231,8 @@ export class UniverseBackdrop {
   private readonly motionQuery = typeof window !== "undefined" && typeof window.matchMedia === "function"
     ? window.matchMedia("(prefers-reduced-motion: reduce)")
     : undefined;
+  private readonly materialsByTone: { dust: ShaderMaterial; depth: ShaderMaterial; nebula: ShaderMaterial };
+  private presentation: BackdropPresentation = "screen";
   private disposed = false;
 
   private constructor(THREE: ThreeModule, parent: Object3D, compact: boolean) {
@@ -181,36 +240,63 @@ export class UniverseBackdrop {
     this.group.name = "universe-backdrop";
     parent.add(this.group);
 
-    const dustCount = compact ? 340 : 780;
+    // Near field: fewer, brighter, larger grains, some of them flaring like real stars.
+    const dustCount = compact ? 300 : 700;
     const dust = pointCloudAttributes(dustCount);
     const dustRng = seeded("universe-backdrop-dust");
     for (let index = 0; index < dustCount; index += 1) {
       const azimuth = dustRng() * Math.PI * 2;
       const polar = Math.acos(1 - 2 * dustRng());
-      const radius = 34 + 88 * Math.pow(dustRng(), .62);
+      const radius = 26 + 62 * Math.pow(dustRng(), .62);
       const planar = Math.sin(polar);
       dust.positions[index * 3] = radius * planar * Math.cos(azimuth);
       dust.positions[index * 3 + 1] = radius * Math.cos(polar) * .78;
       dust.positions[index * 3 + 2] = radius * planar * Math.sin(azimuth);
-      const warmth = dustRng();
-      dust.colors[index * 3] = .58 + warmth * .34;
-      dust.colors[index * 3 + 1] = .72 + warmth * .2;
-      dust.colors[index * 3 + 2] = .86 + dustRng() * .14;
-      dust.sizes[index] = (compact ? .05 : .06) + dustRng() * .09;
+      const tint = new THREE.Color(SPECTRAL_TINTS[Math.floor(dustRng() * SPECTRAL_TINTS.length)]);
+      dust.colors[index * 3] = tint.r;
+      dust.colors[index * 3 + 1] = tint.g;
+      dust.colors[index * 3 + 2] = tint.b;
+      const bright = dustRng();
+      dust.sizes[index] = (compact ? .07 : .08) + bright * bright * .3;
       dust.phases[index] = dustRng();
       dust.twinkles[index] = .35 + dustRng() * .5;
+      dust.spikes[index] = bright > .9 ? .85 : bright > .78 ? .4 : 0;
     }
-    this.addPoints(THREE, dust, { softness: 2.4, core: 4.5, opacity: .5, additive: true });
+    const dustMaterial = this.addPoints(THREE, dust, { softness: 2.4, core: 4.5, opacity: TONES.screen.dustOpacity, additive: true });
 
-    // Nebulae are the same point cloud at a different scale: broad, almost flat discs.
-    const nebulaCount = compact ? 4 : 7;
+    // Far field: many small, dim stars out to a wide radius. Depth reads as scale, not as brightness.
+    const depthCount = compact ? 260 : 620;
+    const depth = pointCloudAttributes(depthCount);
+    const depthRng = seeded("universe-backdrop-depth");
+    for (let index = 0; index < depthCount; index += 1) {
+      const azimuth = depthRng() * Math.PI * 2;
+      const polar = Math.acos(1 - 2 * depthRng());
+      const radius = 110 + 240 * Math.pow(depthRng(), .5);
+      const planar = Math.sin(polar);
+      depth.positions[index * 3] = radius * planar * Math.cos(azimuth);
+      depth.positions[index * 3 + 1] = radius * Math.cos(polar) * .82;
+      depth.positions[index * 3 + 2] = radius * planar * Math.sin(azimuth);
+      const tint = new THREE.Color(SPECTRAL_TINTS[Math.floor(depthRng() * SPECTRAL_TINTS.length)]);
+      const warmth = .55 + depthRng() * .45;
+      depth.colors[index * 3] = tint.r * warmth;
+      depth.colors[index * 3 + 1] = tint.g * warmth;
+      depth.colors[index * 3 + 2] = tint.b * warmth;
+      depth.sizes[index] = .34 + depthRng() * .8;
+      depth.phases[index] = depthRng();
+      depth.twinkles[index] = .28 + depthRng() * .44;
+      depth.spikes[index] = 0;
+    }
+    const depthMaterial = this.addPoints(THREE, depth, { softness: 2.6, core: 5.5, opacity: TONES.screen.depthOpacity, additive: true, maxSize: 12 });
+
+    // Nebulae are the same point cloud at a different scale: broad, almost flat discs of colour.
+    const nebulaCount = compact ? 5 : 8;
     const nebulae = pointCloudAttributes(nebulaCount);
-    const nebulaPalette = [0x7548e8, 0x1e9ee8, 0xe33b9f, 0x27c6a3, 0xa25dea, 0x365fc7, 0xf18a3d];
+    const nebulaPalette = [0x8a5cff, 0x39b4ff, 0xff5aa8, 0x35d9b0, 0xb066ff, 0x4a7bff, 0xff9a4d, 0xff6ad5];
     const nebulaRng = seeded("universe-backdrop-nebulae");
     for (let index = 0; index < nebulaCount; index += 1) {
       const azimuth = nebulaRng() * Math.PI * 2;
       const polar = Math.acos(1 - 2 * nebulaRng());
-      const radius = 32 + 62 * nebulaRng();
+      const radius = 44 + 96 * nebulaRng();
       const planar = Math.sin(polar);
       nebulae.positions[index * 3] = radius * planar * Math.cos(azimuth);
       nebulae.positions[index * 3 + 1] = radius * Math.cos(polar) * .7;
@@ -219,11 +305,14 @@ export class UniverseBackdrop {
       nebulae.colors[index * 3] = tint.r;
       nebulae.colors[index * 3 + 1] = tint.g;
       nebulae.colors[index * 3 + 2] = tint.b;
-      nebulae.sizes[index] = 24 + nebulaRng() * 30;
+      nebulae.sizes[index] = 20 + nebulaRng() * 32;
       nebulae.phases[index] = nebulaRng();
       nebulae.twinkles[index] = 0;
+      nebulae.spikes[index] = 0;
     }
-    this.addPoints(THREE, nebulae, { softness: 2.2, core: 3.5, opacity: .36, additive: true, maxSize: 240 });
+    const nebulaMaterial = this.addPoints(THREE, nebulae, { softness: 2.2, core: 3.5, opacity: TONES.screen.nebulaOpacity, additive: true, maxSize: TONES.screen.nebulaMaxSize, nebula: true });
+
+    this.materialsByTone = { dust: dustMaterial, depth: depthMaterial, nebula: nebulaMaterial };
   }
 
   static create(host: UniverseBackdropHost) {
@@ -238,6 +327,23 @@ export class UniverseBackdrop {
     this.group.add(points);
     this.geometries.push(geometry);
     this.materials.push(material);
+    return material;
+  }
+
+  /** Screen, AR and VR differ in how much additive light the display can carry before it flares out. */
+  setPresentation(next: BackdropPresentation) {
+    if (this.disposed || this.presentation === next) return;
+    this.presentation = next;
+    this.applyTone();
+  }
+
+  private applyTone() {
+    const tone = TONES[this.presentation];
+    this.materialsByTone.dust.uniforms.uOpacity.value = tone.dustOpacity;
+    this.materialsByTone.dust.uniforms.uMaxSize.value = tone.dustMaxSize;
+    this.materialsByTone.depth.uniforms.uOpacity.value = tone.depthOpacity;
+    this.materialsByTone.nebula.uniforms.uOpacity.value = tone.nebulaOpacity;
+    this.materialsByTone.nebula.uniforms.uMaxSize.value = tone.nebulaMaxSize;
   }
 
   /** Drives twinkle and the audio response. Safe when never called: the field stays static. */
@@ -250,8 +356,9 @@ export class UniverseBackdrop {
       const uniforms = material.uniforms;
       uniforms.uPixelRatio.value = viewport.pixelRatio;
       uniforms.uScale.value = viewport.scale;
+      // Nebulae drift, they do not pulse: only the point fields follow the score.
       uniforms.uTime.value = motion ? elapsedSeconds : 0;
-      uniforms.uEnergy.value = energy;
+      uniforms.uEnergy.value = material === this.materialsByTone.nebula ? energy * .5 : energy;
     });
   }
 

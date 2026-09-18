@@ -1,0 +1,123 @@
+name: Deploy to Yandex Object Storage
+
+# Production deploy: build the static site and sync it into the bucket that
+# serves staniverse.xyz. Full playbook (bucket setup, TLS, secrets):
+# docs/deploy/yandex-object-storage.md
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-storage
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: ru-central1
+      AWS_EC2_METADATA_DISABLED: "true"
+      ENDPOINT: ${{ vars.YC_ENDPOINT }}
+      BUCKET: ${{ vars.YC_BUCKET }}
+      CDN_RESOURCE_ID: ${{ vars.YC_CDN_RESOURCE_ID }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate deployment configuration
+        env:
+          PUBLIC_YANDEX_METRIKA_ID: ${{ vars.PUBLIC_YANDEX_METRIKA_ID }}
+        run: |
+          test -n "$AWS_ACCESS_KEY_ID"
+          test -n "$AWS_SECRET_ACCESS_KEY"
+          test "$AWS_ACCESS_KEY_ID" != "REPLACE_WITH_YANDEX_ACCESS_KEY_ID"
+          test "$AWS_SECRET_ACCESS_KEY" != "REPLACE_WITH_YANDEX_SECRET_ACCESS_KEY"
+          test -n "$ENDPOINT"
+          test -n "$BUCKET"
+          [[ "$PUBLIC_YANDEX_METRIKA_ID" =~ ^[0-9]+$ ]]
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Build
+        env:
+          # Production identity: absolute URLs in canonical/OG/JSON-LD/sitemap
+          # must point at the real domain, never at a preview host.
+          SITE_URL: https://staniverse.xyz
+          PUBLIC_YANDEX_METRIKA_ID: ${{ vars.PUBLIC_YANDEX_METRIKA_ID }}
+          YANDEX_WEBMASTER_VERIFICATION: ${{ vars.YANDEX_WEBMASTER_VERIFICATION }}
+        run: npm run build
+
+      - name: Verify build output
+        run: test -f dist/index.html && test -f dist/404.html
+
+      # 1) HTML: prune only HTML keys and never cache them. /lab/<name>/ is
+      #    owned by lab.yml, so this pass keeps those independent deployments
+      #    while still updating the Astro directory page at /lab/index.html.
+      - name: Sync HTML (prune, no-cache)
+        run: |
+          aws s3 sync dist/ "s3://$BUCKET/" --delete \
+            --endpoint-url "$ENDPOINT" \
+            --exclude "*" --include "*.html" \
+            --exclude "lab/*" --include "lab/index.html" \
+            --cache-control "public, max-age=0, must-revalidate" \
+            --no-progress
+
+      # 2) Hashed assets: immutable for a year.
+      - name: Sync hashed assets (immutable)
+        run: |
+          aws s3 sync dist/_astro "s3://$BUCKET/_astro" --delete \
+            --endpoint-url "$ENDPOINT" \
+            --cache-control "public, max-age=31536000, immutable" \
+            --no-progress
+
+      # 3) Archive media names are stable. A month of browser/CDN caching keeps
+      #    repeat video ranges away from Object Storage without making a replaced
+      #    object effectively permanent.
+      - name: Sync media (long cache)
+        run: |
+          aws s3 sync dist/media "s3://$BUCKET/media" --delete \
+            --endpoint-url "$ENDPOINT" \
+            --cache-control "public, max-age=2592000, must-revalidate" \
+            --no-progress
+
+      # 4) Remaining static files (fonts, scripts, feeds, images): one day.
+      - name: Sync other static assets (short cache)
+        run: |
+          aws s3 sync dist/ "s3://$BUCKET/" --delete \
+            --endpoint-url "$ENDPOINT" \
+            --exclude "*.html" --exclude "_astro/*" --exclude "media/*" --exclude "lab/*" \
+            --cache-control "public, max-age=86400, must-revalidate" \
+            --no-progress
+
+      # 5) CDN purge only when a CDN resource is configured.
+      - name: Purge CDN cache
+        if: env.CDN_RESOURCE_ID != ''
+        env:
+          YC_SA_KEY: ${{ secrets.YC_SA_KEY }}
+          YC_FOLDER_ID: ${{ vars.YC_FOLDER_ID }}
+        run: |
+          echo "$YC_SA_KEY" > sa-key.json
+          curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash -s -- -n
+          export PATH="$HOME/yandex-cloud/bin:$PATH"
+          yc config profile create ci --service-account-key sa-key.json || true
+          yc config set folder-id "$YC_FOLDER_ID"
+          yc cdn cache purge --resource-id "$CDN_RESOURCE_ID" --path "/*"
+          rm -f sa-key.json

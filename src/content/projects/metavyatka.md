@@ -5,7 +5,7 @@ title: "MetaVyatka"
 summary: "MetaVyatka — незавершённый цифровой архив и XR-проект о Вятке, уже представленный в фестивальных заявках и отдельных кейсах цифровой консервации. Его дальнейшие направления включают пополнение звукового архива, каталог на Next.js, ИИ-гида с RAG и перенос миров на BasisVR; готовность этих намеченных систем не утверждается."
 status: "planned"
 domains: ["xr","ai","community","audio"]
-tags: ["xr","ai","community","audio"]
+tags: ["xr","ai","community","audio","киров/вятка"]
 entities: ["MetaVyatka","Вятка","Resonite","BasisVR","Next.js","Scaniverse","Synthetic Memories","Арка Вятского Кремля"]
 featured: true
 updated: "2026-04-15"

@@ -1,11 +1,8 @@
 ---
 import Base from "../../layouts/Base.astro";
-import { getCollection, render } from "astro:content";
 
-const manifestoEntry = (await getCollection("articles")).find((entry) => entry.id === "manifesto");
-const { Content: Manifesto } = manifestoEntry ? await render(manifestoEntry) : { Content: undefined };
 ---
-<Base title="Обо мне" description="Опыт, образование, инструменты и манифест Станислава Ермоленко.">
+<Base title="Обо мне" description="Опыт, образование, инструменты и манифест Станислава Ермоленко: XR и WebXR, AI-автоматизация, цифровые архивы и медиа, работа с бизнесом, музеями и культурными проектами." pageType="AboutPage">
   <div class="about-page">
     <header class="catalog-hero about-hero">
       <div class="about-hero-copy">
@@ -39,7 +36,7 @@ const { Content: Manifesto } = manifestoEntry ? await render(manifestoEntry) : {
           <li><time>2015 - 2023</time><div><strong>Медиацентр ВятГУ</strong><span>Оператор ЭВМ и куратор проектов</span></div></li>
           <li><time>2023 - сейчас</time><div><strong>Самозанятость / фриланс</strong><span>Автоматизация, GenAI, XR, Web, Media</span></div></li>
           <li><time>2023 - 2026</time><div><strong>«Цифровые кафедры» ВятГУ</strong><span>Преподаватель и методист; летом 2026 собрал курс «Основы продуктового менеджмента»</span></div></li>
-          <li><time>2025 - сейчас</time><div><strong>АНО</strong><span>Специалист по информационным системам</span></div></li>
+          <li><time>2025 - сейчас</time><div><strong>Специалист по информационным системам</strong></div></li>
         </ol>
         <div class="education-list">
           <article><time>2026 - н.в.</time><h3>Магистратура ИТМО</h3><p>«Цифровые методы в гуманитарных исследованиях» (Digital Humanities), направление 45.04.04 «Интеллектуальные системы в гуманитарной среде».</p></article>
@@ -55,6 +52,7 @@ const { Content: Manifesto } = manifestoEntry ? await render(manifestoEntry) : {
           <article><time>2021</time><h3>Цифровые технологии в журналистике и PR, ДПО ВятГУ</h3></article>
           <article><time>2015</time><h3>MB110x: Introduction to the Music Business</h3><p>Berklee College of Music via edX.</p></article>
           <article><time>2015</time><h3>BMPR365x: Vocal Recording Technology</h3><p>Berklee College of Music via edX.</p></article>
+          <a class="text-link" href="https://disk.yandex.ru/d/Wo6AjBBq8fJomA" target="_blank" rel="noreferrer">Подтверждающие документы <span aria-hidden="true">↗</span></a>
         </div>
       </div>
     </section>
@@ -81,14 +79,15 @@ const { Content: Manifesto } = manifestoEntry ? await render(manifestoEntry) : {
       </ul>
     </section>
 
-    <section class="section about-manifesto-full" id="manifesto" aria-labelledby="manifesto-title">
-      <div class="section-head"><div><div class="section-kicker">Манифест</div><h2 id="manifesto-title">Как я вообще всё это понимаю</h2></div></div>
-      <div class="manifesto-body prose">
-        {Manifesto ? <Manifesto /> : <p>Манифест скоро вернётся целиком.</p>}
+    <section class="section about-manifesto" id="manifesto" aria-labelledby="manifesto-title">
+      <div class="section-head"><div><div class="section-kicker">Манифест</div><h2 id="manifesto-title">Как я вообще<br />всё это понимаю</h2></div></div>
+      <div class="manifesto-teaser">
+        <p>О связях между технологиями, памятью, медиа и местом — и о том, почему мне важнее человеческое измерение будущего, чем очередная витрина технологий.</p>
+        <a class="button quiet" href="/manifesto/">Читать манифест</a>
       </div>
     </section>
 
-    <section class="about-contact" aria-labelledby="contact-title">
+    <section class="section about-contact" aria-labelledby="contact-title">
       <div><div class="section-kicker">Контакты и медиа</div><h2 id="contact-title">Продолжим разговор</h2></div>
       <div class="about-contact-links"><a href="mailto:stas@staniverse.xyz">stas@staniverse.xyz</a><a href="https://t.me/staniverse" target="_blank" rel="noreferrer">Telegram @staniverse <span aria-hidden="true">↗</span></a><a href="https://www.youtube.com/@staniverse" target="_blank" rel="noreferrer">YouTube @staniverse <span aria-hidden="true">↗</span></a><a href="https://www.youtube.com/@yatygorod" target="_blank" rel="noreferrer">YouTube @yatygorod <span aria-hidden="true">↗</span></a></div>
     </section>
@@ -96,78 +95,85 @@ const { Content: Manifesto } = manifestoEntry ? await render(manifestoEntry) : {
 </Base>
 
 <style>
-  .about-page { --about-cyan: #74d9f4; --about-ink: #f1f4fb; --about-muted: #9aa8c0; --about-line: rgba(145, 165, 198, .22); }
-  .about-page .catalog-hero { display: grid; grid-template-columns: minmax(0, 1.12fr) minmax(280px, .88fr); gap: clamp(2rem, 9vw, 9rem); max-width: 1440px; margin: 0 auto; padding: clamp(4rem, 9vw, 8rem) var(--rail) clamp(4rem, 8vw, 7rem); }
-  .about-page .catalog-hero h1 { max-width: 9ch; margin: .45rem 0 1.5rem; color: var(--about-ink); font-size: clamp(2.5rem, 4.8vw, 4.8rem); line-height: .98; letter-spacing: -.045em; text-wrap: balance; }
-  .about-page .hero-lead { max-width: 38rem; margin: 0; color: var(--about-muted); font-size: clamp(1rem, 1.5vw, 1.3rem); line-height: 1.55; }
-  .about-page .hero-actions { margin-top: 2.2rem; }
-  .about-page .button { min-height: 44px; border-radius: 0; transition: transform .25s ease, border-color .25s ease, background-color .25s ease; }
-  .about-page .button.primary { background: var(--about-cyan); border-color: var(--about-cyan); color: #07101a; }
-  .about-page .button:hover, .about-page .button:focus-visible { transform: translateY(-2px); border-color: var(--about-cyan); }
-  .about-hero-note { align-self: end; max-width: 25rem; padding-top: 1rem; border-top: 1px solid var(--about-line); color: var(--about-muted); }
-  .about-hero-note p { margin: 1rem 0 1.6rem; font-size: 1rem; line-height: 1.55; }
-  .about-page .text-link { color: var(--about-cyan); font-size: .82rem; }
-  .about-page .section { max-width: 1440px; margin: 0 auto; padding: clamp(4rem, 8vw, 8rem) var(--rail); }
-  .about-page .section-head { align-items: end; margin-bottom: 2rem; padding-bottom: 1.4rem; border-bottom: 1px solid var(--about-line); }
-  .about-page .section-head h2 { margin: .4rem 0 0; color: var(--about-ink); font: 500 clamp(2rem, 4.5vw, 4.5rem)/.98 Unbounded; letter-spacing: -.045em; text-wrap: balance; }
-  .about-intro-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem, 8vw, 8rem); }
-  .about-intro-grid p { max-width: 32rem; margin: 0; color: var(--about-muted); font-size: 1.05rem; line-height: 1.65; }
-  .direction-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-bottom: 1px solid var(--about-line); }
-  .direction-grid article { min-height: 13rem; padding: 1.2rem 1.4rem 1.6rem 0; border-right: 1px solid var(--about-line); }
-  .direction-grid article + article { padding-left: 1.4rem; }
-  .direction-grid article:last-child { border-right: 0; }
-  .direction-grid span { color: var(--about-cyan); font-size: .7rem; }
-  .direction-grid h3 { max-width: 15rem; margin: 2.3rem 0 .6rem; color: var(--about-ink); font-size: 1rem; line-height: 1.25; }
-  .direction-grid p { max-width: 15rem; margin: 0; color: var(--about-muted); font-size: .8rem; line-height: 1.55; }
-  .about-path-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(280px, .9fr); gap: clamp(2rem, 8vw, 8rem); }
-  .about-timeline { position: relative; display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
-  .about-timeline::before { position: absolute; top: .4rem; bottom: .4rem; left: .22rem; width: 1px; content: ""; background: var(--about-line); }
-  .about-timeline li { position: relative; display: grid; grid-template-columns: 8rem 1fr; gap: 1rem; padding: 0 0 2rem 1.25rem; }
-  .about-timeline li::before { position: absolute; top: .3rem; left: 0; width: .5rem; height: .5rem; content: ""; border: 1px solid var(--about-cyan); border-radius: 50%; background: var(--bg); }
-  .about-timeline time, .education-list time { color: var(--about-cyan); font-size: .72rem; }
-  .about-timeline strong { display: block; color: var(--about-ink); font-size: .95rem; }
-  .about-timeline span { display: block; margin-top: .25rem; color: var(--about-muted); font-size: .78rem; }
-  .education-list { border-top: 1px solid var(--about-line); }
-  .education-list article { display: grid; grid-template-columns: 4rem 1fr; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid var(--about-line); }
-  .education-list h3 { margin: 0; color: var(--about-ink); font-size: .9rem; line-height: 1.3; }
-  .education-list p { grid-column: 2; margin: -.35rem 0 0; color: var(--about-muted); font-size: .78rem; line-height: 1.5; }
-  .tools-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 2rem; border-top: 1px solid var(--about-line); }
-  .tools-grid div { padding: 1rem 0 1.4rem; border-bottom: 1px solid var(--about-line); }
-  .tools-grid h3 { margin: 0 0 .55rem; color: var(--about-ink); font-size: .9rem; }
-  .tools-grid p { max-width: 22rem; margin: 0; color: var(--about-muted); font-size: .78rem; line-height: 1.55; }
-  .achievement-list { display: grid; grid-template-columns: 1fr 1fr; gap: 0 3rem; margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--about-line); }
-  .achievement-list li { padding: 1rem 0 1.25rem; border-bottom: 1px solid var(--about-line); }
-  .achievement-list strong, .achievement-list span { display: block; }
-  .achievement-list strong { color: var(--about-ink); font-size: .9rem; line-height: 1.35; }
-  .achievement-list span { margin-top: .35rem; color: var(--about-muted); font-size: .78rem; }
-  .about-page .manifesto-section { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(280px, .8fr); gap: clamp(2rem, 8vw, 8rem); max-width: 1440px; margin: 0 auto; padding: clamp(4rem, 8vw, 8rem) clamp(1rem, 4vw, 3.5rem); border-top: 1px solid var(--about-line); }
-  .about-manifesto h2 { max-width: 17ch; margin: .5rem 0 0; color: var(--about-ink); font: 500 clamp(2rem, 4.5vw, 4.5rem)/.98 Unbounded; letter-spacing: -.045em; }
-  .about-manifesto .text-link { display: inline-block; margin-top: 2rem; }
-  .about-page .manifesto-side { align-self: end; max-width: 31rem; color: var(--about-muted); font-size: 1rem; line-height: 1.6; }
-  .about-contact { display: grid; grid-template-columns: .9fr 1.1fr; gap: 2rem; max-width: 1440px; margin: 0 auto; padding: 1.3rem clamp(1rem, 4vw, 3.5rem) 4rem; border-top: 1px solid var(--about-line); }
-  .about-contact h2 { margin: .5rem 0 0; color: var(--about-ink); font: 500 clamp(1.7rem, 3vw, 3rem)/1 Unbounded; letter-spacing: -.04em; }
-  .about-contact-links { display: flex; flex-wrap: wrap; align-content: start; gap: 1rem 1.5rem; }
-  .about-contact-links a { color: var(--about-muted); font-size: .82rem; text-decoration: underline; text-decoration-color: rgba(154, 168, 192, .4); text-underline-offset: .25rem; }
-  .about-contact-links a:hover, .about-contact-links a:focus-visible { color: var(--about-cyan); }
-  @media (max-width: 900px) {
-    .about-page .catalog-hero, .about-intro-grid, .about-path-grid, .about-page .manifesto-section, .about-contact { grid-template-columns: 1fr; }
-    .about-hero-note { max-width: 34rem; }
-    .direction-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .direction-grid article:nth-child(2) { border-right: 0; }
-    .direction-grid article:nth-child(n+3) { border-top: 1px solid var(--about-line); }
-    .tools-grid { grid-template-columns: 1fr 1fr; }
+  /* The page runs on the site tokens and the shared 12/6/4 grid: only the
+     composition of the hero, the timeline and the education list is local. */
+  .about-page .about-hero {
+    display: grid;
+    grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr));
+    gap: var(--grid-gap) clamp(2rem, 6vw, 6rem);
+    align-items: start;
   }
-  @media (max-width: 600px) {
-    .about-page .catalog-hero { padding-top: 2rem; }
-    .about-page .catalog-hero h1 { max-width: 10ch; font-size: clamp(2.35rem, 10.5vw, 3.25rem); line-height: 1; letter-spacing: -.045em; }
-    .direction-grid, .tools-grid, .achievement-list { grid-template-columns: 1fr; }
-    .direction-grid article, .direction-grid article + article { padding: 1.2rem 0; border-right: 0; }
-    .direction-grid article:first-child { border-top: 0; }
-    .about-timeline li { grid-template-columns: 1fr; gap: .3rem; }
+  .about-hero-copy { grid-column: span 7; }
+  .about-page .about-hero h1 { max-width: 12ch; margin: var(--s-1) 0 var(--s-4); font: 650 var(--text-h1) / .98 var(--font-display); letter-spacing: -.04em; text-wrap: balance; }
+  .about-hero-note { grid-column: span 5; align-self: end; max-width: 25rem; padding-top: var(--s-3); border-top: 1px solid var(--line); color: var(--ink-2); }
+  .about-hero-note p { margin: var(--s-3) 0 var(--s-4); font-size: var(--text-body); line-height: 1.55; }
+
+  .about-intro-grid { display: grid; grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr)); gap: var(--grid-gap) clamp(2rem, 6vw, 5rem); }
+  .about-intro-grid p { grid-column: span 6; max-width: 34rem; margin: 0; color: var(--ink-2); font-size: 1.05rem; line-height: 1.65; }
+
+  .direction-grid { display: grid; grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr)); gap: var(--s-4) var(--s-3); }
+  .direction-grid article { grid-column: span 3; min-height: 12rem; padding-top: var(--s-3); border-top: 1px solid var(--line); }
+  .direction-grid span { color: var(--accent); font-size: var(--text-label); letter-spacing: var(--track-label); font-variant-numeric: tabular-nums; }
+  .direction-grid h3 { max-width: 15rem; margin: var(--s-5) 0 var(--s-2); font: 500 var(--text-h3) / 1.3 var(--font-display); }
+  .direction-grid p { max-width: 15rem; margin: 0; color: var(--ink-2); font-size: .82rem; line-height: 1.55; }
+
+  .about-path-grid { display: grid; grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr)); gap: var(--s-4) clamp(2rem, 6vw, 5rem); align-items: start; }
+  /* The timeline keeps its own spacing: stretched to the height of the education
+     list beside it, four short entries drifted apart with no relation to content. */
+  .about-timeline { grid-column: span 7; position: relative; display: grid; margin: 0; padding: 0; list-style: none; }
+  .about-timeline::before { position: absolute; top: .4rem; bottom: .4rem; left: .2rem; width: 1px; background: var(--line); content: ""; }
+  .about-timeline li { position: relative; display: grid; grid-template-columns: 8rem 1fr; gap: var(--s-3); padding: 0 0 var(--s-5) var(--s-4); }
+  .about-timeline li::before { position: absolute; top: .3rem; left: 0; width: .4rem; height: .4rem; background: var(--accent); content: ""; }
+  .about-timeline time, .education-list time { color: var(--accent); font-size: .72rem; font-variant-numeric: tabular-nums; }
+  .about-timeline strong { display: block; color: var(--ink); font-size: .95rem; }
+  .about-timeline span { display: block; margin-top: var(--s-1); color: var(--ink-2); font-size: .8rem; }
+  .education-list { grid-column: span 5; border-top: 1px solid var(--line); }
+  .education-list article { display: grid; grid-template-columns: 4rem 1fr; gap: var(--s-3); padding: var(--s-3) 0; border-bottom: 1px solid var(--line); }
+  .education-list h3 { margin: 0; color: var(--ink); font-size: .9rem; line-height: 1.35; }
+  .education-list p { grid-column: 2; margin: -.25rem 0 0; color: var(--ink-2); font-size: .8rem; line-height: 1.5; }
+
+  .tools-grid { display: grid; grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr)); gap: 0 var(--s-4); border-top: 1px solid var(--line); }
+  .tools-grid div { grid-column: span 4; padding: var(--s-3) 0 var(--s-4); border-bottom: 1px solid var(--line); }
+  .tools-grid h3 { margin: 0 0 var(--s-2); font: 500 var(--text-h3) / 1.3 var(--font-display); }
+  .tools-grid p { max-width: 22rem; margin: 0; color: var(--ink-2); font-size: .8rem; line-height: 1.55; }
+
+  .achievement-list { display: grid; grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr)); gap: 0 var(--s-5); margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
+  .achievement-list li { grid-column: span 6; padding: var(--s-3) 0 var(--s-4); border-bottom: 1px solid var(--line); }
+  .achievement-list strong, .achievement-list span { display: block; }
+  .achievement-list strong { color: var(--ink); font-size: .95rem; line-height: 1.35; }
+  .achievement-list span { margin-top: var(--s-1); color: var(--ink-2); font-size: .8rem; }
+
+  .manifesto-teaser { display: grid; grid-template-columns: minmax(0, 2fr) minmax(12rem, 1fr); gap: var(--s-5); align-items: end; max-width: 58rem; padding-top: var(--s-4); border-top: 1px solid var(--line); }
+  .manifesto-teaser p { max-width: 42rem; margin: 0; color: var(--ink-2); font-size: 1.05rem; line-height: 1.65; text-wrap: pretty; }
+  .manifesto-teaser .button { justify-self: end; }
+
+  .about-contact { display: grid; grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr)); gap: var(--s-4) clamp(2rem, 6vw, 5rem); border-top: 1px solid var(--line); }
+  .about-contact > *:first-child { grid-column: span 5; }
+  .about-contact h2 { margin: var(--s-1) 0 0; font: 500 var(--text-h2) / 1.08 var(--font-display); text-wrap: balance; }
+  .about-contact-links { grid-column: span 7; display: flex; flex-wrap: wrap; align-content: start; gap: 0 var(--s-4); }
+  .about-contact-links a { display: inline-flex; align-items: center; min-height: 44px; color: var(--ink-2); font-size: .85rem; text-decoration: underline; text-decoration-color: var(--line-strong); text-underline-offset: .25rem; }
+  .about-contact-links a:hover,
+  .about-contact-links a:focus-visible { color: var(--accent); }
+
+  @media (max-width: 1050px) {
+    .about-hero-copy, .about-hero-note, .about-timeline, .education-list,
+    .about-contact > *:first-child, .about-contact-links { grid-column: 1 / -1; }
+    .about-hero-note { max-width: 34rem; }
+    .about-intro-grid p { grid-column: span 3; }
+    .direction-grid article { grid-column: span 3; }
+    .tools-grid div { grid-column: span 3; }
+  }
+  @media (max-width: 700px) {
+    .manifesto-teaser { grid-template-columns: 1fr; gap: var(--s-4); }
+    .manifesto-teaser .button { justify-self: start; }
+  }
+  @media (max-width: 700px) {
+    .about-hero-copy, .about-hero-note, .about-timeline, .education-list,
+    .about-intro-grid p, .direction-grid article, .tools-grid div,
+    .achievement-list li, .about-contact > *:first-child, .about-contact-links { grid-column: 1 / -1; }
+    .direction-grid article { min-height: 0; }
+    .about-timeline li { grid-template-columns: 1fr; gap: var(--s-1); }
     .education-list article { grid-template-columns: 3.4rem 1fr; }
     .education-list p { grid-column: 2; }
   }
-  @media (prefers-reduced-motion: reduce) { .about-page .button { transition: none; } }
-  .about-manifesto-full .manifesto-body { max-width: 46rem; margin: 0; }
-  .manifesto-body > p:first-child { color: var(--about-muted); font-size: .82rem; font-style: italic; }
 </style>

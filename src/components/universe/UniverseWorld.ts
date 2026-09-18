@@ -19,7 +19,7 @@ import type {
 } from "three";
 import type { GraphEdge, GraphNode } from "../../lib/graph";
 import { isCausalRelation, isInferredGraphEdge, selectVisualEdges } from "../../lib/graph-visuals";
-import { UniverseBackdrop, createPointCloudMaterial, pointCloudAttributes, pointCloudGeometry, pointViewport, seeded } from "./UniverseBackdrop";
+import { UniverseBackdrop, createPointCloudMaterial, pointCloudAttributes, pointCloudGeometry, pointViewport, seeded, SPECTRAL_TINTS } from "./UniverseBackdrop";
 
 export type ThreeModule = typeof import("three");
 
@@ -79,6 +79,9 @@ const AMBIENT_EDGE_OPACITY = .11;
 const AMBIENT_EDGE_BUDGET = { compact: 24, full: 60 };
 /** Flattest allowed cluster axis: keeps galaxy-like clouds while preserving separation. */
 const SQUASH_MIN = .82;
+/** How many sector captions stay readable at once; the rest fade with distance. */
+const BEACON_LABEL_BUDGET = 6;
+
 
 /**
  * Integer lattice points ordered by distance from the origin. The first `count` entries
@@ -117,6 +120,29 @@ interface WorldSector {
   score: number;
   radius: number;
   center: { x: number; y: number; z: number };
+}
+
+/** A named sector landmark: the halo, the pillar and the label that make deep space navigable. */
+interface WorldBeacon {
+  id: string;
+  title: string;
+  tint: Color;
+  position: Vector3;
+  radius: number;
+  group: Group;
+  label: Sprite;
+}
+
+/** One edge of the focused constellation, with the pulse and the travelling spark that animate it. */
+interface ConstellationEdge {
+  line: Line;
+  material: Material;
+  edge: GraphEdge;
+  from: Vector3;
+  to: Vector3;
+  phase: number;
+  active: boolean;
+  spark: Sprite;
 }
 
 function cleanTitle(value: string, limit = 34) {
@@ -163,12 +189,23 @@ export class UniverseWorld {
   private readonly starMaterial: ShaderMaterial;
   private readonly backdrop: UniverseBackdrop;
   private readonly ambientEdges: Line[] = [];
-  private constellation: Array<{ line: Line; material: Material; edge: GraphEdge }> = [];
+  private constellation: ConstellationEdge[] = [];
+  /** Spectral colour per node, cached: the sky is tinted once, never per frame. */
+  private readonly spectra = new Map<string, Color>();
+  private readonly beacons: WorldBeacon[] = [];
+  /** Reused ranking buffer: sorting sector captions every frame must not allocate. */
+  private readonly beaconOrder: Array<{ beacon: WorldBeacon; distance: number }> = [];
+  private readonly sectorSites: Array<{ id: string; title: string; tint: Color; position: Vector3; radius: number }> = [];
+  private readonly beaconGroup: Group;
   private readonly motionQuery = typeof window !== "undefined" && typeof window.matchMedia === "function"
     ? window.matchMedia("(prefers-reduced-motion: reduce)")
     : undefined;
   private disposed = false;
   private vrPresentation = false;
+  private arPresentation = false;
+  /** AR squeezes the world into ~1m; point sprites shrink with that scale, so their pixel size is compensated here. */
+  private arPointCompensation = 1;
+  private beaconLimit = 0;
 
   private constructor(
     host: UniverseWorldHost,
@@ -193,20 +230,53 @@ export class UniverseWorld {
       this.edgesByNode.set(edge.source, [...(this.edgesByNode.get(edge.source) ?? []), { edge, outgoing: true }]);
       this.edgesByNode.set(edge.target, [...(this.edgesByNode.get(edge.target) ?? []), { edge, outgoing: false }]);
     });
-    this.sharedSphereGeometry = new this.THREE.SphereGeometry(1, options.compact ? 9 : 14, options.compact ? 9 : 14);
-    this.sharedMeshMaterial = new this.THREE.MeshBasicMaterial({ color: 0xc4d3e3, transparent: true, opacity: 1 });
+    // The sphere is a generous controller/mouse hit volume only. Visible semantic nodes are
+    // optical point sources attached below, so proximity never turns a star into a flat ball.
+    this.sharedSphereGeometry = new this.THREE.SphereGeometry(1, 8, 6);
+    this.sharedMeshMaterial = new this.THREE.MeshBasicMaterial({
+      transparent: true,
+      opacity: 0,
+      colorWrite: false,
+      depthWrite: false,
+    });
 
+    // A restrained optical signature: a tiny photosphere, a faint Airy ring and narrow
+    // diffraction rays. The transparent corners prevent the old soft circular sticker.
     const glowCanvas = document.createElement("canvas");
-    glowCanvas.width = 96;
-    glowCanvas.height = 96;
+    glowCanvas.width = 256;
+    glowCanvas.height = 256;
     const glowContext = glowCanvas.getContext("2d");
     if (!glowContext) throw new Error("Glow canvas is unavailable");
-    const glowGradient = glowContext.createRadialGradient(48, 48, 1, 48, 48, 47);
+    const glowGradient = glowContext.createRadialGradient(128, 128, 0, 128, 128, 70);
     glowGradient.addColorStop(0, "rgba(255,255,255,1)");
-    glowGradient.addColorStop(.22, "rgba(255,255,255,.42)");
+    glowGradient.addColorStop(.035, "rgba(255,255,255,.95)");
+    glowGradient.addColorStop(.09, "rgba(255,255,255,.22)");
+    glowGradient.addColorStop(.22, "rgba(255,255,255,.05)");
     glowGradient.addColorStop(1, "rgba(255,255,255,0)");
     glowContext.fillStyle = glowGradient;
-    glowContext.fillRect(0, 0, 96, 96);
+    glowContext.fillRect(0, 0, 256, 256);
+    const ray = glowContext.createLinearGradient(0, 128, 256, 128);
+    ray.addColorStop(0, "rgba(255,255,255,0)");
+    ray.addColorStop(.4, "rgba(255,255,255,.02)");
+    ray.addColorStop(.48, "rgba(255,255,255,.2)");
+    ray.addColorStop(.5, "rgba(255,255,255,.9)");
+    ray.addColorStop(.52, "rgba(255,255,255,.2)");
+    ray.addColorStop(.6, "rgba(255,255,255,.02)");
+    ray.addColorStop(1, "rgba(255,255,255,0)");
+    glowContext.fillStyle = ray;
+    glowContext.fillRect(0, 126.5, 256, 3);
+    glowContext.save();
+    glowContext.translate(128, 128);
+    glowContext.rotate(Math.PI / 2);
+    glowContext.translate(-128, -128);
+    glowContext.fillStyle = ray;
+    glowContext.fillRect(0, 127, 256, 2);
+    glowContext.restore();
+    glowContext.strokeStyle = "rgba(255,255,255,.055)";
+    glowContext.lineWidth = 1;
+    glowContext.beginPath();
+    glowContext.arc(128, 128, 31, 0, Math.PI * 2);
+    glowContext.stroke();
     this.glowTexture = new this.THREE.CanvasTexture(glowCanvas);
 
     // Stable graph coordinates, derived from the content alone: see layoutNodes.
@@ -225,20 +295,22 @@ export class UniverseWorld {
 
     // One point cloud stands in for every node; interactive meshes are added on demand.
     const stars = pointCloudAttributes(this.nodes.length);
-    const palette = new this.THREE.Color() as Color;
     this.nodes.forEach((node, index) => {
       const visual = this.visuals.get(node.id)!;
       stars.positions[index * 3] = visual.position.x;
       stars.positions[index * 3 + 1] = visual.position.y;
       stars.positions[index * 3 + 2] = visual.position.z;
-      palette.set(NODE_COLORS[node.kind] ?? 0xc4d3e3);
-      stars.colors[index * 3] = palette.r;
-      stars.colors[index * 3 + 1] = palette.g;
-      stars.colors[index * 3 + 2] = palette.b;
-      stars.sizes[index] = (node.featured ? .34 : visual.layer === "core" ? .27 : visual.layer === "neighborhood" ? .2 : .14) * this.prominence(node.id) * (options.compact ? .85 : 1);
+      const spectrum = this.spectral(node.id, node.kind);
+      stars.colors[index * 3] = spectrum.r;
+      stars.colors[index * 3 + 1] = spectrum.g;
+      stars.colors[index * 3 + 2] = spectrum.b;
       const rng = seeded(`star|${node.id}`);
+      // A minority of hot, flaring stars gives the field its depth: most dots stay quiet.
+      const heat = rng();
+      stars.sizes[index] = (node.featured ? .34 : visual.layer === "core" ? .27 : visual.layer === "neighborhood" ? .2 : .14) * this.prominence(node.id) * (options.compact ? .85 : 1) * (.8 + heat * .7);
       stars.phases[index] = rng();
       stars.twinkles[index] = .4 + rng() * .6;
+      stars.spikes[index] = heat > .84 ? 1 : heat > .7 ? .45 : 0;
     });
     const starGeometry = pointCloudGeometry(this.THREE, stars);
     this.starMaterial = createPointCloudMaterial(this.THREE, { softness: 2.6, core: 5.5, opacity: .9, additive: true }, pointViewport());
@@ -247,6 +319,13 @@ export class UniverseWorld {
 
     // Dust and nebulae live with the content so they follow it into tabletop AR.
     this.backdrop = UniverseBackdrop.create({ THREE: this.THREE, parent: this.root, compact: options.compact });
+
+    // Sector landmarks give the empty space names: one beacon per topic hub, strongest first.
+    this.beaconGroup = new this.THREE.Group();
+    this.beaconGroup.name = "universe-beacons";
+    this.root.add(this.beaconGroup);
+    this.beaconLimit = options.compact ? 8 : 14;
+    this.buildBeacons();
 
     selectVisualEdges(this.edges, options.compact ? AMBIENT_EDGE_BUDGET.compact : AMBIENT_EDGE_BUDGET.full, .55).forEach((edge) => {
       const source = this.visuals.get(edge.source);
@@ -434,6 +513,21 @@ export class UniverseWorld {
     });
 
     const positions = new Map<string, Vector3>();
+
+    // Sector landmarks hang from the hub clouds, strongest sector first: this is the list the
+    // beacons are built from, captured here because the centres only exist inside the layout.
+    sectors.filter((sector) => sector.hub).forEach((sector) => {
+      const hub = this.byId.get(sector.hub!);
+      if (!hub) return;
+      this.sectorSites.push({
+        id: hub.id,
+        title: hub.title,
+        tint: this.spectral(hub.id, hub.kind),
+        position: new this.THREE.Vector3(sector.center.x, sector.center.y, sector.center.z),
+        radius: sector.radius,
+      });
+    });
+
     const local = new this.THREE.Vector3();
     const axis = new this.THREE.Vector3();
     sectors.forEach((sector) => {
@@ -465,6 +559,70 @@ export class UniverseWorld {
     return positions;
   }
 
+  /**
+   * Spectral tint for one node: the colour that says what it is, pulled towards a photospheric
+   * temperature and dimmed by a seeded amount, so a deep-sky field replaces a wall of identical
+   * white dots. Cached per node, because the mesh, its aura and the point cloud must agree.
+   */
+  private spectral(id: string, kind: string): Color {
+    const cached = this.spectra.get(id);
+    if (cached) return cached;
+    const rng = seeded(`spectrum|${id}`);
+    const base = new this.THREE.Color(NODE_COLORS[kind] ?? 0xc4d3e3);
+    const temperature = new this.THREE.Color(SPECTRAL_TINTS[Math.floor(rng() * SPECTRAL_TINTS.length)]);
+    const color = base.lerp(temperature, .45).multiplyScalar(.82 + rng() * .3);
+    this.spectra.set(id, color);
+    return color;
+  }
+
+  /**
+   * One landmark per topic hub: a soft tinted halo marking the sector volume, a vertical pillar
+   * for orientation and the sector name above it. Bounded to the strongest sectors, so the sky
+   * becomes navigable instead of filling up with captions.
+   */
+  private buildBeacons() {
+    this.sectorSites.slice(0, this.beaconLimit).forEach((site) => {
+      const group = new this.THREE.Group();
+      group.position.copy(site.position);
+      const haloSize = site.radius * 2.4;
+      const halo = new this.THREE.Sprite(new this.THREE.SpriteMaterial({ map: this.glowTexture, color: site.tint, transparent: true, opacity: .1, blending: this.THREE.AdditiveBlending, depthWrite: false }));
+      halo.userData.baseWorldScale = haloSize;
+      halo.scale.setScalar(haloSize);
+      const pillarHeight = site.radius * 2.8;
+      const pillar = new this.THREE.Line(
+        new this.THREE.BufferGeometry().setFromPoints([new this.THREE.Vector3(0, -pillarHeight / 2, 0), new this.THREE.Vector3(0, pillarHeight / 2, 0)]),
+        new this.THREE.LineBasicMaterial({ color: site.tint, transparent: true, opacity: .18 }),
+      );
+      const label = this.beaconLabel(site.title, site.tint);
+      const labelWidth = Math.min(14, Math.max(5, site.radius * 2.2));
+      label.scale.set(labelWidth, labelWidth * .2, 1);
+      label.position.y = pillarHeight / 2 + labelWidth * .16;
+      group.add(halo, pillar, label);
+      this.beaconGroup.add(group);
+      this.beacons.push({ id: site.id, title: site.title, tint: site.tint, position: site.position, radius: site.radius, group, label });
+    });
+  }
+
+  /** Sector caption: a small tinted canvas, the same procedural-label approach as node titles. */
+  private beaconLabel(text: string, tint: Color) {
+    const canvas = document.createElement("canvas");
+    canvas.width = 320;
+    canvas.height = 64;
+    const context = canvas.getContext("2d");
+    if (!context) return new this.THREE.Sprite();
+    context.font = "500 26px Geologica, sans-serif";
+    context.textAlign = "center";
+    context.fillStyle = `#${tint.getHexString()}`;
+    context.fillText(cleanTitle(text, 20).toUpperCase(), 160, 41);
+    return new this.THREE.Sprite(new this.THREE.SpriteMaterial({
+      map: new this.THREE.CanvasTexture(canvas),
+      transparent: true,
+      opacity: .5,
+      depthWrite: false,
+      blending: this.THREE.AdditiveBlending,
+    }));
+  }
+
   private labelFor(text: string) {
     const labelCanvas = document.createElement("canvas");
     labelCanvas.width = 600;
@@ -488,6 +646,10 @@ export class UniverseWorld {
     const visual = this.visuals.get(id);
     if (!visual || visual.mesh || this.disposed) return visual;
     const mesh = new this.THREE.Mesh(this.sharedSphereGeometry, this.sharedMeshMaterial.clone());
+    if (this.arPresentation) {
+      (mesh.material as MeshBasicMaterial).colorWrite = true;
+      (mesh.material as MeshBasicMaterial).opacity = .95;
+    }
     mesh.scale.setScalar(visual.radius);
     mesh.position.copy(visual.position);
     mesh.userData.nodeId = id;
@@ -495,10 +657,10 @@ export class UniverseWorld {
     this.root.add(mesh);
     visual.mesh = mesh;
     if (!this.compact || visual.layer !== "archive") {
-      const aura = new this.THREE.Sprite(new this.THREE.SpriteMaterial({ map: this.glowTexture, color: NODE_COLORS[visual.node.kind] ?? 0xc4d3e3, transparent: true, opacity: 0, blending: this.THREE.AdditiveBlending, depthWrite: false }));
+      const aura = new this.THREE.Sprite(new this.THREE.SpriteMaterial({ map: this.glowTexture, color: this.spectral(id, visual.node.kind), transparent: true, opacity: 0, blending: this.THREE.AdditiveBlending, depthWrite: false }));
       const auraSize = this.compact
-        ? visual.node.featured ? 1.8 : visual.layer === "core" ? 1.35 : .7
-        : visual.node.featured ? 2.9 : visual.layer === "core" ? 2.1 : visual.layer === "neighborhood" ? 1.05 : .42;
+        ? visual.node.featured ? 1.15 : visual.layer === "core" ? .92 : .54
+        : visual.node.featured ? 1.6 : visual.layer === "core" ? 1.25 : visual.layer === "neighborhood" ? .74 : .32;
       aura.userData.baseWorldScale = auraSize;
       aura.scale.setScalar((auraSize * (this.vrPresentation ? .18 : 1)) / visual.radius);
       mesh.add(aura);
@@ -524,9 +686,8 @@ export class UniverseWorld {
     if (!visual?.mesh) return;
     visual.revealed = true;
     visual.mesh.visible = true;
-    const material = visual.mesh.material as MeshBasicMaterial;
-    material.opacity = visual.layer === "archive" ? .26 : 1;
-    if (visual.aura) (visual.aura.material as SpriteMaterial).opacity = visual.node.featured ? .58 : visual.layer === "core" ? .35 : visual.layer === "neighborhood" ? .16 : .025;
+    const auraDim = this.arPresentation ? .5 : 1;
+    if (visual.aura) (visual.aura.material as SpriteMaterial).opacity = auraDim * (visual.node.featured ? .62 : visual.layer === "core" ? .46 : visual.layer === "neighborhood" ? .24 : .06);
   }
 
   /** Progressive reveal of the strongest remaining neighborhood, ordered by featured/degree. */
@@ -560,10 +721,11 @@ export class UniverseWorld {
   }
 
   private disposeConstellation() {
-    this.constellation.forEach(({ line, material }) => {
+    this.constellation.forEach(({ line, material, spark }) => {
       line.geometry.dispose();
       material.dispose();
-      this.root.remove(line);
+      (spark.material as SpriteMaterial).dispose();
+      this.root.remove(line, spark);
     });
     this.constellation = [];
   }
@@ -572,18 +734,36 @@ export class UniverseWorld {
     this.disposeConstellation();
     const adjacency = (this.edgesByNode.get(id) ?? []).map(({ edge }) => edge);
     const budget = this.compact ? 72 : 180;
-    selectVisualEdges(adjacency, budget, 0).forEach((edge) => {
+    selectVisualEdges(adjacency, budget, 0).forEach((edge, index) => {
       const source = this.visuals.get(edge.source);
       const target = this.visuals.get(edge.target);
       if (!source || !target) return;
+      const inferred = isInferredGraphEdge(edge);
+      const causal = isCausalRelation(edge);
+      const character = inferred ? 0x6de1f4 : causal ? 0xf1b7dd : 0x8ea6c0;
       const geometry = new this.THREE.BufferGeometry().setFromPoints([source.position, target.position]);
-      const material = isInferredGraphEdge(edge)
-        ? new this.THREE.LineDashedMaterial({ color: 0x6de1f4, transparent: true, opacity: .92, dashSize: .32, gapSize: .22 })
-        : new this.THREE.LineBasicMaterial({ color: isCausalRelation(edge) ? 0xf1b7dd : 0x8ea6c0, transparent: true, opacity: .92 });
+      const material = inferred
+        ? new this.THREE.LineDashedMaterial({ color: character, transparent: true, opacity: .92, dashSize: .32, gapSize: .22 })
+        : new this.THREE.LineBasicMaterial({ color: character, transparent: true, opacity: .92 });
       const line = new this.THREE.Line(geometry, material);
-      if (isInferredGraphEdge(edge)) line.computeLineDistances();
-      this.root.add(line);
-      this.constellation.push({ line, material, edge });
+      if (inferred) line.computeLineDistances();
+      // A travelling spark per connection: the pulse that makes a live route legible in depth.
+      const spark = new this.THREE.Sprite(new this.THREE.SpriteMaterial({ map: this.glowTexture, color: character, transparent: true, opacity: .85, blending: this.THREE.AdditiveBlending, depthWrite: false }));
+      const sparkScale = Math.max(.18, Math.min(source.radius, target.radius) * 2.2);
+      spark.scale.setScalar(sparkScale);
+      spark.position.copy(source.position);
+      spark.visible = false;
+      this.root.add(line, spark);
+      this.constellation.push({
+        line,
+        material,
+        edge,
+        from: source.position,
+        to: target.position,
+        phase: (seeded(`spark|${edge.source}|${edge.target}|${edge.type}`)() + index * .37) % 1,
+        active: false,
+        spark,
+      });
     });
   }
 
@@ -591,41 +771,74 @@ export class UniverseWorld {
     const direct = this.selectedId ? this.neighbors.get(this.selectedId) ?? new Set<string>() : new Set<string>();
     this.visuals.forEach((visual) => {
       if (!visual.mesh) return;
-      const material = visual.mesh.material as MeshBasicMaterial;
       const isPath = this.selectedId === visual.node.id || direct.has(visual.node.id);
       visual.mesh.visible = !this.selectedId || isPath;
       if (visual.label) visual.label.visible = Boolean(this.selectedId && isPath);
-      material.opacity = visual.layer === "archive" ? (isPath ? .7 : .18) : (this.selectedId && !isPath ? .48 : 1);
-      const emphasis = this.selectedId === visual.node.id ? 1.42 : direct.has(visual.node.id) ? 1.15 : 1;
+      const auraDim = this.arPresentation ? .5 : 1;
+      if (visual.aura) {
+        const baseOpacity = visual.node.featured ? .62 : visual.layer === "core" ? .46 : visual.layer === "neighborhood" ? .24 : .06;
+        (visual.aura.material as SpriteMaterial).opacity = auraDim * (this.selectedId === visual.node.id ? .9 : direct.has(visual.node.id) ? Math.max(.42, baseOpacity) : baseOpacity);
+      }
+      const emphasis = this.selectedId === visual.node.id ? 1.22 : direct.has(visual.node.id) ? 1.08 : 1;
       visual.mesh.scale.setScalar(visual.radius * emphasis);
     });
     this.ambientEdges.forEach((line) => {
       line.visible = !this.selectedId;
       (line.material as LineBasicMaterial | LineDashedMaterial).opacity = AMBIENT_EDGE_OPACITY;
     });
-    this.constellation.forEach(({ line, edge, material }) => {
-      line.visible = true;
-      const active = edge.source === this.selectedId || edge.target === this.selectedId;
-      (material as LineBasicMaterial | LineDashedMaterial).opacity = active ? .92 : .08;
+    this.constellation.forEach((item) => {
+      item.line.visible = true;
+      item.active = item.edge.source === this.selectedId || item.edge.target === this.selectedId;
+      (item.material as LineBasicMaterial | LineDashedMaterial).opacity = item.active ? .92 : .08;
+      item.spark.visible = false;
     });
-    this.starMaterial.uniforms.uOpacity.value = this.selectedId ? .34 : .9;
+    this.starMaterial.uniforms.uOpacity.value = this.selectedId ? (this.arPresentation ? .08 : .34) : (this.arPresentation ? .55 : .9);
   }
 
   /**
-   * Optional per-frame animation: star twinkle, the audio response and the backdrop.
-   * Node coordinates never change, so picking stays exactly where it was. A world that
-   * is never updated simply renders as a still star field.
+   * Optional per-frame animation: star twinkle, the audio response, live connections and the
+   * backdrop. Node coordinates never change, so picking stays exactly where it was. A world
+   * that is never updated simply renders as a still star field. Passing the viewer keeps the
+   * sector captions readable and out of each other's way.
    */
-  update(elapsedSeconds: number, audioEnergy = 0) {
+  update(elapsedSeconds: number, audioEnergy = 0, viewer?: Vector3) {
     if (this.disposed) return;
     const motion = !this.motionQuery?.matches;
     const energy = Math.max(0, Math.min(1, audioEnergy));
     const viewport = pointViewport();
     this.starMaterial.uniforms.uTime.value = motion ? elapsedSeconds : 0;
     this.starMaterial.uniforms.uEnergy.value = energy * (motion ? 1 : .45);
-    this.starMaterial.uniforms.uPixelRatio.value = viewport.pixelRatio;
-    this.starMaterial.uniforms.uScale.value = viewport.scale;
+    this.starMaterial.uniforms.uScale.value = viewport.scale * this.arPointCompensation;
+    // A selected constellation is a live route: the edges breathe and a spark travels each one.
+    this.constellation.forEach((item) => {
+      if (!item.active) return;
+      item.spark.visible = motion;
+      if (!motion) return;
+      const wave = .76 + .24 * Math.sin(elapsedSeconds * 2.3 + item.phase * Math.PI * 2);
+      (item.material as LineBasicMaterial | LineDashedMaterial).opacity = .92 * wave;
+      item.spark.position.lerpVectors(item.from, item.to, (elapsedSeconds * .22 + item.phase) % 1);
+    });
+    if (viewer) this.focusBeacons(viewer);
     this.backdrop.update(elapsedSeconds, energy);
+  }
+
+  /**
+   * Sector captions follow the viewer: the nearest handful stay readable at a constant apparent
+   * size and the rest fade away. In a sky this dense that is what keeps the labels from piling
+   * up into unreadable collisions.
+   */
+  private focusBeacons(viewer: Vector3) {
+    const ordered = this.beaconOrder;
+    ordered.length = 0;
+    this.beacons.forEach((beacon) => { ordered.push({ beacon, distance: viewer.distanceTo(beacon.position) }); });
+    ordered.sort((a, b) => a.distance - b.distance);
+    ordered.forEach(({ beacon, distance }, rank) => {
+      const width = Math.min(26, Math.max(4, distance * .075));
+      beacon.label.scale.set(width, width * .2, 1);
+      const rankFade = rank < BEACON_LABEL_BUDGET ? 1 : Math.max(0, 1 - (rank - BEACON_LABEL_BUDGET + 1) / 4);
+      (beacon.label.material as SpriteMaterial).opacity = .5 * rankFade;
+      beacon.label.visible = rankFade > 0;
+    });
   }
   focusCard(id: string): WorldFocusCard | undefined {
     const node = this.byId.get(id);
@@ -693,6 +906,58 @@ export class UniverseWorld {
         visual.label.position.y = -1.05 * labelOffset / visual.radius;
       }
     });
+    this.backdrop.setPresentation(this.presentation());
+  }
+
+  /**
+   * AR shows the constellation over a live camera feed: the sector landmarks are sized for an
+   * open sky and would swallow a one-metre tabletop, so they step aside, and the content stars
+   * switch to opaque blending — additive dots vanish against a bright room, opaque ones still
+   * read as glowing, tracked stars over any feed.
+   */
+  setArPresentation(enabled: boolean) {
+    if (this.arPresentation === enabled) return;
+    this.arPresentation = enabled;
+    this.beaconGroup.visible = !enabled;
+    this.starMaterial.blending = enabled ? this.THREE.NormalBlending : this.THREE.AdditiveBlending;
+    // Additive auras vanish against a bright camera feed, so each revealed star gets its
+    // compact opaque core back. updateHighlights applies the AR-specific aura and point-cloud
+    // density without accumulating opacity multipliers across repeated session entry/exit.
+    this.visuals.forEach((visual) => {
+      if (!visual.mesh) return;
+      const material = visual.mesh.material as MeshBasicMaterial;
+      material.colorWrite = enabled;
+      material.opacity = enabled ? .95 : 0;
+    });
+    this.updateHighlights();
+    if (!enabled) this.arPointCompensation = 1;
+    this.backdrop.setPresentation(this.presentation());
+  }
+
+  private presentation(): "screen" | "ar" | "vr" {
+    if (this.arPresentation) return "ar";
+    return this.vrPresentation ? "vr" : "screen";
+  }
+
+  /**
+   * The final content scale of the AR placement: stars are point sprites whose pixel size
+   * follows the group scale, so the shader scale is divided back out to keep them readable
+   * dots over the camera feed. Called whenever placement or the scale controls change.
+   */
+  setArContentScale(scale: number) {
+    this.arPointCompensation = this.arPresentation && Number.isFinite(scale) && scale > 0
+      ? this.THREE.MathUtils.clamp(1 / scale, 1, 64)
+      : 1;
+  }
+  /** Bounds of the revealed constellation in graph coordinates, for the AR ghost preview. */
+  contentBounds(): { center: Vector3; size: Vector3 } {
+    const box = new this.THREE.Box3();
+    this.visuals.forEach((visual) => box.expandByPoint(visual.position));
+    const center = new this.THREE.Vector3();
+    const size = new this.THREE.Vector3();
+    box.getCenter(center);
+    box.getSize(size);
+    return { center, size };
   }
 
   /** Visual position of a node in world (graph) coordinates. */
@@ -720,6 +985,7 @@ export class UniverseWorld {
       const map = (visual.label?.material as SpriteMaterial | undefined)?.map;
       map?.dispose();
     });
+    this.beacons.forEach((beacon) => (beacon.label.material as SpriteMaterial).map?.dispose());
     this.sharedSphereGeometry.dispose();
     this.glowTexture.dispose();
     this.sharedMeshMaterial.dispose();

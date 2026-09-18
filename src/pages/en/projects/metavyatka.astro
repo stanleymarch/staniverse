@@ -1,0 +1,144 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+
+/* The structural facts stay bound to the Russian entry — status, domains and the
+   update date are read from the collection, never retyped for the translation. */
+const source = (await getCollection("projects")).find((item) => item.data.id === "project:metavyatka");
+const statusLabels: Record<string, string> = { idea: "Idea", planned: "Planned", development: "In development", active: "Active", paused: "Paused", completed: "Completed", archived: "Archived" };
+const domainLabels: Record<string, string> = { xr: "XR", ai: "AI", community: "Community", audio: "Audio" };
+const status = source ? statusLabels[source.data.status] ?? source.data.status : "Planned";
+const domains = source?.data.domains.map((domain) => domainLabels[domain] ?? domain) ?? [];
+const updated = source?.data.updated ? new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric" }).format(source.data.updated) : "";
+
+const pageTitle = "MetaVyatka — digital archive and XR project about Vyatka";
+const description = "MetaVyatka is an unfinished digital archive and XR project about Vyatka, already presented in festival applications and individual digital conservation cases. Its further directions include growing the sound archive, a Next.js catalogue, an AI guide with RAG and moving the worlds to BasisVR; the readiness of these planned systems is not claimed.";
+const projectJsonLd = {
+  "@type": "CreativeWork",
+  "@id": new URL("/en/projects/metavyatka/#content", Astro.site).href,
+  url: new URL("/en/projects/metavyatka/", Astro.site).href,
+  name: "MetaVyatka",
+  headline: "MetaVyatka",
+  description,
+  inLanguage: "en",
+  author: { "@id": new URL("/#stanislav-ermolenko", Astro.site).href },
+  isPartOf: { "@id": new URL("/#website", Astro.site).href },
+  ...(source?.data.updated ? { dateModified: source.data.updated.toISOString() } : {}),
+};
+---
+<Base title={pageTitle} description={description} lang="en" jsonLd={projectJsonLd}>
+  <article class="entry-shell">
+    <header class="entry-hero">
+      <div class="entry-hero-meta"><span class="section-kicker">Own project · {status}</span></div>
+      <h1>MetaVyatka</h1>
+      <p class="entry-summary">{description}</p>
+      <dl class="work-facts">
+        <div><dt>Status</dt><dd>{status}</dd></div>
+        <div><dt>Domains</dt><dd>{domains.join(" · ")}</dd></div>
+        {updated && <div><dt>Updated</dt><dd>{updated}</dd></div>}
+      </dl>
+    </header>
+    <div class="prose">
+      <h2>The essence</h2>
+      <p><code>MetaVyatka</code> is a digital archive of Vyatka and at the same time an XR form of talking about the region. Here I gather local places, objects, sounds and stories into a format that can live as an art world, as an archive of cultural memory, and as material for a festival stage, a museum exhibition, or someone else&rsquo;s project that suddenly needs exactly this piece of Vyatka.</p>
+
+      <h2>Status and horizon</h2>
+      <p>Right now this is a <code>work in progress</code> that has already left the pure-idea mode: the project has been used in festival applications, discussed with curators, and has grown its first evidence in the form of digital objects and related cases. The long horizon is international festivals, exhibitions and Social XR platforms where Vyatka appears not as an exotic periphery but as full-fledged cultural material and a self-standing spatial narrative.</p>
+
+      <h2>Why now</h2>
+      <p>Local memory almost always has the same problem: it either stays in a local history archive or dissolves in the feed. <code>MetaVyatka</code> is needed as a bridge between a place, digital media and future cultural formats. For me it is also an attempt to treat modern technology as a rare historical chance: we live in a moment when an enormous amount of data can be preserved in different media, catalogued and given a long second life.</p>
+      <p>And there is a thought in this that feels very alive to me. If I publish a <code>field recording</code> of a Vyatka place, a 3D scan of a local landmark or a digital cast of some lion statue from Slobodskoy in the open, then afterwards it no longer has to live only in my archive. One day it may end up in a film, a game, a museum assembly or someone else&rsquo;s art project. And then Vyatka unexpectedly sounds in an international context not as an abstraction but as a concrete cultural artefact with its own texture and origin.</p>
+
+      <h2>Goals</h2>
+      <ul>
+        <li>Turn local material into a full-fledged artistic XR project</li>
+        <li>Build a world that works both as a cultural showcase and as an authorial statement</li>
+        <li>Bring the project up to festival-submission level</li>
+        <li>Create a digital archive of the region&rsquo;s entities, suitable for reuse in art, education and media production</li>
+        <li>Give local material a chance for a second life in new artistic and research contexts</li>
+      </ul>
+
+      <h2>What has been done</h2>
+      <ul>
+        <li>The concept of a digital archive and an XR world about Vyatka has been formulated</li>
+        <li>Feedback from curators on the festival application has been received</li>
+        <li>Possible tools and the budget of the first stage have been defined</li>
+        <li>The first applied digital conservation cases have appeared, including <a href="/works/arka-vyatskogo-kremlya/">The Arch of the Vyatka Kremlin</a></li>
+      </ul>
+
+      <h2>Immediate focus</h2>
+      <ul>
+        <li>Narrow the first release down to one clear scenario or world</li>
+        <li>Assemble a visual package and a description in English</li>
+        <li>Separate the manual XR assembly from the external generative pipeline</li>
+        <li>Settle on an understandable archive structure: objects, places, media types or stories</li>
+        <li>The sound archive is being filled. I am waiting for the chance to fund servers and subscriptions to coding agents in order to build a catalogue on Next.js with a map and the ability to upload and publish objects</li>
+        <li>In the longer term — porting the XR worlds to <a href="https://github.com/BasisVR/Basis">BasisVR</a>, an open-source framework for social VR, to provide access to the worlds through a self-hosted server in case of a separated internet</li>
+      </ul>
+
+      <h2>The logic of the project</h2>
+      <p>The project has three supporting lines:</p>
+      <ul>
+        <li><strong>XR worlds</strong>: art scenes and spaces where Vyatka gets a contemporary visual language.</li>
+        <li><strong>Archive</strong>: photogrammetry, <code>gaussian splat</code>, digital reconstructions and <code>field recordings</code> that preserve the environment not as an abstract description but as material for reuse, remix and cultural circulation.</li>
+        <li><strong>AI guide</strong>: an assistant with <code>RAG</code> that links objects, routes, local history and cultural context.</li>
+      </ul>
+      <p>After getting to know <code>Synthetic Memories</code>, the project also started to read as a possible museum logic of a new type: not just an exhibition about a region but an interface to its memory that can be updated, extended and moved into new media contexts. In terms of contemporary art, I feel close here to the idea of a distributed archive and an archive-narrative, where cultural memory is not locked into a single medium but stays mobile and open to new readings.</p>
+
+      <h2>Interfaces and platforms</h2>
+      <ul>
+        <li>a festival XR world or a series of worlds;</li>
+        <li>an archive of objects and places with photogrammetry and <code>gaussian splat</code>;</li>
+        <li>a media layer with sounds, stories and routes;</li>
+        <li>an AI guide with <code>RAG</code> that can live both on the site and inside the XR environment;</li>
+        <li>potential exhibition and educational formats outside the festival circuit.</li>
+      </ul>
+      <p>Separately, it matters to me that the archive part is not just a &ldquo;storage of files&rdquo;. Rather it is a catalogue of entities: a place, an object, a sound, a story, a route, a fragment of memory. Such a catalogue can then be read as a curatorial system from which exhibition, educational and game scenarios are assembled.</p>
+
+      <h2>Format and artefacts</h2>
+      <ul>
+        <li>a virtual world</li>
+        <li>a festival application</li>
+        <li>demo materials</li>
+        <li>a text description and a curatorial pitch</li>
+        <li>an archive of models, scans and sounds</li>
+        <li>an AI guide / local history assistant</li>
+      </ul>
+
+      <h2>Stack and tools</h2>
+      <ul>
+        <li>Resonite</li>
+        <li>generative AI</li>
+        <li>photo and video archives from <code>я.ты.город.</code></li>
+        <li>3D assets and sound</li>
+        <li>photogrammetry / Scaniverse</li>
+        <li>Gaussian Splatting</li>
+        <li>field recording</li>
+        <li>RAG and a multilingual assistant</li>
+      </ul>
+
+      <h2>What is needed next</h2>
+      <ul>
+        <li>narrowing the first public scenario down to one strong form;</li>
+        <li>a visual package and an English-language description for festival and partner communication;</li>
+        <li>an understandable pipeline for storing and describing the digital archive;</li>
+        <li>people who can strengthen the 3D/XR assembly, the curatorial packaging, the scanning and the presentation.</li>
+      </ul>
+      <p>It also matters that the project does not fall apart into two parts that do not talk to each other: a &ldquo;beautiful XR world&rdquo; and a &ldquo;useful archive&rdquo;. Its strength is precisely that one feeds the other.</p>
+
+      <h2>Skills and roles</h2>
+      <ul>
+        <li>artistic concept</li>
+        <li>spatial storytelling</li>
+        <li>cultural research</li>
+        <li>working with limited resources behind a strong concept</li>
+        <li>digital conservation of cultural entities</li>
+      </ul>
+
+      <h2>Results / potential</h2>
+      <p>Even in its unfinished form, <code>MetaVyatka</code> already sets a strong vector: translating regional identity into the language of XR, digital archiving and festival art. Its strength is not only in the striking form but in the fact that it gives local memory a chance to live longer than its original environment and to enter other cultural contexts without losing its origin. That is exactly the possibility I like: not to conserve Vyatka in nostalgia but to give it new modes of sounding.</p>
+
+      <p class="entry-original"><a class="text-link" href="/projects/metavyatka/">Original (Russian) →</a></p>
+    </div>
+  </article>
+</Base>

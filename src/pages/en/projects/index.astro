@@ -1,0 +1,88 @@
+---
+import Base from "../../../layouts/Base.astro";
+import ContentCard from "../../../components/ContentCard.astro";
+import { getCollection } from "astro:content";
+const entries = (await getCollection("projects")).sort((a,b) => Number(b.data.featured)-Number(a.data.featured));
+const statuses = [...new Set(entries.map((entry) => entry.data.status))];
+
+/* Filter keys stay the Russian status slugs — the inline script compares them with
+   each card's data-project-status, so only the visible label is translated. */
+const statusLabels: Record<string, string> = {
+  idea: "Idea",
+  planned: "Planned",
+  development: "In development",
+  active: "Active",
+  paused: "Paused",
+  completed: "Completed",
+  archived: "Archived",
+};
+
+/* Four of these projects already have a full English page: their cards link there,
+   every other card keeps the Russian original so no reader lands on a dead route. */
+const translatedProjects: Record<string, string> = {
+  "project:metavyatka": "/en/projects/metavyatka/",
+  "project:ya-ty-gorod": "/en/projects/ya-ty-gorod/",
+  "project:mnemoform": "/en/projects/mnemoform/",
+  "project:staniverse": "/en/projects/staniverse/",
+};
+
+/* Only tags that are Russian words get a translated chip: the card keeps the
+   Russian tag list for filtering, so nothing here may touch data-tags. */
+const tagNames: Record<string, string> = { "киров/вятка": "kirov/vyatka" };
+const tagsOf = (entry: (typeof entries)[number]) => {
+  const tags = entry.data.tags.slice(0, 4);
+  return tags.some((tag) => tagNames[tag]) ? tags.map((tag) => tagNames[tag] ?? tag) : undefined;
+};
+
+/* English titles and summaries for the projects collection, one line per entry. */
+const copy: Record<string, { title: string; summary: string }> = {
+  "project:albina": {
+    title: "Albina",
+    summary: "Albina is an embodied AI persona with memory, character, voice and several modes of presence. What interests me here is not simply a “chatbot with an avatar” but a digital entity that has a behavioural frame, a visual…",
+  },
+  "project:metavyatka": {
+    title: "MetaVyatka",
+    summary: "MetaVyatka is an unfinished digital archive and XR project about Vyatka, already presented in festival applications and individual digital conservation cases. Its further directions include growing the sound archive, a Next.js catalogue, an AI guide with RAG and moving the worlds to BasisVR; the readiness of these planned systems is not claimed.",
+  },
+  "project:mnemoform": {
+    title: "Mnemoform",
+    summary: "Mnemoform is a project about translating memories, bodily signals and personal stories into tangible forms — not only physical objects, but also generative graphics and sound. What interests me here is not an abstract art metaphor but…",
+  },
+  "project:nearventure": {
+    title: "Nearventure",
+    summary: "A micro-adventure planner: you set the time and the way you travel, and get a route through interesting places with a map, elevation data and GPX.",
+  },
+  "project:omnipub": {
+    title: "OmniPub",
+    summary: "OmniPub is a content autopilot and editorial pipeline for media that need order in the flow of sources. I am building a system where automation removes the manual routine without killing taste, editorial control and…",
+  },
+  "project:open-relational-lab": {
+    title: "Open Relational Lab",
+    summary: "Open Relational Lab is the idea of a more honest dating service that does not disguise holding on to users as the search for closeness. What interests me here is not another swipe interface with a paid secret of “who liked me”,…",
+  },
+  "project:staniverse": {
+    title: "staniverse",
+    summary: "staniverse is my own media circuit about GenAI, XR, automation and digital culture. At this point it is not just a channel but an infrastructure: Telegram for the live flow, YouTube for long formats and a digital garden on…",
+  },
+  "project:ya-ty-gorod": {
+    title: "я.ты.город.",
+    summary: "“I. You. City.” — an authored media project about the cultural and natural wealth of the Kirov region. It existed from 2018 to 2024, from short photo and video publications on YouTube and VK to longreads with 360° panoramas and virtual spaces.…",
+  },
+  "project:zapovednaya-vyatka-360": {
+    title: "Protected Vyatka 360°",
+    summary: "Protected Vyatka 360° is not a media project about nature. It is an attempt to solve a real problem: the protected natural areas of the Kirov region have almost no digital presence, and their inspectors have no resources to protect it.",
+  },
+};
+---
+<Base title="Own projects" description="Own projects of Stanislav Ermolenko at the intersection of XR, AI, automation, digital culture, media and the preservation of memory." lang="en">
+  <header class="catalog-hero"><div class="section-kicker">Lab</div><h1>Own projects</h1><p class="hero-lead">Not work for someone else, but ideas and research that keep moving: sometimes in a leap, sometimes slowly, sometimes still looking for their form.</p><div class="catalog-controls" data-filter-controls><button class="filter-button active" data-filter="all">All</button>{statuses.map((status) => <button class="filter-button" data-filter={status}>{statusLabels[status] ?? status}</button>)}</div></header>
+  <section class="section"><div class="card-grid" data-filter-grid>{entries.map((entry) => <div data-project-status={entry.data.status}><ContentCard entry={entry} headingLevel="h2" hrefOverride={translatedProjects[entry.data.id]} titleOverride={copy[entry.data.id]?.title} summaryOverride={copy[entry.data.id]?.summary} kindLabelOverride="Own project" statusOverride={statusLabels[entry.data.status]} tagsOverride={tagsOf(entry)} /></div>)}</div><div class="empty-state">There are no projects with this status yet.</div></section>
+  <script is:inline>
+    document.querySelectorAll('[data-filter-controls] button').forEach((button) => button.addEventListener('click', () => {
+      document.querySelectorAll('[data-filter-controls] button').forEach((item) => item.classList.remove('active')); button.classList.add('active');
+      const filter = button.dataset.filter; let visible = 0;
+      document.querySelectorAll('[data-project-status]').forEach((item) => { const show = filter === 'all' || item.dataset.projectStatus === filter; item.hidden = !show; if(show) visible++; });
+      document.querySelector('.empty-state').style.display = visible ? 'none' : 'block';
+    }));
+  </script>
+</Base>

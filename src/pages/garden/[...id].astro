@@ -1,9 +1,21 @@
 ---
-import { getCollection } from "astro:content";
+import { getCollection, type CollectionEntry } from "astro:content";
 import EntryPage from "../../components/EntryPage.astro";
 import { getSiteGraph } from "../../lib/site-graph";
-export async function getStaticPaths(){ return (await getCollection("publications")).map((entry)=>({params:{id:entry.id},props:{entry}})); }
-const { entry } = Astro.props;
+export async function getStaticPaths(){
+  const entries=await getCollection("publications");
+  return entries.flatMap((entry)=>{
+    const current={params:{id:entry.id},props:{entry}};
+    if(entry.data.kind!=="telegram-post"&&entry.data.kind!=="telegram-article")return [current];
+    const absorbed=(entry.data.threadIds??[])
+      .filter((messageId)=>`telegram/tg-${messageId}`!==entry.id)
+      .map((messageId)=>({params:{id:`telegram/tg-${messageId}`},props:{destination:`/garden/${entry.id}/`}}));
+    return [current,...absorbed];
+  });
+}
+const { entry, destination } = Astro.props as { entry?: CollectionEntry<"publications">; destination?: string };
+if(destination)return Astro.redirect(destination,301);
+if(!entry)throw new Error("Publication route is missing both entry and redirect destination.");
 const graph = await getSiteGraph();
 ---
 <EntryPage entry={entry} nodes={graph.nodes} edges={graph.edges} />

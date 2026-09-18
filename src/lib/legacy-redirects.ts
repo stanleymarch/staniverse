@@ -36,7 +36,6 @@ export const legacyRedirects = new Map<string, string>([
   ...projectIds.map((id) => [`lab/${id}`, `/projects/${id}/`] as const),
   ...Object.entries(legacyPostRedirects),
   ...Object.entries(legacyTagRedirects),
-  ["lab", "/projects/"],
   // Merged entities: both the old `works/cases/*` alias and the work URL published
   // before the merge keep working and point at the canonical record.
   ["works/cases/avtomaticheskiy-kanal-dlya-proekta-chertezhi", "/works/chertezhi-tekhdiplomy/"],
@@ -53,5 +52,5 @@ export const legacyRedirects = new Map<string, string>([
   ["articles/ii-vayfu-na-14-fevralya-instruktsii-po-primeneniyu-i-sozdaniyu", "/articles/ai-waifu/"],
   ["articles/kak-ya-zaschitil-diplom-na-otlichno-s-pomoschyu-ii-agentov-i-sistemy-znaniy", "/articles/ai-diploma/"],
   ["articles", "/garden/"],
-  ["contacts", "/contacts/"], ["profile", "/about/"], ["manifesto", "/about/#manifesto"], ["donaty", "/donate/"],
+  ["contacts", "/contacts/"], ["profile", "/about/"], ["manifesto", "/manifesto/"], ["articles/manifesto", "/manifesto/"], ["donaty", "/donate/"],
 ]);

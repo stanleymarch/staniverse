@@ -3,40 +3,20 @@
    the rest of the site already uses. */
 .garden-hero {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(18rem, 34rem);
-  gap: var(--s-6);
-  align-items: end;
+  gap: var(--s-3);
   padding: var(--flow-section) var(--rail-inset) var(--flow-half);
 }
 .garden-hero h1 {
-  margin: .25em 0;
-  font: 650 clamp(2.3rem, 5vw, 4.2rem) / 1.02 Unbounded;
-  letter-spacing: -.035em;
+  margin: 0;
+  font: 650 clamp(2.8rem, 6vw, 5.4rem) / .95 Unbounded;
+  letter-spacing: -.045em;
 }
 .garden-hero p {
   max-width: 42rem;
+  margin: 0;
   color: var(--muted);
+  font-size: 1.05rem;
   text-wrap: pretty;
-}
-.garden-search-wrap {
-  display: grid;
-  gap: var(--s-2);
-}
-.garden-search-wrap label {
-  font-size: .8rem;
-  color: var(--muted);
-}
-.garden-search-wrap input {
-  width: 100%;
-  min-height: 3rem;
-  padding: .65rem 1rem;
-  border: 1px solid #35435e;
-  border-radius: 2rem;
-  background: #0d1422;
-  color: var(--ink);
-}
-.garden-search-wrap input::placeholder {
-  color: #7b8aa8;
 }
 .garden-cloud {
   padding: var(--flow-half) var(--rail-inset);
@@ -44,299 +24,280 @@
   background: #0a0f1a;
 }
 .garden-cloud-head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: var(--s-4);
+  margin-bottom: var(--s-5);
+}
+.garden-cloud-head > div {
   display: grid;
   gap: var(--s-1);
-  max-width: 46rem;
-  margin-bottom: var(--s-5);
 }
 .garden-cloud-head h2 {
   margin: 0;
   font: 500 clamp(1.35rem, 2.3vw, 2rem) / 1.1 Unbounded;
   letter-spacing: -.03em;
 }
-.garden-cloud-head p {
-  margin: 0;
-  color: var(--muted);
-  font-size: .9rem;
+.garden-cloud-head > a {
+  color: var(--accent);
+  white-space: nowrap;
 }
 .garden-cloud-nav {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: .15rem .35rem;
-  max-width: 88rem;
+  gap: .25rem .45rem;
+  max-width: 80rem;
 }
 .garden-cloud-nav a {
   display: inline-flex;
   align-items: baseline;
   gap: .3rem;
-  padding: .3rem .48rem;
+  padding: .35rem .55rem;
   border-left: 1px solid color-mix(in srgb, var(--line) 72%, transparent);
   color: #b5c1d4;
-  font-size: clamp(.78rem, calc(var(--topic-size, 1) * .9rem), 1.35rem);
+  font-size: clamp(.84rem, calc(var(--topic-size, 1) * .92rem), 1.35rem);
   line-height: 1.25;
   overflow-wrap: break-word;
   transition: color .2s ease, border-color .2s ease, background-color .2s ease;
 }
-/* Keyboard focus keeps the global accent ring; hover only tints the term. */
-.garden-cloud-nav a:hover {
-  border-left-color: var(--accent);
-  background: rgba(100, 223, 244, .05);
-  color: var(--accent);
-}
+.garden-cloud-nav a:hover,
 .garden-cloud-nav a:focus-visible {
   border-left-color: var(--accent);
-  background: rgba(100, 223, 244, .08);
+  background: rgba(100, 223, 244, .06);
   color: var(--accent);
 }
-.garden-cloud-nav a.is-lead { font-weight: 650; color: var(--accent); }
+.garden-cloud-nav a.is-lead { color: var(--accent); font-weight: 650; }
 .garden-cloud-nav a.is-major { font-weight: 500; }
 .garden-cloud-nav a.is-minor { color: var(--muted); }
 .garden-cloud-nav small {
   color: #7487a3;
   font: 400 .62rem / 1 var(--mono, ui-monospace);
 }
-.garden-mode {
+.garden-tools {
+  border-bottom: 1px solid var(--line);
+  background: var(--bg);
+}
+.garden-toolbar {
   position: sticky;
   top: var(--header-height, 4.5rem);
   z-index: 15;
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(18rem, 1fr) auto auto auto auto;
   align-items: center;
   gap: var(--s-2);
   padding: var(--s-2) var(--rail-inset);
-  border-block: 1px solid var(--line);
-  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--bg) 94%, transparent);
   backdrop-filter: blur(16px);
 }
-.garden-mode-label {
-  margin-right: .2rem;
+.garden-search-wrap {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--s-2);
+  min-width: 0;
+  padding-left: var(--s-3);
+  border: 1px solid #35435e;
+  border-radius: var(--radius-pill);
+  background: #0d1422;
   color: var(--muted);
   font-size: .78rem;
 }
-.garden-mode-spacer {
-  flex: 1;
+.garden-search-wrap input {
+  width: 100%;
+  min-width: 0;
+  min-height: 2.75rem;
+  padding: .55rem .9rem .55rem 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
 }
-.garden-sort {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--s-2);
+.garden-search-wrap input:focus {
+  outline: 0;
+}
+.garden-search-wrap:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 24%, transparent);
+}
+.garden-search-wrap input::placeholder { color: #7b8aa8; }
+.garden-toolbar-count {
+  min-width: 8.8rem;
+  margin: 0;
   color: var(--muted);
+  font-size: .82rem;
+  text-align: center;
   white-space: nowrap;
+}
+.garden-sort select,
+.garden-view button,
+.garden-filter-toggle {
+  min-height: 2.75rem;
+  padding: .55rem .9rem;
+  border: 1px solid #35435e;
+  border-radius: var(--radius-pill);
+  background: #0d1422;
+  color: #b5c1d4;
+  font: inherit;
+  cursor: pointer;
 }
 .garden-sort select {
-  min-height: 2.6rem;
-  padding: .55rem 2.2rem .55rem .9rem;
+  padding-right: 2.2rem;
+}
+.garden-view {
+  display: flex;
+  padding: 2px;
   border: 1px solid #35435e;
-  border-radius: 2rem;
+  border-radius: var(--radius-pill);
   background: #0d1422;
-  color: var(--ink);
-  cursor: pointer;
 }
-/* Mode switcher and filter entry point share the site's pill control. */
-.garden-mode button {
-  min-height: 2.6rem;
-  padding: .55rem .95rem;
-  border: 1px solid #35435e;
-  border-radius: 2rem;
-  background: #0d1422;
-  color: #b5c1d4;
-  cursor: pointer;
+.garden-view button {
+  min-height: 2.35rem;
+  border: 0;
+  background: transparent;
 }
-.garden-mode button:hover {
-  border-color: #4a5874;
-  color: var(--ink);
-}
-.garden-mode button[aria-pressed="true"] {
-  border-color: var(--accent);
+.garden-view button[aria-pressed="true"] {
   background: var(--accent);
   color: #07131a;
 }
-.garden-filter-toggle {
-  display: none;
-  white-space: nowrap;
-}
-/* Not pressed/expanded: a disclosure that carries active filters. */
-.garden-mode .garden-filter-toggle.is-active {
+.garden-filter-toggle:hover,
+.garden-filter-toggle:focus-visible,
+.garden-filter-toggle.is-active {
   border-color: var(--accent);
   color: var(--accent);
-}
-/* Inside the layout, both columns inset from the shared rail; beyond the wide
-   rail the whole grid centers in step with the rest of the page. */
-.garden-layout {
-  display: grid;
-  grid-template-columns: minmax(14rem, 19rem) minmax(0, 1fr);
-  align-items: start;
-  padding-inline: max(0px, calc(var(--rail-inset) - var(--rail)));
 }
 .garden-facets {
-  position: sticky;
-  top: calc(var(--header-height, 4.5rem) + 4.4rem);
-  max-height: calc(100dvh - 9rem);
-  overflow: auto;
-  overscroll-behavior: contain;
-  padding: var(--s-4) var(--rail) var(--s-6);
-  border-right: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: minmax(12rem, .75fr) minmax(20rem, 1.5fr) minmax(14rem, 1fr);
+  gap: var(--s-6);
+  padding: var(--s-5) var(--rail-inset);
+  background: #0a0f1a;
 }
-.garden-facet-head {
-  display: flex;
-  align-items: center;
-  gap: var(--s-2);
-  margin-bottom: var(--s-3);
-}
-.garden-facet-head strong {
-  color: #8ea2c6;
-  font-size: .7rem;
-  font-weight: 500;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-}
-.garden-facet-head [data-garden-reset] {
-  margin-left: auto;
-}
-.garden-facet-head button {
-  padding: .3rem .7rem;
-  border: 1px solid #35435e;
-  border-radius: 2rem;
-  background: #0d1422;
-  color: #b5c1d4;
-  font-size: .8rem;
-  cursor: pointer;
-}
-.garden-facet-head button:hover {
-  border-color: var(--accent);
-  color: var(--accent);
+.garden-facets[hidden] {
+  display: none;
 }
 .garden-facets fieldset {
-  display: grid;
-  gap: var(--s-2);
+  min-width: 0;
   margin: 0;
-  padding: var(--s-4) 0;
+  padding: 0;
   border: 0;
-  border-top: 1px solid var(--line);
 }
 .garden-facets legend {
-  padding: 0 0 var(--s-2);
+  margin-bottom: var(--s-3);
   color: #8ea2c6;
   font-size: .7rem;
-  letter-spacing: .14em;
+  letter-spacing: .12em;
   text-transform: uppercase;
 }
-.garden-facets label {
-  display: flex;
-  gap: var(--s-2);
-  align-items: start;
-  color: var(--muted);
-  font-size: .9rem;
-  line-height: 1.35;
-  cursor: pointer;
-}
-.garden-facets label:hover {
-  color: var(--ink);
-}
-.garden-facets input[type="checkbox"] {
-  flex: 0 0 auto;
-  inline-size: 1rem;
-  block-size: 1rem;
-  margin: .18rem 0 0;
-  accent-color: var(--accent);
-}
-.garden-topic-options,
-.garden-source-options,
-.garden-project-options {
-  display: grid;
-  gap: var(--s-2);
-}
-.garden-topic-options small {
-  margin-left: auto;
-}
-.garden-source-search {
-  width: 100%;
-  margin-bottom: var(--s-1);
-  padding: .45rem .7rem;
-  border: 1px solid #35435e;
-  border-radius: .5rem;
-  background: #0d1422;
-  color: var(--ink);
-  font-size: .9rem;
-}
-.garden-source-options {
-  max-height: 18rem;
-  overflow-y: auto;
-  padding-right: .3rem;
-}
-.garden-source-options small {
-  margin-left: auto;
-}
-.garden-source-options label[data-hidden="1"] {
-  display: none;
-}
-.garden-source-empty {
-  margin: .2rem 0 0;
-  color: var(--muted);
-  font-size: .85rem;
-}
-.garden-source-empty[hidden] {
-  display: none;
-}
-/* Drawer action row exists for the mobile workflow only. */
-.garden-facet-actions {
-  display: none;
-}
-.garden-facet-actions p {
-  margin: 0;
-  color: var(--muted);
-  font-size: .85rem;
-}
-.garden-facet-apply {
-  padding: .7rem 1rem;
-  border: 1px solid var(--accent);
-  border-radius: 2rem;
-  background: var(--accent);
-  color: #07131a;
-  font-weight: 650;
-  cursor: pointer;
-}
-.garden-results {
-  min-width: 0;
-  padding: var(--s-5) var(--rail) var(--flow-section);
-}
-.garden-result-head {
+.garden-filter-options {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--s-2) var(--s-3);
-  min-height: 3rem;
-  padding-bottom: var(--s-3);
-  border-bottom: 1px solid var(--line);
+  gap: var(--s-2);
+}
+.garden-filter-options label {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+.garden-filter-options input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.garden-filter-options span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.35rem;
+  padding: .45rem .7rem;
+  border: 1px solid #35435e;
+  border-radius: var(--radius-pill);
+  color: var(--muted);
+  font-size: .82rem;
+  line-height: 1.2;
+  transition: border-color .2s ease, background-color .2s ease, color .2s ease;
+}
+.garden-filter-options label:hover span {
+  border-color: #52617d;
+  color: var(--ink);
+}
+.garden-filter-options input:focus-visible + span {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.garden-filter-options input:checked + span {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 14%, #0d1422);
+  color: var(--accent);
+}
+.garden-topic-options label {
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: center;
+}
+.garden-topic-options small {
+  margin-left: -.45rem;
+  padding-right: .5rem;
+  color: #7487a3;
+  font-size: .62rem;
+  pointer-events: none;
+}
+.garden-reset {
+  align-self: end;
+  justify-self: end;
+  padding: .55rem 0;
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  font: inherit;
+  cursor: pointer;
+}
+.garden-result-head {
+  min-height: 3.25rem;
+  padding: var(--s-2) var(--rail-inset);
   color: var(--muted);
 }
 .garden-result-head p {
   margin: 0;
 }
-.garden-result-head p:first-child {
-  color: var(--ink);
-}
 [data-active-filters] {
   display: flex;
   flex-wrap: wrap;
-  justify-content: flex-end;
+  align-items: center;
   gap: var(--s-1);
 }
-.garden-filter-chip {
+.garden-filter-chip,
+.garden-filter-reset {
   max-width: 100%;
-  padding: .28rem .6rem;
+  padding: .35rem .65rem;
   border: 1px solid #35435e;
-  border-radius: 2rem;
+  border-radius: var(--radius-pill);
   background: #0d1422;
   color: #b5c1d4;
+  font: inherit;
   font-size: .8rem;
   overflow-wrap: anywhere;
   cursor: pointer;
 }
-.garden-filter-chip:hover {
+.garden-filter-chip:hover,
+.garden-filter-reset:hover {
   border-color: var(--accent);
   color: var(--accent);
+}
+.garden-filter-reset {
+  border-color: transparent;
+  background: transparent;
+  color: var(--accent);
+}
+.garden-layout {
+  min-width: 0;
+}
+.garden-results {
+  width: min(100%, 92rem);
+  min-width: 0;
+  margin-inline: auto;
+  padding: var(--s-4) var(--rail-inset) var(--flow-section);
 }
 .garden-list {
   display: grid;
@@ -490,6 +451,10 @@
 .garden-map-panel p {
   color: var(--muted);
 }
+.garden-map-count {
+  margin-top: -.5rem;
+  font-size: .84rem;
+}
 .garden-map-pan-hint {
   display: none;
 }
@@ -501,12 +466,15 @@
   width: 100%;
   aspect-ratio: 10 / 7;
   border: 1px solid var(--line);
+  cursor: grab;
+  user-select: none;
   background: radial-gradient(
     circle at center,
     color-mix(in srgb, var(--accent) 8%, transparent),
     transparent 62%
   );
 }
+.garden-map-svg.is-panning { cursor: grabbing; }
 .garden-map-viewport .garden-map-svg {
   margin: 0;
 }
@@ -514,11 +482,19 @@
   vector-effect: non-scaling-stroke;
   stroke: color-mix(in srgb, var(--ink) 28%, transparent);
   stroke-width: 1;
+  transition: opacity var(--dur-2) var(--ease), stroke-width var(--dur-2) var(--ease);
 }
 .garden-map-edge.inferred {
   stroke: color-mix(in srgb, var(--accent) 42%, transparent);
   stroke-dasharray: 5 7;
 }
+/* Selecting a node answers with its own neighbourhood: everything outside it steps
+   back, the way a graph view reads when you point at one note. */
+.garden-map-edge.is-dim { opacity: .12; }
+.garden-map-edge.is-hot { stroke-width: 2; }
+.garden-map-node { cursor: pointer; transition: opacity var(--dur-2) var(--ease); }
+.garden-map-node.is-dim { opacity: .25; }
+.garden-map-node.is-linked circle { stroke: var(--accent); }
 .garden-map-node circle {
   fill: var(--accent);
   stroke: var(--bg);
@@ -567,115 +543,86 @@
   border-left: 2px solid var(--accent);
   padding-left: var(--s-3);
 }
-/* Map mode keeps the result head (count and chips) and swaps the row list for the graph. */
-.garden-layout.map-active .garden-list,
-.garden-layout.map-active .garden-more {
+.garden-layout.map-active .garden-results {
   display: none;
 }
 .garden-layout.map-active .garden-map-panel {
-  grid-column: 1 / -1;
-  grid-row: 2;
+  width: min(100%, 92rem);
+  max-width: none;
+  margin-inline: auto;
+  padding: var(--s-5) var(--rail-inset) var(--flow-section);
 }
-/* Feed mode: a text-forward stream, kind and date on one line, no media column. */
-.garden-layout.feed-active .garden-row {
-  grid-template-columns: minmax(0, 1fr) auto;
-  grid-template-areas: "meta date" "body body";
-  gap: var(--s-1) var(--s-2);
-  padding: var(--s-3) var(--s-4);
-}
-.garden-layout.feed-active .garden-row-thumbnail {
-  display: none;
-}
-/* Both are mobile-drawer affordances; the drawer rules below switch them on. */
-.garden-filter-close,
-.garden-filter-backdrop {
-  display: none;
-}
-@media (max-width: 1024px) {
-  .garden-hero {
-    grid-template-columns: 1fr;
+@media (max-width: 1100px) {
+  .garden-toolbar {
+    grid-template-columns: minmax(0, 1fr) auto auto auto;
   }
-  .garden-layout {
-    grid-template-columns: 1fr;
-  }
-  .garden-filter-toggle {
-    display: block;
-    margin-left: auto;
+  .garden-search-wrap {
+    grid-column: 1 / -1;
   }
   .garden-facets {
-    display: none;
-    position: fixed;
-    inset: var(--header-height, 4.5rem) 0 0 auto;
-    width: min(90vw, 24rem);
-    max-height: none;
-    z-index: 40;
-    background: var(--bg);
-    border-left: 1px solid var(--line);
-    box-shadow: -1.5rem 0 4rem rgba(0, 0, 0, .5);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  .garden-facets.open {
-    display: block;
-  }
-  .garden-facet-actions {
-    position: sticky;
-    bottom: 0;
-    display: grid;
-    gap: var(--s-2);
-    margin-top: var(--s-3);
-    padding: var(--s-3) 0 var(--s-4);
-    border-top: 1px solid var(--line);
-    background: var(--bg);
-  }
-  .garden-filter-close {
-    display: inline-block;
-  }
-  .garden-filter-backdrop {
-    position: fixed;
-    inset: 0;
-    z-index: 35;
-    display: block;
-    background: rgba(2, 5, 11, .72);
-    backdrop-filter: blur(3px);
-  }
-  .garden-filter-backdrop[hidden] {
-    display: none;
-  }
-  .garden-filters-open {
-    overflow: hidden;
-  }
-  .garden-mode {
-    justify-content: flex-start;
+  .garden-facets fieldset:last-of-type {
+    grid-column: 1 / -1;
   }
 }
-@media (max-width: 600px) {
+@media (max-width: 700px) {
   .garden-hero {
     padding-block-start: var(--flow-half);
   }
   .garden-hero h1 {
-    font-size: clamp(2.5rem, 11.5vw, 3.1rem);
-    line-height: .95;
+    font-size: clamp(2.4rem, 11.5vw, 3.125rem);
   }
-  .garden-mode {
+  .garden-cloud-head {
+    align-items: start;
+    flex-direction: column;
+  }
+  .garden-cloud-nav a {
+    flex-wrap: nowrap;
+  }
+  .garden-cloud-nav small {
+    white-space: nowrap;
+  }
+  .garden-toolbar {
+    grid-template-columns: minmax(0, 1fr) auto;
     gap: var(--s-2);
-    overflow-x: auto;
-    scrollbar-width: thin;
+    padding-inline: var(--rail);
   }
-  /* The mode strip scrolls on narrow phones; the filter entry point stays pinned. */
-  .garden-mode .garden-filter-toggle {
-    position: sticky;
-    right: 0;
-    z-index: 1;
-    background: color-mix(in srgb, var(--bg) 96%, transparent);
-    box-shadow: -.75rem 0 1rem -.75rem rgba(0, 0, 0, .8);
+  .garden-search-wrap {
+    grid-column: 1 / -1;
   }
-  .garden-cloud-nav a { flex-wrap: nowrap; }
-  .garden-cloud-nav small { white-space: nowrap; }
+  .garden-toolbar-count {
+    min-width: 0;
+    text-align: left;
+  }
+  .garden-sort {
+    justify-self: end;
+  }
+  .garden-sort select {
+    max-width: 10rem;
+  }
+  .garden-view {
+    justify-self: start;
+  }
+  .garden-filter-toggle {
+    justify-self: end;
+  }
+  .garden-facets {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--s-5);
+    padding: var(--s-5) var(--rail);
+  }
+  .garden-facets fieldset:last-of-type {
+    grid-column: auto;
+  }
+  .garden-reset {
+    justify-self: start;
+  }
   .garden-result-head {
-    display: block;
+    padding-inline: var(--rail);
   }
-  [data-active-filters] {
-    justify-content: flex-start;
-    margin-top: .4rem;
+  .garden-results {
+    padding-inline: var(--rail);
   }
   .garden-row {
     grid-template-columns: minmax(0, 1fr);
@@ -700,7 +647,7 @@
   .garden-empty {
     padding: var(--s-4);
   }
-  .garden-map-panel {
+  .garden-layout.map-active .garden-map-panel {
     padding-inline: var(--rail);
   }
   .garden-map-svg {

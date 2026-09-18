@@ -1,9 +1,17 @@
 import { isMediaMessage } from "./media";
 import type { PublicationGroup, TelegramMessage } from "./types";
 
-const continuationMarker = /(?:продолжение|начало|часть)/iu;
-const numberedContinuation = /(?:продолжение|начало|часть)\s*(?:поста)?\s*(?:№|#|:)?\s*(\d+)/giu;
-const telegramPostLink = /(?:https?:\/\/)?(?:www\.)?t\.me\/(?:s\/)?([\w-]+)\/(\d+)/giu;
+ const continuationMarker = /(?:продолжение|начало|часть)/iu;
+ const numberedContinuation = /(?:продолжение|начало|часть)\s*(?:поста)?\s*(?:№|#|:)?\s*(\d+)/giu;
+ const telegramPostLink = /(?:https?:\/\/)?(?:www\.)?t\.me\/(?:s\/)?([\w-]+)\/(\d+)/giu;
+/**
+ * A post that OPENS with a continuation phrase and names no explicit target continues
+ * the previous publication: the author said "продолжение поста" / "часть 2/3" /
+ * "начало здесь", and adjacency only picks which post is being continued. A bare
+ * "начало" is not enough — it must point at a place ("здесь", "в предыдущем посте"),
+ * otherwise "начало июня выдалось загруженным" would swallow the previous post.
+ */
+const continuationLead = /^\W{0,3}\s*(?:\(?\s*(?:продолжение(?:\s+этого)?\s+поста?(?!\s*[№#:]\s*\d)|начало\s+(?:здесь|в\s+предыдущем\s+посте))\s*\)?|часть\s*\d+\s*\/\s*\d+)(?:[\s:;.,—–-]|$)/iu;
 
 /** The local post id a Telegram URL points at, or `undefined` for another channel. */
 export function telegramPostIdForHandle(url: string, handle: string): number | undefined {
@@ -92,16 +100,47 @@ function albumAnchors(messages: TelegramMessage[]): Map<number, number> {
   return anchors;
 }
 
-/** One publication: a single Telegram message, or the album that message anchors. */
 export function buildPublications(input: TelegramMessage[]): PublicationGroup[] {
   const messages = [...new Map(input.filter((message) => message.type !== "service").map((message) => [message.id, message])).values()].sort((a, b) => a.id - b.id);
   const anchors = albumAnchors(messages);
+  const rootOf = new Map<number, number>();
+  const membersOf = new Map<number, number[]>();
+  for (const message of messages) {
+    const root = anchors.get(message.id) ?? message.id;
+    rootOf.set(message.id, root);
+    membersOf.set(root, [...membersOf.get(root) ?? [], message.id]);
+  }
+  // Explicit continuations (a t.me link or a numbered target) are relations, not merges:
+  // the author points at a specific post, which keeps its own page. A lead phrase with
+  // no target merges into the previous publication, and chains merge transitively
+  // because each later post re-aims at the root its predecessor already joined.
+  const ids = new Set(messages.map((message) => message.id));
+  let previousRoot: number | undefined;
+  for (const message of messages) {
+    const ownRoot = rootOf.get(message.id)!;
+    const text = plainText(message).trimStart();
+    if (previousRoot !== undefined && ownRoot !== previousRoot && continuationLead.test(text) && !hasExplicitTarget(text)) {
+      for (const memberId of membersOf.get(ownRoot) ?? []) rootOf.set(memberId, previousRoot);
+      membersOf.set(previousRoot, [...(membersOf.get(previousRoot) ?? []), ...(membersOf.get(ownRoot) ?? [])]);
+      membersOf.delete(ownRoot);
+    } else {
+      previousRoot = rootOf.get(message.id)!;
+    }
+  }
   const grouped = new Map<number, TelegramMessage[]>();
   for (const message of messages) {
-    const rootId = anchors.get(message.id) ?? message.id;
+    const rootId = rootOf.get(message.id) ?? message.id;
     grouped.set(rootId, [...grouped.get(rootId) ?? [], message]);
   }
   return [...grouped.entries()]
     .map(([rootId, group]) => ({ rootId, messages: group.sort((a, b) => a.id - b.id) }))
     .sort((a, b) => a.rootId - b.rootId);
+  function hasExplicitTarget(text: string) {
+    // A numbered target needs its separator («продолжение поста №5», «часть: 3»);
+    // a bare «часть 2/3» numbers the part itself and continues the previous post.
+    if (/(?:продолжение|начало|часть)\s*(?:поста)?\s*[№#:]\s*\d+/iu.test(text)) return true;
+    telegramPostLink.lastIndex = 0;
+    for (const match of text.matchAll(telegramPostLink)) if (ids.has(Number(match[2]))) return true;
+    return false;
+  }
 }

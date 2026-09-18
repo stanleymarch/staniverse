@@ -1,0 +1,27 @@
+---
+import Base from "../layouts/Base.astro";
+---
+
+<Base title="Страница не найдена" description="Страница не найдена. Вернитесь на главную, посмотрите работы и проекты или воспользуйтесь поиском по сайту.">
+  <article class="not-found content-shell">
+    <header class="not-found-hero">
+      <p class="section-kicker">404</p>
+      <h1 class="display">Такой страницы нет</h1>
+      <p class="not-found-lead">Возможно, адрес изменился при переезде сайта или в ссылке опечатка. Вот короткие пути обратно:</p>
+      <nav class="not-found-actions" aria-label="Основные разделы">
+        <a class="button primary" href="/">На главную</a>
+        <a class="button quiet" href="/works/">Работы</a>
+        <a class="button quiet" href="/projects/">Проекты</a>
+        <a class="button quiet" href="/garden/">Сад</a>
+        <button class="button quiet" type="button" data-search-open>Поиск по сайту</button>
+      </nav>
+    </header>
+  </article>
+</Base>
+
+<style>
+  .not-found { display: grid; min-height: 60vh; align-content: center; padding-block: clamp(4rem, 10vw, 8rem); }
+  .not-found-hero { max-width: 44rem; }
+  .not-found-lead { max-width: 38rem; margin-top: var(--s-4); color: var(--ink-2); font-size: clamp(1.02rem, 1.8vw, 1.3rem); line-height: 1.55; }
+  .not-found-actions { display: flex; flex-wrap: wrap; gap: var(--s-2); margin-top: var(--s-5); }
+</style>

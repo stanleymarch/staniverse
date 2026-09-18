@@ -8,7 +8,7 @@ genres: ["video","community"]
 role: "Автор и исполнитель"
 client: "Проект: я.ты.город"
 status: completed
-tags: ["video","community","kirov"]
+tags: ["video","community","киров/вятка"]
 entities: []
 featured: true
 features: []

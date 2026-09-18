@@ -1,37 +1,57 @@
-/* Universe is an authored flight instrument: hairline chrome, catalogue type, live star field. */
+/*
+  Universe is an authored flight instrument over a real sky: two stable overlay regions, one
+  working dock, and a canvas that is allowed to be the sky itself. Every value here is a
+  design-system token (with a safe fallback) or derived from one with color-mix, so the page
+  follows the shared palette, grid and motion instead of inventing a second system.
+*/
 .universe-page {
-  --space: #02050d;
-  --panel: rgba(6, 12, 22, .84);
-  --panel-solid: #070d18;
-  --hairline: rgba(148, 176, 204, .22);
-  --hairline-strong: rgba(148, 176, 204, .42);
-  --text: #eff7ff;
-  --muted: #a8b8ca;
-  --cyan: #72e8ff;
-  --mono: Geologica, system-ui, sans-serif;
-  --pad-block: clamp(.7rem, 1.9vw, 1.15rem);
-  --rail-start: max(clamp(.9rem, 3.4vw, 3.4rem), env(safe-area-inset-left));
-  --rail-end: max(clamp(.9rem, 3.4vw, 3.4rem), env(safe-area-inset-right));
-  --dock: max(clamp(.9rem, 3.4vh, 2rem), env(safe-area-inset-bottom));
+  --page-ground: var(--ground, #06080f);
+  --page-surface: var(--surface, #0d1220);
+  --text: var(--ink, #eef3ff);
+  --muted: var(--ink-2, #93a5c0);
+  --cyan: var(--accent, #7fd4f0);
+  --panel: color-mix(in srgb, var(--page-surface) 84%, transparent);
+  --panel-solid: var(--page-surface);
+  --hairline: var(--line, color-mix(in srgb, var(--muted) 24%, transparent));
+  --hairline-strong: var(--line-strong, color-mix(in srgb, var(--muted) 46%, transparent));
+  --line-accent: var(--accent-line, color-mix(in srgb, var(--cyan) 55%, transparent));
+  --mono: var(--font-body, Geologica, system-ui, sans-serif);
+  --display: var(--font-display, Unbounded, system-ui, sans-serif);
+  /* The shared 12/6/4 grid, one 8px spacing scale and the three radii. */
+  --cols: var(--grid-columns, 12);
+  --gap: var(--s-2, 8px);
+  --radius: var(--radius-1, 6px);
+  --radius-card: var(--radius-1, 6px);
+  --radius-round: var(--radius-pill, 999px);
+  --u-dur-1: var(--dur-1, 140ms);
+  --u-dur-2: var(--dur-2, 240ms);
+  --u-dur-3: var(--dur-3, 520ms);
+  --u-ease: var(--ease, cubic-bezier(.2, .6, .2, 1));
+  /* Every interactive target keeps a 44px footprint, on the overlay and in the scene alike. */
+  --target: 44px;
+  --rail-start: max(var(--rail, clamp(8px, 3.4vw, 48px)), env(safe-area-inset-left));
+  --rail-end: max(var(--rail, clamp(8px, 3.4vw, 48px)), env(safe-area-inset-right));
+  --dock: max(clamp(8px, 2.6vh, 24px), env(safe-area-inset-bottom));
   --stick: 5rem;
+  --dock-h: calc(var(--stick) + var(--gap) * 2);
   position: fixed;
   inset: 0;
   z-index: 0;
   overflow: hidden;
   isolation: isolate;
-  background:
-    radial-gradient(circle at 72% 20%, rgba(220, 54, 173, .18), transparent 27rem),
-    radial-gradient(circle at 18% 78%, rgba(37, 135, 220, .2), transparent 32rem),
-    radial-gradient(circle at 54% 52%, rgba(255, 150, 69, .08), transparent 24rem),
-    var(--space);
   color: var(--text);
-  font-family: Geologica, system-ui, sans-serif;
+  font-family: var(--mono);
+  background-color: var(--page-ground);
+  background-image:
+    radial-gradient(circle at 72% 20%, color-mix(in srgb, #dc36ad 18%, transparent), transparent 27rem),
+    radial-gradient(circle at 18% 78%, color-mix(in srgb, #2587dc 20%, transparent), transparent 32rem),
+    radial-gradient(circle at 54% 52%, color-mix(in srgb, #ff9645 8%, transparent), transparent 24rem);
 }
-/* The runtime and the iOS AR spike toggle overlay parts with the native hidden attribute. */
+/* The runtime, the AR dock and the loader all toggle overlay parts with the native hidden attribute. */
 .universe-page [hidden] { display: none !important; }
 
 /* --- Embedded mode: a calmer section on the homepage, still capped at 72vh. --- */
-.universe-embedded { min-height: min(72vh, 720px); margin: 0; border-block: 1px solid rgba(109, 225, 244, .18); }
+.universe-embedded { min-height: min(72vh, 720px); margin: 0; border-block: 1px solid var(--line-accent); }
 .universe-page.universe-embedded {
   position: relative;
   inset: auto;
@@ -44,23 +64,47 @@
 .universe-embedded .universe-intro { max-width: min(27rem, 100%); }
 .universe-embedded .flight-keys { display: none; }
 .universe-embedded .universe-fallback[open] { max-height: min(40vh, 18rem); }
-.universe-embedded .universe-ui::before { --bracket: rgba(109, 225, 244, .16); }
+.universe-embedded .universe-ui::before { --bracket: color-mix(in srgb, var(--cyan) 16%, transparent); }
 
 /* --- Canvas: the instrument must stay reachable, so chrome never swallows pointer events. --- */
-.universe-canvas { display: block; width: 100%; height: 100%; cursor: grab; touch-action: none; }
+.universe-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+  touch-action: none;
+  transition: background-color var(--u-dur-3) var(--u-ease);
+}
 .universe-canvas:active { cursor: grabbing; }
 .universe-canvas:focus-visible { outline: 2px solid var(--cyan); outline-offset: -5px; }
-/* No WebGL context: keep the UI and the accessible list, drop the dead canvas, stick and flight hints. */
+/* While the scene is still loading the canvas gets a real sky instead of an empty alpha plane. */
+.universe-page:is([data-experience-state="loading"], [data-experience-state="error"]) .universe-canvas,
+.universe-page[data-render="unavailable"] .universe-canvas {
+  background-color: var(--page-ground);
+  background-image:
+    radial-gradient(1.6px 1.6px at 12% 24%, color-mix(in srgb, var(--text) 62%, transparent), transparent),
+    radial-gradient(1.2px 1.2px at 28% 68%, color-mix(in srgb, var(--cyan) 55%, transparent), transparent),
+    radial-gradient(1.8px 1.8px at 44% 16%, color-mix(in srgb, var(--text) 48%, transparent), transparent),
+    radial-gradient(1.3px 1.3px at 58% 74%, color-mix(in srgb, #ffd9a8 60%, transparent), transparent),
+    radial-gradient(1.1px 1.1px at 66% 34%, color-mix(in srgb, var(--text) 40%, transparent), transparent),
+    radial-gradient(1.7px 1.7px at 76% 58%, color-mix(in srgb, #9fc0ff 58%, transparent), transparent),
+    radial-gradient(1.2px 1.2px at 88% 20%, color-mix(in srgb, var(--text) 46%, transparent), transparent),
+    radial-gradient(1.4px 1.4px at 20% 88%, color-mix(in srgb, #ffc9a0 52%, transparent), transparent),
+    radial-gradient(1.1px 1.1px at 36% 44%, color-mix(in srgb, var(--text) 34%, transparent), transparent),
+    radial-gradient(1.5px 1.5px at 82% 84%, color-mix(in srgb, var(--cyan) 46%, transparent), transparent),
+    radial-gradient(120% 90% at 50% 45%, transparent 38%, color-mix(in srgb, var(--page-ground) 88%, transparent) 92%);
+}
 .universe-page[data-render="unavailable"] .universe-canvas,
 .universe-page[data-render="unavailable"] .flight-joystick,
 .universe-page[data-render="unavailable"] .flight-keys { display: none; }
+
 .universe-ui { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
 .universe-ui > * { pointer-events: auto; }
 /* Navigation brackets replace the old grid: four hairline corners around the star field. */
 .universe-ui::before {
   position: absolute;
-  inset: clamp(.5rem, 1.4vw, .95rem);
-  --bracket: rgba(109, 225, 244, .3);
+  inset: clamp(6px, 1.4vw, 16px);
+  --bracket: color-mix(in srgb, var(--cyan) 30%, transparent);
   pointer-events: none;
   background:
     linear-gradient(var(--bracket), var(--bracket)) 0 0 / 1.4rem 1px no-repeat,
@@ -78,7 +122,7 @@
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background: radial-gradient(118% 86% at 50% 46%, transparent 40%, rgba(1, 4, 9, .48) 82%, rgba(1, 3, 7, .82));
+  background: radial-gradient(118% 86% at 50% 46%, transparent 40%, color-mix(in srgb, #010409 48%, transparent) 82%, color-mix(in srgb, #010307 82%, transparent));
   content: "";
 }
 .universe-page::after {
@@ -87,75 +131,125 @@
   z-index: 1;
   pointer-events: none;
   background:
-    radial-gradient(ellipse at 73% 23%, rgba(246, 82, 196, .11), transparent 28%),
-    radial-gradient(ellipse at 22% 76%, rgba(45, 151, 255, .12), transparent 34%),
-    linear-gradient(112deg, transparent 42%, rgba(255, 189, 102, .035) 52%, transparent 62%);
+    radial-gradient(ellipse at 73% 23%, color-mix(in srgb, #f652c4 11%, transparent), transparent 28%),
+    radial-gradient(ellipse at 22% 76%, color-mix(in srgb, #2d97ff 12%, transparent), transparent 34%),
+    linear-gradient(112deg, transparent 42%, color-mix(in srgb, #ffbd66 4%, transparent) 52%, transparent 62%);
   mix-blend-mode: screen;
   content: "";
 }
 
-/* --- Sparse flight controls: no second site header over the scene. --- */
+/* --- Loading: an explicit layer, so the first paint is never an empty canvas. --- */
+.universe-loading {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--gap);
+  background: radial-gradient(60% 50% at 50% 50%, color-mix(in srgb, var(--page-ground) 72%, transparent), color-mix(in srgb, var(--page-ground) 94%, transparent));
+  text-align: center;
+  /* The loader never owns a click: the dock, the card and the accessible list stay usable. */
+  pointer-events: none;
+}
+.universe-loading-orbit { position: relative; display: block; width: 3.5rem; aspect-ratio: 1; }
+.universe-loading-orbit::before {
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--line-accent);
+  border-radius: var(--radius-round);
+  content: "";
+}
+.universe-loading-orbit i {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  aspect-ratio: 1;
+  margin: -3px;
+  border-radius: var(--radius-round);
+  background: var(--cyan);
+  animation: universe-loading-orbit 1.6s var(--u-ease) infinite;
+}
+.universe-loading-orbit i:nth-child(2) { animation-delay: var(--u-dur-2); }
+.universe-loading-orbit i:nth-child(3) { animation-delay: var(--u-dur-3); }
+@keyframes universe-loading-orbit {
+  from { transform: rotate(0deg) translateX(1.75rem); }
+  50% { opacity: .35; }
+  to { transform: rotate(360deg) translateX(1.75rem); }
+}
+.universe-loading-message { margin: 0; color: var(--muted); font: 400 .68rem/1.4 var(--mono); letter-spacing: .14em; text-transform: uppercase; }
+/* A failed scene still shows the accessible list: the notice moves to the top and stops covering it. */
+.universe-page[data-experience-state="error"] .universe-loading {
+  justify-content: flex-start;
+  padding-top: calc(var(--gap) * 2);
+  background: none;
+}
+.universe-page[data-experience-state="error"] .universe-loading-orbit { display: none; }
+.universe-page[data-experience-state="error"] .universe-loading-message { max-width: 32ch; color: color-mix(in srgb, #e5a8d1 78%, var(--text)); }
+
+/* --- Top region: identity, mode and sound. Nothing else lives up here. --- */
 .universe-top {
   position: absolute;
-  top: max(.7rem, env(safe-area-inset-top));
+  top: max(var(--gap), env(safe-area-inset-top));
   right: var(--rail-end);
   left: var(--rail-start);
   display: grid;
-  gap: .35rem;
+  gap: var(--gap);
   pointer-events: none;
 }
-.universe-top-row { display: flex; align-items: flex-start; justify-content: space-between; gap: .55rem 1rem; min-width: 0; }
+.universe-top-row {
+  display: grid;
+  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+  gap: var(--gap);
+  align-items: center;
+  min-width: 0;
+}
 .universe-top-row > * { pointer-events: auto; }
-.universe-logo { display: inline-flex; align-items: center; gap: .45rem; min-height: 2.1rem; color: var(--text); font: 650 .72rem/1 Unbounded, sans-serif; letter-spacing: -.01em; white-space: nowrap; }
+.universe-logo { grid-column: 1 / span 3; display: inline-flex; align-items: center; gap: 6px; min-height: var(--target); color: var(--text); font: 650 .72rem/1 var(--display); letter-spacing: -.01em; white-space: nowrap; }
 .universe-logo:hover { color: var(--cyan); }
-.universe-logo-mark { flex: none; width: .55rem; aspect-ratio: 1; border: 1px solid var(--cyan); border-radius: 50%; background: radial-gradient(circle, var(--cyan) 0 26%, transparent 30%); }
-.universe-actions { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: .3rem; max-width: min(76vw, 48rem); }
+.universe-logo-mark { flex: none; width: .55rem; aspect-ratio: 1; border: 1px solid var(--cyan); border-radius: var(--radius-round); background: radial-gradient(circle, var(--cyan) 0 26%, transparent 30%); }
+.universe-mode { grid-column: 4 / span 5; display: flex; align-items: center; gap: 6px; min-width: 0; margin: 0; }
+.universe-actions { grid-column: -4 / -1; display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 6px; }
 .icon-button, .node-search input, .universe-tools > summary {
-  min-height: 2.1rem;
+  min-height: var(--target);
   border: 1px solid var(--hairline);
-  border-radius: 2px;
-  background-color: rgba(4, 9, 17, .78);
-  color: #dbe7f5;
+  border-radius: var(--radius);
+  background-color: color-mix(in srgb, var(--page-ground) 78%, transparent);
+  color: color-mix(in srgb, var(--text) 86%, var(--muted));
   font: 400 .63rem/1 var(--mono);
   letter-spacing: .09em;
   text-transform: uppercase;
+  transition: border-color var(--u-dur-1) var(--u-ease), color var(--u-dur-1) var(--u-ease), background-color var(--u-dur-1) var(--u-ease);
 }
-.icon-button { padding: .45rem .6rem; cursor: pointer; }
-.icon-button:hover:not(:disabled), .universe-tools > summary:hover { border-color: rgba(109, 225, 244, .6); color: var(--cyan); }
+.icon-button { min-width: var(--target); padding: 8px 10px; cursor: pointer; }
+.icon-button:hover:not(:disabled), .universe-tools > summary:hover { border-color: color-mix(in srgb, var(--cyan) 60%, transparent); color: var(--cyan); }
 .icon-button:active:not(:disabled) { transform: translateY(1px); }
 .icon-button:disabled { cursor: not-allowed; opacity: .34; }
-.universe-tools { position: relative; justify-self: end; width: min(22rem, calc(100vw - 2 * var(--rail-start))); pointer-events: auto; }
-.universe-tools > summary { display: flex; align-items: center; justify-content: center; width: max-content; margin-left: auto; padding: .45rem .6rem; cursor: pointer; list-style: none; }
-.universe-tools > summary::-webkit-details-marker { display: none; }
-.universe-tools > summary::before { margin-right: .4rem; color: var(--cyan); content: "+"; }
-.universe-tools[open] > summary::before { content: "−"; }
-.universe-tool-panel { position: absolute; top: calc(100% + .35rem); right: 0; display: grid; gap: .5rem; width: 100%; padding: .65rem; border: 1px solid var(--hairline-strong); background: rgba(4, 9, 17, .94); backdrop-filter: blur(14px); }
-.universe-tool-actions, .universe-status { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem; }
-.node-search { display: flex; min-width: 0; }
-.node-search input { width: 100%; padding: .45rem .6rem; text-transform: none; }
-.node-search input::placeholder { color: #7f93aa; }
-.node-search input:focus { border-color: rgba(109, 225, 244, .6); }
-.xr-status { color: #93a9c0; font: 400 .58rem/1.3 var(--mono); letter-spacing: .06em; }
+.xr-status { color: var(--muted); font: 400 .58rem/1.3 var(--mono); letter-spacing: .06em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .xr-status[data-xr-vr-status], .xr-status[data-xr-ar-status] { display: none; }
+[data-xr="vr"] .xr-status[data-xr-status], [data-xr="ar"] .xr-status[data-xr-status] { display: none; }
 [data-xr="vr"] .xr-status[data-xr-vr-status], [data-xr="ar"] .xr-status[data-xr-ar-status] { display: block; }
-.xr-button { position: static !important; width: auto !important; margin: 0 !important; opacity: 1 !important; border-color: rgba(109, 225, 244, .5) !important; }
+.xr-button { border-color: color-mix(in srgb, var(--cyan) 50%, transparent); }
 
 /* --- Audio signal: passive readout of the generative score. --- */
 .audio-signal {
   display: inline-flex;
   align-items: center;
-  gap: .32rem;
-  padding: .34rem .42rem;
+  gap: 6px;
+  min-height: var(--target);
+  padding: 0 8px;
   border: 1px solid var(--hairline);
-  border-radius: 2px;
-  background-color: rgba(4, 9, 17, .72);
-  color: #8ea6bd;
+  border-radius: var(--radius);
+  background-color: color-mix(in srgb, var(--page-ground) 72%, transparent);
+  color: color-mix(in srgb, var(--muted) 88%, var(--text));
   font: 400 .53rem/1 var(--mono);
   letter-spacing: .13em;
   text-transform: uppercase;
   pointer-events: none;
 }
-.audio-signal-track { position: relative; display: block; width: 2.3rem; height: .46rem; border: 1px solid rgba(148, 176, 204, .3); background: rgba(148, 176, 204, .07); overflow: hidden; }
+.audio-signal-track { position: relative; display: block; width: 2.3rem; height: .46rem; border: 1px solid color-mix(in srgb, var(--muted) 30%, transparent); background: color-mix(in srgb, var(--muted) 7%, transparent); overflow: hidden; }
 .audio-signal-fill {
   position: absolute;
   inset: 0 auto 0 0;
@@ -164,9 +258,9 @@
   opacity: .3;
 }
 /* Four hairlines read the level; no fake waveform detail. */
-.audio-signal-track::after { position: absolute; inset: 0; background: linear-gradient(90deg, transparent calc(100% - 1px), rgba(2, 6, 14, .9) 0) 0 0 / 25% 100% repeat-x; content: ""; }
+.audio-signal-track::after { position: absolute; inset: 0; background: linear-gradient(90deg, transparent calc(100% - 1px), color-mix(in srgb, var(--page-ground) 90%, transparent) 0) 0 0 / 25% 100% repeat-x; content: ""; }
 .audio-signal-state::after { content: "выкл"; }
-.audio-signal[data-active="true"], [data-sound][aria-pressed="true"] ~ .audio-signal { border-color: rgba(109, 225, 244, .5); color: var(--cyan); }
+.audio-signal[data-active="true"], [data-sound][aria-pressed="true"] ~ .audio-signal { border-color: color-mix(in srgb, var(--cyan) 50%, transparent); color: var(--cyan); }
 .audio-signal[data-active="true"] .audio-signal-fill, [data-sound][aria-pressed="true"] ~ .audio-signal .audio-signal-fill { min-width: 2px; opacity: 1; }
 .audio-signal[data-active="true"] .audio-signal-state::after,
 [data-sound][aria-pressed="true"] ~ .audio-signal .audio-signal-state::after { content: var(--signal-name, "вкл"); }
@@ -178,186 +272,234 @@
 .universe-page[data-theme="veil"], .universe-page [data-theme="veil"] { --signal-accent: #e5a8d1; --signal-name: "veil"; }
 .universe-page[data-theme="quarry"], .universe-page [data-theme="quarry"] { --signal-accent: #b6c4d2; --signal-name: "quarry"; }
 
-/* --- AR dock --- */
-.universe-ar-actions {
+/* --- Bottom dock: every control in one region, so nothing can overlap anything. --- */
+.universe-dock {
   position: absolute;
-  right: 50%;
-  bottom: max(.8rem, env(safe-area-inset-bottom));
-  z-index: 6;
+  z-index: 4;
+  right: var(--rail-end);
+  bottom: var(--dock);
+  left: var(--rail-start);
+  display: grid;
+  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+  gap: var(--gap);
+  align-items: end;
+}
+.flight-joystick { grid-column: 1 / span 2; }
+.node-search { grid-column: 3 / span 4; display: flex; min-width: 0; }
+.universe-tools { grid-column: -2 / -1; justify-self: end; width: 100%; }
+.universe-ar-actions { grid-column: 1 / -1; justify-self: center; }
+/* A dossier card is the only bottom content while it is open: the dock steps aside entirely. */
+.universe-page[data-focused="true"] .universe-dock > :not(.universe-ar-actions) { opacity: 0; pointer-events: none; }
+.universe-dock > * { transition: opacity var(--u-dur-2) var(--u-ease); }
+
+.universe-tools { position: relative; }
+.universe-tools > summary { display: flex; align-items: center; justify-content: center; padding: 8px 10px; cursor: pointer; list-style: none; white-space: nowrap; }
+.universe-tools > summary::-webkit-details-marker { display: none; }
+.universe-tools > summary::before { margin-right: 6px; color: var(--cyan); content: "+"; }
+.universe-tools[open] > summary::before { content: "−"; }
+.universe-tool-panel {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + var(--gap));
+  display: grid;
+  gap: var(--gap);
+  width: min(22rem, calc(100vw - 2 * var(--rail-start)));
+  padding: var(--s-2);
+  border: 1px solid var(--hairline-strong);
+  background: color-mix(in srgb, var(--panel-solid) 94%, transparent);
+  border-radius: var(--radius-card);
+  backdrop-filter: blur(14px);
+}
+.universe-tool-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.node-search input { width: 100%; min-width: 0; padding: 8px 10px; text-transform: none; }
+.node-search input::placeholder { color: color-mix(in srgb, var(--muted) 72%, transparent); }
+.node-search input:focus { border-color: color-mix(in srgb, var(--cyan) 60%, transparent); }
+
+/* --- AR dock: the same region as every other control, shown only inside a session. --- */
+.universe-ar-actions {
   display: none;
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  gap: .35rem;
-  width: min(94vw, 40rem);
-  padding: .5rem .55rem;
-  border: 1px solid rgba(109, 225, 244, .34);
-  border-top-color: rgba(109, 225, 244, .62);
-  border-radius: 2px;
+  gap: 6px;
+  width: max-content;
+  max-width: 100%;
+  padding: var(--s-2);
+  border: 1px solid color-mix(in srgb, var(--cyan) 34%, transparent);
+  border-top-color: color-mix(in srgb, var(--cyan) 62%, transparent);
+  border-radius: var(--radius);
   background: var(--panel);
   backdrop-filter: blur(12px);
-  transform: translateX(50%);
 }
 [data-xr="ar"] .universe-ar-actions { display: flex; }
-[data-xr="ar"] .universe-ar-actions .icon-button { min-width: 2.75rem; min-height: 2.75rem; }
-[data-xr="ar"] .flight-joystick, [data-xr="ar"] .universe-fallback { display: none; }
-[data-xr="ar"] .universe-intro { bottom: 5.8rem; pointer-events: none; }
+[data-xr="ar"] .universe-ar-actions .icon-button { min-width: var(--target); min-height: var(--target); }
+[data-xr="ar"] .flight-joystick,
+[data-xr="ar"] .universe-tools,
+[data-xr="ar"] .node-search,
+[data-xr="ar"] .universe-fallback,
+[data-xr="ar"] .universe-intro,
 [data-xr="ar"] .flight-keys { display: none; }
 [data-xr="ar"] .universe-canvas { touch-action: none; }
 
-/* --- Mission panel --- */
+/* --- AR sees the room: the overlay must not paint over the camera feed. --- */
+.universe-page[data-xr="ar"] {
+  background-color: transparent;
+  background-image: none;
+}
+.universe-page[data-xr="ar"]::before,
+.universe-page[data-xr="ar"]::after { display: none; }
+.universe-page[data-xr="ar"] .universe-ui::before { --bracket: transparent; }
+.universe-page[data-xr="ar"] .universe-loading { background: color-mix(in srgb, var(--page-ground) 88%, transparent); }
+
+/* --- Mission panel: the one hint on mobile, one panel above the dock everywhere. --- */
 .universe-intro {
   position: absolute;
+  bottom: calc(var(--dock) + var(--dock-h));
   left: var(--rail-start);
-  bottom: calc(var(--dock) + var(--stick) + .9rem);
-  max-width: min(30rem, calc(100vw - 1.8rem));
-  padding: .8rem .95rem .85rem;
-  border-left: 1px solid rgba(109, 225, 244, .55);
-  background: linear-gradient(90deg, rgba(2, 5, 11, .88), rgba(2, 5, 11, .52) 64%, transparent);
-  transition: opacity .35s ease, transform .35s ease;
+  max-width: min(30rem, calc(100vw - 2 * var(--rail-start)));
+  padding: var(--s-2) 14px 13px;
+  border-left: 1px solid var(--line-accent);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--page-ground) 88%, transparent), color-mix(in srgb, var(--page-ground) 52%, transparent) 64%, transparent);
+  transition: opacity var(--u-dur-2) var(--u-ease), transform var(--u-dur-2) var(--u-ease);
   /* Pointer events stay with the canvas; only the embedded call to action is clickable. */
   pointer-events: none;
 }
 .universe-intro > a { pointer-events: auto; }
 .universe-intro[data-hidden="true"] { opacity: 0; transform: translateY(.8rem); pointer-events: none; }
-.universe-page[data-focused="true"] .flight-joystick { opacity: 0; pointer-events: none; }
-.universe-intro h1 { max-width: 26rem; margin: .4rem 0 .45rem; font: 650 clamp(1.4rem, 2.6vw, 2.5rem)/1.04 Unbounded, sans-serif; letter-spacing: -.04em; text-wrap: balance; }
-.intro-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .2rem .8rem; }
-.intro-readout { color: #8ea6bd; font: 400 .56rem/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; font-variant-numeric: tabular-nums; }
-.intro-note { max-width: 46ch; margin: 0 0 .6rem; color: var(--muted); font-size: clamp(.78rem, 1vw, .88rem); }
-.flight-keys { display: flex; flex-wrap: wrap; gap: .2rem .9rem; margin: 0; }
-.flight-keys > div { display: flex; align-items: baseline; gap: .35rem; }
-.flight-keys dt { color: #7d92a9; font: 400 .53rem/1.4 var(--mono); letter-spacing: .13em; text-transform: uppercase; }
-.flight-keys dd { margin: 0; color: #c3d3e4; font: 400 .6rem/1.4 var(--mono); letter-spacing: .04em; }
-.intro-cta { margin-top: .7rem; min-height: 2rem; padding: .4rem .7rem; border: 1px solid rgba(109, 225, 244, .45); border-radius: 2px; color: var(--cyan); font: 400 .58rem/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; }
-.intro-cta:hover { border-color: var(--cyan); background: rgba(109, 225, 244, .08); }
-/* Unscoped by design: these two also render the homepage kickers and service-tile tags. */
-.section-kicker { color: var(--cyan); font-size: .62rem; letter-spacing: .16em; text-transform: uppercase; }
-.universe-page .section-kicker { font: 400 .56rem/1 var(--mono); letter-spacing: .18em; }
-/* AR surface guidance while the placement session is running. */
-[data-ar-state="searching"] .universe-intro::after,
-[data-ar-state="ready"] .universe-intro::after,
-[data-ar-state="lost"] .universe-intro::after { display: block; margin-top: .55rem; padding-top: .5rem; border-top: 1px solid rgba(109, 225, 244, .2); color: #9dddec; font: 400 .6rem/1.4 var(--mono); letter-spacing: .06em; content: "AR · наведите камеру на поверхность"; }
-[data-ar-state="ready"] .universe-intro::after { content: "AR · коснитесь экрана, чтобы разместить"; }
-[data-ar-state="lost"] .universe-intro::after { color: #f1b7dd; content: "AR · трекинг потерян — ищите поверхность"; }
+/* A panel heading, not a page hero: one step above h3, in the shared display face. */
+.universe-intro :is(h1, h2) { max-width: 26rem; margin: 6px 0 7px; font: 650 clamp(1.4rem, 1.1rem + 1.4vw, 2rem)/1.06 var(--display); letter-spacing: -.035em; text-wrap: balance; }
+.intro-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px; }
+.intro-readout { color: var(--muted); font: 400 .56rem/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; font-variant-numeric: tabular-nums; }
+.intro-note { max-width: 46ch; margin: 0 0 8px; color: var(--muted); font-size: clamp(.78rem, 1vw, .88rem); text-wrap: pretty; }
+.flight-keys { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 0; }
+.flight-keys > div { display: flex; align-items: baseline; gap: 6px; }
+.flight-keys dt { color: color-mix(in srgb, var(--muted) 84%, transparent); font: 400 .53rem/1.4 var(--mono); letter-spacing: .13em; text-transform: uppercase; }
+.flight-keys dd { margin: 0; color: color-mix(in srgb, var(--text) 84%, var(--muted)); font: 400 .6rem/1.4 var(--mono); letter-spacing: .04em; }
+.intro-cta { margin-top: 12px; min-height: var(--target); padding: 8px 12px; border: 1px solid color-mix(in srgb, var(--cyan) 45%, transparent); border-radius: var(--radius); color: var(--cyan); font: 400 .58rem/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; }
+.intro-cta:hover { border-color: var(--cyan); background: color-mix(in srgb, var(--cyan) 8%, transparent); }
+/* The catalogue kicker and the tag row belong to this route only: nothing here styles the homepage. */
+.universe-page .section-kicker { color: var(--cyan); font: 400 .56rem/1 var(--mono); letter-spacing: .18em; text-transform: uppercase; }
 
 /* --- Flight stick --- */
-.flight-joystick { position: absolute; z-index: 3; left: var(--rail-start); bottom: var(--dock); display: grid; place-items: center; width: var(--stick); aspect-ratio: 1; border: 1px solid rgba(109, 225, 244, .3); border-radius: 50%; background: radial-gradient(circle at 50% 50%, rgba(7, 16, 29, .5), rgba(3, 7, 14, .66)); touch-action: none; user-select: none; }
-.flight-joystick::before, .flight-joystick::after { position: absolute; background: rgba(148, 176, 204, .16); content: ""; }
+.flight-joystick { position: relative; display: grid; place-items: center; width: var(--stick); min-height: var(--stick); aspect-ratio: 1; border: 1px solid color-mix(in srgb, var(--cyan) 30%, transparent); border-radius: var(--radius-round); background: radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--page-surface) 60%, transparent), color-mix(in srgb, var(--page-ground) 72%, transparent)); touch-action: none; user-select: none; }
+.flight-joystick::before, .flight-joystick::after { position: absolute; background: color-mix(in srgb, var(--muted) 16%, transparent); content: ""; }
 .flight-joystick::before { width: 1px; height: 100%; }
 .flight-joystick::after { width: 100%; height: 1px; }
-.flight-joystick span { width: 1.85rem; aspect-ratio: 1; border: 1px solid rgba(109, 225, 244, .5); border-radius: 50%; background: rgba(109, 225, 244, .18); box-shadow: 0 0 1rem rgba(109, 225, 244, .22); pointer-events: none; }
-.flight-joystick small { position: absolute; top: calc(100% + .25rem); color: #8ba1b8; font: 400 .52rem/1 var(--mono); letter-spacing: .18em; text-transform: uppercase; }
+.flight-joystick span { width: 1.85rem; aspect-ratio: 1; border: 1px solid color-mix(in srgb, var(--cyan) 50%, transparent); border-radius: var(--radius-round); background: color-mix(in srgb, var(--cyan) 18%, transparent); box-shadow: 0 0 1rem color-mix(in srgb, var(--cyan) 22%, transparent); pointer-events: none; }
+.flight-joystick small { position: absolute; top: calc(100% + 4px); color: color-mix(in srgb, var(--muted) 88%, transparent); font: 400 .52rem/1 var(--mono); letter-spacing: .18em; text-transform: uppercase; }
 
-/* --- Object dossier --- */
+/* --- Object dossier: one card above the dock, never under it. --- */
 .node-card {
   position: absolute;
   right: var(--rail-end);
-  bottom: var(--dock);
+  bottom: calc(var(--dock) + var(--dock-h));
   display: block;
-  width: min(22rem, calc(100vw - 1.8rem));
+  width: min(22rem, calc(100vw - 2 * var(--rail-start)));
   max-height: min(72vh, 42rem);
-  padding: .95rem 1rem 1rem;
+  padding: 15px 16px 16px;
   overflow: auto;
   overscroll-behavior: contain;
   border: 1px solid var(--hairline-strong);
-  border-top-color: rgba(109, 225, 244, .58);
-  border-radius: 2px;
+  border-top-color: var(--line-accent);
+  border-radius: var(--radius-card);
   background-color: var(--panel);
   background-image:
-    linear-gradient(var(--dossier-tick, rgba(109, 225, 244, .45)), var(--dossier-tick, rgba(109, 225, 244, .45))),
-    linear-gradient(var(--dossier-tick, rgba(109, 225, 244, .45)), var(--dossier-tick, rgba(109, 225, 244, .45))),
-    linear-gradient(var(--dossier-tick, rgba(109, 225, 244, .45)), var(--dossier-tick, rgba(109, 225, 244, .45))),
-    linear-gradient(var(--dossier-tick, rgba(109, 225, 244, .45)), var(--dossier-tick, rgba(109, 225, 244, .45)));
+    linear-gradient(var(--dossier-tick, var(--line-accent)), var(--dossier-tick, var(--line-accent))),
+    linear-gradient(var(--dossier-tick, var(--line-accent)), var(--dossier-tick, var(--line-accent))),
+    linear-gradient(var(--dossier-tick, var(--line-accent)), var(--dossier-tick, var(--line-accent))),
+    linear-gradient(var(--dossier-tick, var(--line-accent)), var(--dossier-tick, var(--line-accent)));
   background-position: 100% 100%, 100% 100%, 0 100%, 0 100%;
   background-size: 1rem 1px, 1px 1rem, 1rem 1px, 1px 1rem;
   background-repeat: no-repeat;
   backdrop-filter: blur(14px);
+  animation: universe-card-in var(--u-dur-2) var(--u-ease) both;
 }
-.node-head { display: flex; align-items: center; justify-content: space-between; gap: .6rem; padding-bottom: .5rem; border-bottom: 1px solid rgba(148, 176, 204, .16); }
-.node-close { min-height: 2rem; padding: .35rem .5rem; border: 1px solid var(--hairline); border-radius: 2px; background: transparent; color: #a9bbcd; font: 500 .58rem/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; cursor: pointer; }
+@keyframes universe-card-in { from { opacity: 0; transform: translateY(.6rem); } }
+.node-head { display: flex; align-items: center; justify-content: space-between; gap: var(--gap); padding-bottom: var(--gap); border-bottom: 1px solid color-mix(in srgb, var(--muted) 16%, transparent); }
+.node-close { min-height: var(--target); padding: 8px 10px; border: 1px solid var(--hairline); border-radius: var(--radius); background: transparent; color: color-mix(in srgb, var(--muted) 90%, var(--text)); font: 500 .58rem/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; cursor: pointer; }
 .node-close:hover, .node-close:focus-visible { border-color: var(--cyan); color: var(--cyan); }
-.node-card h2 { margin: .55rem 0 .5rem; font: 500 clamp(.95rem, 1.4vw, 1.22rem)/1.25 Unbounded, sans-serif; letter-spacing: -.02em; overflow-wrap: anywhere; }
-.node-summary { margin: 0 0 .65rem; color: #9fb2c8; font-size: clamp(.7rem, 1vw, .78rem); line-height: 1.45; text-wrap: pretty; }
-/* Unscoped half is the homepage service-tile tag look; the overlay overrides it below. */
-.tag-row { display: flex; flex-wrap: wrap; gap: .3rem; margin-bottom: .95rem; color: #aabbd0; font-size: .67rem; }
-.tag-row span { padding: .18rem .35rem; border: 1px solid rgba(141, 169, 196, .25); border-radius: .3rem; }
-/* Inside the instrument the tags read as one catalogue line, not as more pills. */
-.universe-page .tag-row { gap: .1rem .55rem; margin-bottom: .75rem; color: #93a9c0; font: 400 .6rem/1.45 var(--mono); letter-spacing: .03em; }
+.node-card h2 { margin: var(--gap) 0; font: 500 clamp(.95rem, 1.4vw, 1.22rem)/1.25 var(--display); letter-spacing: -.02em; overflow-wrap: anywhere; }
+.node-summary { margin: 0 0 10px; color: color-mix(in srgb, var(--muted) 92%, var(--text)); font-size: clamp(.7rem, 1vw, .78rem); line-height: 1.45; text-wrap: pretty; }
+/* Tags read as one catalogue line inside the instrument, never as a row of pills. */
+.universe-page .tag-row { display: flex; flex-wrap: wrap; gap: 2px 9px; margin-bottom: 12px; color: var(--muted); font: 400 .6rem/1.45 var(--mono); letter-spacing: .03em; }
 .universe-page .tag-row span { padding: 0; border: 0; border-radius: 0; background: none; }
-.universe-page .tag-row span + span::before { color: rgba(147, 169, 192, .55); content: "· "; }
-.node-neighbors { margin-top: .75rem; padding-top: .65rem; border-top: 1px solid rgba(148, 176, 204, .16); }
-.node-neighbors-title, .node-evidence > summary { margin-bottom: .4rem; color: #8399b1; font: 500 .54rem/1 var(--mono); letter-spacing: .16em; text-transform: uppercase; }
+.universe-page .tag-row span + span::before { color: color-mix(in srgb, var(--muted) 55%, transparent); content: "· "; }
+.node-neighbors { margin-top: 12px; padding-top: 10px; border-top: 1px solid color-mix(in srgb, var(--muted) 16%, transparent); }
+.node-neighbors-title, .node-evidence > summary { margin-bottom: 6px; color: color-mix(in srgb, var(--muted) 88%, transparent); font: 500 .54rem/1 var(--mono); letter-spacing: .16em; text-transform: uppercase; }
 .node-neighbor-list { display: block; }
-.node-neighbor-list button { display: block; width: 100%; padding: .3rem 0; border: 0; border-bottom: 1px solid rgba(148, 176, 204, .12); border-radius: 0; background: none; color: #d7e4f2; font: 400 .66rem/1.35 var(--mono); text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+.node-neighbor-list button { display: flex; align-items: center; width: 100%; min-height: var(--target); padding: 6px 0; border: 0; border-bottom: 1px solid color-mix(in srgb, var(--muted) 12%, transparent); border-radius: 0; background: none; color: color-mix(in srgb, var(--text) 88%, var(--muted)); font: 400 .66rem/1.35 var(--mono); text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
 .node-neighbor-list button:hover, .node-neighbor-list button:focus-visible { color: var(--cyan); }
 .node-neighbor-list button.node-neighbor-more { color: var(--cyan); letter-spacing: .1em; text-transform: uppercase; }
-.node-evidence { margin-top: .7rem; padding-top: .65rem; border-top: 1px solid rgba(148, 176, 204, .16); }
-.node-evidence > summary { cursor: pointer; list-style-position: inside; }
+.node-evidence { margin-top: 11px; padding-top: 10px; border-top: 1px solid color-mix(in srgb, var(--muted) 16%, transparent); }
+.node-evidence > summary { min-height: var(--target); cursor: pointer; list-style-position: inside; }
 .node-evidence[open] > summary { color: var(--cyan); }
-.node-evidence-list { display: grid; gap: .3rem; }
-.node-evidence-list details { border: 1px solid rgba(148, 176, 204, .16); border-radius: 2px; background: rgba(130, 159, 190, .05); }
-.node-evidence-list summary { padding: .3rem .45rem; color: #d7e4f2; font: 400 .62rem/1.4 var(--mono); cursor: pointer; }
+.node-evidence-list { display: grid; gap: 6px; }
+.node-evidence-list details { border: 1px solid color-mix(in srgb, var(--muted) 16%, transparent); border-radius: var(--radius); background: color-mix(in srgb, var(--muted) 5%, transparent); }
+.node-evidence-list summary { padding: 6px 8px; color: color-mix(in srgb, var(--text) 88%, var(--muted)); font: 400 .62rem/1.4 var(--mono); cursor: pointer; }
 .node-evidence-list summary:hover, .node-evidence-list summary:focus-visible { color: var(--cyan); }
-.node-evidence-list dl { display: grid; gap: .2rem; margin: 0; padding: .3rem .45rem .45rem; border-top: 1px solid rgba(148, 176, 204, .14); color: #a8bdd3; font: 400 .58rem/1.45 var(--mono); }
-.node-evidence-list dl div { display: grid; grid-template-columns: max-content 1fr; gap: .5rem; }
-.node-evidence-list dt { color: #7d92a9; }
+.node-evidence-list dl { display: grid; gap: 3px; margin: 0; padding: 6px 8px 8px; border-top: 1px solid color-mix(in srgb, var(--muted) 14%, transparent); color: color-mix(in srgb, var(--muted) 96%, var(--text)); font: 400 .58rem/1.45 var(--mono); }
+.node-evidence-list dl div { display: grid; grid-template-columns: max-content 1fr; gap: var(--gap); }
+.node-evidence-list dt { color: color-mix(in srgb, var(--muted) 84%, transparent); }
 .node-evidence-list dd { min-width: 0; margin: 0; overflow-wrap: anywhere; }
-.node-link { display: flex; align-items: center; gap: .35rem; margin-top: .85rem; padding-top: .65rem; border-top: 1px solid rgba(148, 176, 204, .16); color: var(--cyan); font: 400 .6rem/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; }
-.node-link:hover { color: #a9efff; }
+.node-link { display: flex; align-items: center; gap: 6px; min-height: var(--target); margin-top: 14px; padding-top: 10px; border-top: 1px solid color-mix(in srgb, var(--muted) 16%, transparent); color: var(--cyan); font: 400 .6rem/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; }
+.node-link:hover { color: color-mix(in srgb, var(--cyan) 72%, var(--text)); }
 
-/* --- Accessible node list, in the top-bar flow so no magic offset can drift. --- */
-.universe-fallback { width: min(22rem, 100%); max-height: 2.1rem; overflow: hidden; border: 1px solid var(--hairline); border-radius: 2px; background-color: rgba(4, 9, 17, .72); backdrop-filter: blur(12px); transition: max-height .25s ease; }
+/* --- Accessible node list, inside the dock panel so no magic offset can drift. --- */
+.universe-fallback { width: 100%; overflow: hidden; border: 1px solid var(--hairline); border-radius: var(--radius); background-color: color-mix(in srgb, var(--page-ground) 72%, transparent); backdrop-filter: blur(12px); }
 .universe-fallback[open] { max-height: min(56vh, 30rem); overflow: auto; overscroll-behavior: contain; }
-.universe-fallback summary { display: flex; align-items: center; gap: .45rem; padding: .55rem .6rem; color: #cedbeb; font: 400 .58rem/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; cursor: pointer; list-style: none; }
+.universe-fallback summary { display: flex; align-items: center; gap: var(--gap); min-height: var(--target); padding: 8px 10px; color: color-mix(in srgb, var(--text) 82%, var(--muted)); font: 400 .58rem/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; cursor: pointer; list-style: none; }
 .universe-fallback summary::-webkit-details-marker { display: none; }
 .universe-fallback summary::before { flex: none; width: .4rem; height: .4rem; border-right: 1px solid var(--cyan); border-bottom: 1px solid var(--cyan); transform: rotate(-45deg); content: ""; }
 .universe-fallback[open] summary::before { transform: rotate(45deg); }
-.universe-node-list { margin: 0; padding: .2rem .6rem .6rem; color: #93a9c0; font: 400 .64rem/1.4 var(--mono); }
-.universe-node-list li { display: flex; align-items: baseline; justify-content: space-between; gap: .5rem; padding: .22rem 0; border-top: 1px solid rgba(148, 176, 204, .12); }
-.universe-node-list button { padding: 0; border: 0; background: none; color: #d8e6f2; font: inherit; text-align: left; cursor: pointer; }
+.universe-node-list { margin: 0; padding: 3px 10px 10px; color: var(--muted); font: 400 .64rem/1.4 var(--mono); }
+.universe-node-list li { display: flex; align-items: baseline; justify-content: space-between; gap: var(--gap); border-top: 1px solid color-mix(in srgb, var(--muted) 12%, transparent); }
+.universe-node-list button { flex: 1 1 auto; min-height: var(--target); padding: 0; border: 0; background: none; color: color-mix(in srgb, var(--text) 88%, var(--muted)); font: inherit; text-align: left; cursor: pointer; }
 .universe-node-list button:hover, .universe-node-list button:focus-visible { color: var(--cyan); }
-.universe-node-list span { flex: none; color: #748ca5; font-size: .55rem; letter-spacing: .1em; text-transform: uppercase; }
+.universe-node-list span { flex: none; color: color-mix(in srgb, var(--muted) 76%, transparent); font-size: .55rem; letter-spacing: .1em; text-transform: uppercase; }
 .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 
 /* Keyboard focus stays visible on every control, including the disclosure rows. */
 .universe-page :is(button, a, summary, input):focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
 
-@media (max-width: 780px) {
+/* Tablet: the grid drops to 6 columns, so the dock packs onto the narrower tracks. */
+@media (max-width: 1050px) {
+  .node-search { grid-column: 3 / span 2; }
+}
+/* Phone: brand, mode and sound above, one hint and one dock below. Nothing else. */
+@media (max-width: 700px) {
   .universe-page { --stick: 4.4rem; }
-  .universe-top { top: max(.55rem, env(safe-area-inset-top)); right: .7rem; left: .7rem; }
-  .universe-top-row { gap: .35rem; }
-  .universe-actions { gap: .22rem; max-width: calc(100vw - 7rem); }
-  .universe-tools { width: min(22rem, calc(100vw - 1.4rem)); }
-  .universe-intro { right: var(--rail-end); left: var(--rail-start); bottom: calc(var(--dock) + var(--stick) + .5rem); padding: .7rem .8rem; border-top: 1px solid rgba(109, 225, 244, .28); border-left-color: rgba(109, 225, 244, .5); background: linear-gradient(180deg, rgba(2, 5, 11, .72), rgba(2, 5, 11, .92)); }
-  .universe-intro h1 { max-width: none; margin: .3rem 0 .4rem; font-size: clamp(1.3rem, 6.2vw, 2rem); }
-  .intro-note { margin-bottom: .5rem; font-size: .75rem; }
-  .node-card { right: .7rem; bottom: .7rem; width: min(24rem, calc(100vw - 1.4rem)); max-height: calc(100dvh - 6.2rem); }
+  /* The mode line gets its own row: a status readout never truncates next to the brand. */
+  .universe-top-row { grid-template-rows: auto auto; }
+  .universe-logo { grid-column: 1 / span 2; grid-row: 1; }
+  .universe-actions { grid-column: 3 / span 2; grid-row: 1; }
+  .universe-mode { grid-column: 1 / -1; grid-row: 2; justify-content: flex-start; }
+  .node-search { display: none; }
+  .universe-intro { right: var(--rail-start); max-width: none; padding: var(--s-2) 12px; border-top: 1px solid color-mix(in srgb, var(--cyan) 28%, transparent); background: linear-gradient(180deg, color-mix(in srgb, var(--page-ground) 74%, transparent), color-mix(in srgb, var(--page-ground) 92%, transparent)); }
+  .universe-intro :is(h1, h2) { max-width: none; font-size: clamp(1.3rem, 5.4vw, 1.9rem); }
+  .intro-note { margin-bottom: 0; font-size: .75rem; }
+  .node-card { right: var(--rail-start); left: var(--rail-start); width: auto; max-height: calc(100dvh - var(--dock) - var(--dock-h) - 4.5rem); }
   .flight-joystick small { display: none; }
-  [data-xr="ar"] .universe-intro { top: max(4.2rem, calc(env(safe-area-inset-top) + 3.6rem)); bottom: auto; width: auto; padding: .45rem .6rem; border-top: 0; background: rgba(2, 5, 11, .72); }
-  [data-xr="ar"] .universe-intro :is(.intro-head, h1, .intro-note) { display: none; }
-  [data-xr="ar"] .node-card { bottom: max(5.2rem, calc(env(safe-area-inset-bottom) + 4.8rem)); max-height: calc(100dvh - 10rem); }
 }
 @media (max-width: 480px) {
   .universe-page { --stick: 4rem; }
   .universe-logo { font-size: .67rem; }
-  .universe-actions { max-width: calc(100vw - 6.5rem); }
   .audio-signal { display: none; }
-  .icon-button, .universe-tools > summary { min-height: 2rem; padding: .4rem .5rem; font-size: .56rem; letter-spacing: .05em; }
-  .universe-intro { padding: .6rem .65rem; }
-  .universe-intro h1 { margin: .25rem 0 .35rem; font-size: clamp(1.15rem, 7vw, 1.5rem); }
+  .icon-button, .universe-tools > summary { padding: 8px; font-size: .56rem; letter-spacing: .05em; }
   .intro-readout { font-size: .52rem; }
-  .intro-note { margin-bottom: 0; font-size: .7rem; }
   .flight-keys { display: none; }
 }
 @media (prefers-reduced-transparency: reduce) {
   .universe-page { --panel: var(--panel-solid); }
-  .node-card, .universe-fallback, .universe-ar-actions, .icon-button, .node-search input, .audio-signal { backdrop-filter: none; }
+  .node-card, .universe-fallback, .universe-ar-actions, .icon-button, .node-search input, .audio-signal, .universe-tool-panel { backdrop-filter: none; }
   .universe-intro { background: linear-gradient(90deg, var(--panel-solid), color-mix(in srgb, var(--panel-solid) 88%, transparent)); }
   .flight-joystick { background: var(--panel-solid); }
+  .universe-loading { background: var(--page-ground); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .universe-intro, .universe-fallback { transition: none; }
+  .universe-intro, .universe-fallback, .universe-dock > *, .universe-canvas { transition: none; }
   .universe-canvas { cursor: default; }
   .icon-button:active:not(:disabled) { transform: none; }
+  .node-card { animation: none; }
+  .universe-loading-orbit i { animation: none; transform: rotate(240deg) translateX(1.75rem); }
+  .universe-loading-orbit i:nth-child(2) { transform: rotate(120deg) translateX(1.75rem); }
 }

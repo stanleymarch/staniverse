@@ -1,3 +1,53 @@
+# The archive media under /media/ are the heaviest objects in the bucket: a full
+# sweep is ~670 MB of video. Answer engines may read any page, but they do not
+# need to download the archive originals; the pages already carry searchable
+# text and poster context. Keeping media out of the AI crawlers'
+# scope is the cheap half of hotlink protection (see
+# docs/deploy/yandex-object-storage.md, "Защита от ботов и хотлинка").
+User-agent: GPTBot
+Allow: /
+Disallow: /media/
+
+User-agent: OAI-SearchBot
+Allow: /
+Disallow: /media/
+
+User-agent: ChatGPT-User
+Allow: /
+Disallow: /media/
+
+User-agent: PerplexityBot
+Allow: /
+Disallow: /media/
+
+User-agent: ClaudeBot
+Allow: /
+Disallow: /media/
+
+User-agent: Claude-SearchBot
+Allow: /
+Disallow: /media/
+
+User-agent: Google-Extended
+Allow: /
+Disallow: /media/
+
+User-agent: CCBot
+Allow: /
+Disallow: /media/
+
+User-agent: Applebot-Extended
+Allow: /
+Disallow: /media/
+
+# Search engines keep full access, images included: those visits are the point of
+# the site, and their downloads are cached by the browser and by the CDN.
+User-agent: Yandex
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
 User-agent: *
 Allow: /
 

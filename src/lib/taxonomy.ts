@@ -231,7 +231,7 @@ export const topicRegistry = [
     label: "интим и близость",
     family: "life",
     // One intimacy theme for every medium: ERP in social VR, teledildonics, human or AI closeness.
-    aliases: ["intimate-tech", "intimate tech", "интимные технологии", "интимные устройства", "sexual technology", "близость", "отношения", "интимность", "сексуальность", "intimacy", "sexuality", "erp"],
+    aliases: ["intimate-tech", "intimate tech", "интимейт", "интимные технологии", "интимные устройства", "sexual technology", "близость", "отношения", "интимность", "сексуальность", "intimacy", "sexuality", "erp"],
     closeness: { companions: 0.84, iot: 0.74, xr: 0.7, "social-vr": 0.78, culture: 0.6 },
     related: ["companions", "iot", "xr", "social-vr", "culture"],
     companions: ["companions", "iot", "xr", "social-vr", "ai"],
@@ -274,9 +274,12 @@ export const topicRegistry = [
   }),
   topic({
     id: "kirov",
-    label: "киров",
+    label: "киров/вятка",
     family: "place",
-    aliases: ["kirov", "киров", "вятка", "vyatka", "слободской", "slobodskoy"],
+    // One home for everything written about the home territory: the city, the region
+    // and the towns of the former Vyatka governorate it grew out of — Слободской is
+    // as much this topic as Киров itself.
+    aliases: ["kirov", "киров", "вятка", "vyatka", "кировская область", "kirov oblast", "вятская губерния", "vyatka governorate", "вятский край", "слободской", "slobodskoy", "котельнич", "нолинск", "яранск", "омутнинск"],
     closeness: { "place-heritage": 0.9, culture: 0.64, travel: 0.6 },
     related: ["place-heritage", "culture", "travel"],
     companions: ["place-heritage", "culture", "video", "travel"],
@@ -287,7 +290,7 @@ export const TOPIC_REGISTRY = topicRegistry;
 
 const definitions = new Map(topicRegistry.map((definition) => [definition.id, definition]));
 const aliases = new Map<string, string[]>(
-  topicRegistry.flatMap((definition) => definition.aliases.map((alias) => [normalizeAlias(alias), [definition.id]] as const)),
+  topicRegistry.flatMap((definition) => [definition.label, ...definition.aliases].map((alias) => [normalizeAlias(alias), [definition.id]] as const)),
 );
 
 // Slash aliases carry more than one controlled label.  This is what lets a

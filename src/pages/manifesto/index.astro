@@ -1,0 +1,19 @@
+---
+import { getCollection } from "astro:content";
+import EntryPage from "../../components/EntryPage.astro";
+import { allEntries } from "../../lib/content";
+import { buildGraph } from "../../lib/graph";
+
+/**
+ * The manifesto is a standalone entity, not an article among articles: it is the
+ * site's own foundation text and is linked from the footer and the about page by
+ * its clean /manifesto/ address. The content still lives in the articles
+ * collection so the graph keeps its node and its relations to the projects it
+ * develops; only the route is its own.
+ */
+const [entry] = await getCollection("articles", (candidate) => candidate.id === "manifesto");
+if (!entry) throw new Error("Manifesto entry is missing from the articles collection");
+const graph = buildGraph(await allEntries());
+---
+
+<EntryPage entry={entry} nodes={graph.nodes} edges={graph.edges} />

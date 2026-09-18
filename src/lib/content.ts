@@ -32,6 +32,9 @@ export const workStatus: Record<string, string> = {
 };
 
 export function hrefFor(entry: AnyEntry) {
+  /* The manifesto keeps its article data (graph, relations) but lives at its own
+     address: it is the site's foundation text, not one article among articles. */
+  if (entry.collection === "articles" && entry.id === "manifesto") return "/manifesto/";
   const base = entry.collection === "works" ? "works" : entry.collection === "projects" ? "projects" : entry.collection === "articles" ? "articles" : "garden";
   return `/${base}/${entry.id}/`;
 }
