@@ -37,16 +37,13 @@ jobs:
       - name: Verify credentials against the endpoint
         run: |
           set -o pipefail
-          echo "key id length: ${#AWS_ACCESS_KEY_ID} (expected 20, starts with YC)"
-          echo "secret length: ${#AWS_SECRET_ACCESS_KEY} (expected 40, base64 charset)"
-          [[ "$AWS_ACCESS_KEY_ID" =~ ^YC[A-Za-z0-9_-]{18}$ ]] \
-            || echo "::warning::YC_ACCESS_KEY_ID shape is unusual — check for typos or swapped values."
-          [[ "$AWS_SECRET_ACCESS_KEY" =~ ^[A-Za-z0-9+/=]{40}$ ]] \
-            || echo "::warning::YC_SECRET_ACCESS_KEY shape is unusual — check for typos or swapped values."
           aws --endpoint-url "$ENDPOINT" s3 ls 2>&1 | tee aws-list.log
           if grep -qi "BadRequest\|InvalidAccessKeyId\|SignatureDoesNotMatch" aws-list.log; then
-            echo "::error::Credentials rejected by Yandex Object Storage. Check YC_ACCESS_KEY_ID / YC_SECRET_ACCESS_KEY for typos, trailing whitespace or swapped values."
+            echo "::error::Credentials rejected (bad signature). Check YC_ACCESS_KEY_ID / YC_SECRET_ACCESS_KEY for typos or swapped values."
             exit 1
+          fi
+          if grep -qi "AccessDenied" aws-list.log; then
+            echo "::warning::Signature valid, but ListBuckets is denied — the service account probably lacks the storage.editor role on the folder. Bucket operations may still work; continuing."
           fi
 
       # Bucket name must equal the FQDN for own-domain website hosting.
