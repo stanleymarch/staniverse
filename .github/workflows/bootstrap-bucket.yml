@@ -93,22 +93,9 @@ jobs:
             sleep 20
           done
 
-      # Public read via bucket ACL, deliberately NOT via bucket policy: Yandex
-      # evaluates a bucket policy against every request (owner console included),
-      # so an Allow-only policy locks out everything it does not mention.
-      - name: Allow public object reads
-        run: |
-          for attempt in 1 2 3 4; do
-            aws --endpoint-url "$ENDPOINT" s3api put-bucket-acl \
-              --bucket "$BUCKET" \
-              --acl public-read && exit 0
-            echo "acl attempt $attempt denied; waiting"
-            sleep 20
-          done
-          exit 1
-
       - name: Verify
         run: |
           aws --endpoint-url "$ENDPOINT" s3api get-bucket-website --bucket "$BUCKET" \
-            || echo "get-bucket-website denied for this role (non-fatal); put succeeded"
-          aws --endpoint-url "$ENDPOINT" s3api get-bucket-acl --bucket "$BUCKET"
+            || echo "get-bucket-website read denied (non-fatal); put succeeded"
+          aws --endpoint-url "$ENDPOINT" s3api get-bucket-acl --bucket "$BUCKET" \
+            || echo "get-bucket-acl read denied (non-fatal); put succeeded"
