@@ -259,7 +259,7 @@ http://staniverse.xyz.website.yandexcloud.net
 - `/lab/`;
 - `/lab/hello-lab/`;
 - `/robots.txt`;
-- `/sitemap-index.xml`;
+- `/sitemap.xml`;
 - `/rss.xml`;
 - изображения, шрифты и видео.
 
