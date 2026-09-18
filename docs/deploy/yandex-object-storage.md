@@ -11,7 +11,7 @@
 | Хостинг основного сайта | Бакет `staniverse.xyz` + website hosting (`index.html` / `404.html`), публичное чтение объектов |
 | Домен | CNAME/ANAME `staniverse.xyz → staniverse.xyz.website.yandexcloud.net` |
 | HTTPS | Сертификат в бакет через Certificate Manager (managed Let's Encrypt, бесплатно). CDN — опционально |
-| CI-аутентификация | Сервисный аккаунт + статический ключ; роли `storage.editor` (+ `resource-manager.viewer` для `yc`) |
+| CI-аутентификация | Сервисный аккаунт + статический ключ; роль `storage.admin` (bucket policy требует admin; editor не хватает — проверено 2026-09-18) |
 | Инструмент деплоя | `aws s3 sync` (AWS CLI v2 уже на runner) с `--endpoint-url https://storage.yandexcloud.net` |
 | Эксперименты | В тот же бакет, префикс `lab/<name>/`, тот же домен; workflow с paths-filter + matrix. **Не GitHub Pages** |
 | Ориентир по стоимости | ~10–20 ₽/мес без CDN; ~150–165 ₽/мес с Cloud CDN |
@@ -62,7 +62,7 @@ HTTP→HTTPS редирект включается автоматически; �
 
 ```bash
 yc iam service-account create --name gh-deploy
-yc resource-manager folder add-access-binding <folder_id> --role storage.editor --service-account-name gh-deploy
+yc resource-manager folder add-access-binding <folder_id> --role storage.admin --service-account-name gh-deploy
 yc iam access-key create --service-account-name gh-deploy   # key_id + secret (показывается один раз)
 ```
 

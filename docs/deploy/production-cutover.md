@@ -50,11 +50,15 @@ GitHub Secrets и Variables вводит владелец или админис�
 yc iam service-account create --name gh-deploy
 
 yc resource-manager folder add-access-binding <folder_id> \
-  --role storage.editor \
+  --role storage.admin \
   --service-account-name gh-deploy
 
 yc iam access-key create --service-account-name gh-deploy
 ```
+
+Роль `storage.admin`, а не `storage.editor`: управление bucket policy
+(публичное чтение) в Yandex Object Storage требует именно `admin` —
+подтверждено на деплое 2026-09-18.
 
 Последняя команда выводит:
 
