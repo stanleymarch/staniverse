@@ -55,10 +55,19 @@ let next = 0;
 await Promise.all(Array.from({ length: WORKERS }, async () => {
   for (let index = next++; index < jobs.length; index = next++) await jobs[index]();
 }));
-// The showcase still mirrors the archive exactly: a file no publication claims any
-// more (or the partial leftovers of an interrupted run) is removed here, once.
+// The showcase mirrors the archive, and the materialized pages are the other half of
+// that contract: a page keeps the path baked into its frontmatter until the next
+// `telegram:materialize`, and this step runs before it. Files named by either side stay,
+// so a rename can never delete what the site still shows; leftovers of an older naming
+// scheme fall out on the following run.
 const referenced = new Set<string>();
 for (const publication of archive.publications) for (const media of publication.media) if (media.publicPath) referenced.add(basename(media.publicPath));
+const pageDir = resolve("src/content/publications/telegram");
+for (const name of await readdir(pageDir).catch(() => [])) {
+  if (!name.endsWith(".md")) continue;
+  const page = await readFile(resolve(pageDir, name), "utf8");
+  for (const match of page.matchAll(/\/media\/telegram\/([^)"'\s]+)/g)) referenced.add(match[1]);
+}
 let pruned = 0;
 for (const name of await readdir(output)) if (!referenced.has(name)) { await rm(resolve(output, name), { force: true }); pruned++; }
 await writeFile(resolve(archiveFile),JSON.stringify(archive,null,2),"utf8");console.log(JSON.stringify({written,reused,missing,pruned,sourceMB:Number((sourceBytes/1048576).toFixed(1)),outputMB:Number((outputBytes/1048576).toFixed(1)),output}));
