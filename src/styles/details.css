@@ -9,9 +9,12 @@
 .work-facts > div {
   min-width: 0;
   padding: 0.9rem 1rem;
-  border: 1px solid var(--line);
-  border-radius: 0.9rem;
-  background: rgba(13, 20, 34, 0.72);
+  border: 1px solid var(--glass-line);
+  border-radius: var(--radius-panel);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--ink) 5%, transparent), transparent 32%), var(--glass);
+  box-shadow: var(--glass-hi), var(--glass-glow);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
 }
 
 .work-facts dt {
@@ -40,9 +43,13 @@
 
 .work-features span {
   max-width: 100%;
-  padding: 0.35rem 0.58rem;
-  border-radius: 0.5rem;
-  background: rgba(100, 223, 244, 0.09);
+  padding: 0.35rem 0.6rem;
+  border: 1px solid var(--glass-line);
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--surface) 55%, transparent);
+  box-shadow: var(--glass-hi);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   color: #c8f6ff;
   font-size: 0.78rem;
 }
@@ -89,10 +96,10 @@
 .video-stage iframe { display: block; width: 100%; max-width: 100%; height: 100%; border: 0; }
 
 .publication-facts { display: flex; flex-wrap: wrap; gap: .55rem; min-width: 0; margin-top: 1rem; font-size: .78rem; color: var(--muted); }
-.publication-facts span, .publication-facts a { max-width: 100%; padding: .35rem .65rem; border: 1px solid var(--line); border-radius: 2rem; overflow-wrap: anywhere; }
+.publication-facts span, .publication-facts a { max-width: 100%; padding: .35rem .65rem; border: 1px solid var(--glass-line); border-radius: var(--radius-pill); background: color-mix(in srgb, var(--surface) 55%, transparent); box-shadow: var(--glass-hi); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); overflow-wrap: anywhere; }
 .publication-facts a { color: var(--cyan); }
 .media-gallery { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,280px),1fr)); gap: .75rem; min-width: 0; margin: 0 0 3rem; }
-.media-gallery a { display: block; min-width: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 1rem; background: var(--panel); }
+.media-gallery a { display: block; min-width: 0; overflow: hidden; border: 1px solid var(--glass-line); border-radius: var(--radius-panel); background: linear-gradient(180deg, color-mix(in srgb, var(--ink) 5%, transparent), transparent 32%), var(--glass); box-shadow: var(--glass-hi), var(--glass-glow); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); }
 /* `auto <ratio>` reserves a box before intrinsic dimensions arrive, then yields
    to the media's own aspect ratio: no crop, no late reflow. */
 .media-gallery img { display: block; width: 100%; max-width: 100%; height: auto; aspect-ratio: auto 4 / 3; object-fit: contain; }
@@ -161,9 +168,12 @@ audio.telegram-inline-media { min-height: 2.6rem; }
   gap: 1rem;
   padding: 1rem 1.1rem;
   color: var(--ink);
-  border: 1px solid var(--line);
-  border-radius: 1rem;
-  background: color-mix(in srgb, var(--panel) 88%, transparent);
+  border: 1px solid var(--glass-line);
+  border-radius: var(--radius-panel);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--ink) 5%, transparent), transparent 32%), var(--glass);
+  box-shadow: var(--glass-hi), var(--glass-glow);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
 }
 .topic-cloud span { color: var(--muted); font-variant-numeric: tabular-nums; }
 
