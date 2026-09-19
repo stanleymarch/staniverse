@@ -10,7 +10,7 @@ tags: ["ai","llm","rag","vrm","voice","museums","b2b"]
 entities: ["ИТМО","Telegram","VK","VRoid","VRM"]
 featured: true
 updated: "2026-09-19"
-relations: [{"target":"project:albina","type":"grew-from","evidence":"editorial","confidence":1},{"target":"project:nearventure","type":"related","evidence":"editorial","confidence":0.8}]
+relations: [{"target":"project:albina","type":"grew-from","evidence":"editorial","confidence":1},{"target":"project:nearventure","type":"related","evidence":"editorial","confidence":0.8},{"target":"publication:telegram:staniverse:1162","type":"documents","evidence":"editorial","confidence":1}]
 gallery: [{"src":"/media/projects/loci/loci-1.webp","caption":"Персонаж: лист образа для VRM"},{"src":"/media/projects/loci/loci-2.webp","caption":"Экран в зале: ответ по материалам музея"},{"src":"/media/projects/loci/loci-3.webp","caption":"AR у картины: распознавание изображения запускает реплику"},{"src":"/media/projects/loci/loci-4.webp","caption":"Прогулка: тот же гид в AR на городской площади"},{"src":"/media/projects/loci/loci-5.webp","caption":"Коридор экспозиции: контекст переключается между предметами"},{"src":"/media/projects/loci/loci-6.webp","caption":"Одна персона на ноутбуке и телефоне"}]
 ---
 ## Суть

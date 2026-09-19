@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-09-14T15:51:01",
+  "generatedAt": "2026-09-19T10:40:38+00:00",
   "results": [
     {
       "id": "publication:telegram:staniverse:3",
@@ -12974,6 +12974,59 @@
         "VRChat"
       ],
       "relations": [],
+      "needsReview": false
+    },
+    {
+      "id": "publication:telegram:staniverse:1154",
+      "textHash": "cd2b2c1a2126adca2878c12fafe9ca30780f6f67ca26a41f6c7251dafcf62b2f",
+      "promptVersion": "staniverse-local-topology-v1",
+      "provider": "local-rules",
+      "model": "deterministic-v1",
+      "createdAt": "1970-01-01T00:00:00.000Z",
+      "summary": "",
+      "topics": [
+        "игры"
+      ],
+      "entities": [],
+      "relations": [],
+      "needsReview": false
+    },
+    {
+      "id": "publication:telegram:staniverse:1162",
+      "textHash": "c2b741fcfb8639fe50127089318dbb57bac56aa1202820400b52a87ff9e4dc5e",
+      "promptVersion": "staniverse-local-topology-v1",
+      "provider": "local-rules",
+      "model": "deterministic-v1",
+      "createdAt": "1970-01-01T00:00:00.000Z",
+      "summary": "",
+      "topics": [
+        "искусственный интеллект",
+        "xr",
+        "3d и пространственные медиа",
+        "веб-разработка",
+        "арт и сценография",
+        "город и наследие",
+        "технологии"
+      ],
+      "entities": [
+        "Staniverse",
+        "Альбина",
+        "Telegram"
+      ],
+      "relations": [
+        {
+          "targetId": "project:staniverse",
+          "type": "mentions",
+          "explanation": "Точное упоминание «Staniverse» в исходном тексте.",
+          "confidence": 0.98
+        },
+        {
+          "targetId": "project:albina",
+          "type": "mentions",
+          "explanation": "Точное упоминание «Альбина» в исходном тексте.",
+          "confidence": 0.98
+        }
+      ],
       "needsReview": false
     }
   ]
