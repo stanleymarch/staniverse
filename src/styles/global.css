@@ -230,6 +230,10 @@ iframe { max-width: 100%; }
   backdrop-filter: blur(18px);
 }
 
+.site-header.has-language-switch {
+  grid-template-columns: minmax(0, 1fr) auto auto auto auto;
+}
+
 .brand {
   display: flex;
   min-width: 0;
@@ -571,6 +575,7 @@ iframe { max-width: 100%; }
 }
 @media (max-width: 1180px) {
   .site-header { grid-template-columns: minmax(0, 1fr) auto auto auto; gap: var(--s-2); padding: var(--s-2) var(--rail); }
+  .site-header.has-language-switch { grid-template-columns: minmax(0, 1fr) auto auto auto auto; }
   .site-header nav { display: none; grid-column: 1 / -1; grid-row: 2; justify-content: stretch; gap: 0; padding-top: var(--s-1); border-top: 1px solid var(--line); }
   .site-header[data-menu-open] nav { display: grid; }
   .site-header nav a { padding: 0 var(--s-1); border-bottom: 1px solid var(--line); }
@@ -588,9 +593,13 @@ iframe { max-width: 100%; }
     --text-h2: clamp(1.75rem, 1.3rem + 3vw, 2.35rem);
   }
   .site-header { grid-template-columns: minmax(0, 1fr) auto auto auto; gap: var(--s-1); }
+  .site-header.has-language-switch { grid-template-columns: minmax(0, 1fr) auto auto auto auto; }
   .site-header .menu-toggle { display: inline-flex; }
-  .universe-link { padding: 0 var(--s-2); font-size: .78rem; }
-  .universe-link > span:last-child { font-size: .95rem; }
+  .site-search-open { justify-content: center; width: 44px; padding: 0; font-size: 0; }
+  .site-search-open::before { content: "⌕"; font-size: 1.05rem; }
+  .universe-link { justify-content: center; min-width: 44px; padding: 0; font-size: .78rem; }
+  .universe-link-text,
+  .menu-toggle-label { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
 }
 
 /* Below this the row cannot hold a label next to the search, the menu and the

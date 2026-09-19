@@ -236,7 +236,7 @@ const articleLike = ["works", "projects", "garden", "articles", "topics"].includ
   <body>
     <a class="skip-link" href="#content">{chrome.skipLink}</a>
     {!immersive && (
-      <header class="site-header">
+      <header class:list={["site-header", languageSwitch && "has-language-switch"]}>
         <a class="brand" href="/" aria-label="Staniverse"><span class="brand-mark">s</span><span>staniverse</span></a>
         <nav id="primary-navigation" aria-label={chrome.menu}>
           {chrome.nav.map(([href, label]) => <a href={href}>{label}</a>)}
