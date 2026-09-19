@@ -385,14 +385,14 @@
   }
   .garden-side {
     position: sticky;
-    top: calc(var(--header-height, 4.5rem) + 6.5rem);
+    top: calc(var(--header-height, 4.5rem) + 8rem);
   }
   /* One scroll owner for the whole rail: the facet list itself. The sticky
      wrapper never scrolls and no section nests its own viewport, so the wheel
      does exactly one thing anywhere over the rail. */
   .garden-facets {
     display: block;
-    max-height: max(16rem, calc(100dvh - var(--header-height, 4.5rem) - 7.75rem));
+    max-height: max(16rem, calc(100dvh - var(--header-height, 4.5rem) - 9.25rem));
     padding: 0 var(--s-2) 0 0;
     overflow-y: auto;
     overscroll-behavior: contain;
