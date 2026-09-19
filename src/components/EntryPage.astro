@@ -13,6 +13,9 @@ interface Props { entry: AnyEntry; nodes: GraphNode[]; edges: GraphEdge[]; chapt
 const { entry, nodes, edges, chapters=[] } = Astro.props;
 const recommendations = buildRecommendations(entry.data.id, nodes, edges);
 const { Content, headings } = await render(entry);
+/* Оглавление и соседняя полоса открывают материал сразу после шапки; оглавление
+   появляется только там, где разделов действительно хватает (правило компонента). */
+const hasToc = headings.filter((heading) => heading.depth >= 2 && heading.depth <= 3).length >= 3;
 const status = entry.data.kind === "project" ? projectStatus[entry.data.status] : entry.data.kind === "work" ? workStatus[entry.data.status] : entry.data.kind === "experiment" ? experimentStatus[entry.data.status] : undefined;
 const published = entry.data.date ?? entry.data.updated;
 const publishedLabel = published ? new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "long", year: "numeric" }).format(published) : "";
@@ -129,6 +132,16 @@ const entryJsonLd: Record<string, unknown> = {
         {entry.data.features.length > 0 && <div class="work-features"><dt>Что сделано лично</dt><dd>{entry.data.features.map((feature)=><span>{feature}</span>)}</dd></div>}
       </dl>}
     </header>
+    <div class:list={["entry-band", { "is-solo": !hasToc }]}>
+      {hasToc && <div class="entry-band-cell"><TableOfContents headings={headings} /></div>}
+      <div class="entry-band-cell">
+        <details class="graph-fold" open>
+          <summary class="graph-fold__title">Связи рядом</summary>
+          <LocalGraph currentId={entry.data.id} nodes={nodes} edges={edges} />
+        </details>
+      </div>
+    </div>
+
     {embedUrl && entry.collection === "publications" && entry.data.kind === "youtube-video" && entry.data.thumbnailUrl && (
       <div class:list={stageClass} data-video-stage data-embed={embedUrl} data-title={entry.data.title}>
         <button type="button" class="video-poster" data-video-play aria-label={`Смотреть: ${entry.data.title}`}>
@@ -167,8 +180,7 @@ const entryJsonLd: Record<string, unknown> = {
       </section>
     )}
     {entry.collection === "projects" && entry.data.gallery.length > 0 && <p class="media-carousel-note">Все изображения — концепты будущего внедрения, а не фотографии работающих инсталляций.</p>}
-    <div class="entry-grid">
-      <div class="prose"><Content />
+    <div class="prose"><Content />
         {chapters.length>0&&<section class="project-chapters" aria-labelledby="project-chapters-title"><h2 id="project-chapters-title">Главы и результаты проекта</h2><p>Материалы собраны здесь в контексте собственной инициативы, а не среди заказных работ.</p><div>{chapters.map((chapter)=><a href={hrefFor(chapter)}><small>{chapter.data.kind==="work"?chapter.data.year:""}</small><strong>{chapter.data.title}</strong><span>{chapter.data.summary}</span></a>)}</div></section>}
         {recommendations.length > 0 && (
           <section class="read-next" aria-labelledby="read-next-title">
@@ -191,15 +203,6 @@ const entryJsonLd: Record<string, unknown> = {
           {sourceTagLinks.length > 0 && <div class="tag-group"><span class="tag-origin">Теги автора</span><div class="tag-row">{sourceTagLinks.map(({ tag, href }) => <a href={href}>#{tag}</a>)}</div></div>}
           {inferredTopics.length > 0 && <div class="tag-group"><span class="tag-origin">Ещё по теме · найдено автоматически</span><div class="tag-row is-inferred">{inferredTopics.map(({ label, href }) => <a href={href}>{label}</a>)}</div></div>}
         </footer>}
-      </div>
-
-      <div class="entry-aside">
-        <TableOfContents headings={headings} />
-        <details class="graph-fold" open>
-          <summary class="graph-fold__title">Связи рядом</summary>
-          <LocalGraph currentId={entry.data.id} nodes={nodes} edges={edges} />
-        </details>
-      </div>
     </div>
 <script>
   import { installLightbox } from "../lib/lightbox";
@@ -336,20 +339,19 @@ const entryJsonLd: Record<string, unknown> = {
 
   .channel-gallery-grid strong { display: block; margin-top: var(--s-2); font-size: .82rem; font-weight: 500; line-height: 1.35; overflow-wrap: anywhere; }
   .channel-gallery-grid a:hover img, .channel-gallery-grid a:focus-visible img { border-color: var(--accent); }
-  @media (max-width: 900px) { .channel-gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  /* Contents and the neighbourhood open the material like a heading: one band
+     across the full content width, before any media — not a side rail that only
+     appears where the text starts and never fits the viewport. */
+  .entry-band { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 1px; margin: 0 0 var(--s-7); border-block: 1px solid var(--line); background: var(--line); }
+  .entry-band.is-solo { grid-template-columns: minmax(0, 1fr); }
+  .entry-band-cell { min-width: 0; padding: var(--s-3) var(--s-5); background: var(--ground); }
+  .entry-band-cell:first-child { padding-left: 0; }
+  .entry-band-cell:last-child { padding-right: 0; }
+  .entry-band :global(.toc__box) { border-top: 0; }
+  @media (max-width: 1050px) { .entry-band { grid-template-columns: minmax(0, 1fr); } .entry-band-cell { padding-inline: 0; } }
 
-  /* The right column is one sticky rail on desktop: a bounded viewport with a
-     single scroll owner, so the contents and the whole neighbourhood travel
-     through it as one column instead of nesting a scroller each. */
-  .entry-aside { position: sticky; top: 7rem; display: flex; flex-direction: column; gap: var(--s-5); max-height: calc(100dvh - 8.5rem); overflow-y: auto; scrollbar-width: thin; }
-  .entry-aside > * { min-width: 0; }
-  .entry-aside > :global(.toc) { flex: 0 0 auto; }
-  /* Narrow screens drop the rail entirely: the column returns to the flow. */
-  @media (max-width: 1050px) { .entry-aside { position: static; max-height: none; overflow: visible; } }
-
-  /* The neighbourhood sits under the contents, open by default and at its
-     natural height: the rail scrolls it into reach, nothing clips inside it. */
-  .graph-fold { flex: 0 0 auto; border-top: 1px solid var(--line); }
+  /* The neighbourhood cell is a fold, open by default, at its natural height. */
+  .graph-fold { min-width: 0; }
   .graph-fold__title { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-3); padding: var(--s-3) 0; color: var(--ink); font-size: .82rem; cursor: pointer; list-style: none; }
   .graph-fold__title::-webkit-details-marker { display: none; }
   .graph-fold__title::after { color: var(--accent); content: "+"; }

@@ -212,7 +212,6 @@ const homepageJsonLd = {
         ))}
       </div>
     </section>
-
     <section class="section" aria-labelledby="works-title"><div class="section-head"><div><div class="section-kicker">Избранные работы</div><h2 id="works-title">То, что стало<br class="home-break" /> реальным</h2></div><a class="text-link" href="/works/">Все работы →</a></div><div class="card-grid">{works.map((entry, i) => <ContentCard entry={entry} large={i === 0 || i === 3} showDate={false} />)}</div></section>
 
     <section class="section home-projects" aria-labelledby="projects-title">
@@ -220,7 +219,6 @@ const homepageJsonLd = {
       <p class="section-copy">Идеи, исследования и системы не обязаны быть законченными. У них есть статус, история и следующее действие.</p>
       <div class="card-grid">{projects.map((entry) => <ContentCard entry={entry} showDate={false} />)}</div>
     </section>
-
     <section class="section home-profile" aria-labelledby="home-profile-title">
       <div class="section-head">
         <div><div class="section-kicker">Профиль</div><h2 id="home-profile-title">Проектирую цифровой опыт —<br class="home-break" /> от исследования до работающей системы</h2></div>
@@ -355,8 +353,6 @@ const homepageJsonLd = {
   .const-node[data-tint="mint"] { --tint: #8fe3c0; }
   .const-node[data-tint="steel"] { --tint: #bcd0ff; }
 
-  .home-page { min-width: 0; }
-  .home-break { display: none; }
   @media (min-width: 700px) { .home-break { display: block; } }
 
   /* ---------------------------------------------------------------- first screen */

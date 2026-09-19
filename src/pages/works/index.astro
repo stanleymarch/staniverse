@@ -2,16 +2,21 @@
 import Base from "../../layouts/Base.astro";
 import ContentCard from "../../components/ContentCard.astro";
 import { getCollection } from "astro:content";
-import { ownedProjectId } from "../../lib/canonical";
-/* Chapters of own projects live inside their project, not in the client portfolio
-   (see README): the catalogue keeps only work done for someone else. */
+/* Работы — это кейсы с рамкой «задача → решение → результат»: заказные,
+   конкурсные и самостоятельные (Арка, Масленица). Проект-владелец при этом
+   остаётся рамкой на странице самой работы и главой на странице проекта,
+   но из каталога кейсы больше не изымаются. */
 const entries = (await getCollection("works"))
-  .filter((entry) => !ownedProjectId(entry))
-  .sort((a,b) => Number(b.data.featured)-Number(a.data.featured));
-const genres = [...new Set(entries.flatMap((entry) => entry.data.genres))].sort();
+  .sort((a, b) =>
+    Number(b.data.featured) - Number(a.data.featured) ||
+    (Number(b.data.year) || 0) - (Number(a.data.year) || 0) ||
+    a.data.title.localeCompare(b.data.title, "ru"));
+const countByGenre = new Map<string, number>();
+for (const entry of entries) for (const genre of entry.data.genres) countByGenre.set(genre, (countByGenre.get(genre) ?? 0) + 1);
+const genres = [...new Set(entries.flatMap((entry) => entry.data.genres))].sort((a, b) => a.localeCompare(b, "ru"));
 ---
-<Base title="Работы" description="Портфолио Станислава Ермоленко: XR и WebXR, виртуальные миры, сайты, автоматизация, видео и цифровые медиа для заказчиков.">
-  <header class="catalog-hero"><div class="section-kicker">Портфолио</div><h1>Работы</h1><p class="hero-lead">Реализованные результаты для заказчиков, организаций, конкурсов и внешних задач. Некоторые продолжают развиваться; собственные проекты находятся отдельно.</p><div class="catalog-controls" data-filter-controls><button class="filter-button active" data-filter="all">Все</button>{genres.map((genre) => <button class="filter-button" data-filter={genre}>{genre}</button>)}</div></header>
+<Base title="Работы" description="Портфолио Станислава Ермоленко: XR и WebXR, виртуальные миры, сайты, автоматизация, видео и цифровые медиа — для заказчиков, конкурсов и собственных инициатив.">
+  <header class="catalog-hero"><div class="section-kicker">Портфолио</div><h1>Работы</h1><p class="hero-lead">Кейсы с рамкой «задача → решение → результат»: для заказчиков, конкурсов и собственных инициатив. Живые системы со статусом и следующим шагом собраны отдельно, в проектах.</p><div class="catalog-controls" data-filter-controls><button class="filter-button active" data-filter="all">Все<small>{entries.length}</small></button>{genres.map((genre) => <button class="filter-button" data-filter={genre}>{genre}<small>{countByGenre.get(genre)}</small></button>)}</div></header>
   <section class="section"><div class="card-grid" data-filter-grid>{entries.map((entry) => <ContentCard entry={entry} headingLevel="h2" />)}</div><div class="empty-state">В этом жанре пока нет работ.</div></section>
   <script is:inline src="/scripts/catalog-filter.js"></script>
 </Base>

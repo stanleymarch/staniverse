@@ -517,7 +517,8 @@ iframe { max-width: 100%; }
 
 .content-card {
   position: relative;
-  display: block;
+  display: flex;
+  flex-direction: column;
   min-width: 0;
   height: 100%;
   min-height: 240px;
@@ -544,11 +545,17 @@ iframe { max-width: 100%; }
 /* Card titles are h3 in prose grids and h2 in catalogue grids: one style. */
 .content-card :where(h2, h3) { position: relative; max-width: 100%; margin: var(--s-4) 0 var(--s-2); font: 500 var(--card-title) / 1.2 var(--font-display); overflow-wrap: break-word; hyphens: auto; text-wrap: balance; }
 .content-card p { position: relative; max-width: 100%; margin-bottom: var(--s-4); color: var(--ink-2); font-size: var(--card-text); line-height: 1.6; overflow-wrap: break-word; hyphens: auto; text-wrap: pretty; }
+/* Tags sit at the card's floor: every card in a row ends aligned, regardless
+   of how long its summary is. */
+.content-card .tag-row { margin-top: auto; }
 
-.card-meta { position: relative; z-index: 2; display: flex; flex-wrap: wrap; gap: var(--s-2); min-width: 0; color: var(--ink-2); font-size: .65rem; letter-spacing: .08em; text-transform: uppercase; }
-.card-meta span { padding: .3rem .55rem; border: 1px solid var(--line); border-radius: var(--radius-pill); }
+/* The meta line is exactly one line: kind, status and the featured badge never
+   push the date (or the title below it) out of rhythm with the neighbouring
+   cards. The date absorbs what doesn't fit by ellipsizing. */
+.card-meta { position: relative; z-index: 2; display: flex; flex-wrap: nowrap; gap: .35rem; min-width: 0; color: var(--ink-2); font-size: .65rem; letter-spacing: .08em; text-transform: uppercase; }
+.card-meta span { flex: 0 0 auto; padding: .3rem .55rem; border: 1px solid var(--line); border-radius: var(--radius-pill); white-space: nowrap; }
 .card-meta .featured { border-color: var(--accent-line); color: var(--accent); }
-.card-meta time { margin-left: auto; color: var(--ink-2); letter-spacing: 0; text-transform: none; }
+.card-meta time { min-width: 0; margin-left: auto; overflow: hidden; color: var(--ink-2); letter-spacing: 0; text-transform: none; text-overflow: ellipsis; white-space: nowrap; }
 
 .tag-row { position: relative; display: flex; flex-wrap: wrap; gap: var(--s-2); min-width: 0; color: var(--ink-2); font-size: .72rem; }
 .tag-row span, .tag-row a { max-width: 100%; padding: .25rem .5rem; border-radius: var(--radius-1); background: color-mix(in srgb, var(--ink) 6%, transparent); overflow-wrap: anywhere; }
@@ -565,15 +572,11 @@ iframe { max-width: 100%; }
 
 .entry-shell { min-width: 0; padding: var(--flow-section) var(--rail-inset); }
 .entry-hero { max-width: 980px; min-width: 0; margin-bottom: var(--s-7); }
-.entry-hero-meta { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s-2) var(--s-4); color: var(--ink-2); }
-.entry-hero-meta time { font-size: .82rem; }
 .entry-hero h1, .catalog-hero h1 { max-width: 100%; margin: .25em 0; font: 650 var(--text-h1) / 1.02 var(--font-display); letter-spacing: -.035em; overflow-wrap: anywhere; text-wrap: balance; }
 .entry-hero h1.is-long { max-width: 19ch; font-size: clamp(1.9rem, 1.5rem + 2.4vw, 3.4rem); line-height: 1.04; }
 .entry-hero h1.is-very-long { max-width: 24ch; font-size: clamp(1.75rem, 1.4rem + 2vw, 3rem); }
 .entry-summary { max-width: 780px; color: var(--ink-2); font-size: clamp(1.05rem, 1.8vw, 1.45rem); overflow-wrap: anywhere; }
 
-.entry-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, 410px); align-items: start; gap: var(--flow-section); min-width: 0; }
-.entry-grid > * { min-width: 0; }
 .prose { max-width: 760px; min-width: 0; font-size: 1.04rem; overflow-wrap: anywhere; }
 .prose :where(img, video) { display: block; width: 100%; max-width: 100%; height: auto; }
 .prose iframe { display: block; width: 100%; max-width: 100%; height: auto; aspect-ratio: auto 16 / 9; }
@@ -589,12 +592,16 @@ iframe { max-width: 100%; }
 .text-link { display: inline-flex; align-items: center; min-height: 44px; color: var(--accent); font-size: .82rem; }
 
 .catalog-hero { min-width: 0; padding: var(--flow-section) var(--rail-inset) var(--flow-half); }
-.catalog-controls { display: flex; flex-wrap: wrap; gap: var(--s-2); min-width: 0; margin: var(--s-4) 0 0; }
-.filter-button { display: inline-flex; align-items: center; min-height: 44px; padding: 0 var(--s-4); border: 1px solid var(--line-strong); border-radius: var(--radius-pill); background: var(--surface); color: var(--ink-2); cursor: pointer; }
-.filter-button:hover { border-color: var(--accent-line); color: var(--ink); }
-.filter-button.active { border-color: var(--accent); background: var(--accent); color: var(--ground); }
-.search-input { min-width: min(100%, 320px); max-width: 100%; min-height: 44px; padding: .65rem var(--s-4); border: 1px solid var(--line-strong); border-radius: var(--radius-pill); background: var(--surface); color: var(--ink); }
-.empty-state { display: none; padding: var(--s-6); border: 1px dashed var(--line-strong); border-radius: var(--radius-1); color: var(--ink-2); }
+.catalog-controls { display: flex; flex-wrap: wrap; align-items: baseline; gap: .2rem .1rem; min-width: 0; margin: var(--s-4) 0 0; }
+/* Filters read as typography, not pills: text hung on a hairline left rail the
+   way the garden topic cloud hangs its tags. A facet count, when present, is a
+   small mono figure — quieter than the word it belongs to. */
+.filter-button { min-height: 44px; padding: .4rem .15rem .4rem .65rem; border: 0; border-left: 1px solid color-mix(in srgb, var(--line) 72%, transparent); background: transparent; color: var(--ink-2); font: inherit; font-size: .95rem; cursor: pointer; transition: color var(--dur-2) var(--ease), border-color var(--dur-2) var(--ease); }
+.filter-button:hover, .filter-button:focus-visible { color: var(--accent); border-left-color: var(--accent); }
+.filter-button.active, .filter-button[aria-pressed="true"] { color: var(--accent); font-weight: 650; border-left-color: var(--accent); }
+.filter-button small { margin-left: .32rem; color: var(--ink-2); font: 400 .66rem / 1 var(--mono, ui-monospace, monospace); }
+/* A select keeps its quiet field affordance: the rail without the box. */
+select.filter-button { padding-inline: .65rem .8rem; border-bottom: 1px solid color-mix(in srgb, var(--line) 72%, transparent); font-size: .88rem; }
 
 .about-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--grid-gap); min-width: 0; }
 .fact-panel { min-width: 0; padding: var(--s-5); border: 1px solid var(--line); border-radius: var(--radius-1); background: var(--surface); }
@@ -606,7 +613,6 @@ iframe { max-width: 100%; }
 @media (max-width: 1050px) {
   :root { --grid-columns: 6; }
   .card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .entry-grid { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 1180px) {
   .site-header { grid-template-columns: minmax(0, 1fr) auto auto auto; gap: var(--s-2); padding: var(--s-2) var(--rail); }

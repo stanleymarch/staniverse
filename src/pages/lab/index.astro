@@ -16,6 +16,10 @@ const facetRows = [
   { key: "stack", label: "Технология", any: "Все", values: vocabulary(entries.flatMap((entry) => entry.data.stack)) },
   { key: "complexity", label: "Сложность", any: "Любая", values: ([3, 2, 1] as const).filter((level) => entries.some((entry) => entry.data.complexity === level)).map(String) },
 ].filter((row) => row.values.length > 0);
+const facetField: Record<string, "types" | "platforms" | "capabilities" | "stack"> = { type: "types", platform: "platforms", capability: "capabilities", stack: "stack" };
+const facetCount = (key: string, value: string) => key === "complexity"
+  ? entries.filter((entry) => String(entry.data.complexity) === value).length
+  : entries.filter((entry) => (entry.data[facetField[key] ?? "types"]).includes(value)).length;
 
 const jsonLd = {
   "@type": "CollectionPage",
@@ -53,8 +57,8 @@ const jsonLd = {
           {facetRows.map((row) => (
             <div class="catalog-controls" role="group" aria-label={row.label}>
               <span class="facet-label">{row.label}</span>
-              <button type="button" class="filter-button active" data-facet={row.key} data-value="all" aria-pressed="true">{row.any}</button>
-              {row.values.map((value) => <button type="button" class="filter-button" data-facet={row.key} data-value={value} aria-pressed="false">{row.key === "complexity" ? complexityLabels[Number(value)] : value}</button>)}
+              <button type="button" class="filter-button active" data-facet={row.key} data-value="all" aria-pressed="true">{row.any}<small>{entries.length}</small></button>
+              {row.values.map((value) => <button type="button" class="filter-button" data-facet={row.key} data-value={value} aria-pressed="false">{row.key === "complexity" ? complexityLabels[Number(value)] : value}<small>{facetCount(row.key, value)}</small></button>)}
             </div>
           ))}
           <div class="catalog-controls">

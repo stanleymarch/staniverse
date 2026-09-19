@@ -13,6 +13,7 @@ test("homepage presents identity, works, own projects and universe", async ({ pa
   await expect(page.locator('.card-grid a[href="/works/ya-obmanyvat-sebya-ne-stanu/"]')).toHaveCount(1);
   await expect(page.locator('.card-grid a[href="/works/arka-vyatskogo-kremlya/"]')).toHaveCount(1);
   await expect(page.getByRole("heading", { name: /То, что продолжает двигаться/ })).toBeVisible();
+  await expect(page.locator('.card-grid a[href="/projects/loci/"]')).toHaveCount(1);
   await page.screenshot({ path: testInfo.outputPath("homepage.png"), fullPage: true });
   await page.getByRole("button", { name: /Обо мне/ }).click();
   await expect(page.locator("[data-profile-dialog]").getByRole("heading", { name: /Проектирую цифровой опыт/ })).toBeVisible();
@@ -26,17 +27,17 @@ test("work entries remain distinct from project records and filterable", async (
   await expect(page.getByRole("heading", { name: "Работы", exact: true })).toBeVisible();
   await expect(page.locator('[data-filter-grid] a[href="/works/arka-vyatskogo-kremlya/"]')).toBeVisible();
   await expect(page.locator('[data-filter-grid] a[href="/works/chertezhi-tekhdiplomy/"]')).toBeVisible();
-  await expect(page.locator('[data-filter-grid] a[href="/projects/metavyatka/"]')).toHaveCount(0);
-  await page.getByRole("button", { name: "xr", exact: true }).click();
+  await page.getByRole("button", { name: /^xr/ }).click();
   await expect(page.getByRole("link", { name: /Виртуальный офис адвоката/ })).toBeVisible();
   await expect(page.getByRole("link", { name: /Система сбора/ })).toBeHidden();
   await page.goto("/projects/");
   await expect(page.getByRole("heading", { name: "Собственные проекты" })).toBeVisible();
-  await expect(page.locator("[data-project-status]")).toHaveCount(9);
+  await expect(page.locator("[data-project-status]")).toHaveCount(11);
   await expect(page.locator('[data-project-status] a[href="/projects/nearventure/"]')).toBeVisible();
   await page.getByRole("button", { name: "Архив" }).click();
   await expect(page.locator('[data-filter-grid] a[href="/projects/ya-ty-gorod/"]')).toBeVisible();
-  await expect(page.locator('[data-filter-grid] a[href="/projects/albina/"]')).toBeHidden();
+  await expect(page.locator('[data-filter-grid] a[href="/projects/albina/"]')).toBeVisible();
+  await expect(page.locator('[data-filter-grid] a[href="/projects/loci/"]')).toBeHidden();
 });
 
 test("migrated commissioned work keeps role, client, features and full narrative", async ({ page }, testInfo) => {

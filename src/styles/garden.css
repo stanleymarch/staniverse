@@ -75,22 +75,24 @@
   color: #7487a3;
   font: 400 .62rem / 1 var(--mono, ui-monospace);
 }
+/* The whole tools section — search, count, sort, view, active filters — pins
+   under the site header for the full length of the catalogue. A sticky child
+   inside this short section would unstick as soon as the section scrolled by,
+   which is exactly what must not happen here. */
 .garden-tools {
-  border-bottom: 1px solid var(--line);
-  background: var(--bg);
-}
-.garden-toolbar {
   position: sticky;
   top: var(--header-height, 4.5rem);
   z-index: 15;
+  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--bg) 94%, transparent);
+  backdrop-filter: blur(16px);
+}
+.garden-toolbar {
   display: grid;
   grid-template-columns: minmax(18rem, 1fr) auto auto auto auto;
   align-items: center;
   gap: var(--s-2);
   padding: var(--s-2) var(--rail-inset);
-  border-bottom: 1px solid var(--line);
-  background: color-mix(in srgb, var(--bg) 94%, transparent);
-  backdrop-filter: blur(16px);
 }
 .garden-search-wrap {
   display: grid;
