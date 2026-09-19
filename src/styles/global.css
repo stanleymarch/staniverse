@@ -241,7 +241,7 @@ iframe { max-width: 100%; }
   padding: var(--s-2) var(--s-3);
   border: 1px solid var(--glass-line);
   border-radius: var(--radius-panel);
-  background: rgb(13 25 48 / .86);
+  background: rgb(13 25 48 / .94);
   box-shadow: var(--glass-hi), 0 12px 36px rgb(1 5 16 / .4);
   backdrop-filter: blur(24px) saturate(1.3);
   -webkit-backdrop-filter: blur(24px) saturate(1.3);
@@ -640,16 +640,14 @@ iframe { max-width: 100%; }
 .text-link { display: inline-flex; align-items: center; min-height: 44px; color: var(--accent); font-size: .82rem; }
 
 .catalog-hero { min-width: 0; padding: var(--flow-section) var(--rail-inset) var(--flow-half); }
-.catalog-controls { display: flex; flex-wrap: wrap; align-items: baseline; gap: .2rem .1rem; min-width: 0; margin: var(--s-4) 0 0; }
-/* Filters read as typography, not pills: text hung on a hairline left rail the
-   way the garden topic cloud hangs its tags. A facet count, when present, is a
-   small mono figure — quieter than the word it belongs to. */
-.filter-button { min-height: 44px; padding: .4rem .15rem .4rem .65rem; border: 0; border-left: 1px solid color-mix(in srgb, var(--line) 72%, transparent); background: transparent; color: var(--ink-2); font: inherit; font-size: .95rem; cursor: pointer; transition: color var(--dur-2) var(--ease), border-color var(--dur-2) var(--ease); }
-.filter-button:hover, .filter-button:focus-visible { color: var(--accent); border-left-color: var(--accent); }
-.filter-button.active, .filter-button[aria-pressed="true"] { color: var(--accent); font-weight: 650; border-left-color: var(--accent); }
+.catalog-controls { display: flex; flex-wrap: wrap; align-items: baseline; gap: .2rem var(--s-3); min-width: 0; margin: var(--s-4) 0 0; }
+/* Filters are typography only: spacing separates choices, while hover/focus
+   and weight communicate state. No private rails beside this control family. */
+.filter-button { min-height: 44px; padding: .4rem .15rem; border: 0; background: transparent; color: var(--ink-2); font: inherit; font-size: .95rem; cursor: pointer; transition: color var(--dur-2) var(--ease); }
+.filter-button:hover, .filter-button:focus-visible { color: var(--accent); }
+.filter-button.active, .filter-button[aria-pressed="true"] { color: var(--accent); font-weight: 650; }
 .filter-button small { margin-left: .32rem; color: var(--ink-2); font: 400 .66rem / 1 var(--mono, ui-monospace, monospace); }
-/* A select keeps its quiet field affordance: the rail without the box. */
-select.filter-button { padding-inline: .65rem .8rem; border-bottom: 1px solid color-mix(in srgb, var(--line) 72%, transparent); font-size: .88rem; }
+select.filter-button { padding-inline: .15rem 1.25rem; font-size: .88rem; }
 
 .about-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--grid-gap); min-width: 0; }
 .fact-panel { min-width: 0; padding: var(--s-5); border: 1px solid var(--glass-line); border-radius: var(--radius-panel); background: var(--glass); box-shadow: var(--glass-hi), var(--glass-glow); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); }
