@@ -37,11 +37,11 @@
      A deep ground, one raised surface, two inks and one accent. Every line,
      chip and glow on the site is mixed from those five, so no second palette
      can grow next to this one. */
-  --ground: #070c20;
-  --surface: #101a38;
-  --ink: #eef3ff;
-  --ink-2: #9db1d0;
-  --accent: #7fd4f0;
+  --ground: #060b18;
+  --surface: #0d1930;
+  --ink: #eef5ff;
+  --ink-2: #94aac8;
+  --accent: #79d7f2;
 
   /* Lines are ink at low opacity, never a colour of their own. */
   --line: color-mix(in srgb, var(--ink) 11%, transparent);
@@ -53,14 +53,14 @@
   --accent-line: color-mix(in srgb, var(--accent) 42%, transparent);
   --glow: 0 0 24px color-mix(in srgb, var(--accent) 16%, transparent);
 
-  /* Glass: cold blue-violet frost, no grey veil. The panel itself carries a
-     blue tint, so it reads cosmic even where the backdrop behind it is dark. */
-  --glass: color-mix(in srgb, #93a9ff 9%, color-mix(in srgb, var(--surface) 42%, transparent));
-  --glass-strong: color-mix(in srgb, #93a9ff 10%, color-mix(in srgb, var(--surface) 56%, transparent));
-  --glass-line: color-mix(in srgb, #aec6ff 22%, transparent);
-  --glass-hi: inset 0 1px 1px color-mix(in srgb, var(--ink) 18%, transparent);
-  --glass-glow: 0 12px 40px rgb(2 6 20 / .5);
-  --glass-blur: blur(24px) saturate(1.7) brightness(1.14);
+  /* Glass: cold navy frost from the reference. Cyan is the only chromatic
+     lift; no violet wash, so the existing blue identity stays intact. */
+  --glass: color-mix(in srgb, #78b8ff 7%, color-mix(in srgb, var(--surface) 44%, transparent));
+  --glass-strong: color-mix(in srgb, #78b8ff 8%, color-mix(in srgb, var(--surface) 60%, transparent));
+  --glass-line: color-mix(in srgb, #a9d8ff 19%, transparent);
+  --glass-hi: inset 0 1px 1px color-mix(in srgb, var(--ink) 14%, transparent);
+  --glass-glow: 0 14px 44px rgb(1 5 16 / .48);
+  --glass-blur: blur(26px) saturate(1.55) brightness(1.1);
 
   /* Names the older stylesheets still read. Aliases of the palette above,
      kept so a page cannot drift onto a private colour while it migrates. */
@@ -145,7 +145,7 @@ body {
   min-height: 100vh;
   margin: 0;
   overflow-x: clip;
-  background: radial-gradient(circle at 82% -12%, color-mix(in srgb, #4d7cff 22%, transparent), transparent 36rem), radial-gradient(circle at 12% 8%, color-mix(in srgb, #8b5cf6 14%, transparent), transparent 34rem), radial-gradient(circle at 8% 108%, color-mix(in srgb, #7fd4f0 10%, transparent), transparent 38rem), var(--ground);
+  background: radial-gradient(circle at 82% -12%, color-mix(in srgb, #2869d8 20%, transparent), transparent 38rem), radial-gradient(circle at 10% 12%, color-mix(in srgb, #42b8e8 9%, transparent), transparent 34rem), radial-gradient(circle at 8% 108%, color-mix(in srgb, var(--accent) 8%, transparent), transparent 40rem), var(--ground);
   font-size: var(--text-body);
   line-height: 1.6;
 }
@@ -229,17 +229,19 @@ iframe { max-width: 100%; }
 .site-header {
   position: sticky;
   z-index: 40;
-  top: 0;
+  top: var(--s-2);
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto auto auto;
   align-items: center;
   gap: var(--s-3);
-  padding: var(--s-2) var(--rail-inset);
-  border-bottom: 1px solid var(--glass-line);
-  background: var(--glass);
-  box-shadow: var(--glass-hi);
-  backdrop-filter: blur(28px) saturate(1.8) brightness(1.18);
-  -webkit-backdrop-filter: blur(28px) saturate(1.8) brightness(1.18);
+  margin: var(--s-2) var(--rail-inset) 0;
+  padding: var(--s-2) var(--s-3);
+  border: 1px solid var(--glass-line);
+  border-radius: var(--radius-panel);
+  background: color-mix(in srgb, #0d1930 44%, transparent);
+  box-shadow: var(--glass-hi), 0 12px 36px rgb(1 5 16 / .34);
+  backdrop-filter: blur(30px) saturate(1.65) brightness(1.12);
+  -webkit-backdrop-filter: blur(30px) saturate(1.65) brightness(1.12);
 }
 
 .site-header.has-language-switch {
@@ -352,6 +354,12 @@ iframe { max-width: 100%; }
   background: var(--surface);
   color: var(--ink);
   cursor: pointer;
+}
+.site-search-open, .lang-switch, .universe-link, .menu-toggle {
+  background-color: color-mix(in srgb, var(--surface) 46%, transparent);
+  box-shadow: var(--glass-hi);
+  backdrop-filter: blur(14px) saturate(1.45);
+  -webkit-backdrop-filter: blur(14px) saturate(1.45);
 }
 
 .menu-toggle-icon,
@@ -552,12 +560,12 @@ iframe { max-width: 100%; }
   transition: transform var(--dur-2) var(--ease), border-color var(--dur-2) var(--ease), background-color var(--dur-2) var(--ease), box-shadow var(--dur-2) var(--ease);
 }
 .content-card[hidden] { display: none; }
-/* Cursor spotlight: cold blue-violet pool following the pointer inside the
+/* Cursor spotlight: cold cyan-blue pool following the pointer inside the
    card, painted under the text. --mx/--my arrive from Base as px. */
-.content-card::before { position: absolute; inset: 0; z-index: 0; border-radius: inherit; background: radial-gradient(circle 11rem at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, #7fb2ff 26%, transparent), color-mix(in srgb, #8b5cf6 12%, transparent) 45%, transparent 70%); content: ""; opacity: 0; transition: opacity var(--dur-2) var(--ease); pointer-events: none; }
+.content-card::before { position: absolute; inset: 0; z-index: 0; border-radius: inherit; background: radial-gradient(circle 11rem at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--accent) 24%, transparent), color-mix(in srgb, #4285e8 10%, transparent) 46%, transparent 70%); content: ""; opacity: 0; transition: opacity var(--dur-2) var(--ease); pointer-events: none; }
 .content-card:hover::before, .content-card:focus-visible::before { opacity: 1; }
 .content-card > * { position: relative; z-index: 1; }
-@media (prefers-reduced-motion: reduce) { .content-card::before { display: none; } }
+@media (prefers-reduced-motion: reduce) { .content-card::before, .direction-tile::before { display: none; } }
 
 /* Frosted hover for the remaining glass panels: lift + accent edge + glow. */
 .fact-panel, .topic-cloud a, .work-facts > div, .media-gallery a { transition: transform var(--dur-2) var(--ease), border-color var(--dur-2) var(--ease), box-shadow var(--dur-2) var(--ease); }
@@ -652,7 +660,7 @@ select.filter-button { padding-inline: .65rem .8rem; border-bottom: 1px solid co
   .card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 1180px) {
-  .site-header { grid-template-columns: minmax(0, 1fr) auto auto auto; gap: var(--s-2); padding: var(--s-2) var(--rail); }
+  .site-header { grid-template-columns: minmax(0, 1fr) auto auto auto; gap: var(--s-2); padding: var(--s-2) var(--s-3); }
   .site-header.has-language-switch { grid-template-columns: minmax(0, 1fr) auto auto auto auto; }
   .site-header nav { display: none; grid-column: 1 / -1; grid-row: 2; justify-content: stretch; gap: 0; padding-top: var(--s-1); border-top: 1px solid var(--line); }
   .site-header[data-menu-open] nav { display: grid; }

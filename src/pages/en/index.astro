@@ -93,6 +93,7 @@ const copy: Record<string, { title: string; summary: string }> = {
    stays narrower than the skills list: no invented client segment for symmetry. */
 const directions = [
   {
+    icon: "xr",
     title: "XR and spatial experiences",
     text: "Virtual offices, VR scenes, AR try-ons, digital twins and exhibition worlds. I build them in Unity and WebXR so that a space has a script, not only geometry.",
     tags: ["WebXR", "Unity", "Blender"],
@@ -100,6 +101,7 @@ const directions = [
     proof: "Virtual office for a lawyer",
   },
   {
+    icon: "ai",
     title: "AI automation and agents",
     text: "I bring models, data and tools into understandable working processes. In practice that runs from research and documents to a knowledge system where decisions and taste stay with people.",
     tags: ["agents", "Obsidian", "automation"],
@@ -107,6 +109,7 @@ const directions = [
     proof: "How I defended my thesis with AI agents",
   },
   {
+    icon: "archive",
     title: "Digital archives and culture",
     text: "Photogrammetry, sound, local history and museum collections in a format that lives online, in a headset and on a screen in the hall. With attention to the source and to rights.",
     tags: ["photogrammetry", "archives", "heritage"],
@@ -114,6 +117,7 @@ const directions = [
     proof: "MetaVyatka — the archive of Vyatka",
   },
   {
+    icon: "media",
     title: "Media and education",
     text: "Documentary stories, texts, video and teaching materials: from the idea and the shoot to an educational product, a publication and a handover to the team.",
     tags: ["media", "education", "professional training"],
@@ -279,6 +283,12 @@ const homepageJsonLd = {
       <div class="directions-grid">
         {directions.map((direction) => (
           <article class="direction-tile">
+            <span class="direction-icon" aria-hidden="true">
+              {direction.icon === "xr" && <svg viewBox="0 0 24 24"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Z"></path><path d="m4.4 7.7 7.6 4.4 7.6-4.4M12 12.1V21"></path></svg>}
+              {direction.icon === "ai" && <svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="2"></circle><circle cx="6" cy="17" r="2"></circle><circle cx="18" cy="17" r="2"></circle><path d="m10.8 6.7-3.6 8.5m6-8.5 3.6 8.5M8 17h8"></path></svg>}
+              {direction.icon === "archive" && <svg viewBox="0 0 24 24"><path d="m4 8 8-4 8 4-8 4-8-4Z"></path><path d="m4 12 8 4 8-4M4 16l8 4 8-4"></path></svg>}
+              {direction.icon === "media" && <svg viewBox="0 0 24 24"><path d="M4 5.5A3.5 3.5 0 0 1 7.5 2H12v18H7.5A3.5 3.5 0 0 0 4 23V5.5Z"></path><path d="M20 5.5A3.5 3.5 0 0 0 16.5 2H12v18h4.5A3.5 3.5 0 0 1 20 23V5.5Z"></path></svg>}
+            </span>
             <h3>{direction.title}</h3>
             <p>{direction.text}</p>
             <div class="tag-row">{direction.tags.map((tag) => <span>{tag}</span>)}</div>
@@ -515,16 +525,20 @@ const homepageJsonLd = {
   .const-node:focus-visible .const-label { translate: -50% -2px; rotate: -.4deg; }
 
   /* ------------------------------------------------------------------ directions */
-  .directions-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; border-block: 1px solid var(--line); background: var(--line); }
-  .direction-tile { position: relative; display: flex; flex-direction: column; align-content: start; gap: var(--s-2); min-width: 0; padding: var(--s-5) var(--s-4); background: var(--ground); }
-  .direction-tile::after { position: absolute; inset: 0; border: 1px solid transparent; content: ""; pointer-events: none; transition: border-color var(--dur-2) var(--ease); }
-  .direction-tile:hover::after,
-  .direction-tile:focus-within::after { border-color: color-mix(in srgb, var(--accent) 45%, transparent); }
-  .direction-tile h3 { margin: 0; color: var(--ink); font: 500 clamp(1.02rem, .92rem + 1vw, 1.3rem) / 1.22 Unbounded; letter-spacing: -.02em; text-wrap: balance; transition: translate var(--dur-2) var(--ease); }
+  .directions-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s-3); }
+  .direction-tile { position: relative; display: flex; flex-direction: column; align-content: start; gap: var(--s-2); min-width: 0; padding: var(--s-5) var(--s-4); overflow: hidden; border: 1px solid var(--glass-line); border-radius: var(--radius-panel); background: var(--glass); box-shadow: var(--glass-hi), var(--glass-glow); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); transition: transform var(--dur-2) var(--ease), border-color var(--dur-2) var(--ease), background-color var(--dur-2) var(--ease), box-shadow var(--dur-2) var(--ease); }
+  .direction-tile::before { position: absolute; inset: 0; z-index: 0; border-radius: inherit; background: radial-gradient(circle 12rem at var(--mx, 50%) var(--my, 15%), color-mix(in srgb, var(--accent) 25%, transparent), color-mix(in srgb, #4285e8 10%, transparent) 48%, transparent 72%); content: ""; opacity: 0; pointer-events: none; transition: opacity var(--dur-2) var(--ease); }
+  .direction-tile > * { position: relative; z-index: 1; }
+  .direction-tile:hover, .direction-tile:focus-within { border-color: var(--accent-line); background: var(--glass-strong); box-shadow: var(--glass-hi), var(--glass-glow), var(--glow); transform: translateY(-3px); }
+  .direction-tile:hover::before, .direction-tile:focus-within::before { opacity: 1; }
+  .direction-icon { display: grid; width: 2.75rem; height: 2.75rem; margin-bottom: var(--s-2); place-items: center; border: 1px solid var(--accent-line); border-radius: 12px; background: color-mix(in srgb, var(--accent) 10%, transparent); color: var(--accent); box-shadow: inset 0 1px 0 color-mix(in srgb, var(--ink) 12%, transparent), 0 0 24px color-mix(in srgb, var(--accent) 20%, transparent); transition: transform var(--dur-2) var(--ease), box-shadow var(--dur-2) var(--ease); }
+  .direction-icon svg { width: 1.35rem; height: 1.35rem; overflow: visible; fill: none; stroke: currentColor; stroke-width: 1.45; stroke-linecap: round; stroke-linejoin: round; }
+  .direction-tile h3 { margin: 0; color: var(--ink); font: 500 clamp(1.02rem, .92rem + 1vw, 1.3rem) / 1.22 Unbounded; letter-spacing: -.02em; text-wrap: balance; transition: color var(--dur-2) var(--ease); }
   .direction-tile p { margin: 0; color: var(--ink-2); font-size: .88rem; line-height: 1.6; text-wrap: pretty; }
   .direction-proof { margin-top: auto; color: var(--accent); font-size: .8rem; text-decoration-thickness: 1px; text-underline-offset: .2em; }
-  .direction-tile:hover h3,
-  .direction-tile:focus-within h3 { translate: 0 -2px; }
+  .direction-proof::after { position: absolute; inset: 0; content: ""; }
+  .direction-tile:hover .direction-icon, .direction-tile:focus-within .direction-icon { box-shadow: inset 0 1px 0 color-mix(in srgb, var(--ink) 16%, transparent), 0 0 30px color-mix(in srgb, var(--accent) 30%, transparent); transform: translateY(-2px) rotate(-2deg); }
+  .direction-tile:hover h3, .direction-tile:focus-within h3 { color: color-mix(in srgb, var(--ink) 78%, var(--accent)); }
   @media (max-width: 1050px) { .directions-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   @media (max-width: 700px) { .directions-grid { grid-template-columns: 1fr; } }
 
@@ -595,8 +609,8 @@ const homepageJsonLd = {
   @media (prefers-reduced-motion: reduce) {
     .sky-mote, .const-edge { animation: none; }
     .const-edge { stroke-dasharray: none; }
-    .sky-mote, .const-edge, .const-label, .const-glow, .const-node::after, .direction-tile::after, .direction-tile h3, .profile-close { transition: none; }
+    .sky-mote, .const-edge, .const-label, .const-glow, .const-node::after, .direction-tile, .direction-tile::before, .direction-icon, .direction-tile h3, .profile-close { transition: none; }
     .const-node:hover .const-label, .const-node:focus-visible .const-label { translate: -50% 0; rotate: none; }
-    .direction-tile:hover h3, .direction-tile:focus-within h3 { translate: none; }
+    .direction-tile:hover, .direction-tile:focus-within, .direction-tile:hover .direction-icon, .direction-tile:focus-within .direction-icon { transform: none; }
   }
 </style>
