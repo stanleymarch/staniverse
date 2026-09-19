@@ -3,7 +3,7 @@
 //     and summary "Публикация без текстовой подписи; … медиафайлов: N." — rewrite
 //     to human phrasing ("Фотографии · <date>" / "Фотоальбом · N снимков.").
 //  2. Import markers <!--telegram-media:…--> leaked into two summaries; strip
-//     any HTML comment out of summaries.
+//     both complete comments and importer-truncated marker tails.
 // Idempotent: re-running matches nothing after the first pass.
 import { readdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
@@ -34,6 +34,7 @@ for (const name of files) {
   if (/^summary: ".*<!--/m.test(text)) {
     text = text.replace(/^(summary: ")([^"]*)(")$/m, (_all, open, body, close) => {
       const cleaned = body
+        .replace(/<!--telegram-media:[\s\S]*$/g, " ")
         .replace(/<!--[\s\S]*?-->/g, " ")
         .replace(/\s+/g, " ")
         .trim()
