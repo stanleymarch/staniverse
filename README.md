@@ -93,7 +93,9 @@ systemctl --user enable --now telegram-sync.timer
 
 `ops/systemd/telegram-sync.timer` запускает `scripts/telegram-sync.sh` в 01:00, 07:00, 13:00 и 19:00 по локальному времени; `Persistent=true` догоняет пропущенный запуск после сна. Скрипт читает ключи из `.env`, прогоняет `npm run telegram:update` и коммитит только `src/content/publications/telegram` и `public/media/telegram`, поэтому незакоммиченная работа в других путях не попадает в коммит. Пуш идёт через credential helper `gh`, токен в конфиге git не хранится.
 
-Для CI тот же шаг возможен через `TELEGRAM_SESSION_STRING` (`pipeline/telegram/.venv/bin/python pipeline/telegram/login.py --string`), но только если раннер получит доступ к каноническому архиву и исходным медиа: `publish-media` пересобирает витрину целиком из архива, а он сейчас вне Git.
+Одна тонкость: `telegram:materialize` перезаписывает страницы **всех** публикаций из локального бандла разметки, а выверенные темы живут только в самих страницах — бандл решений лежит в игнорируемом `pipeline/enrichment/review/`. Поэтому после обновления скрипт откатывает страницы, чей `sourceId` не новее базлайна, и коммитит только принесённое этим запуском. Без этого шага ночная синхронизация тихо понижала бы разметку сотен старых постов.
+
+Для CI тот же шаг возможен через `TELEGRAM_SESSION_STRING` (`pipeline/telegram/.venv/bin/python pipeline/telegram/login.py --string`), но только если раннер получит доступ к каноническому архиву и исходным медиа: `publish-media` кодирует недостающее из исходников архива, а сам архив сейчас вне Git.
 
 ## LLM-разметка
 

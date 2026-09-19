@@ -32,7 +32,21 @@ if [[ "$branch" != "master" ]]; then
 fi
 
 # Fetch new posts, merge the archive, rebuild media and materialize pages.
+baseline=$(sed -n 's/.*"lastMessageId": *\([0-9]*\).*/\1/p' pipeline/telegram/archive/source/state.json 2>/dev/null)
+baseline=${baseline:-0}
 npm run telegram:update
+
+# `telegram:materialize` rewrites every publication page from the local enrichment
+# bundle, but the reviewed topics live only in the pages themselves (the review
+# bundle is git-ignored). Publishing that wholesale would silently downgrade
+# hundreds of old pages, so keep only what this run actually brought: pages whose
+# Telegram id is newer than the baseline captured above.
+git status --porcelain -- src/content/publications/telegram | while read -r _status file; do
+  id=$(sed -n 's/^sourceId: "\([0-9]*\)".*/\1/p' "$file" | head -1)
+  if [[ -n "$id" && "$id" -gt "$baseline" ]]; then continue; fi
+  echo "restoring untouched publication: $file"
+  if git ls-files --error-unmatch "$file" >/dev/null 2>&1; then git checkout -- "$file"; else rm -f "$file"; fi
+done
 
 # Publish only the generated content: user work in progress in other paths stays untracked.
 paths=(src/content/publications/telegram public/media/telegram)
