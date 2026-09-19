@@ -456,6 +456,7 @@
 .node-evidence-list dd { min-width: 0; margin: 0; overflow-wrap: anywhere; }
 .node-link { display: flex; align-items: center; gap: 6px; min-height: var(--target); margin-top: 14px; padding-top: 12px; border-top: 1px solid color-mix(in srgb, var(--muted) 16%, transparent); color: var(--cyan); font: 400 .6rem/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; }
 .node-link:hover { color: color-mix(in srgb, var(--cyan) 72%, var(--text)); }
+.node-card-hint { margin: 8px 0 0; color: color-mix(in srgb, var(--muted) 78%, transparent); font: 400 .56rem/1.5 var(--mono); letter-spacing: .06em; }
 /* In AR the dossier becomes the centered reference card: backlinks left, related right. */
 [data-xr="ar"] .node-card, [data-xr="camera-ar"] .node-card { right: 50%; left: auto; bottom: auto; top: max(76px, calc(var(--dock) + 64px)); width: min(34rem, calc(100vw - 2 * var(--rail-start))); max-height: min(60vh, 32rem); transform: translateX(50%); }
 @media (min-width: 900px) {

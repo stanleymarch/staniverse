@@ -81,8 +81,8 @@ const AMBIENT_EDGE_BUDGET = { compact: 24, full: 60 };
 const SQUASH_MIN = .82;
 /** How many sector captions stay readable at once; the rest fade with distance. */
 const BEACON_LABEL_BUDGET = 6;
-const BEACON_LABEL_WIDTH = 768;
-const BEACON_LABEL_HEIGHT = 104;
+const BEACON_LABEL_WIDTH = 1536;
+const BEACON_LABEL_HEIGHT = 208;
 const BEACON_LABEL_HEIGHT_RATIO = BEACON_LABEL_HEIGHT / BEACON_LABEL_WIDTH;
 
 
@@ -136,7 +136,8 @@ interface WorldBeacon {
   label: Sprite;
 }
 
-/** One edge of the focused constellation, with the pulse and the travelling spark that animate it. */
+/** One edge of the focused constellation, with the pulse and the travelling spark that animate it.
+ *  `secondary` marks a neighbour-to-neighbour edge: context around the spokes, dimmer at rest. */
 interface ConstellationEdge {
   line: Line;
   material: Material;
@@ -145,11 +146,31 @@ interface ConstellationEdge {
   to: Vector3;
   phase: number;
   active: boolean;
+  secondary: boolean;
   spark: Sprite;
 }
 
 function cleanTitle(value: string, limit = 34) {
   return value.length > limit ? `${value.slice(0, limit - 1)}…` : value;
+}
+
+/** Canvas labels must earn their width: the type shrinks to fit first and only a
+ *  still-overflowing line is truncated, so no caption ever spills its sprite. */
+function fitCanvasText(context: CanvasRenderingContext2D, text: string, maxWidth: number, style: (size: number) => string, baseSize: number, floorSize: number) {
+  let size = baseSize;
+  context.font = style(size);
+  let value = text;
+  let measured = context.measureText(value).width;
+  while (measured > maxWidth && size > floorSize) {
+    size -= 2;
+    context.font = style(size);
+    measured = context.measureText(value).width;
+  }
+  while (measured > maxWidth && value.length > 4) {
+    value = `${value.slice(0, -2)}…`;
+    measured = context.measureText(value).width;
+  }
+  return { value, size };
 }
 /** Inbound references carry slightly more prominence; logarithmic growth prevents hub glare. */
 export function nodeProminenceScale(incoming: number, outgoing: number) {
@@ -287,33 +308,27 @@ export class UniverseWorld {
     glowContext.stroke();
     this.glowTexture = new this.THREE.CanvasTexture(glowCanvas);
 
-    // Focus reticle: a soft dark backing plus a crisp ring and four ticks, drawn once. It marks
-    // the selected star in every presentation, including the bright AR camera feed. The stroke
-    // is heavy on purpose: the sprite spans only a few world units on screen.
+    // Focus glow: the selected star answers the open card with extra light, not an
+    // instrument. A soft dark backing keeps the light readable even over the bright
+    // AR camera feed; the gradient is drawn once and only breathes in opacity.
     const reticleCanvas = document.createElement("canvas");
     reticleCanvas.width = 256;
     reticleCanvas.height = 256;
     const reticleContext = reticleCanvas.getContext("2d");
     if (!reticleContext) throw new Error("Reticle canvas is unavailable");
-    const backing = reticleContext.createRadialGradient(128, 128, 30, 128, 128, 126);
-    backing.addColorStop(0, "rgba(3,6,13,.66)");
-    backing.addColorStop(.72, "rgba(3,6,13,.36)");
+    const backing = reticleContext.createRadialGradient(128, 128, 24, 128, 128, 126);
+    backing.addColorStop(0, "rgba(3,6,13,.5)");
+    backing.addColorStop(.7, "rgba(3,6,13,.26)");
     backing.addColorStop(1, "rgba(3,6,13,0)");
     reticleContext.fillStyle = backing;
     reticleContext.fillRect(0, 0, 256, 256);
-    reticleContext.strokeStyle = "rgba(219,242,252,.97)";
-    reticleContext.lineWidth = 13;
-    reticleContext.beginPath();
-    reticleContext.arc(128, 128, 88, 0, Math.PI * 2);
-    reticleContext.stroke();
-    reticleContext.lineWidth = 10;
-    for (let tick = 0; tick < 4; tick += 1) {
-      const angle = tick * Math.PI / 2;
-      reticleContext.beginPath();
-      reticleContext.moveTo(128 + Math.cos(angle) * 100, 128 + Math.sin(angle) * 100);
-      reticleContext.lineTo(128 + Math.cos(angle) * 122, 128 + Math.sin(angle) * 122);
-      reticleContext.stroke();
-    }
+    const glow = reticleContext.createRadialGradient(128, 128, 2, 128, 128, 98);
+    glow.addColorStop(0, "rgba(227,249,255,.95)");
+    glow.addColorStop(.28, "rgba(151,227,255,.5)");
+    glow.addColorStop(.62, "rgba(127,212,240,.16)");
+    glow.addColorStop(1, "rgba(127,212,240,0)");
+    reticleContext.fillStyle = glow;
+    reticleContext.fillRect(0, 0, 256, 256);
     this.focusReticle = new this.THREE.Sprite(new this.THREE.SpriteMaterial({
       map: new this.THREE.CanvasTexture(reticleCanvas),
       transparent: true,
@@ -660,14 +675,12 @@ export class UniverseWorld {
     canvas.height = BEACON_LABEL_HEIGHT;
     const context = canvas.getContext("2d");
     if (!context) return new this.THREE.Sprite();
-    context.font = "600 30px Geologica, sans-serif";
-    context.textAlign = "center";
-    context.textBaseline = "middle";
+    const fitted = fitCanvasText(context, text.toUpperCase(), BEACON_LABEL_WIDTH - 96, (size) => `600 ${size}px Unbounded, Geologica, sans-serif`, 30, 20);
     const readable = tint.clone().lerp(new this.THREE.Color(0xeef3ff), .58);
     context.shadowColor = "rgba(3,6,13,.92)";
-    context.shadowBlur = 14;
+    context.shadowBlur = 22;
     context.fillStyle = `#${readable.getHexString()}`;
-    context.fillText(cleanTitle(text, 40).toUpperCase(), BEACON_LABEL_WIDTH / 2, 54);
+    context.fillText(fitted.value, BEACON_LABEL_WIDTH / 2, BEACON_LABEL_HEIGHT / 2);
     return new this.THREE.Sprite(new this.THREE.SpriteMaterial({
       map: new this.THREE.CanvasTexture(canvas),
       transparent: true,
@@ -678,19 +691,21 @@ export class UniverseWorld {
 
   private labelFor(text: string) {
     const labelCanvas = document.createElement("canvas");
-    labelCanvas.width = 600;
-    labelCanvas.height = 80;
+    labelCanvas.width = 1200;
+    labelCanvas.height = 160;
     const context = labelCanvas.getContext("2d");
     if (!context) return undefined;
-    context.font = "500 24px Geologica, sans-serif";
     context.textAlign = "center";
     context.textBaseline = "middle";
+    // Unbounded at 2x resolution: the site's display voice, crisp at every zoom.
+    // The type shrinks to fit the sprite before any letter is cut.
+    const fitted = fitCanvasText(context, cleanTitle(text, 48), 1120, (size) => `500 ${size}px Unbounded, Geologica, sans-serif`, 30, 18);
     // The caption has to survive crossing a bright edge or beacon halo: a soft dark
     // backing keeps it readable without adding a visible plate to the sky.
     context.shadowColor = "rgba(3,6,13,.9)";
-    context.shadowBlur = 10;
+    context.shadowBlur = 20;
     context.fillStyle = "rgba(238,245,255,.95)";
-    context.fillText(cleanTitle(text, 40), 300, 42);
+    context.fillText(fitted.value, 600, 84);
     const texture = new this.THREE.CanvasTexture(labelCanvas);
     const sprite = new this.THREE.Sprite(new this.THREE.SpriteMaterial({ map: texture, transparent: true, depthWrite: false }));
     const presentationScale = this.vrPresentation ? .12 : 1;
@@ -768,14 +783,16 @@ export class UniverseWorld {
     this.visuals.forEach((visual) => { if (visual.mesh?.visible) meshes.push(visual.mesh); });
     return meshes;
   }
-  /** The point cloud makes every visible star pickable without allocating one mesh per archive item. */
+  /** The point cloud makes every star pickable without allocating one mesh per archive
+   *  item — including while a selection is open, so any star can take over the card. */
   pickableObjects(): Array<Mesh | Points> {
-    return this.selectedId ? this.pickableMeshes() : [this.starPoints, ...this.pickableMeshes()];
+    return [this.starPoints, ...this.pickableMeshes()];
   }
-
   nodeIdFromPick(object: Mesh | Points, pointIndex?: number) {
     if (object === this.starPoints) return pointIndex === undefined ? undefined : this.nodes[pointIndex]?.id;
-    return (object.userData as { nodeId?: string }).nodeId;
+    // We set `nodeId` on every pickable mesh ourselves (see ensureMesh), so the shape is ours.
+    const userData = object.userData as { nodeId?: string };
+    return userData.nodeId;
   }
 
   private disposeConstellation() {
@@ -790,9 +807,32 @@ export class UniverseWorld {
 
   private buildConstellation(id: string) {
     this.disposeConstellation();
-    const adjacency = (this.edgesByNode.get(id) ?? []).map(({ edge }) => edge);
     const budget = this.compact ? 72 : 180;
-    selectVisualEdges(adjacency, budget, 0).forEach((edge, index) => {
+    // Direct spokes answer "what is this star tied to"; edges between its neighbours answer
+    // "are those tied to each other" — one constellation, two questions, drawn together.
+    const directEdges = (this.edgesByNode.get(id) ?? []).map(({ edge }) => edge);
+    const direct = selectVisualEdges(directEdges, budget, 0);
+    const neighbourIds = new Set<string>();
+    directEdges.forEach((edge) => {
+      if (edge.source !== id || edge.target !== id) neighbourIds.add(edge.source === id ? edge.target : edge.source);
+    });
+    const pairKey = (edge: GraphEdge) => [edge.source, edge.target].sort().join("|");
+    const seen = new Set(direct.map(pairKey));
+    const crossEdges: GraphEdge[] = [];
+    this.edgesByNode.forEach((records, nodeId) => {
+      if (nodeId === id || !neighbourIds.has(nodeId)) return;
+      records.forEach(({ edge }) => {
+        const other = edge.source === nodeId ? edge.target : edge.source;
+        if (other === id || !neighbourIds.has(other)) return;
+        const key = pairKey(edge);
+        if (seen.has(key)) return;
+        seen.add(key);
+        crossEdges.push(edge);
+      });
+    });
+    const secondaryEdges = budget - direct.length > 0 ? selectVisualEdges(crossEdges, budget - direct.length, 0) : [];
+    const secondary = new Set(secondaryEdges);
+    [...direct, ...secondaryEdges].forEach((edge, index) => {
       const source = this.visuals.get(edge.source);
       const target = this.visuals.get(edge.target);
       if (!source || !target) return;
@@ -820,11 +860,11 @@ export class UniverseWorld {
         to: target.position,
         phase: (seeded(`spark|${edge.source}|${edge.target}|${edge.type}`)() + index * .37) % 1,
         active: false,
+        secondary: secondary.has(edge),
         spark,
       });
     });
   }
-
   updateHighlights() {
     const direct = this.selectedId ? this.neighbors.get(this.selectedId) ?? new Set<string>() : new Set<string>();
     this.visuals.forEach((visual) => {
@@ -840,15 +880,10 @@ export class UniverseWorld {
       const emphasis = this.selectedId === visual.node.id ? 1.22 : direct.has(visual.node.id) ? 1.08 : 1;
       visual.mesh.scale.setScalar(visual.radius * emphasis);
     });
-    this.focusReticle.visible = Boolean(this.selectedId && this.visuals.get(this.selectedId)?.mesh?.visible);
-    this.ambientEdges.forEach((line) => {
-      line.visible = !this.selectedId;
-      (line.material as LineBasicMaterial | LineDashedMaterial).opacity = AMBIENT_EDGE_OPACITY;
-    });
     this.constellation.forEach((item) => {
       item.line.visible = true;
       item.active = item.edge.source === this.selectedId || item.edge.target === this.selectedId;
-      (item.material as LineBasicMaterial | LineDashedMaterial).opacity = item.active ? .92 : .08;
+      (item.material as LineBasicMaterial | LineDashedMaterial).opacity = item.active ? .92 : item.secondary ? .34 : .08;
       item.spark.visible = false;
     });
     this.starMaterial.uniforms.uOpacity.value = this.selectedId ? (this.arPresentation ? .08 : .34) : (this.arPresentation ? .55 : .9);

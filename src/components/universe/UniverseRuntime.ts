@@ -218,10 +218,16 @@ export async function mountUniverse(scope: ParentNode = document) {
       .forEach((node) => initialIds.add(node.id));
     // Canvas label textures are drawn once and never redrawn: the exact Geologica
     // faces they use must be loaded first, or sector captions silently bake in the
-    // system fallback for the whole session.
+    // system fallback for the whole session. The Cyrillic sample matters: the subsets
+    // are split by unicode-range, so a Latin-only load() would never fetch them.
     if (document.fonts?.load) {
       try {
-        await Promise.all([document.fonts.load("600 30px Geologica"), document.fonts.load("500 24px Geologica")]);
+        await Promise.all([
+          document.fonts.load("600 30px Geologica", "Связь"),
+          document.fonts.load("500 24px Geologica", "Связь"),
+          document.fonts.load("600 30px Unbounded", "Связь"),
+          document.fonts.load("500 30px Unbounded", "Связь"),
+        ]);
       } catch { /* the fallback face is acceptable if loading fails */ }
     }
     const world = UniverseWorld.create({ THREE, scene }, graph, { compact: compactViewport, initialIds });
