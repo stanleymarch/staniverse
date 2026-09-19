@@ -1,6 +1,26 @@
 ---
 import Base from "../../layouts/Base.astro";
-import { complexityFacets, complexityLabels, experiments, genreFacets, stackFacets } from "../../data/experiments";
+import {
+  capabilityFacets,
+  complexityFacets,
+  complexityLabels,
+  experiments,
+  platformFacets,
+  stackFacets,
+  typeFacets,
+} from "../../data/experiments";
+
+/* One row per facet, all built the same way. A row disappears with its whole
+   vocabulary: with no headset experiment yet the platform facet still has a
+   value, while "Возможности" stays hidden until the first AI or backend piece
+   ships instead of offering an empty chip. */
+const facetRows = [
+  { key: "type", label: "Тип", any: "Все", values: typeFacets.map((value) => ({ value, label: value })) },
+  { key: "platform", label: "Платформа", any: "Любая", values: platformFacets.map((value) => ({ value, label: value })) },
+  { key: "capability", label: "Возможности", any: "Любые", values: capabilityFacets.map((value) => ({ value, label: value })) },
+  { key: "stack", label: "Технология", any: "Все", values: stackFacets.map((value) => ({ value, label: value })) },
+  { key: "complexity", label: "Сложность", any: "Любая", values: complexityFacets.map((level) => ({ value: String(level), label: complexityLabels[level] })) },
+].filter((row) => row.values.length > 0);
 
 const jsonLd = {
   "@type": "CollectionPage",
@@ -14,17 +34,17 @@ const jsonLd = {
     "@type": "CreativeWork",
     name: experiment.title,
     description: experiment.summary,
-    keywords: [...experiment.genres, ...experiment.stack].join(", "),
+    keywords: [...experiment.types, ...experiment.platforms, ...experiment.capabilities, ...experiment.stack].join(", "),
     url: experiment.href ? new URL(experiment.href, Astro.site).href : undefined,
   })),
 };
 ---
 
-<Base title="Лаборатория" description="Отдельные WebXR- и браузерные эксперименты Станислава Ермоленко: одни собираются из каталога experiments/<имя>/ и публикуются под /lab/<имя>/, другие живут отдельным репозиторием на GitHub Pages." jsonLd={jsonLd}>
+<Base title="Лаборатория" description="Отдельные WebXR- и браузерные эксперименты Станислава Ермоленко: игры, приложения и инструменты — от мобильного AR до гарнитур." jsonLd={jsonLd}>
   <header class="catalog-hero">
     <div class="section-kicker">Лаборатория</div>
     <h1>Эксперименты</h1>
-    <p class="hero-lead">Небольшие самостоятельные приложения: WebXR-сцены, демо SDK, пространственные механики. Что-то собирается из каталога <code>experiments/&lt;имя&gt;/</code> и публикуется по адресу <code>/lab/&lt;имя&gt;/</code> тем же git-пушем, что и основной сайт; что-то живёт в отдельном репозитории и уезжает на GitHub Pages. Ссылка в карточке ведёт туда, где эксперимент работает сейчас; демо с камерой стоит открывать с телефона.</p>
+    <p class="hero-lead">Самостоятельные приложения, а не только игры: WebXR-сцены, демо SDK, пространственные механики, а дальше — вещи с ИИ и бэкендом. Что-то собирается из каталога <code>experiments/&lt;имя&gt;/</code> и публикуется по адресу <code>/lab/&lt;имя&gt;/</code> тем же git-пушем, что и основной сайт; что-то живёт в отдельном репозитории и уезжает на GitHub Pages. Ссылка в карточке ведёт туда, где эксперимент работает сейчас; демо с камерой стоит открывать с телефона.</p>
   </header>
   <section class="section">
     {experiments.length === 0 ? (
@@ -35,21 +55,13 @@ const jsonLd = {
     ) : (
       <>
         <div class="lab-facets" data-lab-facets>
-          <div class="catalog-controls" role="group" aria-label="Жанр">
-            <span class="facet-label">Жанр</span>
-            <button type="button" class="filter-button active" data-facet="genre" data-value="all" aria-pressed="true">Все</button>
-            {genreFacets.map((genre) => <button type="button" class="filter-button" data-facet="genre" data-value={genre} aria-pressed="false">{genre}</button>)}
-          </div>
-          <div class="catalog-controls" role="group" aria-label="Технология">
-            <span class="facet-label">Технология</span>
-            <button type="button" class="filter-button active" data-facet="tech" data-value="all" aria-pressed="true">Все</button>
-            {stackFacets.map((tech) => <button type="button" class="filter-button" data-facet="tech" data-value={tech} aria-pressed="false">{tech}</button>)}
-          </div>
-          <div class="catalog-controls" role="group" aria-label="Сложность">
-            <span class="facet-label">Сложность</span>
-            <button type="button" class="filter-button active" data-facet="complexity" data-value="all" aria-pressed="true">Любая</button>
-            {complexityFacets.map((level) => <button type="button" class="filter-button" data-facet="complexity" data-value={String(level)} aria-pressed="false">{complexityLabels[level]}</button>)}
-          </div>
+          {facetRows.map((row) => (
+            <div class="catalog-controls" role="group" aria-label={row.label}>
+              <span class="facet-label">{row.label}</span>
+              <button type="button" class="filter-button active" data-facet={row.key} data-value="all" aria-pressed="true">{row.any}</button>
+              {row.values.map((item) => <button type="button" class="filter-button" data-facet={row.key} data-value={item.value} aria-pressed="false">{item.label}</button>)}
+            </div>
+          ))}
           <div class="catalog-controls">
             <label class="facet-label" for="lab-sort">Сортировка</label>
             <select class="filter-button lab-sort" id="lab-sort" data-lab-sort>
@@ -68,7 +80,9 @@ const jsonLd = {
               data-kind="experiment"
               data-index={index}
               data-title={experiment.title}
-              data-genres={experiment.genres.join("|")}
+              data-types={experiment.types.join("|")}
+              data-platforms={experiment.platforms.join("|")}
+              data-capabilities={experiment.capabilities.join("|")}
               data-stack={experiment.stack.join("|")}
               data-complexity={experiment.complexity}
             >
@@ -81,7 +95,7 @@ const jsonLd = {
               </div>
               <h2>{experiment.title}</h2>
               <p>{experiment.summary}</p>
-              <div class="tag-row is-genre">{experiment.genres.map((genre) => <span>{genre}</span>)}</div>
+              <div class="tag-row is-facet">{[...experiment.types, ...experiment.platforms, ...experiment.capabilities].map((value) => <span>{value}</span>)}</div>
               <div class="tag-row">{experiment.stack.map((item) => <span>#{item}</span>)}</div>
               <div class="card-links">
                 {experiment.status === "live" && experiment.href
@@ -106,11 +120,14 @@ const jsonLd = {
       const empty = document.querySelector("[data-lab-empty]");
       const count = document.querySelector("[data-lab-count]");
       const sortSelect = document.querySelector("[data-lab-sort]");
-      const state = { genre: "all", tech: "all", complexity: "all", sort: "catalog" };
+      const state = { type: "all", platform: "all", capability: "all", stack: "all", complexity: "all", sort: "catalog" };
 
+      const holds = (list, value) => value === "all" || (list || "").split("|").includes(value);
       const matches = (card) =>
-        (state.genre === "all" || (card.dataset.genres || "").split("|").includes(state.genre)) &&
-        (state.tech === "all" || (card.dataset.stack || "").split("|").includes(state.tech)) &&
+        holds(card.dataset.types, state.type) &&
+        holds(card.dataset.platforms, state.platform) &&
+        holds(card.dataset.capabilities, state.capability) &&
+        holds(card.dataset.stack, state.stack) &&
         (state.complexity === "all" || card.dataset.complexity === state.complexity);
 
       const order = (card) => Number(card.dataset.index);
@@ -152,10 +169,12 @@ const jsonLd = {
 
 <style>
   .content-card.is-soon { border-style: dashed; }
+  .lab-facets { margin-bottom: var(--s-5); }
+  .lab-facets .catalog-controls { margin-top: var(--s-2); }
   .facet-label { display: inline-flex; align-items: center; min-height: 44px; color: var(--ink-2); font-size: .68rem; letter-spacing: .09em; text-transform: uppercase; }
   .lab-sort { width: auto; padding-right: var(--s-5); color: var(--ink); font: inherit; }
   .lab-count { display: inline-flex; align-items: center; min-height: 44px; color: var(--ink-2); font-size: .78rem; font-variant-numeric: tabular-nums; }
-  .tag-row.is-genre span { border: 1px solid var(--line); background: transparent; }
+  .tag-row.is-facet span { border: 1px solid var(--line); background: transparent; }
   .card-links { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2) var(--s-4); margin-top: auto; padding-top: var(--s-3); }
   .card-arrow-link { display: inline-flex; align-items: center; gap: 6px; color: var(--accent); font-size: .8rem; letter-spacing: .04em; }
   .card-arrow-link.is-muted { color: var(--ink-2); }
