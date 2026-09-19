@@ -14,12 +14,25 @@ export interface Experiment {
   title: string;
   summary: string;
   stack: string[];
+  /** Genre of the experience, not of the medium: аркада, песочница, игра-автомат. */
+  genres: string[];
+  /** 1 — одна механика, 2 — механика со счётом или физикой, 3 — несколько состояний и прогрессия. */
+  complexity: ExperimentComplexity;
   status: "live" | "soon";
   /** Where the experiment runs: /lab/<name>/ for in-repo builds, an absolute address for external ones. */
   href?: string;
   /** Source repository when the experiment lives outside this monorepo. */
   repo?: string;
 }
+
+export type ExperimentComplexity = 1 | 2 | 3;
+
+/** The same three words the filter buttons read, so a card and a chip never disagree. */
+export const complexityLabels: Record<ExperimentComplexity, string> = {
+  1: "Простая",
+  2: "Средняя",
+  3: "Сложная",
+};
 
 /**
  * Three AR experiments on 8th Wall. They share one repository of their own
@@ -34,6 +47,8 @@ export const experiments: Experiment[] = [
     title: "Портал",
     summary: "Тап по полу открывает в комнате дверной проём — из него в игрока летят кубы. Зелёные ловят тапом и получают по очку, красные обходят стороной: и тап по красному, и его подлёт к камере отнимают одну из трёх жизней.",
     stack: ["8th Wall", "A-Frame", "three.js"],
+    genres: ["аркада"],
+    complexity: 2,
     status: "live",
     href: "https://stanleymarch.github.io/ar-experiments/experiments/portal/",
     repo: "https://github.com/stanleymarch/ar-experiments",
@@ -43,6 +58,8 @@ export const experiments: Experiment[] = [
     title: "Knockdown",
     summary: "Физическая песочница: тап по полу ставит на пол пирамиду из пятнадцати кирпичей, дальше тап в любую точку бросает в неё шарик. Счёт внизу ведёт кирпичи, сдвинутые со своего места или заваленные сильнее чем на 44°; когда падают все, пирамиду можно поставить заново.",
     stack: ["8th Wall", "A-Frame", "cannon-es"],
+    genres: ["песочница"],
+    complexity: 2,
     status: "live",
     href: "https://stanleymarch.github.io/ar-experiments/experiments/knockdown/",
     repo: "https://github.com/stanleymarch/ar-experiments",
@@ -52,8 +69,18 @@ export const experiments: Experiment[] = [
     title: "Морской бой",
     summary: "Советский перископный автомат в дополненной реальности: тап по полу разворачивает акваторию, корабли идут по трём линиям на разной глубине. Тап по морю выпускает торпеду из-под ног — бить нужно с упреждением; за игру даётся десять пусков, а десять попаданий подряд открывают призовую игру с тремя лишними торпедами.",
     stack: ["8th Wall", "A-Frame", "three.js", "WebAudio"],
+    genres: ["игра-автомат"],
+    complexity: 3,
     status: "live",
     href: "https://stanleymarch.github.io/ar-experiments/experiments/sea-battle/",
     repo: "https://github.com/stanleymarch/ar-experiments",
   },
 ];
+
+/* Facet vocabularies are derived from the rows themselves: a new experiment adds
+   its own genre or technology to the filters just by existing. */
+const byLabel = (a: string, b: string) => a.localeCompare(b, "ru");
+
+export const genreFacets = [...new Set(experiments.flatMap((item) => item.genres))].sort(byLabel);
+export const stackFacets = [...new Set(experiments.flatMap((item) => item.stack))].sort(byLabel);
+export const complexityFacets = ([3, 2, 1] as const).filter((level) => experiments.some((item) => item.complexity === level));

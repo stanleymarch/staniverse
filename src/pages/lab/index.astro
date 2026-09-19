@@ -1,6 +1,6 @@
 ---
 import Base from "../../layouts/Base.astro";
-import { experiments } from "../../data/experiments";
+import { complexityFacets, complexityLabels, experiments, genreFacets, stackFacets } from "../../data/experiments";
 
 const jsonLd = {
   "@type": "CollectionPage",
@@ -14,6 +14,7 @@ const jsonLd = {
     "@type": "CreativeWork",
     name: experiment.title,
     description: experiment.summary,
+    keywords: [...experiment.genres, ...experiment.stack].join(", "),
     url: experiment.href ? new URL(experiment.href, Astro.site).href : undefined,
   })),
 };
@@ -32,35 +33,129 @@ const jsonLd = {
         <p>Карточки появятся здесь одновременно с первыми работающими экспериментами: конвейер сборки и публикации уже проверен, новые несут реальные демо, а не заглушки.</p>
       </div>
     ) : (
-      <div class="card-grid">
-        {experiments.map((experiment) => (
-          <article class:list={["content-card", { "is-soon": experiment.status === "soon" }]} data-kind="experiment">
-            <div class="card-meta">
-              <span>Эксперимент</span>
-              {experiment.status === "live"
-                ? <span class="status">Работает</span>
-                : <span class="status">Скоро</span>}
-            </div>
-            <h2>{experiment.title}</h2>
-            <p>{experiment.summary}</p>
-            <div class="tag-row">{experiment.stack.map((item) => <span>#{item}</span>)}</div>
-            <div class="card-links">
-              {experiment.status === "live" && experiment.href
-                ? <a class="card-arrow-link" href={experiment.href}>Открыть эксперимент <span class="card-arrow" aria-hidden="true">↗</span></a>
-                : <span class="card-arrow-link is-muted">Ещё в работе</span>}
-              {experiment.status === "live" && experiment.href && experiment.repo
-                ? <a class="card-repo-link" href={experiment.repo}>Код</a>
-                : null}
-            </div>
-          </article>
-        ))}
-      </div>
+      <>
+        <div class="lab-facets" data-lab-facets>
+          <div class="catalog-controls" role="group" aria-label="Жанр">
+            <span class="facet-label">Жанр</span>
+            <button type="button" class="filter-button active" data-facet="genre" data-value="all" aria-pressed="true">Все</button>
+            {genreFacets.map((genre) => <button type="button" class="filter-button" data-facet="genre" data-value={genre} aria-pressed="false">{genre}</button>)}
+          </div>
+          <div class="catalog-controls" role="group" aria-label="Технология">
+            <span class="facet-label">Технология</span>
+            <button type="button" class="filter-button active" data-facet="tech" data-value="all" aria-pressed="true">Все</button>
+            {stackFacets.map((tech) => <button type="button" class="filter-button" data-facet="tech" data-value={tech} aria-pressed="false">{tech}</button>)}
+          </div>
+          <div class="catalog-controls" role="group" aria-label="Сложность">
+            <span class="facet-label">Сложность</span>
+            <button type="button" class="filter-button active" data-facet="complexity" data-value="all" aria-pressed="true">Любая</button>
+            {complexityFacets.map((level) => <button type="button" class="filter-button" data-facet="complexity" data-value={String(level)} aria-pressed="false">{complexityLabels[level]}</button>)}
+          </div>
+          <div class="catalog-controls">
+            <label class="facet-label" for="lab-sort">Сортировка</label>
+            <select class="filter-button lab-sort" id="lab-sort" data-lab-sort>
+              <option value="catalog">Порядок в каталоге</option>
+              <option value="complexity-desc">Сложность: сначала сложные</option>
+              <option value="complexity-asc">Сложность: сначала простые</option>
+              <option value="title">Название: А–Я</option>
+            </select>
+            <output class="lab-count" data-lab-count aria-live="polite">{experiments.length} из {experiments.length}</output>
+          </div>
+        </div>
+        <div class="card-grid" data-lab-grid>
+          {experiments.map((experiment, index) => (
+            <article
+              class:list={["content-card", { "is-soon": experiment.status === "soon" }]}
+              data-kind="experiment"
+              data-index={index}
+              data-title={experiment.title}
+              data-genres={experiment.genres.join("|")}
+              data-stack={experiment.stack.join("|")}
+              data-complexity={experiment.complexity}
+            >
+              <div class="card-meta">
+                <span>Эксперимент</span>
+                <span>{complexityLabels[experiment.complexity]}</span>
+                {experiment.status === "live"
+                  ? <span class="status">Работает</span>
+                  : <span class="status">Скоро</span>}
+              </div>
+              <h2>{experiment.title}</h2>
+              <p>{experiment.summary}</p>
+              <div class="tag-row is-genre">{experiment.genres.map((genre) => <span>{genre}</span>)}</div>
+              <div class="tag-row">{experiment.stack.map((item) => <span>#{item}</span>)}</div>
+              <div class="card-links">
+                {experiment.status === "live" && experiment.href
+                  ? <a class="card-arrow-link" href={experiment.href}>Открыть эксперимент <span class="card-arrow" aria-hidden="true">↗</span></a>
+                  : <span class="card-arrow-link is-muted">Ещё в работе</span>}
+                {experiment.status === "live" && experiment.href && experiment.repo
+                  ? <a class="card-repo-link" href={experiment.repo}>Код</a>
+                  : null}
+              </div>
+            </article>
+          ))}
+        </div>
+        <div class="empty-state" data-lab-empty>Под такой набор фасетов экспериментов пока нет — снимите часть фильтров.</div>
+      </>
     )}
   </section>
+  <script is:inline>
+    (() => {
+      const grid = document.querySelector("[data-lab-grid]");
+      if (!grid) return;
+      const cards = [...grid.querySelectorAll("[data-kind='experiment']")];
+      const empty = document.querySelector("[data-lab-empty]");
+      const count = document.querySelector("[data-lab-count]");
+      const sortSelect = document.querySelector("[data-lab-sort]");
+      const state = { genre: "all", tech: "all", complexity: "all", sort: "catalog" };
+
+      const matches = (card) =>
+        (state.genre === "all" || (card.dataset.genres || "").split("|").includes(state.genre)) &&
+        (state.tech === "all" || (card.dataset.stack || "").split("|").includes(state.tech)) &&
+        (state.complexity === "all" || card.dataset.complexity === state.complexity);
+
+      const order = (card) => Number(card.dataset.index);
+      const compare = (a, b) => {
+        if (state.sort === "title") return a.dataset.title.localeCompare(b.dataset.title, "ru");
+        if (state.sort === "complexity-desc") return Number(b.dataset.complexity) - Number(a.dataset.complexity) || order(a) - order(b);
+        if (state.sort === "complexity-asc") return Number(a.dataset.complexity) - Number(b.dataset.complexity) || order(a) - order(b);
+        return order(a) - order(b);
+      };
+
+      const render = () => {
+        cards.slice().sort(compare).forEach((card) => grid.append(card));
+        let shown = 0;
+        cards.forEach((card) => {
+          const visible = matches(card);
+          card.hidden = !visible;
+          if (visible) shown += 1;
+        });
+        if (empty) empty.style.display = shown ? "none" : "block";
+        if (count) count.textContent = `${shown} из ${cards.length}`;
+      };
+
+      document.querySelectorAll("[data-lab-facets] [data-facet]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const facet = button.dataset.facet;
+          state[facet] = button.dataset.value;
+          document.querySelectorAll(`[data-lab-facets] [data-facet="${facet}"]`).forEach((item) => {
+            const active = item === button;
+            item.classList.toggle("active", active);
+            item.setAttribute("aria-pressed", String(active));
+          });
+          render();
+        });
+      });
+      sortSelect?.addEventListener("change", () => { state.sort = sortSelect.value; render(); });
+    })();
+  </script>
 </Base>
 
 <style>
   .content-card.is-soon { border-style: dashed; }
+  .facet-label { display: inline-flex; align-items: center; min-height: 44px; color: var(--ink-2); font-size: .68rem; letter-spacing: .09em; text-transform: uppercase; }
+  .lab-sort { width: auto; padding-right: var(--s-5); color: var(--ink); font: inherit; }
+  .lab-count { display: inline-flex; align-items: center; min-height: 44px; color: var(--ink-2); font-size: .78rem; font-variant-numeric: tabular-nums; }
+  .tag-row.is-genre span { border: 1px solid var(--line); background: transparent; }
   .card-links { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2) var(--s-4); margin-top: auto; padding-top: var(--s-3); }
   .card-arrow-link { display: inline-flex; align-items: center; gap: 6px; color: var(--accent); font-size: .8rem; letter-spacing: .04em; }
   .card-arrow-link.is-muted { color: var(--ink-2); }
