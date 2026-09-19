@@ -31,7 +31,7 @@ export const GET: APIRoute = async ({ site }) => {
     `<item><title>${escape(item.title)}</title><link>${new URL(item.path, site).href}</link><guid>${new URL(item.path, site).href}</guid><pubDate>${item.date.toUTCString()}</pubDate><description>${escape(item.description)}</description></item>`
   )).join("");
   return new Response(
-    `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Staniverse</title><link>${new URL("/", site).href}</link><description>Связи между технологиями, памятью, медиа и местом — работы, проекты и заметки Станислава Ермоленко.</description><language>ru-ru</language><atom:link href="${new URL("/rss.xml", site).href}" rel="self" type="application/rss+xml" />${items}</channel></rss>`,
+    `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>станивёрс</title><link>${new URL("/", site).href}</link><description>Связи между технологиями, памятью, медиа и местом — работы, проекты и заметки Станислава Ермоленко.</description><language>ru-ru</language><atom:link href="${new URL("/rss.xml", site).href}" rel="self" type="application/rss+xml" />${items}</channel></rss>`,
     { headers: { "Content-Type": "application/rss+xml; charset=utf-8" } },
   );
 };

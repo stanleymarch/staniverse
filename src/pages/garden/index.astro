@@ -60,7 +60,7 @@ const records = included.map((entry) => {
     media: entry.collection === "publications" ? entry.data.media.length : 0,
     thumbnail: entry.collection === "publications" ? (entry.data.thumbnailUrl ?? entry.data.media.find((item) => item.type === "image")?.publicPath) : undefined,
     channelKey: entry.collection === "publications" ? entry.data.channel?.key : undefined,
-    channelLabel: entry.collection === "publications" && entry.data.channel?.key === "ya-ty-gorod" ? "я.ты.город." : entry.collection === "publications" && entry.data.channel?.key === "staniverse" ? "Staniverse" : undefined,
+    channelLabel: entry.collection === "publications" && entry.data.channel?.key === "ya-ty-gorod" ? "я.ты.город." : entry.collection === "publications" && entry.data.channel?.key === "staniverse" ? "станивёрс" : undefined,
     relations: relationsByRecord.get(entry.data.id) ?? [],
     projectIds: [] as string[],
   };
@@ -180,7 +180,7 @@ const cloudTopics = [...topics].sort((a, b) => b.entries.length - a.entries.leng
           <fieldset>
             <legend>Источник и свойства</legend>
             <div class="garden-filter-options">
-              <label><input type="checkbox" value="staniverse" data-channel-filter /><span>Staniverse</span></label>
+              <label><input type="checkbox" value="staniverse" data-channel-filter /><span>станивёрс</span></label>
               <label><input type="checkbox" value="ya-ty-gorod" data-channel-filter /><span>я.ты.город.</span></label>
               {relationProjects.map((project) => <label><input type="checkbox" value={project.id} data-project-filter /><span>{project.title}</span></label>)}
               <label><input type="checkbox" value="with-media" data-media-filter /><span>Только с медиа</span></label>

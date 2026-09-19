@@ -16,7 +16,7 @@ const canonical = new URL(destination, Astro.site);
     <meta name="color-scheme" content="dark" />
     <meta http-equiv="refresh" content={`0;url=${destination}`} />
     <link rel="canonical" href={canonical} />
-    <title>Страница переехала · Staniverse</title>
+    <title>Страница переехала · станивёрс</title>
     <script is:inline define:vars={{ destination }}>location.replace(destination + location.search + location.hash)</script>
   </head>
   <body><p>Страница переехала: <a href={destination}>открыть новый адрес</a>.</p></body>

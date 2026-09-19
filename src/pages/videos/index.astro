@@ -10,20 +10,20 @@ const videos = (await getCollection("publications"))
   .sort((a, b) => (b.data.date?.getTime() ?? 0) - (a.data.date?.getTime() ?? 0));
 
 /** Allowlisted channel keys carry human labels; handles stay as fallback. */
-const channelNames: Record<string, string> = { staniverse: "Staniverse", "ya-ty-gorod": "я.ты.город." };
+const channelNames: Record<string, string> = { staniverse: "станивёрс", "ya-ty-gorod": "я.ты.город." };
 const channelLabel = (channel?: { key: string; handle?: string }) =>
   channel ? channelNames[channel.key] ?? (channel.handle ? channel.handle.replace(/^@/, "") : channel.key) : "";
 
 const formatDate = (value?: Date) =>
   value ? new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "long", year: "numeric" }).format(value) : "";
 
-const description = "Видеоархив Staniverse: ролики с YouTube-каналов Staniverse и я.ты.город. со ссылками на связанные материалы сайта и первоисточник.";
+const description = "Видеоархив станивёрса: ролики с YouTube-каналов станивёрс и я.ты.город. со ссылками на связанные материалы сайта и первоисточник.";
 
 const collectionJsonLd: Record<string, unknown> = {
   "@type": "CollectionPage",
   "@id": new URL("/videos/#collection", Astro.site).href,
   url: new URL("/videos/", Astro.site).href,
-  name: "Видеоархив Staniverse",
+  name: "Видеоархив станивёрса",
   description,
   inLanguage: "ru-RU",
   isPartOf: { "@id": new URL("/#website", Astro.site).href },
@@ -54,7 +54,7 @@ const collectionJsonLd: Record<string, unknown> = {
   <header class="catalog-hero">
     <div class="section-kicker">Видеоархив</div>
     <h1>Видео</h1>
-    <p class="hero-lead">Ролики с YouTube-каналов <strong>Staniverse</strong> и <strong>я.ты.город.</strong> Здесь видео собраны как часть личного архива: у каждого есть страница на сайте с контекстом и связями, а ссылка на YouTube ведёт к первоисточнику. В списке нет встроенных плееров: видео открываются на своих страницах, а плеер появляется только по вашему действию.</p>
+    <p class="hero-lead">Ролики с YouTube-каналов <strong>станивёрс</strong> и <strong>я.ты.город.</strong> Здесь видео собраны как часть личного архива: у каждого есть страница на сайте с контекстом и связями, а ссылка на YouTube ведёт к первоисточнику. В списке нет встроенных плееров: видео открываются на своих страницах по клику — чтобы не отправлять ваш браузер на серверы Google без необходимости.</p>
     {videos.length > 0 && <p class="video-archive-note">{videos.length}{" "}видео · от новых к старым</p>}
   </header>
 

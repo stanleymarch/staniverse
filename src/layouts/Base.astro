@@ -20,7 +20,7 @@ interface Props {
 }
 // One description for the whole site: XR, AI-автоматизация, архивы и медиа для
 // бизнеса, музеев и культурных проектов — no audience is the afterthought here.
-const siteDescription = "Staniverse — портфолио Станислава Ермоленко: XR и WebXR, AI-автоматизация рабочих процессов, цифровые архивы, сайты и медиа — для бизнеса, музеев и культурных проектов.";
+const siteDescription = "станивёрс — портфолио Станислава Ермоленко: XR и WebXR, AI-автоматизация рабочих процессов, цифровые архивы, сайты и медиа — для бизнеса, музеев и культурных проектов.";
 const {
   title,
   description = siteDescription,
@@ -102,9 +102,10 @@ const languageSwitch = (() => {
   const pair = alternatesFor(Astro.url.pathname).find((alternate) => alternate.lang !== lang);
   return pair ? { lang: pair.lang as "ru" | "en", href: pair.href } : undefined;
 })();
-/* The channel is called Staniverse in Latin everywhere it is written, including
-   the header wordmark: the browser tab and every share card must match it. */
-const siteName = "Staniverse";
+/* The site brand is «станивёрс» — lowercase Cyrillic, the way the author writes it.
+   Latin "Staniverse" stays a machine-readable alias: domain, handles, schema.org
+   alternateName. Page titles, share cards and the wordmark follow the Cyrillic. */
+const siteName = "станивёрс";
 
 const brandOnly = title.toLocaleLowerCase("ru-RU") === siteName;
 const pageTitle = brandOnly ? siteName : `${title} · ${siteName}`;
@@ -118,8 +119,7 @@ const baseGraph: Record<string, unknown>[] = [
     "@type": "WebSite",
     "@id": websiteId,
     url: new URL("/", Astro.site).href,
-    name: siteName,
-    alternateName: "станивёрс",
+    alternateName: "Staniverse",
     description: siteDescription,
     inLanguage,
     creator: { "@id": personId },
@@ -210,7 +210,7 @@ const articleLike = ["works", "projects", "garden", "articles", "topics"].includ
     <link rel="canonical" href={canonical} />
     {alternateLinks.map((alternate) => <link rel="alternate" hreflang={alternate.lang} href={alternate.href} />)}
     {alternateLinks.length > 0 && <link rel="alternate" hreflang="x-default" href={alternateLinks[0].href} />}
-    <link rel="alternate" type="application/rss+xml" title="Staniverse" href={new URL("/rss.xml", Astro.site).href} />
+    <link rel="alternate" type="application/rss+xml" title="станивёрс" href={new URL("/rss.xml", Astro.site).href} />
     <meta property="og:type" content={articleLike ? "article" : "website"} />
     <meta property="og:site_name" content={siteName} />
     <meta property="og:locale" content={localeTag} />
@@ -237,7 +237,7 @@ const articleLike = ["works", "projects", "garden", "articles", "topics"].includ
     <a class="skip-link" href="#content">{chrome.skipLink}</a>
     {!immersive && (
       <header class:list={["site-header", languageSwitch && "has-language-switch"]}>
-        <a class="brand" href="/" aria-label="Staniverse"><span class="brand-mark">s</span><span>staniverse</span></a>
+        <a class="brand" href="/" aria-label="станивёрс"><span class="brand-mark">s</span><span>станивёрс</span></a>
         <nav id="primary-navigation" aria-label={chrome.menu}>
           {chrome.nav.map(([href, label]) => <a href={href}>{label}</a>)}
         </nav>
@@ -264,7 +264,7 @@ const articleLike = ["works", "projects", "garden", "articles", "topics"].includ
     )}
     {!immersive && (
       <footer class="site-footer">
-        <div><strong>Staniverse</strong><p>{chrome.tagline}</p></div>
+        <div><strong>станивёрс</strong><p>{chrome.tagline}</p></div>
         <div class="footer-links">{chrome.footerLinks.map(([href, label]) => <a href={href}>{label}</a>)}<a href="mailto:stas@staniverse.xyz">{lang === "en" ? "Email" : "Почта"}</a><a href="https://t.me/staniverse" target="_blank" rel="noreferrer">Telegram</a><a href="https://vk.com/staniverse" target="_blank" rel="noreferrer">VK</a><a href="https://www.youtube.com/@staniverse" target="_blank" rel="noreferrer">YouTube</a><a href="https://vk.com/yatygorod" target="_blank" rel="noreferrer">VK я.ты.город.</a><a href="https://www.youtube.com/@yatygorod" target="_blank" rel="noreferrer">YouTube я.ты.город.</a></div>
       </footer>
     )}

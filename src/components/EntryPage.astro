@@ -111,7 +111,7 @@ const entryJsonLd: Record<string, unknown> = {
   <article class="entry-shell">
     <header class="entry-hero">
       <div class="entry-hero-meta"><span class="section-kicker">{kindLabel[entry.data.kind]}{status && ` · ${status}`}</span>{showPublished && published && <time datetime={published.toISOString()}>{publishedLabel}</time>}</div>
-      <nav class="entry-breadcrumbs" aria-label="Хлебные крошки"><a href="/">Staniverse</a> <span aria-hidden="true">/</span> <a href={parentCrumb.href}>{parentCrumb.name}</a> <span aria-hidden="true">/</span> <span aria-current="page">{entry.data.title}</span></nav>
+      <nav class="entry-breadcrumbs" aria-label="Хлебные крошки"><a href="/">станивёрс</a> <span aria-hidden="true">/</span> <a href={parentCrumb.href}>{parentCrumb.name}</a> <span aria-hidden="true">/</span> <span aria-current="page">{entry.data.title}</span></nav>
       <h1 class:list={{ "is-long": entry.data.title.length > 64, "is-very-long": entry.data.title.length > 105 }}>{entry.data.title}</h1>
       {(showReadingEstimate || connectionCount > 0) && <div class="entry-reading-meta" aria-label="Параметры материала">
         {showReadingEstimate && <span>{readingLabel}</span>}
