@@ -59,6 +59,10 @@ def rich_text(node: Any) -> dict[str, Any]:
 
 def rich_block(block: Any, photos: dict[int, str]) -> list[dict[str, Any]]:
     name = type(block).__name__
+    # Current layers name article headings PageBlockHeading1..6; the export snapshot
+    # uses the older PageBlockTitle/Header set. Both must land as one "heading" node.
+    if name.startswith("PageBlockHeading") and name[-1].isdigit():
+        return [{"type": "heading", "level": int(name[-1]), "text": rich_text(getattr(block, "text", None))}]
     headings = {"PageBlockTitle": 1, "PageBlockHeader": 2, "PageBlockSubheader": 3, "PageBlockKicker": 4, "PageBlockSubtitle": 2}
     if name in headings:
         return [{"type": "heading", "level": headings[name], "text": rich_text(block.text)}]
@@ -69,7 +73,13 @@ def rich_block(block: Any, photos: dict[int, str]) -> list[dict[str, Any]]:
         return [{"type": "paragraph", "text": text}]
     if name == "PageBlockPhoto":
         path = photos.get(int(block.photo_id))
-        return [{"type": "photo", "photo": path}] if path else []
+        if not path:
+            return []
+        node: dict[str, Any] = {"type": "photo", "photo": path}
+        caption = rich_text(getattr(block, "caption", None))
+        if caption.get("text"):
+            node["caption"] = caption
+        return [node]
     if name in {"PageBlockCollage", "PageBlockSlideshow"}:
         items = [node for item in block.items for node in rich_block(item, photos)]
         return [{"type": "slideshow", "items": items}]
@@ -79,6 +89,23 @@ def rich_block(block: Any, photos: dict[int, str]) -> list[dict[str, Any]]:
     if nested:
         return [node for item in nested for node in rich_block(getattr(item, "item", item), photos)]
     return []
+
+
+async def rich_message_payload(client: TelegramClient, message: Any, media_dir: Path) -> dict[str, Any] | None:
+    """Telegram Articles carry their body on the message itself (`rich_message`),
+    not in a webpage cached page. Both use the same PageBlock/Text node types, so
+    the blocks take the same path — only the photos need downloading here."""
+    rich = getattr(message, "rich_message", None)
+    if rich is None:
+        return None
+    media_dir.mkdir(parents=True, exist_ok=True)
+    photos: dict[int, str] = {}
+    for photo in getattr(rich, "photos", []) or []:
+        downloaded = await client.download_media(photo, file=media_dir)
+        if downloaded:
+            photos[int(photo.id)] = Path(downloaded).resolve().relative_to(media_dir.parent.resolve()).as_posix()
+    blocks = [node for block in (getattr(rich, "blocks", []) or []) for node in rich_block(block, photos)]
+    return {"rtl": bool(getattr(rich, "rtl", False)), "part": bool(getattr(rich, "part", False)), "blocks": blocks} if blocks else None
 
 
 async def cached_page_payload(client: TelegramClient, message: Any, media_dir: Path) -> dict[str, Any] | None:
@@ -112,7 +139,7 @@ async def serialize_message(client: TelegramClient, message: Any, output: Path) 
     reply_id = getattr(getattr(message, "reply_to", None), "reply_to_msg_id", None)
     if reply_id:
         item["reply_to_message_id"] = int(reply_id)
-    rich = await cached_page_payload(client, message, output / "media")
+    rich = await rich_message_payload(client, message, output / "media") or await cached_page_payload(client, message, output / "media")
     if rich:
         item["rich_message"] = rich
     if message.photo or message.document or message.video or message.audio or message.voice:
