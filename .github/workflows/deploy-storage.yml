@@ -44,6 +44,7 @@ jobs:
       - name: Validate deployment configuration
         env:
           PUBLIC_YANDEX_METRIKA_ID: ${{ vars.PUBLIC_YANDEX_METRIKA_ID }}
+          YANDEX_WEBMASTER_VERIFICATION: ${{ vars.YANDEX_WEBMASTER_VERIFICATION }}
         run: |
           test -n "$AWS_ACCESS_KEY_ID"
           test -n "$AWS_SECRET_ACCESS_KEY"
@@ -52,6 +53,7 @@ jobs:
           test -n "$ENDPOINT"
           test -n "$BUCKET"
           [[ "$PUBLIC_YANDEX_METRIKA_ID" =~ ^[0-9]+$ ]]
+          test -n "$YANDEX_WEBMASTER_VERIFICATION"
 
       - name: Unit tests
         run: npm test
