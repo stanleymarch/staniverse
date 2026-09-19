@@ -35,7 +35,7 @@
 - Every material page carries a local graph of reviewed relations; automatic topic suggestions are labeled "Автоматически найденные темы" and rendered as hypotheses.
 - Publications keep original Telegram text, media order, author hashtags (# source tags) and source links; they are never rewritten by LLMs.
 - Citation preference: cite the material page URL, not the raw Telegram link, when referring to curated content.
-- Do not fetch `/media/` archive originals for indexing or model ingestion. Use the material page text, metadata, poster context and source links instead.
+- Do not fetch `https://staniverse.xyz/media/` archive originals for indexing or model ingestion. Use the material page text, metadata, poster context and source links instead.
 
 ## Change cadence
 Updated incrementally from the Telegram archive and editorial passes; see section pages for per-item dates.
