@@ -10,7 +10,7 @@ entities: []
 featured: true
 updated: "2026-04-15"
 legacySource: "F:/Code/active/sverseq/content/lab/mnemoform.md"
-relations: [{"target":"publication:telegram:staniverse:1031","type":"documents","evidence":"editorial","confidence":0.9},{"target":"project:albina","type":"related","evidence":"editorial","confidence":0.8},{"target":"project:staniverse","type":"related","evidence":"editorial","confidence":0.8}]
+relations: [{"target":"experiment:parametrick","type":"grew-from","evidence":"editorial","confidence":1},{"target":"publication:telegram:staniverse:1031","type":"documents","evidence":"editorial","confidence":0.9},{"target":"project:albina","type":"related","evidence":"editorial","confidence":0.8},{"target":"project:staniverse","type":"related","evidence":"editorial","confidence":0.8}]
 ---
 ## Суть
 `Mnemoform` — это проект о переводе воспоминаний, телесных сигналов и личных историй в осязаемые формы — не только физические объекты, но и генеративную графику и звук. Меня здесь интересует не абстрактная арт-метафора, а рабочий пайплайн: как переживание, голос, пульс, спектр аудиосигнала или другой биодатчик становятся формой, которую можно напечатать, использовать и хранить — или пережить через генеративную визуализацию в `TouchDesigner` и `MIDI`-сигналы для музыки в `Ableton`.
@@ -106,4 +106,5 @@ relations: [{"target":"publication:telegram:staniverse:1031","type":"documents",
 `Mnemoform` хорош тем, что переводит очень абстрактную тему памяти и цифровой идентичности в ясный материальный жест. Здесь можно соединить искусство, сенсоры, фабрикацию и личные истории в форме, которая понятна даже человеку вне XR- и AI-контекста, а наличие демо уже даёт проекту не только идею, но и доказательство жизнеспособности. Расширение в генеративную графику и звук делает проект мультимодальным — воспоминание может звучать и двигаться, а не только стоять на полке. Это один из тех проектов, где мне особенно нравится встреча цифрового и тактильного.
 
 ## Ссылки
-- https://parametrick.staniverse.xyz/
+
+- [Живое демо «Параметрик» — эксперимент в лаборатории](/experiments/parametrick/) ([запуск](https://parametrick.staniverse.xyz/))

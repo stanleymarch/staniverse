@@ -14,7 +14,8 @@ complexity: 3
 tags: ["ar","webxr","8th-wall","retro"]
 entities: []
 featured: false
-updated: "2026-09-19"
+date: "2026-09-06"
+updated: "2026-09-11"
 relations: []
 ---
 ## Что это

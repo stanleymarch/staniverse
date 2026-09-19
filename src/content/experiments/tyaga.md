@@ -13,6 +13,7 @@ complexity: 1
 tags: ["web","art"]
 entities: []
 featured: true
+date: "2026-05-19"
 updated: "2026-09-19"
 relations: [{"target":"publication:telegram:staniverse:1025","type":"documents","evidence":"editorial","confidence":1},{"target":"project:staniverse","type":"related","evidence":"editorial","confidence":0.8}]
 ---
