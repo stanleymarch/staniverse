@@ -335,6 +335,28 @@ const articleLike = ["works", "projects", "garden", "articles", "topics"].includ
       }
     });
   });
+  // Glass spotlight: each card exposes its pointer position as --mx/--my,
+  // so the ::before pool follows the cursor. Fine pointers only, calm respected.
+  if (matchMedia("(pointer: fine)").matches && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    let spotFrame = 0;
+    let spotCard: HTMLElement | null = null;
+    let spotX = 0;
+    let spotY = 0;
+    const paintSpot = () => {
+      spotFrame = 0;
+      spotCard?.style.setProperty("--mx", `${spotX.toFixed(1)}px`);
+      spotCard?.style.setProperty("--my", `${spotY.toFixed(1)}px`);
+    };
+    addEventListener("pointermove", (event) => {
+      const card = (event.target as Element | null)?.closest<HTMLElement>(".content-card");
+      if (!card) return;
+      const rect = card.getBoundingClientRect();
+      spotCard = card;
+      spotX = event.clientX - rect.left;
+      spotY = event.clientY - rect.top;
+      if (!spotFrame) spotFrame = requestAnimationFrame(paintSpot);
+    }, { passive: true });
+  }
 
   // One reveal system for the whole site: every section and catalogue hero rises in once,
   // as a unit, with the same timing everywhere; nothing moves when the visitor asked for calm.
