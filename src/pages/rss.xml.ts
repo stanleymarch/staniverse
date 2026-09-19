@@ -4,9 +4,9 @@ import { join } from "node:path";
 import { allEntries, hrefFor } from "../lib/content";
 
 /**
- * Site feed: authored material only (articles, own works and projects, garden
- * posts), freshest first, capped so the file stays small. Parameters filtered
- * by garden UI never reach here — a feed entry is always the canonical URL.
+ * Site feed: authored material only (articles, own works, projects, experiments
+ * and garden posts), freshest first, capped so the file stays small. Parameters
+ * filtered by garden UI never reach here — a feed entry is always the canonical URL.
  *
  * A publication whose cover exists on our own disk also carries it as an
  * `<enclosure>`, so a cross-posting service (VK) attaches the same picture the
@@ -42,7 +42,7 @@ const localCover = (publicPath: string | undefined) => {
 
 export const GET: APIRoute = async ({ site }) => {
   const entries = (await allEntries())
-    .filter((entry) => ["articles", "works", "projects", "publications"].includes(entry.collection))
+    .filter((entry) => ["articles", "works", "projects", "experiments", "publications"].includes(entry.collection))
     .map((entry) => {
       const publication = entry.collection === "publications" ? entry.data : undefined;
       const coverPath = publication
