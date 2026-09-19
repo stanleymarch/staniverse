@@ -58,7 +58,7 @@ const records = included.map((entry) => {
       return { id, label, aliases: definition?.aliases ?? [], origin: normalizeTopics(entry.data.sourceTags ?? entry.data.tags).includes(id) ? "source" : "automatic", href: `/topics/${topicSlug(label)}/`, related: [...routes.related, ...routes.companions] };
     }),
     media: entry.collection === "publications" ? entry.data.media.length : 0,
-    thumbnail: entry.collection === "publications" ? entry.data.thumbnailUrl : undefined,
+    thumbnail: entry.collection === "publications" ? (entry.data.thumbnailUrl ?? entry.data.media.find((item) => item.type === "image")?.publicPath) : undefined,
     channelKey: entry.collection === "publications" ? entry.data.channel?.key : undefined,
     channelLabel: entry.collection === "publications" && entry.data.channel?.key === "ya-ty-gorod" ? "я.ты.город." : entry.collection === "publications" && entry.data.channel?.key === "staniverse" ? "Staniverse" : undefined,
     relations: relationsByRecord.get(entry.data.id) ?? [],
@@ -148,65 +148,73 @@ const cloudTopics = [...topics].sort((a, b) => b.entries.length - a.entries.leng
         </div>
         <button type="button" class="garden-filter-toggle" data-filter-toggle aria-expanded="false" aria-controls="garden-facets">Ещё фильтры</button>
       </div>
-
-      <div class="garden-facets" id="garden-facets" aria-label="Дополнительные фильтры" data-garden-facets hidden>
-        <fieldset>
-          <legend>Формат</legend>
-          <div class="garden-filter-options">
-            <label><input type="checkbox" value="project" data-kind-filter /><span>Проекты</span></label>
-            <label><input type="checkbox" value="work" data-kind-filter /><span>Работы</span></label>
-            <label><input type="checkbox" value="telegram-post" data-kind-filter /><span>Посты</span></label>
-            <label><input type="checkbox" value="telegram-article" data-kind-filter /><span>Telegram-статьи</span></label>
-            <label><input type="checkbox" value="article" data-kind-filter /><span>Авторские статьи</span></label>
-            <label><input type="checkbox" value="youtube-video" data-kind-filter /><span>Видео</span></label>
-          </div>
-        </fieldset>
-        <fieldset>
-          <legend>Темы</legend>
-          <div class="garden-filter-options garden-topic-options">{topics.map((topic) => <label><input type="checkbox" value={topic.id} data-topic-filter /><span>{topic.name}</span><small>{topic.entries.length}</small></label>)}</div>
-        </fieldset>
-        <fieldset>
-          <legend>Источник и свойства</legend>
-          <div class="garden-filter-options">
-            <label><input type="checkbox" value="staniverse" data-channel-filter /><span>Staniverse</span></label>
-            <label><input type="checkbox" value="ya-ty-gorod" data-channel-filter /><span>я.ты.город.</span></label>
-            {relationProjects.map((project) => <label><input type="checkbox" value={project.id} data-project-filter /><span>{project.title}</span></label>)}
-            <label><input type="checkbox" value="with-media" data-media-filter /><span>Только с медиа</span></label>
-          </div>
-        </fieldset>
-        <button type="button" class="garden-reset" data-garden-reset>Сбросить фильтры</button>
-      </div>
-
       <div class="garden-result-head">
         <p data-active-filters>Все темы и форматы</p>
       </div>
     </section>
 
+    <div class="garden-filter-backdrop" data-filter-backdrop hidden></div>
+
     <div class="garden-layout">
-      <section class="garden-results" aria-label="Материалы сада">
-        <div class="garden-list" data-garden-list>
-          {initialRecords.map((record) => (
-            <a class={`garden-row${record.thumbnail ? " has-thumbnail" : ""}`} href={record.href}>
-              <div class="garden-row-meta">
-                {record.thumbnail && <img class="garden-row-thumbnail" src={record.thumbnail} alt="" loading="lazy" width="320" height="180" />}
-                <span>{record.channelLabel || record.kindLabel}</span>
-              </div>
-              <div class="garden-row-body">
-                <h2>{record.title}</h2>
-                <p>{record.summary}</p>
-                <div class="garden-row-topics">{record.topics.slice(0, 4).map((topic) => <span class={topic.origin === "automatic" ? "is-automatic" : "is-source"}>{topic.label}</span>)}</div>
-              </div>
-              <time class="garden-row-date" datetime={record.date}>{formatDate(record.date)}</time>
-            </a>
-          ))}
+      <aside class="garden-side" aria-label="Фильтры материалов">
+        <div class="garden-filter-sheet-head">
+          <strong>Фильтры</strong>
+          <button type="button" data-filter-close aria-label="Закрыть фильтры">Закрыть</button>
         </div>
-        <div class="garden-empty" data-garden-empty hidden>
-          <p><strong>Ничего не найдено.</strong> Уберите часть фильтров или измените запрос.</p>
-          <button class="button primary" type="button" data-garden-reset>Сбросить фильтры</button>
+        <div class="garden-facets" id="garden-facets" aria-label="Дополнительные фильтры" data-garden-facets hidden>
+          <fieldset>
+            <legend>Формат</legend>
+            <div class="garden-filter-options">
+              <label><input type="checkbox" value="project" data-kind-filter /><span>Проекты</span></label>
+              <label><input type="checkbox" value="work" data-kind-filter /><span>Работы</span></label>
+              <label><input type="checkbox" value="telegram-post" data-kind-filter /><span>Посты</span></label>
+              <label><input type="checkbox" value="telegram-article" data-kind-filter /><span>Telegram-статьи</span></label>
+              <label><input type="checkbox" value="article" data-kind-filter /><span>Авторские статьи</span></label>
+              <label><input type="checkbox" value="youtube-video" data-kind-filter /><span>Видео</span></label>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>Темы</legend>
+            <div class="garden-filter-options garden-topic-options">{topics.map((topic) => <label><input type="checkbox" value={topic.id} data-topic-filter /><span>{topic.name}</span><small>{topic.entries.length}</small></label>)}</div>
+          </fieldset>
+          <fieldset>
+            <legend>Источник и свойства</legend>
+            <div class="garden-filter-options">
+              <label><input type="checkbox" value="staniverse" data-channel-filter /><span>Staniverse</span></label>
+              <label><input type="checkbox" value="ya-ty-gorod" data-channel-filter /><span>я.ты.город.</span></label>
+              {relationProjects.map((project) => <label><input type="checkbox" value={project.id} data-project-filter /><span>{project.title}</span></label>)}
+              <label><input type="checkbox" value="with-media" data-media-filter /><span>Только с медиа</span></label>
+            </div>
+          </fieldset>
+          <button type="button" class="garden-reset" data-garden-reset>Сбросить фильтры</button>
         </div>
-        <button class="garden-more" type="button" data-garden-more>Показать ещё</button>
-      </section>
-      <aside class="garden-map-panel" data-garden-map hidden><div class="section-kicker">Карта контекста</div><h2>Связи выбранного набора</h2><p>Сплошные линии означают доказанные связи. Пунктиром показаны тематические и смысловые рекомендации.</p><p class="garden-map-count" data-garden-map-count></p><p class="garden-map-pan-hint">Проведите по карте, чтобы увидеть остальные узлы.</p><div class="garden-map-viewport" tabindex="0" aria-label="Панорамная область карты"><svg class="garden-map-svg" data-garden-map-svg viewBox="0 0 800 560" role="img" aria-label="Граф отфильтрованных материалов"></svg></div><ol class="garden-map-list" data-garden-map-list aria-label="Материалы на карте"></ol><p class="garden-map-note">Выберите материал, чтобы открыть его локальный граф. Для пространственного путешествия есть <a href="/universe/">XR-вселенная связей</a>.</p></aside>
+      </aside>
+      <div class="garden-main">
+        <section class="garden-results" aria-label="Материалы сада">
+          <div class="garden-list" data-garden-list>
+            {initialRecords.map((record) => (
+              <a class={`garden-row${record.thumbnail ? " has-thumbnail" : ""}`} href={record.href}>
+                <div class="garden-row-meta">
+                  {record.thumbnail && <img class="garden-row-thumbnail" src={record.thumbnail} alt="" loading="lazy" width="320" height="180" />}
+                  <span>{record.channelLabel || record.kindLabel}</span>
+                </div>
+                <div class="garden-row-body">
+                  <h2>{record.title}</h2>
+                  <p>{record.summary}</p>
+                  <div class="garden-row-topics">{record.topics.slice(0, 4).map((topic) => <span class={topic.origin === "automatic" ? "is-automatic" : "is-source"}>{topic.label}</span>)}</div>
+                </div>
+                <time class="garden-row-date" datetime={record.date}>{formatDate(record.date)}</time>
+              </a>
+            ))}
+          </div>
+          <div class="garden-empty" data-garden-empty hidden>
+            <p><strong>Ничего не найдено.</strong> Уберите часть фильтров или измените запрос.</p>
+            <button class="button primary" type="button" data-garden-reset>Сбросить фильтры</button>
+          </div>
+          <button class="garden-more" type="button" data-garden-more>Показать ещё</button>
+        </section>
+        <aside class="garden-map-panel" data-garden-map hidden><div class="section-kicker">Карта контекста</div><h2>Связи выбранного набора</h2><p>Сплошные линии означают доказанные связи. Пунктиром показаны тематические и смысловые рекомендации.</p><p class="garden-map-count" data-garden-map-count></p><p class="garden-map-pan-hint">Проведите по карте, чтобы увидеть остальные узлы.</p><div class="garden-map-viewport" tabindex="0" aria-label="Панорамная область карты"><svg class="garden-map-svg" data-garden-map-svg viewBox="0 0 800 560" role="img" aria-label="Граф отфильтрованных материалов"></svg></div><ol class="garden-map-list" data-garden-map-list aria-label="Материалы на карте"></ol><p class="garden-map-note">Выберите материал, чтобы открыть его локальный граф. Для пространственного путешествия есть <a href="/universe/">XR-вселенная связей</a>.</p></aside>
+      </div>
     </div>
   <script is:inline type="application/json" id="garden-records" set:html={JSON.stringify(records).replace(/</g,"\\u003c")} />
   <script>

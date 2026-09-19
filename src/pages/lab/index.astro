@@ -26,24 +26,31 @@ const jsonLd = {
     <p class="hero-lead">Небольшие самостоятельные приложения: WebXR-сцены, демо SDK, пространственные механики. Каждое собирается из своего каталога <code>experiments/&lt;имя&gt;/</code> и публикуется по адресу <code>/lab/&lt;имя&gt;/</code> тем же git-пушем, что и основной сайт — без ручных загрузок.</p>
   </header>
   <section class="section">
-    <div class="card-grid">
-      {experiments.map((experiment) => (
-        <article class:list={["content-card", { "is-soon": experiment.status === "soon" }]} data-kind="experiment">
-          <div class="card-meta">
-            <span>Эксперимент</span>
-            {experiment.status === "live"
-              ? <span class="status">Работает</span>
-              : <span class="status">Скоро</span>}
-          </div>
-          <h2>{experiment.title}</h2>
-          <p>{experiment.summary}</p>
-          <div class="tag-row">{experiment.stack.map((item) => <span>#{item}</span>)}</div>
-          {experiment.status === "live" && experiment.href
-            ? <a class="card-arrow-link" href={experiment.href}>Открыть эксперимент <span class="card-arrow" aria-hidden="true">↗</span></a>
-            : <span class="card-arrow-link is-muted">Ещё в работе</span>}
-        </article>
-      ))}
-    </div>
+    {experiments.length === 0 ? (
+      <div class="lab-empty">
+        <p><strong>Пока пусто — и это честно.</strong></p>
+        <p>Карточки появятся здесь одновременно с первыми работающими экспериментами: конвейер сборки и публикации уже проверен, новые несут реальные демо, а не заглушки.</p>
+      </div>
+    ) : (
+      <div class="card-grid">
+        {experiments.map((experiment) => (
+          <article class:list={["content-card", { "is-soon": experiment.status === "soon" }]} data-kind="experiment">
+            <div class="card-meta">
+              <span>Эксперимент</span>
+              {experiment.status === "live"
+                ? <span class="status">Работает</span>
+                : <span class="status">Скоро</span>}
+            </div>
+            <h2>{experiment.title}</h2>
+            <p>{experiment.summary}</p>
+            <div class="tag-row">{experiment.stack.map((item) => <span>#{item}</span>)}</div>
+            {experiment.status === "live" && experiment.href
+              ? <a class="card-arrow-link" href={experiment.href}>Открыть эксперимент <span class="card-arrow" aria-hidden="true">↗</span></a>
+              : <span class="card-arrow-link is-muted">Ещё в работе</span>}
+          </article>
+        ))}
+      </div>
+    )}
   </section>
 </Base>
 
@@ -52,4 +59,6 @@ const jsonLd = {
   .card-arrow-link { display: inline-flex; align-items: center; gap: 6px; margin-top: auto; padding-top: var(--s-3); color: var(--accent); font-size: .8rem; letter-spacing: .04em; }
   .card-arrow-link.is-muted { color: var(--ink-2); }
   .hero-lead code { font-family: ui-monospace, monospace; font-size: .85em; color: var(--ink); }
+  .lab-empty { display: grid; gap: var(--s-2); max-width: 44rem; padding: var(--s-6) var(--s-5); border: 1px dashed var(--line); border-radius: var(--radius-1); color: var(--ink-2); }
+  .lab-empty strong { color: var(--ink); font-weight: 550; }
 </style>

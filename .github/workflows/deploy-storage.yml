@@ -68,48 +68,93 @@ jobs:
       - name: Verify build output
         run: test -f dist/index.html && test -f dist/404.html
 
-      # 1) HTML: prune only HTML keys and never cache them. /lab/<name>/ is
-      #    owned by lab.yml, so this pass keeps those independent deployments
-      #    while still updating the Astro directory page at /lab/index.html.
-      - name: Sync HTML (prune, no-cache)
+      # A fresh Astro build gives every file a new mtime, so a plain `s3 sync`
+      # re-PUTs nearly the whole 2000-page site. The manifest compares content
+      # hashes instead: docs-only pushes cost zero PUTs, and a new post uploads
+      # only pages and indexes whose bytes really changed.
+      - name: Fetch previous deployment manifest
+        id: previous
         run: |
-          aws s3 sync dist/ "s3://$BUCKET/" --delete \
-            --endpoint-url "$ENDPOINT" \
-            --exclude "*" --include "*.html" \
-            --exclude "lab/*" --include "lab/index.html" \
-            --cache-control "public, max-age=0, must-revalidate" \
-            --no-progress
+          mkdir -p tmp
+          if aws s3 cp "s3://$BUCKET/.deploy-manifest.json" tmp/storage-manifest.prev.json \
+            --endpoint-url "$ENDPOINT" --no-progress --only-show-errors; then
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "found=false" >> "$GITHUB_OUTPUT"
+          fi
 
-      # 2) Hashed assets: immutable for a year.
-      - name: Sync hashed assets (immutable)
+      # One-time migration: discover matching remote objects by ETag/size so
+      # introducing the manifest does not itself cause another full-site PUT.
+      - name: Inventory existing objects for manifest bootstrap
+        if: steps.previous.outputs.found == 'false'
         run: |
-          aws s3 sync dist/_astro "s3://$BUCKET/_astro" --delete \
+          aws --endpoint-url "$ENDPOINT" s3api list-objects-v2 \
+            --bucket "$BUCKET" \
+            --output json > tmp/storage-remote-inventory.json
+
+      - name: Plan content-hash delta
+        id: plan
+        env:
+          DEPLOY_ROOT: dist
+          DEPLOY_PREVIOUS_MANIFEST: tmp/storage-manifest.prev.json
+          DEPLOY_REMOTE_INVENTORY: tmp/storage-remote-inventory.json
+          DEPLOY_OUTPUT: tmp/storage-deploy
+        run: node scripts/plan-storage-deploy.mjs
+
+      - name: Upload changed HTML (no-cache)
+        if: steps.plan.outputs.html != '0'
+        run: |
+          aws s3 cp tmp/storage-deploy/upload/html/ "s3://$BUCKET/" --recursive \
+            --endpoint-url "$ENDPOINT" \
+            --cache-control "public, max-age=0, must-revalidate" \
+            --no-progress --only-show-errors
+
+      - name: Upload changed hashed assets (immutable)
+        if: steps.plan.outputs.immutable != '0'
+        run: |
+          aws s3 cp tmp/storage-deploy/upload/immutable/ "s3://$BUCKET/" --recursive \
             --endpoint-url "$ENDPOINT" \
             --cache-control "public, max-age=31536000, immutable" \
-            --no-progress
+            --no-progress --only-show-errors
 
-      # 3) Archive media names are stable. A month of browser/CDN caching keeps
-      #    repeat video ranges away from Object Storage without making a replaced
-      #    object effectively permanent.
-      - name: Sync media (long cache)
+      - name: Upload changed media (long cache)
+        if: steps.plan.outputs.media != '0'
         run: |
-          aws s3 sync dist/media "s3://$BUCKET/media" --delete \
+          aws s3 cp tmp/storage-deploy/upload/media/ "s3://$BUCKET/" --recursive \
             --endpoint-url "$ENDPOINT" \
             --cache-control "public, max-age=2592000, must-revalidate" \
-            --no-progress
+            --no-progress --only-show-errors
 
-      # 4) Remaining static files (fonts, scripts, feeds, images): one day.
-      - name: Sync other static assets (short cache)
+      - name: Upload changed static assets (short cache)
+        if: steps.plan.outputs.other != '0'
         run: |
-          aws s3 sync dist/ "s3://$BUCKET/" --delete \
+          aws s3 cp tmp/storage-deploy/upload/other/ "s3://$BUCKET/" --recursive \
             --endpoint-url "$ENDPOINT" \
-            --exclude "*.html" --exclude "_astro/*" --exclude "media/*" --exclude "lab/*" \
             --cache-control "public, max-age=86400, must-revalidate" \
-            --no-progress
+            --no-progress --only-show-errors
 
-      # 5) CDN purge only when a CDN resource is configured.
+      - name: Delete stale owned objects
+        if: steps.plan.outputs.deleted != '0'
+        run: |
+          for payload in tmp/storage-deploy/delete/*.json; do
+            aws --endpoint-url "$ENDPOINT" s3api delete-objects \
+              --bucket "$BUCKET" \
+              --delete "file://$payload"
+          done
+
+      # Commit last: the manifest always describes a fully applied deployment.
+      - name: Publish deployment manifest
+        if: steps.plan.outputs.manifest_changed == 'true'
+        run: |
+          aws s3 cp tmp/storage-deploy/manifest.json "s3://$BUCKET/.deploy-manifest.json" \
+            --endpoint-url "$ENDPOINT" \
+            --cache-control "no-cache" \
+            --content-type "application/json" \
+            --no-progress --only-show-errors
+
+      # Purge only when a CDN exists and object bytes actually changed.
       - name: Purge CDN cache
-        if: env.CDN_RESOURCE_ID != ''
+        if: env.CDN_RESOURCE_ID != '' && (steps.plan.outputs.changed != '0' || steps.plan.outputs.deleted != '0')
         env:
           YC_SA_KEY: ${{ secrets.YC_SA_KEY }}
           YC_FOLDER_ID: ${{ vars.YC_FOLDER_ID }}

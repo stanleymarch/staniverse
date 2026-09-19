@@ -43,7 +43,9 @@ const inferredTopics = entry.data.topics
     return { label, href: topicRoute(topic) ?? `/garden/?q=${encodeURIComponent(label)}` };
   });
 const plainCopy = (value: string) => value
+  .replace(/<!--[\s\S]*?-->/g, " ")
   .replace(/```[\s\S]*?```/g, " ")
+  .replace(/<[^>]+>/g, " ")
   .replace(/!\[([^\]]*)\]\([^)]*\)/g, "$1")
   .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
   .replace(/[*_>#]/g, "")
@@ -55,6 +57,18 @@ const summaryPrefix = plainCopy(entry.data.summary).replace(/…$/u, "").trim();
 const entities = entry.collection === "publications" ? entry.data.entities ?? [] : [];
 const entitySummary = entities.length > 1 ? `Упомянуто · ${entities[0]} и ещё ${entities.length - 1}` : entities.length === 1 ? `Упомянуто · ${entities[0]}` : "";
 const showSummary = !isTelegramPublication || !summaryPrefix || !plainCopy(entry.body ?? "").startsWith(summaryPrefix);
+const readingWords = plainCopy(entry.body ?? "").split(/\s+/u).filter(Boolean).length;
+const readingImages = entry.collection === "publications" ? entry.data.media.filter((item) => item.type === "image").length : 0;
+const readingMinutes = Math.max(1, Math.ceil(readingWords / 180 + Math.min(readingImages, 20) * 0.12));
+const readingLabel = readingWords < 60 && readingImages > 0 ? `≈ ${readingMinutes} мин просмотра` : `≈ ${readingMinutes} мин чтения`;
+const showReadingEstimate = ["article", "telegram-post", "telegram-article"].includes(entry.data.kind);
+const connectionIds = new Set<string>();
+for (const edge of edges) {
+  const other = edge.source === entry.data.id ? edge.target : edge.target === entry.data.id ? edge.source : undefined;
+  if (other && !other.startsWith("topic:")) connectionIds.add(other);
+}
+const connectionCount = connectionIds.size;
+const connectionWord = connectionCount % 10 === 1 && connectionCount % 100 !== 11 ? "связь" : [2, 3, 4].includes(connectionCount % 10) && ![12, 13, 14].includes(connectionCount % 100) ? "связи" : "связей";
 const schemaType = ["youtube-video", "video"].includes(entry.data.kind)
   ? "VideoObject"
   : ["article", "telegram-post", "telegram-article"].includes(entry.data.kind)
@@ -99,6 +113,10 @@ const entryJsonLd: Record<string, unknown> = {
       <div class="entry-hero-meta"><span class="section-kicker">{kindLabel[entry.data.kind]}{status && ` · ${status}`}</span>{showPublished && published && <time datetime={published.toISOString()}>{publishedLabel}</time>}</div>
       <nav class="entry-breadcrumbs" aria-label="Хлебные крошки"><a href="/">Staniverse</a> <span aria-hidden="true">/</span> <a href={parentCrumb.href}>{parentCrumb.name}</a> <span aria-hidden="true">/</span> <span aria-current="page">{entry.data.title}</span></nav>
       <h1 class:list={{ "is-long": entry.data.title.length > 64, "is-very-long": entry.data.title.length > 105 }}>{entry.data.title}</h1>
+      {(showReadingEstimate || connectionCount > 0) && <div class="entry-reading-meta" aria-label="Параметры материала">
+        {showReadingEstimate && <span>{readingLabel}</span>}
+        {connectionCount > 0 && <button type="button" data-open-graph>↗ {connectionCount} {connectionWord}</button>}
+      </div>}
       {showSummary && <p class="entry-summary">{entry.data.summary}</p>}
       {entities.length > 0 && <details class="auto-topics entity-list"><summary>{entitySummary}</summary><div class="tag-row">{entities.map((entity) => <span>{entity}</span>)}</div></details>}
       {publicationMeta && <div class="publication-facts"><span>{publicationMeta.platform}</span><span>{publicationMeta.ownership}</span><a href={publicationMeta.sourceUrl}>Открыть оригинал ↗</a></div>}
@@ -121,16 +139,18 @@ const entryJsonLd: Record<string, unknown> = {
     {channelVideos.length > 0 && <section class="channel-gallery" aria-labelledby="channel-gallery-title"><h2 id="channel-gallery-title">Ещё видео канала</h2><div class="channel-gallery-grid">{channelVideos.map((video) => <a href={hrefFor(video)}><img src={video.data.thumbnailUrl} alt="" loading="lazy" decoding="async" width="320" height="180" /><strong>{video.data.title}</strong></a>)}</div></section>}
     {galleryImages.length > 1 && (
       <section class="media-carousel" data-media-carousel aria-label={`Фотографии публикации · ${galleryImages.length}`}>
-        <div class="media-carousel-viewport" data-carousel-viewport>
-          <div class="media-carousel-track">
-            {galleryImages.map((item,index)=><figure class="media-carousel-slide" data-carousel-slide><a href={item.publicPath}><img src={item.publicPath} alt={`${entry.data.title} · изображение ${index+1}`} loading={index>0?"lazy":"eager"} decoding="async" /></a><figcaption>{index+1} / {galleryImages.length}</figcaption></figure>)}
+        <div class="media-carousel-stage">
+          <button type="button" class="media-carousel-arrow is-prev" data-carousel-prev aria-label="Предыдущее фото">←</button>
+          <div class="media-carousel-viewport" data-carousel-viewport>
+            <div class="media-carousel-track">
+              {galleryImages.map((item,index)=><figure class="media-carousel-slide" data-carousel-slide><a href={item.publicPath}><img src={item.publicPath} alt={`${entry.data.title} · изображение ${index+1}`} loading={index>0?"lazy":"eager"} decoding="async" /></a><figcaption>{index+1} / {galleryImages.length}</figcaption></figure>)}
+            </div>
           </div>
+          <button type="button" class="media-carousel-arrow is-next" data-carousel-next aria-label="Следующее фото">→</button>
         </div>
         <div class="media-carousel-controls">
-          <button type="button" data-carousel-prev aria-label="Предыдущее фото">←</button>
           <div class="media-carousel-dots" aria-label="Выбрать фото">{galleryImages.map((_,index)=><button type="button" data-carousel-dot={index} aria-label={`Фото ${index+1}`} aria-current={index===0?"true":"false"}></button>)}</div>
           <output data-carousel-status aria-live="polite">1 / {galleryImages.length}</output>
-          <button type="button" data-carousel-next aria-label="Следующее фото">→</button>
         </div>
       </section>
     )}
@@ -160,12 +180,18 @@ const entryJsonLd: Record<string, unknown> = {
           {inferredTopics.length > 0 && <div class="tag-group"><span class="tag-origin">Ещё по теме · найдено автоматически</span><div class="tag-row is-inferred">{inferredTopics.map(({ label, href }) => <a href={href}>{label}</a>)}</div></div>}
         </footer>}
       </div>
+
       <div class="entry-aside">
         <TableOfContents headings={headings} />
-        <LocalGraph currentId={entry.data.id} nodes={nodes} edges={edges} />
+        <details class="graph-fold">
+          <summary class="graph-fold__title">Связи рядом</summary>
+          <LocalGraph currentId={entry.data.id} nodes={nodes} edges={edges} />
+        </details>
       </div>
     </div>
 <script>
+  import { installLightbox } from "../lib/lightbox";
+
   document.querySelectorAll<HTMLElement>("[data-video-stage]").forEach((stage) => {
     const play = stage.querySelector<HTMLButtonElement>("[data-video-play]");
     if (!play) return;
@@ -181,14 +207,55 @@ const entryJsonLd: Record<string, unknown> = {
       iframe.focus();
     }, { once: true });
   });
+
+  /* Telegram-article bodies embed carousels as bare viewport markup without
+     controls; give every carousel the same side arrows, dots and counter. */
   document.querySelectorAll<HTMLElement>("[data-media-carousel]").forEach((carousel) => {
     const viewport = carousel.querySelector<HTMLElement>("[data-carousel-viewport]");
     const slides = [...carousel.querySelectorAll<HTMLElement>("[data-carousel-slide]")];
+    if (!viewport || slides.length < 2) return;
+    if (!carousel.querySelector(".media-carousel-stage")) {
+      const stage = document.createElement("div");
+      stage.className = "media-carousel-stage";
+      const makeArrow = (direction: "prev" | "next") => {
+        const arrow = document.createElement("button");
+        arrow.type = "button";
+        arrow.className = `media-carousel-arrow is-${direction}`;
+        if (direction === "prev") arrow.dataset.carouselPrev = "";
+        else arrow.dataset.carouselNext = "";
+        arrow.setAttribute("aria-label", direction === "prev" ? "Предыдущее фото" : "Следующее фото");
+        arrow.textContent = direction === "prev" ? "←" : "→";
+        return arrow;
+      };
+      viewport.before(stage);
+      stage.append(makeArrow("prev"), viewport, makeArrow("next"));
+    }
+    if (!carousel.querySelector(".media-carousel-controls")) {
+      const controls = document.createElement("div");
+      controls.className = "media-carousel-controls";
+      const dots = document.createElement("div");
+      dots.className = "media-carousel-dots";
+      dots.setAttribute("aria-label", "Выбрать фото");
+      slides.forEach((_, index) => {
+        const dot = document.createElement("button");
+        dot.type = "button";
+        dot.dataset.carouselDot = String(index);
+        dot.setAttribute("aria-label", `Фото ${index + 1}`);
+        dot.setAttribute("aria-current", String(index === 0));
+        dots.append(dot);
+      });
+      const status = document.createElement("output");
+      status.dataset.carouselStatus = "";
+      status.setAttribute("aria-live", "polite");
+      status.textContent = `1 / ${slides.length}`;
+      controls.append(dots, status);
+      carousel.append(controls);
+    }
     const dots = [...carousel.querySelectorAll<HTMLButtonElement>("[data-carousel-dot]")];
     const previous = carousel.querySelector<HTMLButtonElement>("[data-carousel-prev]");
     const next = carousel.querySelector<HTMLButtonElement>("[data-carousel-next]");
     const status = carousel.querySelector<HTMLOutputElement>("[data-carousel-status]");
-    if (!viewport || slides.length < 2 || !previous || !next || !status) return;
+    if (!previous || !next || !status) return;
     let current = 0;
     let frame = 0;
     const update = (index: number) => {
@@ -215,6 +282,23 @@ const entryJsonLd: Record<string, unknown> = {
     }, { passive: true });
     update(0);
   });
+
+  document.querySelectorAll<HTMLButtonElement>("[data-open-graph]").forEach((button) => {
+    const graph = document.querySelector<HTMLDetailsElement>(".graph-fold");
+    if (!graph) {
+      button.hidden = true;
+      return;
+    }
+    button.addEventListener("click", () => {
+      graph.open = true;
+      requestAnimationFrame(() => {
+        graph.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "nearest" });
+        graph.querySelector<HTMLElement>(".graph-fold__title")?.focus();
+      });
+    });
+  });
+
+  installLightbox();
 </script>
 
 <style>
@@ -230,33 +314,46 @@ const entryJsonLd: Record<string, unknown> = {
   .channel-gallery-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s-3); }
   .channel-gallery-grid a { min-width: 0; color: inherit; }
   .channel-gallery-grid img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border: 1px solid var(--line); }
+  .entry-reading-meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2) var(--s-4); margin: -.1rem 0 var(--s-3); color: var(--ink-2); font-size: .78rem; }
+  .entry-reading-meta button { padding: 0; border: 0; background: transparent; color: var(--accent); font: inherit; cursor: pointer; }
+  .entry-reading-meta button:hover, .entry-reading-meta button:focus-visible { text-decoration: underline; text-underline-offset: .22em; }
+
   .channel-gallery-grid strong { display: block; margin-top: var(--s-2); font-size: .82rem; font-weight: 500; line-height: 1.35; overflow-wrap: anywhere; }
   .channel-gallery-grid a:hover img, .channel-gallery-grid a:focus-visible img { border-color: var(--accent); }
   @media (max-width: 900px) { .channel-gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
-  /* The right column carries the contents and the neighbourhood; it keeps its own
-     scroll so a long article never pushes the table of contents out of reach. */
-  .entry-aside { position: sticky; top: 7rem; display: grid; gap: var(--s-5); align-content: start; max-height: calc(100dvh - 8.5rem); overflow-y: auto; overscroll-behavior: contain; }
+  /* The right column keeps the contents reachable while the neighbourhood
+     remains one click away below it. */
+  .entry-aside { position: sticky; top: 7rem; display: flex; flex-direction: column; gap: var(--s-5); max-height: calc(100dvh - 8.5rem); }
   .entry-aside > * { min-width: 0; }
-  @media (max-width: 1050px) { .entry-aside { position: static; max-height: none; overflow-y: visible; } }
+  .entry-aside > :global(.toc) { flex: 0 1 auto; min-height: 0; }
+  @media (max-width: 1050px) { .entry-aside { position: static; max-height: none; } }
+
+  /* The neighbourhood folds under the contents: present on every page, never
+     in the way, one click deep. When opened it scrolls inside its own share of
+     the sticky rail; the table of contents remains above and reachable. */
+  .graph-fold { flex: 0 0 auto; min-height: 0; border-top: 1px solid var(--line); }
+  .graph-fold__title { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-3); padding: var(--s-3) 0; color: var(--ink); font-size: .82rem; cursor: pointer; list-style: none; }
+  .graph-fold__title::-webkit-details-marker { display: none; }
+  .graph-fold__title::after { color: var(--accent); content: "+"; }
+  .graph-fold[open] .graph-fold__title::after { content: "−"; }
+  .graph-fold[open] { flex: 1 1 18rem; min-height: 12rem; padding-bottom: var(--s-4); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+  .graph-fold :global(.local-graph__header > .local-graph__kicker),
+  .graph-fold :global(.local-graph__header > h2) { display: none; }
+  .graph-fold :global(.local-graph) { margin: 0; }
 
   /* Recommendations close the text: the next step is a reviewed relation or a
      shared topic, not a list of everything else in the catalogue. */
-  .read-next { margin: var(--s-6) 0 0; padding-top: var(--s-4); border-top: 1px solid var(--line); }
-  .read-next h2 { margin: 0 0 var(--s-3); font: 500 clamp(1.1rem, 1rem + .5vw, 1.35rem) / 1.25 var(--font-display); }
-  .read-next-list { display: grid; gap: var(--s-2); margin: 0; padding: 0; list-style: none; }
-  .read-next-list > li > a { display: grid; gap: .15rem; padding: var(--s-3); border: 1px solid var(--line); border-radius: var(--radius-1); color: var(--ink); text-decoration: none; transition: border-color var(--dur-2) var(--ease), background-color var(--dur-2) var(--ease); }
+  .read-next { margin: var(--s-8) 0 0; padding-top: var(--s-5); border-top: 1px solid var(--line); }
+  .read-next h2 { margin: 0 0 var(--s-4); font: 500 clamp(1.1rem, 1rem + .5vw, 1.35rem) / 1.25 var(--font-display); }
+  .read-next-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-3); margin: 0; padding: 0; list-style: none; }
+  @media (max-width: 900px) { .read-next-list { grid-template-columns: 1fr; } }
+  .read-next-list > li > a { display: grid; gap: .2rem; align-content: start; height: 100%; padding: var(--s-4); border: 1px solid var(--line); border-radius: var(--radius-1); color: var(--ink); text-decoration: none; transition: border-color var(--dur-2) var(--ease), background-color var(--dur-2) var(--ease), transform var(--dur-2) var(--ease); }
   .read-next-list > li > a:hover,
-  .read-next-list > li > a:focus-visible { border-color: var(--accent-line); background: color-mix(in srgb, var(--surface) 90%, var(--accent)); }
-  .read-next-kind { color: var(--ink-2); font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; }
-  .read-next-list strong { font-size: .98rem; font-weight: 500; line-height: 1.3; }
-  .read-next-reason { color: var(--ink-2); font-size: .78rem; }
-
-  /* Breadcrumbs: structural signpost, quieter than the kicker it precedes. */
-  .entry-breadcrumbs { display: flex; flex-wrap: wrap; gap: .4rem; align-items: baseline; margin-bottom: var(--s-2); color: var(--ink-2); font-size: .72rem; letter-spacing: .02em; }
-  .entry-breadcrumbs a { color: var(--ink-2); }
-  .entry-breadcrumbs a:hover, .entry-breadcrumbs a:focus-visible { color: var(--accent); }
-  .entry-breadcrumbs [aria-current="page"] { color: var(--ink-3, var(--ink-2)); overflow-wrap: anywhere; }
+  .read-next-list > li > a:focus-visible { border-color: var(--accent-line); background: color-mix(in srgb, var(--surface) 90%, var(--accent)); transform: translateY(-2px); }
+  .read-next-kind { color: var(--ink-2); font-size: .66rem; letter-spacing: .1em; text-transform: uppercase; }
+  .read-next-list strong { font-size: .95rem; font-weight: 550; line-height: 1.35; }
+  .read-next-reason { color: var(--ink-2); font-size: .78rem; line-height: 1.45; }
 </style>
   </article>
 </Base>

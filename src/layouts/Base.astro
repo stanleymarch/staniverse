@@ -56,7 +56,6 @@ const chrome = lang === "en" ? {
     ["/manifesto/", "Manifesto"],
     ["/donate/", "Support"],
     ["/privacy/", "Privacy"],
-    ["/lab/", "Lab"],
   ] as const,
   consentText: "Yandex Metrika shows which materials are useful. It loads only with your consent. See the",
   consentMore: "privacy policy",
@@ -84,7 +83,6 @@ const chrome = lang === "en" ? {
     ["/manifesto/", "Манифест"],
     ["/donate/", "Поддержать"],
     ["/privacy/", "Конфиденциальность"],
-    ["/lab/", "Лаборатория"],
   ] as const,
   consentText: "Яндекс Метрика помогает понять, какие материалы полезны. Она загрузится только с вашего согласия. Подробнее — в",
   consentMore: "политике конфиденциальности",
@@ -98,9 +96,16 @@ const alternateLinks = alternatesFor(Astro.url.pathname).map((alternate) => ({
   ...alternate,
   href: new URL(alternate.href, Astro.site).href,
 }));
+/* Header language switch: shown only where a translated twin really exists,
+   exactly the pairs hreflang already advertises. */
+const languageSwitch = (() => {
+  const pair = alternatesFor(Astro.url.pathname).find((alternate) => alternate.lang !== lang);
+  return pair ? { lang: pair.lang as "ru" | "en", href: pair.href } : undefined;
+})();
 /* The channel is called Staniverse in Latin everywhere it is written, including
    the header wordmark: the browser tab and every share card must match it. */
 const siteName = "Staniverse";
+
 const brandOnly = title.toLocaleLowerCase("ru-RU") === siteName;
 const pageTitle = brandOnly ? siteName : `${title} · ${siteName}`;
 // The share card is already branded, so a brand-only title must not repeat itself in the alt text.
@@ -235,8 +240,10 @@ const articleLike = ["works", "projects", "garden", "articles", "topics"].includ
         <a class="brand" href="/" aria-label="Staniverse"><span class="brand-mark">s</span><span>staniverse</span></a>
         <nav id="primary-navigation" aria-label={chrome.menu}>
           {chrome.nav.map(([href, label]) => <a href={href}>{label}</a>)}
-          <a href="/lab/">{lang === "en" ? "Lab" : "Лаборатория"}</a>
         </nav>
+        {languageSwitch && (
+          <a class="lang-switch" href={languageSwitch.href} hreflang={languageSwitch.lang} lang={languageSwitch.lang} aria-label={lang === "en" ? "Русская версия" : "English version"}>{languageSwitch.lang === "en" ? "EN" : "RU"}</a>
+        )}
         <button class="site-search-open" type="button" data-search-open aria-haspopup="dialog" aria-label={chrome.searchLabel}>{chrome.search}</button>
         <a class="universe-link" href="/universe/" aria-label={chrome.map}><span class="universe-link-text">{chrome.map}</span> <span aria-hidden="true">↗</span></a>
         <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-navigation">

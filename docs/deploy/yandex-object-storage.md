@@ -11,8 +11,8 @@
 | Хостинг основного сайта | Бакет `staniverse.xyz` + website hosting (`index.html` / `404.html`), публичное чтение объектов |
 | Домен | CNAME/ANAME `staniverse.xyz → staniverse.xyz.website.yandexcloud.net` |
 | HTTPS | Сертификат в бакет через Certificate Manager (managed Let's Encrypt, бесплатно). CDN — опционально |
-| CI-аутентификация | Сервисный аккаунт + статический ключ; роль `storage.admin` (bucket policy требует admin; editor не хватает — проверено 2026-09-18) |
-| Инструмент деплоя | `aws s3 sync` (AWS CLI v2 уже на runner) с `--endpoint-url https://storage.yandexcloud.net` |
+| CI-аутентификация | Сервисный аккаунт + статический ключ; роль `storage.admin` для ACL/website-настроек (editor не хватает — проверено 2026-09-18) |
+| Инструмент деплоя | SHA-256 manifest + `aws s3 cp` только изменившихся объектов; AWS CLI v2, endpoint `https://storage.yandexcloud.net` |
 | Эксперименты | В тот же бакет, префикс `lab/<name>/`, тот же домен; workflow с paths-filter + matrix. **Не GitHub Pages** |
 | Ориентир по стоимости | ~10–20 ₽/мес без CDN; ~150–165 ₽/мес с Cloud CDN |
 
@@ -29,16 +29,9 @@ JSON
 aws --endpoint-url=https://storage.yandexcloud.net s3api put-bucket-website \
   --bucket staniverse.xyz --website-configuration file://website.json
 
-# Публичное чтение
-cat > public-read.json <<'JSON'
-{
-  "Version": "2012-10-17",
-  "Statement": [{ "Sid": "PublicRead", "Effect": "Allow", "Principal": "*",
-    "Action": "s3:GetObject", "Resource": "arn:aws:s3:::staniverse.xyz/*" }]
-}
-JSON
-aws --endpoint-url=https://storage.yandexcloud.net s3api put-bucket-policy \
-  --bucket staniverse.xyz --policy file://public-read.json
+# Публичное чтение без bucket policy
+aws --endpoint-url=https://storage.yandexcloud.net s3api put-bucket-acl \
+  --bucket staniverse.xyz --acl public-read
 ```
 
 URL до привязки домена: `http(s)://staniverse.xyz.website.yandexcloud.net`.
@@ -88,13 +81,21 @@ production build с пустым или некорректным ID Метрик
 
 ## 4. Workflow деплоя основного сайта
 
-`.github/workflows/deploy-storage.yml` — полный YAML в репозитории. Суть: `npm ci` → тесты/аудиты → `npm run build` (SITE_URL=прод) → четыре независимых прохода `aws s3 sync`:
+`.github/workflows/deploy-storage.yml` — полный YAML в репозитории. После
+`npm ci`, тестов и production build workflow считает SHA-256 каждого объекта
+`dist`, сравнивает с `.deploy-manifest.json` в бакете и:
 
-1. только `*.html` с `--delete` и `Cache-Control: public, max-age=0, must-revalidate`; фильтр сохраняет независимые `/lab/<name>/`, но обновляет `/lab/index.html`;
-2. `dist/_astro → s3://bucket/_astro` с `--delete` и `public, max-age=31536000, immutable`;
-3. `dist/media → s3://bucket/media` с `--delete` и кешем на 30 дней;
-4. остальная статика с `--delete` и кешем на сутки;
-5. опционально purge CDN.
+1. загружает только реально изменившиеся файлы, четырьмя cache-профилями:
+   HTML без кеша; `_astro` immutable на год; media на 30 дней; остальное на сутки;
+2. удаляет ключи, исчезнувшие из нового manifest;
+3. никогда не трогает независимые `/lab/<name>/`, но владеет `/lab/index.html`;
+4. последним PUT публикует новый manifest — он всегда описывает уже применённый deploy;
+5. purge CDN запускает только при изменившихся байтах.
+
+При первом manifest-деплое workflow строит стартовое состояние из одного
+`ListObjectsV2`, сверяя ETag/размер: сам переход не вызывает повторный PUT всего
+бакета. Обычный новый пост загружает только изменившиеся страницы и индексы;
+docs-only push при идентичной сборке делает **0 PUT**.
 
 Env: `AWS_DEFAULT_REGION=ru-central1`, `AWS_EC2_METADATA_DISABLED=true`.
 
@@ -115,20 +116,26 @@ Env: `AWS_DEFAULT_REGION=ru-central1`, `AWS_EC2_METADATA_DISABLED=true`.
 7. **404:** нужен физический `dist/404.html` (Astro генерирует из `src/pages/404.astro` даже при directory format) → указать его как `ErrorDocument`.
 8. Directory format: `/garden/tg-1153/` → объект `garden/tg-1153/index.html`; URL без слэша → 302 на слэш.
 9. MIME: CLI угадывает, но проверять `.webp`/`.mjs`/шрифты; при необходимости `--content-type`.
-10. `s3 sync` сравнивает size+mtime; fresh CI-чек-аут перезаливает всё — для экономии `--size-only`.
+10. `s3 sync` сравнивает size+mtime и на fresh CI-чек-ауте перезаливает почти всё. `--size-only` небезопасен: изменение того же размера потеряется. Production workflow использует SHA-256 manifest и не зависит от mtime.
 11. Публичный доступ обязателен, иначе 403.
 
 ## 7. Стоимость (< 5 ГБ, < 100 ГБ трафика/мес)
 
-Без CDN: хранение ≈ 9,5 ₽ + первые 100 ГБ трафика и 100k GET бесплатно ≈ **10–15 ₽/мес**.
-С Cloud CDN: **150–165 ₽/мес** (пакет), сверх — 1,054 ₽/ГБ, 1 ₽/100k запросов.
+Без CDN: хранение ≈ 9,5 ₽ + первые 100 ГБ трафика и 100k GET бесплатно ≈
+**10–15 ₽/мес**. С Cloud CDN: **150–165 ₽/мес** (пакет), сверх — 1,054 ₽/ГБ,
+1 ₽/100k запросов.
+
+PUT тарифицируются отдельно. Fresh build меняет mtime почти всех файлов, поэтому
+`aws s3 sync` создавал тысячи лишних PUT. Manifest-деплой сравнивает SHA-256:
+идентичная сборка делает 0 PUT, обычный новый пост загружает только реально
+изменившиеся страницы и один новый manifest.
 
 ## 8. Чек-лист внедрения
 
 1. Каталог/облако YC, платёжный аккаунт.
-2. Бакет `staniverse.xyz` + website hosting + публичное чтение.
+2. Бакет `staniverse.xyz` + website hosting + публичный ACL.
 3. `src/pages/404.astro` в репо (иначе нет `dist/404.html`).
-4. СА `gh-deploy` + `storage.editor` + статический ключ.
+4. СА `gh-deploy` + `storage.admin` + статический ключ.
 5. GitHub Secrets (§3).
 6. `.github/workflows/deploy-storage.yml`, деплой, проверка `https://staniverse.xyz.website.yandexcloud.net`.
 7. Домен CNAME/ANAME + managed Let's Encrypt + `yc storage bucket set-https`.
@@ -150,62 +157,10 @@ Env: `AWS_DEFAULT_REGION=ru-central1`, `AWS_EC2_METADATA_DISABLED=true`.
 2. Workflow отдаёт `/media/` с `Cache-Control: public, max-age=2592000,
    must-revalidate`: браузер и CDN не запрашивают один ролик повторно в течение
    30 дней.
-3. Для `/media/*` включить защиту от хотлинка через поддерживаемый Object Storage
-   ключ условия `aws:Referer`. `put-bucket-policy` заменяет политику целиком,
-   поэтому правило добавляется рядом с существующим `PublicRead`, а не отдельным
-   вызовом:
-
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "PublicRead",
-      "Effect": "Allow",
-      "Principal": "*",
-      "Action": "s3:GetObject",
-      "Resource": "arn:aws:s3:::staniverse.xyz/*"
-    },
-    {
-      "Sid": "DenyForeignMediaHotlink",
-      "Effect": "Deny",
-      "Principal": "*",
-      "Action": "s3:GetObject",
-      "Resource": "arn:aws:s3:::staniverse.xyz/media/*",
-      "Condition": {
-        "StringNotLike": {
-          "aws:Referer": [
-            "https://staniverse.xyz/*",
-            "https://*.staniverse.xyz/*"
-          ]
-        },
-        "Null": {
-          "aws:Referer": "false"
-        }
-      }
-    }
-  ]
-}
-```
-
-Такое правило блокирует встраивание видео на чужих сайтах, но сохраняет прямое
-открытие файла и загрузку поисковыми роботами без `Referer`. Это безопасный
-стартовый режим. Если начнётся прямой scrape без `Referer`, добавить третье
-правило:
-
-```json
-{
-  "Sid": "DenyMediaWithoutReferer",
-  "Effect": "Deny",
-  "Principal": "*",
-  "Action": "s3:GetObject",
-  "Resource": "arn:aws:s3:::staniverse.xyz/media/*",
-  "Condition": { "Null": { "aws:Referer": "true" } }
-}
-```
-
-Агрессивный режим блокирует `curl`/`wget` без заголовка, но также прямое
-открытие видео по ссылке и может мешать отдельным поисковым загрузчикам.
+3. Не применять bucket policy для Referer-фильтрации: проверенная production-
+   конфигурация использует публичный ACL, а policy в Yandex Object Storage может
+   перекрыть административный доступ к бакету. Если хотлинк станет измеримой
+   проблемой, фильтровать `/media/*` на Cloudflare/Cloud CDN, не в бакете.
 
 ### 9.2. Контроль расходов
 
@@ -213,9 +168,10 @@ Env: `AWS_DEFAULT_REGION=ru-central1`, `AWS_EC2_METADATA_DISABLED=true`.
   Бюджет только уведомляет и сам не прекращает потребление.
 - В Monitoring поставить алерт на исходящий трафик и GET-запросы бакета.
 - Для автоматической аварийной отсечки нужен Budget Trigger → Cloud Function,
-  которая добавляет `DenyMediaWithoutReferer` или закрывает `/media/*`.
+  которая временно закрывает публичный ACL бакета. Это отключит весь сайт,
+  поэтому использовать только как аварийный рубильник.
 - После первой недели смотреть реальные данные. Не ставить платный WAF «на
-  всякий случай»: сначала Referer-policy и алерты.
+  всякий случай»: сначала кеширование, бюджет и алерты.
 
 ### 9.3. Усиленный вариант
 

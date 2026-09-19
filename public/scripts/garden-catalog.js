@@ -13,6 +13,9 @@
   const layout = document.querySelector('.garden-layout');
   const facets = document.querySelector('[data-garden-facets]');
   const filterToggle = document.querySelector('[data-filter-toggle]');
+  const filterSide = document.querySelector('.garden-side');
+  const filterBackdrop = document.querySelector('[data-filter-backdrop]');
+  const filterClose = document.querySelector('[data-filter-close]');
   const mapPanel = document.querySelector('[data-garden-map]');
   const modes = ['catalog', 'map'];
   const plural = new Intl.PluralRules('ru-RU');
@@ -157,11 +160,15 @@
     if (mapPanel) mapPanel.hidden = next !== 'map';
   }
 
-  function setFiltersOpen(open) {
+  function setFiltersOpen(open, focus = true) {
     if (!facets || !filterToggle) return;
+    const mobile = !matchMedia('(min-width: 1100px)').matches;
     facets.hidden = !open;
     filterToggle.setAttribute('aria-expanded', String(open));
-    if (open) facets.querySelector('input, button')?.focus();
+    filterSide?.classList.toggle('is-open', open && mobile);
+    if (filterBackdrop) filterBackdrop.hidden = !open || !mobile;
+    document.documentElement.classList.toggle('garden-filters-open', open && mobile);
+    if (open && focus) requestAnimationFrame(() => (filterClose || facets.querySelector('input, button'))?.focus());
   }
 
   function applyUrl() {
@@ -212,13 +219,21 @@
     applyMode(button.dataset.gardenMode);
     render(true);
   }));
+  filterClose?.addEventListener('click', () => { setFiltersOpen(false, false); filterToggle?.focus(); });
+  filterBackdrop?.addEventListener('click', () => { setFiltersOpen(false, false); filterToggle?.focus(); });
   document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && facets && !facets.hidden) {
-      setFiltersOpen(false);
+    if (event.key === 'Escape' && !wide.matches && facets && !facets.hidden) {
+      setFiltersOpen(false, false);
       filterToggle?.focus();
     }
   });
   window.addEventListener('popstate', applyUrl);
+
+  /* On a desktop the facet rail is a permanent left column: open it without
+     stealing focus, and let a resize carry the state across the breakpoint. */
+  const wide = matchMedia('(min-width: 1100px)');
+  if (wide.matches) setFiltersOpen(true, false);
+  wide.addEventListener('change', (event) => setFiltersOpen(event.matches, false));
   /* The map mounts as a module, after this script has already rendered once:
      it asks for the current selection instead of waiting for the next change. */
   document.addEventListener('garden:request-results', () => {

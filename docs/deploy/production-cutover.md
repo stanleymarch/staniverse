@@ -129,33 +129,22 @@ aws --endpoint-url=https://storage.yandexcloud.net \
 
 ## 7. Разрешить публичное чтение объектов
 
-Создать `public-read.json`:
-
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "PublicRead",
-      "Effect": "Allow",
-      "Principal": "*",
-      "Action": "s3:GetObject",
-      "Resource": "arn:aws:s3:::staniverse.xyz/*"
-    }
-  ]
-}
-```
-
-Применить:
+Использовать ACL бакета, а не bucket policy:
 
 ```bash
 aws --endpoint-url=https://storage.yandexcloud.net \
-  s3api put-bucket-policy \
+  s3api put-bucket-acl \
   --bucket staniverse.xyz \
-  --policy file://public-read.json
+  --acl public-read
 ```
 
-Политика разрешает чтение объектов, но не обязана разрешать публичный listing бакета. Без `s3:GetObject` website endpoint вернёт `403`.
+`public-read` разрешает чтение объектов без публичного listing. Website endpoint
+без публичного чтения вернёт `403`.
+
+Не применять Allow-only bucket policy из AWS-примеров: в Yandex Object Storage
+такая политика может перекрыть административный доступ к бакету, включая доступ
+сервисного аккаунта и консоли. Текущая production-конфигурация использует ACL и
+не имеет bucket policy.
 
 ## 8. Создать GitHub Secrets
 
@@ -223,11 +212,11 @@ Workflow выполняет:
 5. unit tests;
 6. production build;
 7. проверку `dist/index.html` и `dist/404.html`;
-8. sync HTML;
-9. sync hashed `_astro` assets;
-10. sync media;
-11. sync остальной статики;
-12. опциональный CDN purge.
+8. загрузку предыдущего `.deploy-manifest.json` (или однократный bootstrap из ETag/размера);
+9. SHA-256 сравнение текущей сборки с manifest;
+10. PUT только реально изменившихся HTML, `_astro`, media и остальной статики;
+11. удаление исчезнувших ключей и публикацию нового manifest последним;
+12. опциональный CDN purge только при изменившихся байтах.
 
 Cache policy:
 
@@ -235,7 +224,7 @@ Cache policy:
 - `_astro`: `max-age=31536000, immutable`;
 - media: 30 дней;
 - остальная статика: сутки;
-- `/lab/<name>/` не удаляется production-sync.
+- `/lab/<name>/` не принадлежит production-manifest и не удаляется им; `/lab/index.html` принадлежит основному сайту.
 
 ## 12. Проверить бакет до DNS-cutover
 

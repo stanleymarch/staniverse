@@ -123,11 +123,11 @@
 }
 .garden-search-wrap input::placeholder { color: #7b8aa8; }
 .garden-toolbar-count {
-  min-width: 8.8rem;
   margin: 0;
+  padding-inline: var(--s-2);
   color: var(--muted);
   font-size: .82rem;
-  text-align: center;
+  text-align: right;
   white-space: nowrap;
 }
 .garden-sort select,
@@ -169,10 +169,10 @@
 }
 .garden-facets {
   display: grid;
-  grid-template-columns: minmax(12rem, .75fr) minmax(20rem, 1.5fr) minmax(14rem, 1fr);
-  gap: var(--s-6);
+  gap: var(--s-5);
   padding: var(--s-5) var(--rail-inset);
   background: #0a0f1a;
+  border-bottom: 1px solid var(--line);
 }
 .garden-facets[hidden] {
   display: none;
@@ -290,14 +290,158 @@
   background: transparent;
   color: var(--accent);
 }
+/* Two working columns on a desktop screen: the facet rail on the left stays
+   pinned while the feed scrolls on the right. Narrow screens keep the single
+   column with the collapsible filter sheet under the toolbar. */
 .garden-layout {
   min-width: 0;
+}
+.garden-side {
+  min-width: 0;
+}
+.garden-main {
+  min-width: 0;
+}
+.garden-filter-sheet-head { display: none; }
+.garden-filter-backdrop[hidden] { display: none; }
+@media (max-width: 1099px) {
+  html.garden-filters-open { overflow: hidden; }
+  .garden-filter-backdrop { position: fixed; inset: 0; z-index: 58; background: rgba(3, 5, 9, .72); backdrop-filter: blur(6px); }
+  .garden-side { position: fixed; right: 0; bottom: 0; left: 0; z-index: 59; max-height: 82dvh; overflow-y: auto; overscroll-behavior: contain; border-top: 1px solid var(--accent-line); border-radius: 1.3rem 1.3rem 0 0; background: #080d17; box-shadow: 0 -1.2rem 4rem rgba(0, 0, 0, .38); visibility: hidden; transform: translateY(104%); transition: transform .25s var(--ease), visibility .25s; }
+  .garden-side.is-open { visibility: visible; transform: translateY(0); }
+  .garden-filter-sheet-head { position: sticky; top: 0; z-index: 2; display: flex; justify-content: space-between; align-items: center; gap: var(--s-3); padding: var(--s-4) var(--rail-inset) var(--s-3); border-bottom: 1px solid var(--line); background: color-mix(in srgb, #080d17 94%, transparent); backdrop-filter: blur(14px); }
+  .garden-filter-sheet-head strong { font: 550 1rem var(--font-display); }
+  .garden-filter-sheet-head button { min-height: 2.35rem; padding: .4rem .75rem; border: 1px solid var(--line-strong); border-radius: var(--radius-pill); background: transparent; color: var(--ink-2); font: inherit; cursor: pointer; }
+  .garden-filter-sheet-head button:hover, .garden-filter-sheet-head button:focus-visible { border-color: var(--accent-line); color: var(--accent); }
+  .garden-facets { padding-top: var(--s-4); border-bottom: 0; }
 }
 .garden-results {
   width: min(100%, 92rem);
   min-width: 0;
   margin-inline: auto;
   padding: var(--s-4) var(--rail-inset) var(--flow-section);
+}
+.garden-topic-options {
+  max-height: min(44dvh, 30rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+@media (min-width: 1100px) {
+  .garden-layout {
+    display: grid;
+    grid-template-columns: 19rem minmax(0, 1fr);
+    gap: var(--s-6);
+    align-items: start;
+    padding-inline: var(--rail-inset);
+  }
+  .garden-side {
+    position: sticky;
+    top: calc(var(--header-height, 4.5rem) + 1rem);
+    max-height: calc(100dvh - var(--header-height, 4.5rem) - 2rem);
+    padding-right: var(--s-2);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+  }
+  .garden-facets {
+    display: block;
+    padding: 0;
+    background: transparent;
+    border-bottom: 0;
+  }
+  .garden-facets fieldset {
+    padding-top: 0;
+    border-top: 0;
+  }
+  .garden-facets fieldset + fieldset {
+    margin-top: var(--s-5);
+  }
+  .garden-facets legend {
+    width: 100%;
+    margin: 0 0 var(--s-2);
+    padding: 0 0 var(--s-2);
+    border-bottom: 1px solid var(--line);
+  }
+  .garden-filter-options {
+    display: grid;
+    gap: 2px;
+  }
+  .garden-filter-options label {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--s-2);
+    width: 100%;
+    min-height: 2.35rem;
+    padding: .48rem .6rem;
+    border: 1px solid transparent;
+    border-radius: .45rem;
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .garden-filter-options label:hover {
+    border-color: var(--line);
+    background: color-mix(in srgb, var(--surface) 70%, transparent);
+    color: var(--ink);
+  }
+  .garden-filter-options label:has(input:checked) {
+    border-color: var(--accent-line);
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+  .garden-filter-options label:has(input:focus-visible) {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .garden-filter-options span {
+    display: grid;
+    grid-template-columns: .8rem minmax(0, 1fr);
+    align-items: center;
+    justify-content: start;
+    gap: .55rem;
+    width: auto;
+    min-height: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: inherit;
+    text-align: left;
+  }
+  .garden-filter-options span::before {
+    content: "";
+    width: .7rem;
+    height: .7rem;
+    border: 1px solid #53627c;
+    border-radius: .18rem;
+    background: #0d1422;
+  }
+  .garden-filter-options input:checked + span,
+  .garden-filter-options input:focus-visible + span {
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: inherit;
+  }
+  .garden-filter-options input:checked + span::before {
+    border-color: var(--accent);
+    background: var(--accent);
+    box-shadow: inset 0 0 0 2px #0d1422;
+  }
+  .garden-topic-options small {
+    justify-self: end;
+    margin: 0;
+    padding: 0;
+  }
+  .garden-filter-toggle {
+    display: none;
+  }
+  .garden-results {
+    width: auto;
+    margin-inline: 0;
+    padding: var(--s-4) 0 var(--flow-section);
+  }
 }
 .garden-list {
   display: grid;

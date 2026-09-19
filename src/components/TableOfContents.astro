@@ -22,6 +22,7 @@ const worthListing = items.length >= 3;
         <span>{label}</span>
         <span class="toc__count" aria-hidden="true">{items.length}</span>
       </summary>
+      <div class="toc__progress" aria-hidden="true"><i data-toc-progress></i></div>
       <ol class="toc__list">
         {items.map((heading) => (
           <li class:list={["toc__item", heading.depth > minDepth && "is-sub"]}>
@@ -35,14 +36,17 @@ const worthListing = items.length >= 3;
 
 <script>
   /* The reader only needs one question answered here: which section am I in?
-     The current section is the last heading that passed under the header. */
+     The current section is the last heading that passed under the header; the
+     thin bar above the list answers "how far along am I". */
   const toc = document.querySelector<HTMLElement>("[data-toc]");
   if (toc) {
     const links = [...toc.querySelectorAll<HTMLAnchorElement>("[data-toc-link]")];
+    const progress = toc.querySelector<HTMLElement>("[data-toc-progress]");
     const sections = links.flatMap((link) => {
       const section = document.getElementById(link.dataset.tocLink ?? "");
       return section ? [{ link, section }] : [];
     });
+    const article = document.querySelector<HTMLElement>(".entry-shell") ?? document.body;
     const header = document.querySelector<HTMLElement>(".site-header");
     let frame = 0;
     const paint = () => {
@@ -56,6 +60,12 @@ const worthListing = items.length >= 3;
         if (active) link.setAttribute("aria-current", "location");
         else link.removeAttribute("aria-current");
       }
+      if (progress) {
+        const start = article.getBoundingClientRect().top + scrollY - offset;
+        const span = article.offsetHeight - innerHeight + offset;
+        const read = span > 0 ? (scrollY - start) / span : 1;
+        progress.style.width = `${Math.min(100, Math.max(0, read * 100)).toFixed(1)}%`;
+      }
     };
     const schedule = () => {
       if (!frame) frame = requestAnimationFrame(paint);
@@ -66,7 +76,6 @@ const worthListing = items.length >= 3;
     paint();
   }
 </script>
-
 <style>
   .toc { min-width: 0; }
   .toc__box { border-top: 1px solid var(--line); }
@@ -76,7 +85,13 @@ const worthListing = items.length >= 3;
   .toc__box[open] .toc__title::after { content: "−"; }
   .toc__count { margin-left: auto; color: var(--ink-2); font-size: .72rem; font-variant-numeric: tabular-nums; }
   .toc__box[open] .toc__count { margin-right: .4rem; }
-  .toc__list { display: grid; gap: .3rem; margin: 0 0 var(--s-4); padding: 0 0 0 var(--s-1); list-style: none; border-left: 1px solid var(--line); }
+  /* Reading progress: a hair of accent light between the summary and the list. */
+  .toc__progress { height: 2px; margin: 0 0 var(--s-2); border-radius: var(--radius-pill); background: color-mix(in srgb, var(--line) 70%, transparent); overflow: hidden; }
+  .toc__progress i { display: block; width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 55%, transparent), var(--accent)); transition: width .2s linear; }
+  @media (prefers-reduced-motion: reduce) { .toc__progress i { transition: none; } }
+  /* The list rolls inside its own box: the panel never grows past the fold,
+     so the contents stay one glance away on every screen height. */
+  .toc__list { display: grid; gap: .3rem; margin: 0 0 var(--s-4); padding: 0 0 0 var(--s-1); list-style: none; border-left: 1px solid var(--line); max-height: min(38dvh, 26rem); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
   .toc__item { min-width: 0; }
   .toc__item.is-sub { padding-left: var(--s-3); }
   .toc__item a { display: block; padding: .12rem 0 .12rem var(--s-3); color: var(--ink-2); font-size: .8rem; line-height: 1.4; text-decoration: none; text-wrap: pretty; }

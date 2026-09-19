@@ -19,27 +19,9 @@ export interface Experiment {
   repo?: string;
 }
 
-export const experiments: Experiment[] = [
-  {
-    name: "hello-lab",
-    title: "Hello, Lab",
-    summary: "Пробный запуск конвейера: минимальная страница, которая собирается из experiments/hello-lab и уезжает в бакет тем же git-пушем, что и остальные эксперименты.",
-    stack: ["HTML", "vanilla JS"],
-    status: "live",
-    href: "/lab/hello-lab/",
-  },
-  {
-    name: "building-blocks",
-    title: "Google Building Blocks",
-    summary: "WebXR-сцена на блоках Google Building Block: собранная в эксперименте пространственная механика, доступная прямо из браузера со шлемом.",
-    stack: ["WebXR", "three.js"],
-    status: "soon",
-  },
-  {
-    name: "meta-sdk",
-    title: "Meta XR SDK",
-    summary: "Демо возможностей Meta XR SDK в браузере: контроллеры, руки и сцена — шаг к прототипам следующей Вселенной.",
-    stack: ["WebXR", "Meta XR SDK"],
-    status: "soon",
-  },
-];
+/**
+ * Empty on purpose: a row appears here only when a real, working experiment
+ * ships in experiments/<name>/. Placeholder "coming soon" cards are not
+ * published — the lab pipeline (lab.yml) stays warm regardless.
+ */
+export const experiments: Experiment[] = [];

@@ -416,6 +416,10 @@ test("local enrichment keeps precise IoT, open-source and intimacy topics withou
   assert.equal(enrichLocally(platform).topics.includes("интим и близость"),false);
   const [spatial]=normalizeExport({messages:[{id:95,text:"Собрал 3D Gaussian Splats старой церкви и открыл сцену в WebXR."}]});
   assert.ok(enrichLocally(spatial).topics.includes("Gaussian Splatting"));
+  const [gallery]=normalizeExport({messages:[{id:934,text:"Сходил в галерею современного искусства и на новую выставку."}]});
+  assert.ok(enrichLocally(gallery).topics.includes("арт и сценография"));
+  const [aiOnly]=normalizeExport({messages:[{id:935,text:"Искусственный интеллект помог подготовиться к ArtMasters."}]});
+  assert.equal(enrichLocally(aiOnly).topics.includes("арт и сценография"),false);
   const [noise]=normalizeExport({messages:[{id:94,text:"Во время экскурсии увидел сайт Белого дома в интернете и результаты голосования."}]});
   const noiseTopics=enrichLocally(noise).topics;
   assert.equal(noiseTopics.includes("образование"),false);
