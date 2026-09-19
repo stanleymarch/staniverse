@@ -11,7 +11,7 @@
   padding: 0.9rem 1rem;
   border: 1px solid var(--glass-line);
   border-radius: var(--radius-panel);
-  background: linear-gradient(180deg, color-mix(in srgb, var(--ink) 5%, transparent), transparent 32%), var(--glass);
+  background: var(--glass);
   box-shadow: var(--glass-hi), var(--glass-glow);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
@@ -99,7 +99,7 @@
 .publication-facts span, .publication-facts a { max-width: 100%; padding: .35rem .65rem; border: 1px solid var(--glass-line); border-radius: var(--radius-pill); background: color-mix(in srgb, var(--surface) 55%, transparent); box-shadow: var(--glass-hi); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); overflow-wrap: anywhere; }
 .publication-facts a { color: var(--cyan); }
 .media-gallery { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,280px),1fr)); gap: .75rem; min-width: 0; margin: 0 0 3rem; }
-.media-gallery a { display: block; min-width: 0; overflow: hidden; border: 1px solid var(--glass-line); border-radius: var(--radius-panel); background: linear-gradient(180deg, color-mix(in srgb, var(--ink) 5%, transparent), transparent 32%), var(--glass); box-shadow: var(--glass-hi), var(--glass-glow); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); }
+.media-gallery a { display: block; min-width: 0; overflow: hidden; border: 1px solid var(--glass-line); border-radius: var(--radius-panel); background: var(--glass); box-shadow: var(--glass-hi), var(--glass-glow); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); }
 /* `auto <ratio>` reserves a box before intrinsic dimensions arrive, then yields
    to the media's own aspect ratio: no crop, no late reflow. */
 .media-gallery img { display: block; width: 100%; max-width: 100%; height: auto; aspect-ratio: auto 4 / 3; object-fit: contain; }
@@ -170,7 +170,7 @@ audio.telegram-inline-media { min-height: 2.6rem; }
   color: var(--ink);
   border: 1px solid var(--glass-line);
   border-radius: var(--radius-panel);
-  background: linear-gradient(180deg, color-mix(in srgb, var(--ink) 5%, transparent), transparent 32%), var(--glass);
+  background: var(--glass);
   box-shadow: var(--glass-hi), var(--glass-glow);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);

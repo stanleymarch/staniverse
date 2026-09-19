@@ -53,14 +53,15 @@
   --accent-line: color-mix(in srgb, var(--accent) 42%, transparent);
   --glow: 0 0 24px color-mix(in srgb, var(--accent) 16%, transparent);
 
-  /* Glass layer: frosted archival panels floating over the deep ground.
-     Translucency + blur + cold hairline + inner top-light + faint edge glow. */
-  --glass: color-mix(in srgb, var(--surface) 62%, transparent);
-  --glass-strong: color-mix(in srgb, var(--surface) 78%, transparent);
-  --glass-line: color-mix(in srgb, var(--ink) 13%, transparent);
-  --glass-hi: inset 0 1px 0 color-mix(in srgb, var(--ink) 9%, transparent);
-  --glass-glow: 0 0 0 1px color-mix(in srgb, var(--accent) 8%, transparent), 0 8px 32px rgb(0 0 0 / .38), 0 0 24px color-mix(in srgb, var(--accent) 7%, transparent);
-  --glass-blur: blur(16px) saturate(1.25);
+  /* iOS-style glass: flat translucent panel lifted with white, not darkened.
+     No bevel, no accent ring — depth from blur + one soft shadow only.
+     Blur works only over a lit backdrop, so body keeps two faint nebulae. */
+  --glass: color-mix(in srgb, var(--ink) 8%, color-mix(in srgb, var(--surface) 38%, transparent));
+  --glass-strong: color-mix(in srgb, var(--ink) 10%, color-mix(in srgb, var(--surface) 52%, transparent));
+  --glass-line: color-mix(in srgb, var(--ink) 16%, transparent);
+  --glass-hi: inset 0 1px 1px color-mix(in srgb, var(--ink) 14%, transparent);
+  --glass-glow: 0 12px 40px rgb(0 0 0 / .35);
+  --glass-blur: blur(24px) saturate(1.6) brightness(1.12);
 
   /* Names the older stylesheets still read. Aliases of the palette above,
      kept so a page cannot drift onto a private colour while it migrates. */
@@ -145,8 +146,7 @@ body {
   min-height: 100vh;
   margin: 0;
   overflow-x: clip;
-  /* One cold glow off the corner: deep space, kept quiet enough to read on. */
-  background: radial-gradient(circle at 78% -10%, color-mix(in srgb, var(--accent) 7%, transparent), transparent 32rem), var(--ground);
+  background: radial-gradient(circle at 78% -10%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 34rem), radial-gradient(circle at 8% 108%, color-mix(in srgb, #a99bff 10%, transparent), transparent 36rem), var(--ground);
   font-size: var(--text-body);
   line-height: 1.6;
 }
@@ -237,7 +237,7 @@ iframe { max-width: 100%; }
   gap: var(--s-3);
   padding: var(--s-2) var(--rail-inset);
   border-bottom: 1px solid var(--glass-line);
-  background: linear-gradient(180deg, color-mix(in srgb, var(--ink) 5%, transparent), transparent 60%), color-mix(in srgb, var(--surface) 68%, transparent);
+  background: var(--glass);
   box-shadow: var(--glass-hi);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
@@ -447,7 +447,7 @@ iframe { max-width: 100%; }
   padding: var(--s-4);
   border: 1px solid var(--glass-line);
   border-radius: var(--radius-panel);
-  background: linear-gradient(180deg, color-mix(in srgb, var(--ink) 5%, transparent), transparent 32%), var(--glass-strong);
+  background: var(--glass-strong);
   box-shadow: var(--glass-hi), var(--glass-glow), 0 1.2rem 4rem rgba(0, 0, 0, .42);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
@@ -494,7 +494,7 @@ iframe { max-width: 100%; }
   padding: .6rem var(--s-4);
   border: 1px solid var(--glass-line);
   border-radius: var(--radius-pill);
-  background: linear-gradient(180deg, color-mix(in srgb, var(--ink) 6%, transparent), transparent 50%), var(--glass);
+  background: var(--glass);
   color: var(--ink);
   text-align: center;
   box-shadow: var(--glass-hi);
@@ -545,7 +545,7 @@ iframe { max-width: 100%; }
   overflow: hidden;
   border: 1px solid var(--glass-line);
   border-radius: var(--radius-panel);
-  background: linear-gradient(180deg, color-mix(in srgb, var(--ink) 5%, transparent), transparent 32%), var(--glass);
+  background: var(--glass);
   box-shadow: var(--glass-hi), var(--glass-glow);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
@@ -560,7 +560,7 @@ iframe { max-width: 100%; }
 .fact-panel:focus-visible, .topic-cloud a:focus-visible, .media-gallery a:focus-visible { border-color: var(--accent-line); transform: translateY(-2px); box-shadow: var(--glass-hi), var(--glass-glow), var(--glow); }
 
 .content-card:hover,
-.content-card:focus-visible { border-color: var(--accent-line); background: linear-gradient(180deg, color-mix(in srgb, var(--ink) 7%, transparent), transparent 36%), var(--glass-strong); transform: translateY(-2px); box-shadow: var(--glass-hi), var(--glass-glow), var(--glow); }
+.content-card:focus-visible { border-color: var(--accent-line); background: var(--glass-strong); transform: translateY(-2px); box-shadow: var(--glass-hi), var(--glass-glow), var(--glow); }
 .content-card.large { grid-column: span 2; }
 /* No frosted-glass support: fall back to the solid raised surface. */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
@@ -590,7 +590,7 @@ iframe { max-width: 100%; }
 .card-meta time { margin-left: auto; color: var(--ink-2); letter-spacing: 0; text-transform: none; }
 
 .tag-row { position: relative; display: flex; flex-wrap: wrap; gap: var(--s-2); min-width: 0; color: var(--ink-2); font-size: .72rem; }
-.tag-row span, .tag-row a { max-width: 100%; padding: .25rem .6rem; border: 1px solid var(--glass-line); border-radius: var(--radius-pill); background: color-mix(in srgb, var(--surface) 55%, transparent); box-shadow: var(--glass-hi); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); overflow-wrap: anywhere; }
+.tag-row span, .tag-row a { max-width: 100%; padding: .25rem .6rem; border: 1px solid var(--glass-line); border-radius: var(--radius-pill); background: var(--glass); box-shadow: var(--glass-hi); backdrop-filter: blur(10px) saturate(1.4); -webkit-backdrop-filter: blur(10px) saturate(1.4); overflow-wrap: anywhere; }
 .tag-group { margin-top: var(--s-3); }
 .tag-group .tag-row { margin-top: var(--s-2); }
 .tag-origin { color: var(--ink-2); font-size: .68rem; letter-spacing: .09em; text-transform: uppercase; }
@@ -636,7 +636,7 @@ iframe { max-width: 100%; }
 select.filter-button { padding-inline: .65rem .8rem; border-bottom: 1px solid color-mix(in srgb, var(--line) 72%, transparent); font-size: .88rem; }
 
 .about-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--grid-gap); min-width: 0; }
-.fact-panel { min-width: 0; padding: var(--s-5); border: 1px solid var(--glass-line); border-radius: var(--radius-panel); background: linear-gradient(180deg, color-mix(in srgb, var(--ink) 5%, transparent), transparent 32%), var(--glass); box-shadow: var(--glass-hi), var(--glass-glow); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); }
+.fact-panel { min-width: 0; padding: var(--s-5); border: 1px solid var(--glass-line); border-radius: var(--radius-panel); background: var(--glass); box-shadow: var(--glass-hi), var(--glass-glow); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); }
 .fact-panel h2 { overflow-wrap: anywhere; font: 500 var(--text-h3) / 1.25 var(--font-display); }
 
 /* The immersive scene owns its own shell in universe.css: the canvas, the
@@ -717,7 +717,7 @@ select.filter-button { padding-inline: .65rem .8rem; border-bottom: 1px solid co
 /* Site search overlay */
 .site-search { position: fixed; inset: 0; z-index: 90; display: grid; place-items: start center; padding: 12vh 1rem 2rem; background: color-mix(in srgb, var(--ground) 78%, transparent); backdrop-filter: blur(6px); }
 .site-search[hidden] { display: none; }
-.site-search-box { width: min(680px, 100%); max-height: 70vh; padding: var(--s-3); overflow: auto; border: 1px solid var(--glass-line); border-radius: var(--radius-panel); background: linear-gradient(180deg, color-mix(in srgb, var(--ink) 5%, transparent), transparent 32%), var(--glass-strong); box-shadow: var(--glass-hi), var(--glass-glow), 0 24px 60px rgb(0 0 0 / .45); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); display: grid; gap: var(--s-2); }
+.site-search-box { width: min(680px, 100%); max-height: 70vh; padding: var(--s-3); overflow: auto; border: 1px solid var(--glass-line); border-radius: var(--radius-panel); background: var(--glass-strong); box-shadow: var(--glass-hi), var(--glass-glow), 0 24px 60px rgb(0 0 0 / .45); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); display: grid; gap: var(--s-2); }
 .site-search-head { display: flex; gap: var(--s-2); align-items: center; }
 .site-search-head input { flex: 1; min-height: 44px; padding: .45rem .1rem; border: none; border-bottom: 1px solid var(--line); background: none; color: var(--ink); outline: none; }
 .site-search-head input:focus { border-color: var(--accent); }
