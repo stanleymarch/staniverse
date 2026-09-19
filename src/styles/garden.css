@@ -304,7 +304,7 @@
 }
 .garden-filter-sheet-head { display: none; }
 .garden-filter-backdrop[hidden] { display: none; }
-@media (max-width: 1099px) {
+@media (max-width: 899px) {
   html.garden-filters-open { overflow: hidden; }
   .garden-filter-backdrop { position: fixed; inset: 0; z-index: 58; background: rgba(3, 5, 9, .72); backdrop-filter: blur(6px); }
   .garden-side { position: fixed; right: 0; bottom: 0; left: 0; z-index: 59; max-height: 82dvh; overflow-y: auto; overscroll-behavior: contain; border-top: 1px solid var(--accent-line); border-radius: 1.3rem 1.3rem 0 0; background: #080d17; box-shadow: 0 -1.2rem 4rem rgba(0, 0, 0, .38); visibility: hidden; transform: translateY(104%); transition: transform .25s var(--ease), visibility .25s; }
@@ -327,7 +327,7 @@
   overscroll-behavior: contain;
   scrollbar-width: thin;
 }
-@media (min-width: 1100px) {
+@media (min-width: 900px) {
   .garden-layout {
     display: grid;
     grid-template-columns: 19rem minmax(0, 1fr);

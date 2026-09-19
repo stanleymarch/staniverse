@@ -162,7 +162,7 @@
 
   function setFiltersOpen(open, focus = true) {
     if (!facets || !filterToggle) return;
-    const mobile = !matchMedia('(min-width: 1100px)').matches;
+    const mobile = !matchMedia('(min-width: 900px)').matches;
     facets.hidden = !open;
     filterToggle.setAttribute('aria-expanded', String(open));
     filterSide?.classList.toggle('is-open', open && mobile);
@@ -231,7 +231,7 @@
 
   /* On a desktop the facet rail is a permanent left column: open it without
      stealing focus, and let a resize carry the state across the breakpoint. */
-  const wide = matchMedia('(min-width: 1100px)');
+  const wide = matchMedia('(min-width: 900px)');
   if (wide.matches) setFiltersOpen(true, false);
   wide.addEventListener('change', (event) => setFiltersOpen(event.matches, false));
   /* The map mounts as a module, after this script has already rendered once:
