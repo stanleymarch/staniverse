@@ -7,8 +7,8 @@ date: "2023-09-22T22:52:47"
 updated: "2023-09-22T23:06:36"
 tags: []
 sourceTags: []
-topics: ["open source","xr","видео и продакшн","игры","технологии","общество"]
-entities: ["YouTube","VRChat"]
+topics: ["games","open-source"]
+entities: []
 sourceUrl: "https://t.me/staniverse/4"
 sourceId: "4"
 threadIds: ["4"]
