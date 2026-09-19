@@ -1,25 +1,20 @@
 ---
 import Base from "../../layouts/Base.astro";
-import {
-  capabilityFacets,
-  complexityFacets,
-  complexityLabels,
-  experiments,
-  platformFacets,
-  stackFacets,
-  typeFacets,
-} from "../../data/experiments";
+import { getCollection } from "astro:content";
+import { complexityLabels, hrefFor } from "../../lib/content";
 
-/* One row per facet, all built the same way. A row disappears with its whole
-   vocabulary: with no headset experiment yet the platform facet still has a
-   value, while "Возможности" stays hidden until the first AI or backend piece
-   ships instead of offering an empty chip. */
+/* The catalogue is the content collection itself: a facet vocabulary is derived
+   from the rows, so a new experiment adds its own type, platform, capability or
+   technology to the filters just by existing. A row without values never shows
+   (no empty chips), and complexity keeps its fixed three levels. */
+const entries = (await getCollection("experiments")).sort((a, b) => a.data.title.localeCompare(b.data.title, "ru"));
+const vocabulary = (values: string[]) => [...new Set(values)].sort((a, b) => a.localeCompare(b, "ru"));
 const facetRows = [
-  { key: "type", label: "Тип", any: "Все", values: typeFacets.map((value) => ({ value, label: value })) },
-  { key: "platform", label: "Платформа", any: "Любая", values: platformFacets.map((value) => ({ value, label: value })) },
-  { key: "capability", label: "Возможности", any: "Любые", values: capabilityFacets.map((value) => ({ value, label: value })) },
-  { key: "stack", label: "Технология", any: "Все", values: stackFacets.map((value) => ({ value, label: value })) },
-  { key: "complexity", label: "Сложность", any: "Любая", values: complexityFacets.map((level) => ({ value: String(level), label: complexityLabels[level] })) },
+  { key: "type", label: "Тип", any: "Все", values: vocabulary(entries.flatMap((entry) => entry.data.types)) },
+  { key: "platform", label: "Платформа", any: "Любая", values: vocabulary(entries.flatMap((entry) => entry.data.platforms)) },
+  { key: "capability", label: "Возможности", any: "Любые", values: vocabulary(entries.flatMap((entry) => entry.data.capabilities)) },
+  { key: "stack", label: "Технология", any: "Все", values: vocabulary(entries.flatMap((entry) => entry.data.stack)) },
+  { key: "complexity", label: "Сложность", any: "Любая", values: ([3, 2, 1] as const).filter((level) => entries.some((entry) => entry.data.complexity === level)).map(String) },
 ].filter((row) => row.values.length > 0);
 
 const jsonLd = {
@@ -27,30 +22,30 @@ const jsonLd = {
   "@id": new URL("/lab/#page", Astro.site).href,
   url: new URL("/lab/", Astro.site).href,
   name: "Лаборатория — эксперименты станивёрса",
-  description: "Отдельные WebXR- и браузерные эксперименты: одни собираются из каталога experiments/<имя>/ и публикуются под /lab/<имя>/, другие живут в отдельном репозитории и публикуются на GitHub Pages.",
+  description: "Отдельные WebXR- и браузерные эксперименты: игры, приложения и арт-опыты — от мобильного AR до гарнитур. У каждого есть запуск и страница с разбором механики.",
   inLanguage: "ru-RU",
   isPartOf: { "@id": new URL("/#website", Astro.site).href },
-  hasPart: experiments.map((experiment) => ({
+  hasPart: entries.map((entry) => ({
     "@type": "CreativeWork",
-    name: experiment.title,
-    description: experiment.summary,
-    keywords: [...experiment.types, ...experiment.platforms, ...experiment.capabilities, ...experiment.stack].join(", "),
-    url: experiment.href ? new URL(experiment.href, Astro.site).href : undefined,
+    name: entry.data.title,
+    description: entry.data.summary,
+    keywords: [...entry.data.types, ...entry.data.platforms, ...entry.data.capabilities, ...entry.data.stack].join(", "),
+    url: entry.data.href ?? new URL(hrefFor(entry), Astro.site).href,
   })),
 };
 ---
 
-<Base title="Лаборатория" description="Отдельные WebXR- и браузерные эксперименты Станислава Ермоленко: игры, приложения и инструменты — от мобильного AR до гарнитур." jsonLd={jsonLd}>
+<Base title="Лаборатория" description="Отдельные WebXR- и браузерные эксперименты Станислава Ермоленко: игры, приложения и арт-опыты — от мобильного AR до гарнитур. У каждого есть запуск и разбор механики." jsonLd={jsonLd}>
   <header class="catalog-hero">
     <div class="section-kicker">Лаборатория</div>
     <h1>Эксперименты</h1>
-    <p class="hero-lead">Самостоятельные приложения, а не только игры: WebXR-сцены, демо SDK, пространственные механики, а дальше — вещи с ИИ и бэкендом. Что-то собирается из каталога <code>experiments/&lt;имя&gt;/</code> и публикуется по адресу <code>/lab/&lt;имя&gt;/</code> тем же git-пушем, что и основной сайт; что-то живёт в отдельном репозитории и уезжает на GitHub Pages. Ссылка в карточке ведёт туда, где эксперимент работает сейчас; демо с камерой стоит открывать с телефона.</p>
+    <p class="hero-lead">Самостоятельные приложения, а не только игры: WebXR-сцены, демо SDK, пространственные механики, а дальше — вещи с ИИ и бэкендом. Каждый эксперимент запускается по ссылке из карточки, а рядом лежит короткий разбор: что внутри и как этим пользоваться. Демо с камерой стоит открывать с телефона.</p>
   </header>
   <section class="section">
-    {experiments.length === 0 ? (
+    {entries.length === 0 ? (
       <div class="lab-empty">
         <p><strong>Пока пусто — и это честно.</strong></p>
-        <p>Карточки появятся здесь одновременно с первыми работающими экспериментами: конвейер сборки и публикации уже проверен, новые несут реальные демо, а не заглушки.</p>
+        <p>Карточки появятся здесь одновременно с первыми работающими экспериментами.</p>
       </div>
     ) : (
       <>
@@ -59,7 +54,7 @@ const jsonLd = {
             <div class="catalog-controls" role="group" aria-label={row.label}>
               <span class="facet-label">{row.label}</span>
               <button type="button" class="filter-button active" data-facet={row.key} data-value="all" aria-pressed="true">{row.any}</button>
-              {row.values.map((item) => <button type="button" class="filter-button" data-facet={row.key} data-value={item.value} aria-pressed="false">{item.label}</button>)}
+              {row.values.map((value) => <button type="button" class="filter-button" data-facet={row.key} data-value={value} aria-pressed="false">{row.key === "complexity" ? complexityLabels[Number(value)] : value}</button>)}
             </div>
           ))}
           <div class="catalog-controls">
@@ -70,41 +65,40 @@ const jsonLd = {
               <option value="complexity-asc">Сложность: сначала простые</option>
               <option value="title">Название: А–Я</option>
             </select>
-            <output class="lab-count" data-lab-count aria-live="polite">{experiments.length} из {experiments.length}</output>
+            <output class="lab-count" data-lab-count aria-live="polite">{entries.length} из {entries.length}</output>
           </div>
         </div>
         <div class="card-grid" data-lab-grid>
-          {experiments.map((experiment, index) => (
+          {entries.map((entry, index) => (
             <article
-              class:list={["content-card", { "is-soon": experiment.status === "soon" }]}
-              id={experiment.name}
+              class:list={["content-card", { "is-soon": entry.data.status === "soon" }]}
+              id={entry.id}
               data-kind="experiment"
               data-index={index}
-              data-title={experiment.title}
-              data-types={experiment.types.join("|")}
-              data-platforms={experiment.platforms.join("|")}
-              data-capabilities={experiment.capabilities.join("|")}
-              data-stack={experiment.stack.join("|")}
-              data-complexity={experiment.complexity}
+              data-title={entry.data.title}
+              data-types={entry.data.types.join("|")}
+              data-platforms={entry.data.platforms.join("|")}
+              data-capabilities={entry.data.capabilities.join("|")}
+              data-stack={entry.data.stack.join("|")}
+              data-complexity={entry.data.complexity}
             >
               <div class="card-meta">
                 <span>Эксперимент</span>
-                <span>{complexityLabels[experiment.complexity]}</span>
-                {experiment.status === "live"
+                <span>{complexityLabels[entry.data.complexity]}</span>
+                {entry.data.status === "live"
                   ? <span class="status">Работает</span>
                   : <span class="status">Скоро</span>}
               </div>
-              <h2>{experiment.title}</h2>
-              <p>{experiment.summary}</p>
-              <div class="tag-row is-facet">{[...experiment.types, ...experiment.platforms, ...experiment.capabilities].map((value) => <span>{value}</span>)}</div>
-              <div class="tag-row">{experiment.stack.map((item) => <span>#{item}</span>)}</div>
+              <h2><a class="card-title-link" href={hrefFor(entry)}>{entry.data.title}</a></h2>
+              <p>{entry.data.summary}</p>
+              <div class="tag-row is-facet">{[...entry.data.types, ...entry.data.platforms, ...entry.data.capabilities].map((value) => <span>{value}</span>)}</div>
+              <div class="tag-row">{entry.data.stack.map((item) => <span>#{item}</span>)}</div>
               <div class="card-links">
-                {experiment.status === "live" && experiment.href
-                  ? <a class="card-arrow-link" href={experiment.href}>Открыть эксперимент <span class="card-arrow" aria-hidden="true">↗</span></a>
+                {entry.data.status === "live" && entry.data.href
+                  ? <a class="card-arrow-link" href={entry.data.href}>Открыть опыт <span class="card-arrow" aria-hidden="true">↗</span></a>
                   : <span class="card-arrow-link is-muted">Ещё в работе</span>}
-                {experiment.status === "live" && experiment.href && experiment.repo
-                  ? <a class="card-repo-link" href={experiment.repo}>Код</a>
-                  : null}
+                <a class="card-repo-link" href={hrefFor(entry)}>Разбор механики</a>
+                {entry.data.repo ? <a class="card-repo-link" href={entry.data.repo}>Код</a> : null}
               </div>
             </article>
           ))}
@@ -176,6 +170,8 @@ const jsonLd = {
   .lab-sort { width: auto; padding-right: var(--s-5); color: var(--ink); font: inherit; }
   .lab-count { display: inline-flex; align-items: center; min-height: 44px; color: var(--ink-2); font-size: .78rem; font-variant-numeric: tabular-nums; }
   .tag-row.is-facet span { border: 1px solid var(--line); background: transparent; }
+  .card-title-link { color: inherit; text-decoration: none; }
+  .card-title-link:hover, .card-title-link:focus-visible { color: var(--accent); }
   .card-links { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2) var(--s-4); margin-top: auto; padding-top: var(--s-3); }
   .card-arrow-link { display: inline-flex; align-items: center; gap: 6px; color: var(--accent); font-size: .8rem; letter-spacing: .04em; }
   .card-arrow-link.is-muted { color: var(--ink-2); }

@@ -1,11 +1,15 @@
 ---
-id: "project:tyaga"
-kind: project
+id: "experiment:tyaga"
+kind: experiment
 title: "Тяга"
 summary: "Веб-опыт на p5.js о механике зависимости: держишься, держишься — и в какой-то миг не отпускаешь навязчивую мысль и проигрываешь."
-status: "completed"
-started: 2026
-domains: ["web","art"]
+status: "live"
+href: "https://openprocessing.org/@stanleymarch/2942422"
+stack: ["p5.js"]
+types: ["арт-опыт"]
+platforms: ["десктоп"]
+capabilities: ["звук"]
+complexity: 1
 tags: ["web","art"]
 entities: []
 featured: true
@@ -49,5 +53,4 @@ p5.js — open-source JavaScript-библиотека для креативно�
 
 ## Ссылки
 
-- [Интерактивный опыт «Тяга» на OpenProcessing](https://openprocessing.org/@stanleymarch/2942422)
-- [Карточка эксперимента в лаборатории](/lab/#tyaga)
+- [Запустить опыт на OpenProcessing](https://openprocessing.org/@stanleymarch/2942422)

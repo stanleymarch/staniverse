@@ -3,7 +3,7 @@ import { collectTopics } from "./topics";
 import { getTopicDefinition, normalizeTopics } from "./taxonomy";
 
 function entryHref(entry: AnyEntry) {
-  const base = entry.collection === "works" ? "works" : entry.collection === "projects" ? "projects" : entry.collection === "articles" ? "articles" : "garden";
+  const base = entry.collection === "works" ? "works" : entry.collection === "projects" ? "projects" : entry.collection === "articles" ? "articles" : entry.collection === "experiments" ? "experiments" : "garden";
   return `/${base}/${entry.id}/`;
 }
 function summaryExcerpt(value: string, limit = 240) {

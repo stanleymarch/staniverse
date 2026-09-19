@@ -4,7 +4,7 @@ import type { GraphEdge, GraphNode } from "../lib/graph";
 import Base from "../layouts/Base.astro";
 import LocalGraph from "./LocalGraph.astro";
 import TableOfContents from "./TableOfContents.astro";
-import { hrefFor, kindLabel, projectStatus, workStatus } from "../lib/content";
+import { experimentStatus, hrefFor, kindLabel, projectStatus, workStatus } from "../lib/content";
 import { buildRecommendations } from "../lib/recommendations";
 import { topicRoute } from "../lib/topics";
 import { getCollection, render } from "astro:content";
@@ -13,10 +13,10 @@ interface Props { entry: AnyEntry; nodes: GraphNode[]; edges: GraphEdge[]; chapt
 const { entry, nodes, edges, chapters=[] } = Astro.props;
 const recommendations = buildRecommendations(entry.data.id, nodes, edges);
 const { Content, headings } = await render(entry);
-const status = entry.data.kind === "project" ? projectStatus[entry.data.status] : entry.data.kind === "work" ? workStatus[entry.data.status] : undefined;
+const status = entry.data.kind === "project" ? projectStatus[entry.data.status] : entry.data.kind === "work" ? workStatus[entry.data.status] : entry.data.kind === "experiment" ? experimentStatus[entry.data.status] : undefined;
 const published = entry.data.date ?? entry.data.updated;
 const publishedLabel = published ? new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "long", year: "numeric" }).format(published) : "";
-const showPublished = Boolean(published && ["article", "telegram-post", "telegram-article"].includes(entry.data.kind));
+const showPublished = Boolean(published && ["article", "telegram-post", "telegram-article", "experiment"].includes(entry.data.kind));
 const stageVertical = entry.collection === "publications" && entry.data.format === "short";
 const stageClass = ["video-stage", { "is-vertical": stageVertical }];
 const embedUrl = entry.collection === "publications" ? entry.data.embedUrl : undefined;
@@ -77,12 +77,14 @@ const schemaType = ["youtube-video", "video"].includes(entry.data.kind)
 /* Rich results need an image; a work or project falls back to its section card. */
 const schemaImage = entry.collection === "publications" && entry.data.thumbnailUrl
   ? entry.data.thumbnailUrl
-  : new URL(`/og/${entry.collection === "projects" ? "projects" : entry.collection === "works" ? "works" : entry.collection === "articles" ? "articles" : "garden"}.png`, Astro.site).href;
+  : new URL(`/og/${entry.collection === "projects" ? "projects" : entry.collection === "works" ? "works" : entry.collection === "articles" ? "articles" : entry.collection === "experiments" ? "experiments" : "garden"}.png`, Astro.site).href;
 const parentCrumb = entry.collection === "works"
   ? { name: "Работы", href: "/works/" }
   : entry.collection === "projects"
     ? { name: "Проекты", href: "/projects/" }
-    : { name: "Сад", href: "/garden/" };
+    : entry.collection === "experiments"
+      ? { name: "Лаборатория", href: "/lab/" }
+      : { name: "Сад", href: "/garden/" };
 const entryJsonLd: Record<string, unknown> = {
   "@type": schemaType,
   "@id": new URL(`${hrefFor(entry)}#content`, Astro.site).href,

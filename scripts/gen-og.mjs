@@ -47,7 +47,8 @@ const card = ({ label, title, accent = "#64dff4" }) => `
 const images = {
   "staniverse": { label: "Staniverse", title: "Цифровой сад", accent: "#64dff4" },
   "works": { label: "Работы", title: "Портфолио", accent: "#64dff4" },
-  "projects": { label: "Проекты", title: "Лаборатория", accent: "#7183bd" },
+  "projects": { label: "Проекты", title: "Собственные проекты", accent: "#7183bd" },
+  "experiments": { label: "Лаборатория", title: "Эксперименты", accent: "#7183bd" },
   "garden": { label: "Сад", title: "Каталог опыта", accent: "#64dff4" },
   "videos": { label: "Видео", title: "Видеотека", accent: "#ef8ecf" },
   "topics": { label: "Темы", title: "Указатель", accent: "#7183bd" },

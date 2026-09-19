@@ -4,12 +4,14 @@ export type AnyEntry =
   | CollectionEntry<"works">
   | CollectionEntry<"projects">
   | CollectionEntry<"articles">
+  | CollectionEntry<"experiments">
   | CollectionEntry<"publications">;
 
 export const kindLabel: Record<string, string> = {
   work: "Работа",
   project: "Собственный проект",
   article: "Статья",
+  experiment: "Эксперимент",
   "telegram-post": "Telegram-пост",
   "telegram-article": "Telegram-статья",
   "youtube-video": "YouTube-видео",
@@ -31,11 +33,23 @@ export const workStatus: Record<string, string> = {
   completed: "Завершена",
 };
 
+export const experimentStatus: Record<string, string> = {
+  live: "Работает",
+  soon: "Скоро",
+};
+
+/** The three words the lab filters and experiment cards read for complexity. */
+export const complexityLabels: Record<number, string> = {
+  1: "Простая",
+  2: "Средняя",
+  3: "Сложная",
+};
+
 export function hrefFor(entry: AnyEntry) {
   /* The manifesto keeps its article data (graph, relations) but lives at its own
      address: it is the site's foundation text, not one article among articles. */
   if (entry.collection === "articles" && entry.id === "manifesto") return "/manifesto/";
-  const base = entry.collection === "works" ? "works" : entry.collection === "projects" ? "projects" : entry.collection === "articles" ? "articles" : "garden";
+  const base = entry.collection === "works" ? "works" : entry.collection === "projects" ? "projects" : entry.collection === "articles" ? "articles" : entry.collection === "experiments" ? "experiments" : "garden";
   return `/${base}/${entry.id}/`;
 }
 
@@ -44,6 +58,7 @@ export async function allEntries(): Promise<AnyEntry[]> {
     getCollection("works"),
     getCollection("projects"),
     getCollection("articles"),
+    getCollection("experiments"),
     getCollection("publications"),
   ]);
   return groups.flat() as AnyEntry[];

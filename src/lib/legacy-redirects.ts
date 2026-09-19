@@ -49,8 +49,10 @@ export const legacyRedirects = new Map<string, string>([
   ["works/otborochnaya-rabota-artmasters", "/works/dver-kotoraya-zhdyot/"],
   ["works/tsifrovaya-stsenografiya-dlya-nomera-na-artmasters", "/works/ya-obmanyvat-sebya-ne-stanu/"],
   ["lab/parametrick", "/projects/mnemoform/"],
-  // «Тяга» была записью в каталоге работ: её старый адрес ведёт на страницу проекта.
-  ["works/cases/tyaga", "/projects/tyaga/"],
+  // «Тяга» была записью в каталоге работ, затем проектом и наконец экспериментом:
+  // оба прежних адреса ведут на страницу опыта в лаборатории.
+  ["works/cases/tyaga", "/experiments/tyaga/"],
+  ["projects/tyaga", "/experiments/tyaga/"],
   ["articles/ii-vayfu-na-14-fevralya-instruktsii-po-primeneniyu-i-sozdaniyu", "/articles/ai-waifu/"],
   ["articles/kak-ya-zaschitil-diplom-na-otlichno-s-pomoschyu-ii-agentov-i-sistemy-znaniy", "/articles/ai-diploma/"],
   ["articles", "/garden/"],

@@ -2,7 +2,12 @@
 import Base from "../../../layouts/Base.astro";
 import ContentCard from "../../../components/ContentCard.astro";
 import { getCollection } from "astro:content";
-const entries = (await getCollection("projects")).sort((a,b) => Number(b.data.featured)-Number(a.data.featured));
+/* Living work first: what is being built now outranks what is finished or shelved. */
+const projectRank: Record<string, number> = { active: 0, development: 0, planned: 1, idea: 1, paused: 2, completed: 3, archived: 4 };
+const entries = (await getCollection("projects")).sort((a,b) =>
+  (projectRank[a.data.status] ?? 5) - (projectRank[b.data.status] ?? 5) ||
+  Number(b.data.featured)-Number(a.data.featured) ||
+  a.data.title.localeCompare(b.data.title, "ru"));
 const statuses = [...new Set(entries.map((entry) => entry.data.status))];
 
 /* Filter keys stay the Russian status slugs — the inline script compares them with
@@ -44,10 +49,6 @@ const copy: Record<string, { title: string; summary: string }> = {
     title: "Personal File",
     summary: "A work about what happens when a machine writes a person's description — from their own words, with their consent — and that description then affects the person themselves.",
   },
-  "project:tyaga": {
-    title: "Craving",
-    summary: "A web experience in p5.js about the mechanics of addiction: you hold on and hold on — and at some point you do not let the thought go and you lose.",
-  },
   "project:metavyatka": {
     title: "MetaVyatka",
     summary: "MetaVyatka is an unfinished digital archive and XR project about Vyatka, already presented in festival applications and individual digital conservation cases. Its further directions include growing the sound archive, a Next.js catalogue, an AI guide with RAG and moving the worlds to BasisVR; the readiness of these planned systems is not claimed.",
@@ -83,7 +84,7 @@ const copy: Record<string, { title: string; summary: string }> = {
 };
 ---
 <Base title="Own projects" description="Own projects of Stanislav Ermolenko at the intersection of XR, AI, automation, digital culture, media and the preservation of memory." lang="en">
-  <header class="catalog-hero"><div class="section-kicker">Lab</div><h1>Own projects</h1><p class="hero-lead">Not work for someone else, but ideas and research that keep moving: sometimes in a leap, sometimes slowly, sometimes still looking for their form.</p><div class="catalog-controls" data-filter-controls><button class="filter-button active" data-filter="all">All</button>{statuses.map((status) => <button class="filter-button" data-filter={status}>{statusLabels[status] ?? status}</button>)}</div></header>
+  <header class="catalog-hero"><div class="section-kicker">Projects</div><h1>Own projects</h1><p class="hero-lead">Not work for someone else, but ideas and research that keep moving: sometimes in a leap, sometimes slowly, sometimes still looking for their form.</p><div class="catalog-controls" data-filter-controls><button class="filter-button active" data-filter="all">All</button>{statuses.map((status) => <button class="filter-button" data-filter={status}>{statusLabels[status] ?? status}</button>)}</div></header>
   <section class="section"><div class="card-grid" data-filter-grid>{entries.map((entry) => <div data-project-status={entry.data.status}><ContentCard entry={entry} headingLevel="h2" hrefOverride={translatedProjects[entry.data.id]} titleOverride={copy[entry.data.id]?.title} summaryOverride={copy[entry.data.id]?.summary} kindLabelOverride="Own project" statusOverride={statusLabels[entry.data.status]} tagsOverride={tagsOf(entry)} /></div>)}</div><div class="empty-state">There are no projects with this status yet.</div></section>
   <script is:inline>
     document.querySelectorAll('[data-filter-controls] button').forEach((button) => button.addEventListener('click', () => {

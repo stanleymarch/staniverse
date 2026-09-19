@@ -118,6 +118,33 @@ const articles = defineCollection({
   schema: common.extend({ kind: z.literal("article"), sourceUrl: z.url().optional(), legacySource: z.string().optional() }),
 });
 
+/**
+ * The lab catalogue. An experiment is a runnable thing first (`href`), a story
+ * second (the body, rendered like a project page) — so the entry carries both the
+ * facets the /lab/ filters read and the address where the thing actually runs.
+ */
+const experiments = defineCollection({
+  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/experiments" }),
+  schema: common.extend({
+    kind: z.literal("experiment"),
+    status: z.enum(["live", "soon"]),
+    /** Where the experiment runs: an absolute address (GitHub Pages, OpenProcessing…). */
+    href: z.url().optional(),
+    /** Source repository when the code lives outside this monorepo. */
+    repo: z.url().optional(),
+    stack: z.array(z.string()).default([]),
+    /** Type of the thing: игра, песочница, приложение, инструмент, арт-опыт. */
+    types: z.array(z.string()).default([]),
+    /** Where it runs: мобильные, гарнитуры, десктоп. */
+    platforms: z.array(z.string()).default([]),
+    /** What it can do beyond rendering: ИИ, бэкенд, физика, звук, мультиплеер. */
+    capabilities: z.array(z.string()).default([]),
+    /** 1 — одна механика, 2 — механика со счётом или физикой, 3 — несколько состояний и прогрессия. */
+    complexity: z.union([z.literal(1), z.literal(2), z.literal(3)]),
+    legacySource: z.string().optional(),
+  }),
+});
+
 const publications = defineCollection({
   loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/publications" }),
   schema: common.extend({
@@ -144,4 +171,4 @@ const publications = defineCollection({
   }),
 });
 
-export const collections = { works, projects, articles, publications };
+export const collections = { works, projects, articles, experiments, publications };
