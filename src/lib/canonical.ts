@@ -2,6 +2,7 @@ import type { CollectionEntry } from "astro:content";
 
 
 const projectByClient = new Map([
+  ["проект: loci", "project:loci"],
   ["проект: albina", "project:albina"],
   ["проект: metavyatka", "project:metavyatka"],
   ["проект: omnipub", "project:omnipub"],

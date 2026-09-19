@@ -3,11 +3,16 @@ import Base from "../../layouts/Base.astro";
 import ContentCard from "../../components/ContentCard.astro";
 import { getCollection } from "astro:content";
 import { projectStatus } from "../../lib/content";
-const entries = (await getCollection("projects")).sort((a,b) => Number(b.data.featured)-Number(a.data.featured));
+/* Living work first: what is being built now outranks what is finished or shelved. */
+const projectRank: Record<string, number> = { active: 0, development: 0, planned: 1, idea: 1, paused: 2, completed: 3, archived: 4 };
+const entries = (await getCollection("projects")).sort((a,b) =>
+  (projectRank[a.data.status] ?? 5) - (projectRank[b.data.status] ?? 5) ||
+  Number(b.data.featured)-Number(a.data.featured) ||
+  a.data.title.localeCompare(b.data.title, "ru"));
 const statuses = [...new Set(entries.map((entry) => entry.data.status))];
 ---
 <Base title="Собственные проекты" description="Собственные проекты Станислава Ермоленко на стыке XR, AI, автоматизации, цифровой культуры, медиа и сохранения памяти.">
-  <header class="catalog-hero"><div class="section-kicker">Лаборатория</div><h1>Собственные проекты</h1><p class="hero-lead">Не работы для кого-то, а идеи и исследования, которые двигаются: иногда рывком, иногда медленно, иногда ещё только ищут форму.</p><div class="catalog-controls" data-filter-controls><button class="filter-button active" data-filter="all">Все</button>{statuses.map((status) => <button class="filter-button" data-filter={status}>{projectStatus[status]}</button>)}</div></header>
+  <header class="catalog-hero"><div class="section-kicker">Проекты</div><h1>Собственные проекты</h1><p class="hero-lead">Не работы для кого-то, а идеи и исследования, которые двигаются: иногда рывком, иногда медленно, иногда ещё только ищут форму.</p><div class="catalog-controls" data-filter-controls><button class="filter-button active" data-filter="all">Все</button>{statuses.map((status) => <button class="filter-button" data-filter={status}>{projectStatus[status]}</button>)}</div></header>
   <section class="section"><div class="card-grid" data-filter-grid>{entries.map((entry) => <div data-project-status={entry.data.status}><ContentCard entry={entry} headingLevel="h2" /></div>)}</div><div class="empty-state">Проектов с таким статусом пока нет.</div></section>
   <script is:inline>
     document.querySelectorAll('[data-filter-controls] button').forEach((button) => button.addEventListener('click', () => {

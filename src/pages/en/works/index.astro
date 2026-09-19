@@ -2,7 +2,10 @@
 import Base from "../../../layouts/Base.astro";
 import ContentCard from "../../../components/ContentCard.astro";
 import { getCollection } from "astro:content";
+import { ownedProjectId } from "../../../lib/canonical";
+/* Chapters of own projects live inside their project, not in the client portfolio. */
 const entries = (await getCollection("works"))
+  .filter((entry) => !ownedProjectId(entry))
   .sort((a,b) => Number(b.data.featured)-Number(a.data.featured));
 const genres = [...new Set(entries.flatMap((entry) => entry.data.genres))].sort();
 
