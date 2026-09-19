@@ -77,6 +77,7 @@ const jsonLd = {
           {experiments.map((experiment, index) => (
             <article
               class:list={["content-card", { "is-soon": experiment.status === "soon" }]}
+              id={experiment.name}
               data-kind="experiment"
               data-index={index}
               data-title={experiment.title}

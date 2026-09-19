@@ -92,6 +92,18 @@ export const experiments: Experiment[] = [
     href: "https://stanleymarch.github.io/ar-experiments/experiments/sea-battle/",
     repo: "https://github.com/stanleymarch/ar-experiments",
   },
+  {
+    name: "tyaga",
+    title: "Тяга",
+    summary: "Веб-опыт о механике зависимости: держишься, держишься, держишься — и в какой-то миг не отпускаешь навязчивую мысль и проигрываешь злой привычке. Цикл удержания, срыва и пустоты, где звук тоже собран средствами p5.js.",
+    stack: ["p5.js"],
+    types: ["арт-опыт"],
+    platforms: ["десктоп"],
+    capabilities: ["звук"],
+    complexity: 1,
+    status: "live",
+    href: "https://openprocessing.org/@stanleymarch/2942422",
+  },
 ];
 
 /* Facet vocabularies are derived from the rows themselves: a new experiment adds

@@ -10,7 +10,7 @@ const workIds = [
   "sayt-programmy-razvitiya-vyatgu-na-2021-2030-gody",
   "sayt-regionalnogo-tsentra-finansovoy-gramotnosti-kirovskoy-oblasti",
   "sayt-vserossiyskogo-foruma-inklyuzivnogo-vysshego-obrazovaniya", "sistema-sbora-i-analiza-trendov-na-n8n",
-  "tsifrovoy-sad-staniverse-xyz", "tyaga", "video-dlya-regionalnogo-operatora-po-obrascheniyu-s-tko",
+  "tsifrovoy-sad-staniverse-xyz", "video-dlya-regionalnogo-operatora-po-obrascheniyu-s-tko",
   "virtualnyy-ofis-advokata", "ya-obmanyvat-sebya-ne-stanu",
 ];
 
@@ -49,6 +49,8 @@ export const legacyRedirects = new Map<string, string>([
   ["works/otborochnaya-rabota-artmasters", "/works/dver-kotoraya-zhdyot/"],
   ["works/tsifrovaya-stsenografiya-dlya-nomera-na-artmasters", "/works/ya-obmanyvat-sebya-ne-stanu/"],
   ["lab/parametrick", "/projects/mnemoform/"],
+  // «Тяга» была записью в каталоге работ: её старый адрес ведёт на страницу проекта.
+  ["works/cases/tyaga", "/projects/tyaga/"],
   ["articles/ii-vayfu-na-14-fevralya-instruktsii-po-primeneniyu-i-sozdaniyu", "/articles/ai-waifu/"],
   ["articles/kak-ya-zaschitil-diplom-na-otlichno-s-pomoschyu-ii-agentov-i-sistemy-znaniy", "/articles/ai-diploma/"],
   ["articles", "/garden/"],
