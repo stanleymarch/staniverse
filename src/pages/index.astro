@@ -12,7 +12,7 @@ for (const entry of [...(await getCollection("works")), ...(await getCollection(
 const pick = (ids: string[]) => ids.flatMap((id) => { const entry = entryById.get(id); return entry ? [entry] : []; });
 
 const works = pick(["work:virtualnyy-ofis-advokata", "work:maslenitsa-v-slobodskom", "work:ya-obmanyvat-sebya-ne-stanu", "work:arka-vyatskogo-kremlya"]);
-const projects = pick(["project:nearventure", "project:metavyatka", "project:albina", "project:omnipub", "project:mnemoform"]);
+const projects = pick(["project:nearventure", "project:loci", "project:metavyatka", "project:omnipub", "project:mnemoform", "project:lichnoe-delo"]);
 
 /* Four concrete practices, each backed by a real entry. The audience statement
    stays narrower than the skills list: no invented client segment for symmetry. */
@@ -59,7 +59,7 @@ type SkyStar = { key: string; entry: AnyEntry; band: 0 | 1 | 2; side: "left" | "
 const skyPlan: Omit<SkyStar, "entry">[] = [
   { key: "work:virtualnyy-ofis-advokata", band: 0, side: "left", tint: "cyan", mag: 13 },
   { key: "work:arka-vyatskogo-kremlya", band: 0, side: "right", tint: "amber", mag: 10 },
-  { key: "project:albina", band: 1, side: "left", tint: "rose", mag: 8 },
+  { key: "project:loci", band: 1, side: "left", tint: "rose", mag: 8 },
   { key: "project:metavyatka", band: 1, side: "right", tint: "violet", mag: 12 },
   { key: "work:maslenitsa-v-slobodskom", band: 2, side: "left", tint: "mint", mag: 10 },
   { key: "work:ya-obmanyvat-sebya-ne-stanu", band: 2, side: "right", tint: "steel", mag: 11 },

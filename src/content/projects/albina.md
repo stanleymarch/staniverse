@@ -3,15 +3,17 @@ id: "project:albina"
 kind: project
 title: "Albina"
 summary: "Albina — это embodied AI-персона с памятью, характером, голосом и несколькими режимами присутствия. Меня здесь интересует не просто «чат-бот с аватаром», а цифровая сущность, у которой есть поведенческая рамка, визуальн…"
-status: "planned"
+status: "archived"
 domains: ["ai","xr","automation"]
 tags: ["ai","xr","automation"]
 entities: []
-featured: true
-updated: "2026-04-15"
+featured: false
+updated: "2026-09-19"
 legacySource: "F:/Code/active/sverseq/content/lab/albina.md"
-relations: [{"target":"article:ai-waifu","type":"develops","evidence":"editorial","confidence":1},{"target":"publication:telegram:staniverse:566","type":"documents","evidence":"editorial","confidence":1},{"target":"project:omnipub","type":"related","evidence":"editorial","confidence":0.8},{"target":"project:metavyatka","type":"related","evidence":"editorial","confidence":0.8},{"target":"project:zapovednaya-vyatka-360","type":"related","evidence":"editorial","confidence":0.8}]
+relations: [{"target":"article:ai-waifu","type":"develops","evidence":"editorial","confidence":1},{"target":"publication:telegram:staniverse:566","type":"documents","evidence":"editorial","confidence":1},{"target":"project:omnipub","type":"related","evidence":"editorial","confidence":0.8},{"target":"project:metavyatka","type":"related","evidence":"editorial","confidence":0.8},{"target":"project:zapovednaya-vyatka-360","type":"related","evidence":"editorial","confidence":0.8},{"target":"project:loci","type":"related","evidence":"editorial","confidence":1}]
 ---
+*Идея переработана и продолжена как LOCI — цифровые персонажи для организаций с первым пилотом в музее. Эта страница остаётся как история ранней формулировки.*
+
 ## Суть
 `Albina` — это embodied AI-персона с памятью, характером, голосом и несколькими режимами присутствия. Меня здесь интересует не просто «чат-бот с аватаром», а цифровая сущность, у которой есть поведенческая рамка, визуальное тело, контекстная память и разные сценарии социального присутствия: от утилитарного ассистента до более интимного компаньона.
 

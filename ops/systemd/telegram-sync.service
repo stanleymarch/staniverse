@@ -1,0 +1,15 @@
+[Unit]
+Description=Sync new Telegram posts into the staniverse site
+Documentation=https://github.com/stanleymarch/staniverse#telegram
+After=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=%h/Projects/staniverse-site
+# node/npm live in ~/.local/bin here; ffmpeg and python3 in /usr/bin.
+Environment=PATH=%h/.local/bin:/usr/local/bin:/usr/bin:/bin
+ExecStart=/usr/bin/bash %h/Projects/staniverse-site/scripts/telegram-sync.sh
+# A failed run must not leave a half-written archive: report loudly in the journal.
+StandardOutput=journal
+StandardError=journal
+TimeoutStartSec=1800

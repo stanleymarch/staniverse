@@ -1,0 +1,12 @@
+[Unit]
+Description=Run the Telegram -> site sync four times a day
+
+[Timer]
+# 01:00, 07:00, 13:00, 19:00 local time — the 01:00 run is the nightly one.
+OnCalendar=*-*-* 01,07,13,19:00:00
+# Catch up after the machine was asleep or off, without stacking duplicate runs.
+Persistent=true
+RandomizedDelaySec=300
+
+[Install]
+WantedBy=timers.target

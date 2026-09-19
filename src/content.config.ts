@@ -107,6 +107,8 @@ const projects = defineCollection({
     status: z.enum(["idea", "planned", "development", "active", "paused", "completed", "archived"]),
     started: z.union([z.number(), z.string()]).optional(),
     domains: z.array(z.string()),
+    // Concept visuals of a project: their own webp files under /media/projects/.
+    gallery: z.array(z.object({ src: z.string(), caption: z.string() })).default([]),
     legacySource: z.string().optional(),
   }),
 });

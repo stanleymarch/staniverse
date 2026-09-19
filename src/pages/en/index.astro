@@ -11,7 +11,7 @@ for (const entry of [...(await getCollection("works")), ...(await getCollection(
 const pick = (ids: string[]) => ids.flatMap((id) => { const entry = entryById.get(id); return entry ? [entry] : []; });
 
 const works = pick(["work:virtualnyy-ofis-advokata", "work:maslenitsa-v-slobodskom", "work:ya-obmanyvat-sebya-ne-stanu", "work:arka-vyatskogo-kremlya"]);
-const projects = pick(["project:nearventure", "project:metavyatka", "project:albina", "project:omnipub", "project:mnemoform"]);
+const projects = pick(["project:nearventure", "project:loci", "project:metavyatka", "project:omnipub", "project:mnemoform", "project:lichnoe-delo"]);
 
 /* Only four project pages exist in English so far. Every other link keeps the
    Russian original: a translation must never send a reader into a dead route. */
@@ -71,9 +71,13 @@ const copy: Record<string, { title: string; summary: string }> = {
     title: "MetaVyatka",
     summary: "MetaVyatka is an unfinished digital archive and XR project about Vyatka, already presented in festival applications and individual digital conservation cases. Its further directions include growing the sound archive, a Next.js catalogue, an AI guide with RAG and moving the worlds to BasisVR; the readiness of these planned systems is not claimed.",
   },
-  "project:albina": {
-    title: "Albina",
-    summary: "Albina is an embodied AI persona with memory, character, voice and several modes of presence. What interests me here is not simply a “chatbot with an avatar” but a digital entity that has a behavioural frame, a visual…",
+  "project:loci": {
+    title: "LOCI",
+    summary: "LOCI builds digital characters through which an organisation talks to its audience: the persona has a look, a voice and a character, while the knowledge and the allowed actions are controlled by the client.",
+  },
+  "project:lichnoe-delo": {
+    title: "Personal File",
+    summary: "A work about what happens when a machine writes a person's description — from their own words, with their consent — and that description then affects the person themselves.",
   },
   "project:omnipub": {
     title: "OmniPub",
@@ -130,7 +134,7 @@ type SkyStar = { key: string; entry: AnyEntry; band: 0 | 1 | 2; side: "left" | "
 const skyPlan: Omit<SkyStar, "entry">[] = [
   { key: "work:virtualnyy-ofis-advokata", band: 0, side: "left", tint: "cyan", mag: 13 },
   { key: "work:arka-vyatskogo-kremlya", band: 0, side: "right", tint: "amber", mag: 10 },
-  { key: "project:albina", band: 1, side: "left", tint: "rose", mag: 8 },
+  { key: "project:loci", band: 1, side: "left", tint: "rose", mag: 8 },
   { key: "project:metavyatka", band: 1, side: "right", tint: "violet", mag: 12 },
   { key: "work:maslenitsa-v-slobodskom", band: 2, side: "left", tint: "mint", mag: 10 },
   { key: "work:ya-obmanyvat-sebya-ne-stanu", band: 2, side: "right", tint: "steel", mag: 11 },

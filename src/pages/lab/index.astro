@@ -7,7 +7,7 @@ const jsonLd = {
   "@id": new URL("/lab/#page", Astro.site).href,
   url: new URL("/lab/", Astro.site).href,
   name: "Лаборатория — эксперименты станивёрса",
-  description: "Отдельные WebXR- и браузерные эксперименты: каждое приложение собирается из своего каталога и деплоится в бакет под /lab/<имя>/.",
+  description: "Отдельные WebXR- и браузерные эксперименты: одни собираются из каталога experiments/<имя>/ и публикуются под /lab/<имя>/, другие живут в отдельном репозитории и публикуются на GitHub Pages.",
   inLanguage: "ru-RU",
   isPartOf: { "@id": new URL("/#website", Astro.site).href },
   hasPart: experiments.map((experiment) => ({
@@ -19,11 +19,11 @@ const jsonLd = {
 };
 ---
 
-<Base title="Лаборатория" description="Отдельные WebXR- и браузерные эксперименты Станислава Ермоленко: каждое приложение живёт в своём каталоге и деплоится в облако через git." jsonLd={jsonLd}>
+<Base title="Лаборатория" description="Отдельные WebXR- и браузерные эксперименты Станислава Ермоленко: одни собираются из каталога experiments/<имя>/ и публикуются под /lab/<имя>/, другие живут отдельным репозиторием на GitHub Pages." jsonLd={jsonLd}>
   <header class="catalog-hero">
     <div class="section-kicker">Лаборатория</div>
     <h1>Эксперименты</h1>
-    <p class="hero-lead">Небольшие самостоятельные приложения: WebXR-сцены, демо SDK, пространственные механики. Каждое собирается из своего каталога <code>experiments/&lt;имя&gt;/</code> и публикуется по адресу <code>/lab/&lt;имя&gt;/</code> тем же git-пушем, что и основной сайт — без ручных загрузок.</p>
+    <p class="hero-lead">Небольшие самостоятельные приложения: WebXR-сцены, демо SDK, пространственные механики. Что-то собирается из каталога <code>experiments/&lt;имя&gt;/</code> и публикуется по адресу <code>/lab/&lt;имя&gt;/</code> тем же git-пушем, что и основной сайт; что-то живёт в отдельном репозитории и уезжает на GitHub Pages. Ссылка в карточке ведёт туда, где эксперимент работает сейчас; демо с камерой стоит открывать с телефона.</p>
   </header>
   <section class="section">
     {experiments.length === 0 ? (
@@ -44,9 +44,14 @@ const jsonLd = {
             <h2>{experiment.title}</h2>
             <p>{experiment.summary}</p>
             <div class="tag-row">{experiment.stack.map((item) => <span>#{item}</span>)}</div>
-            {experiment.status === "live" && experiment.href
-              ? <a class="card-arrow-link" href={experiment.href}>Открыть эксперимент <span class="card-arrow" aria-hidden="true">↗</span></a>
-              : <span class="card-arrow-link is-muted">Ещё в работе</span>}
+            <div class="card-links">
+              {experiment.status === "live" && experiment.href
+                ? <a class="card-arrow-link" href={experiment.href}>Открыть эксперимент <span class="card-arrow" aria-hidden="true">↗</span></a>
+                : <span class="card-arrow-link is-muted">Ещё в работе</span>}
+              {experiment.status === "live" && experiment.href && experiment.repo
+                ? <a class="card-repo-link" href={experiment.repo}>Код</a>
+                : null}
+            </div>
           </article>
         ))}
       </div>
@@ -56,8 +61,13 @@ const jsonLd = {
 
 <style>
   .content-card.is-soon { border-style: dashed; }
-  .card-arrow-link { display: inline-flex; align-items: center; gap: 6px; margin-top: auto; padding-top: var(--s-3); color: var(--accent); font-size: .8rem; letter-spacing: .04em; }
+  .card-links { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2) var(--s-4); margin-top: auto; padding-top: var(--s-3); }
+  .card-arrow-link { display: inline-flex; align-items: center; gap: 6px; color: var(--accent); font-size: .8rem; letter-spacing: .04em; }
   .card-arrow-link.is-muted { color: var(--ink-2); }
+  .card-repo-link { color: var(--ink-2); font-size: .8rem; letter-spacing: .04em; border-bottom: 1px solid var(--line); }
+  .card-arrow-link:hover, .card-arrow-link:focus-visible,
+  .card-repo-link:hover, .card-repo-link:focus-visible { color: var(--ink); }
+  .card-repo-link:hover, .card-repo-link:focus-visible { border-bottom-color: var(--accent-line); }
   .hero-lead code { font-family: ui-monospace, monospace; font-size: .85em; color: var(--ink); }
   .lab-empty { display: grid; gap: var(--s-2); max-width: 44rem; padding: var(--s-6) var(--s-5); border: 1px dashed var(--line); border-radius: var(--radius-1); color: var(--ink-2); }
   .lab-empty strong { color: var(--ink); font-weight: 550; }

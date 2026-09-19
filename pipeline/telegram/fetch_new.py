@@ -19,6 +19,7 @@ from typing import Any
 
 from telethon import TelegramClient
 from telethon.extensions import markdown
+from telethon.sessions import StringSession
 from telethon.tl import functions
 
 
@@ -128,16 +129,33 @@ async def serialize_message(client: TelegramClient, message: Any, output: Path) 
     return item
 
 
+def committed_baseline(canonical: Path) -> int:
+    """Fallback baseline for a machine that lost its local state file: the highest
+    message id already materialized as a site page inside the canonical archive."""
+    archive = load_json(canonical, {})
+    ids: list[int] = []
+    for publication in archive.get("publications", []):
+        for value in [publication.get("sourceId"), *(publication.get("threadIds") or [])]:
+            if str(value or "").isdigit():
+                ids.append(int(value))
+    return max(ids, default=0)
+
+
 async def fetch(args: argparse.Namespace) -> dict[str, Any]:
     api_id, api_hash = os.environ.get("TELEGRAM_API_ID"), os.environ.get("TELEGRAM_API_HASH")
     if not api_id or not api_hash:
         raise SystemExit("TELEGRAM_API_ID and TELEGRAM_API_HASH are required (create them at my.telegram.org).")
-    state = load_json(Path(args.state), {"lastMessageId": 0})
+    state = load_json(Path(args.state), None)
+    if state is None:
+        state = {"lastMessageId": committed_baseline(Path(args.canonical))}
     since_id = args.since_id if args.since_id is not None else int(state.get("lastMessageId", 0))
     output = Path(args.output).resolve()
     output.mkdir(parents=True, exist_ok=True)
     messages: list[dict[str, Any]] = []
-    async with TelegramClient(args.session, int(api_id), api_hash) as client:
+    # CI stores an exported StringSession; a local run keeps the file session.
+    session_string = os.environ.get("TELEGRAM_SESSION_STRING")
+    session: Any = StringSession(session_string) if session_string else args.session
+    async with TelegramClient(session, int(api_id), api_hash) as client:
         entity = await client.get_entity(args.channel)
         async for message in client.iter_messages(entity, min_id=since_id, reverse=True):
             if message:
@@ -151,6 +169,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Fetch new Telegram posts after the Staniverse baseline")
     parser.add_argument("--channel", default="staniverse")
     parser.add_argument("--state", default="pipeline/telegram/archive/source/state.json")
+    parser.add_argument("--canonical", default="pipeline/telegram/archive/canonical.json")
     parser.add_argument("--output", default="pipeline/telegram/archive/incoming")
     parser.add_argument("--session", default=os.environ.get("TELEGRAM_SESSION", "pipeline/telegram/private/staniverse"))
     parser.add_argument("--since-id", type=int)

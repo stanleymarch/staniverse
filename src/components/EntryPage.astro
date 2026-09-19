@@ -155,6 +155,16 @@ const entryJsonLd: Record<string, unknown> = {
       </section>
     )}
     {galleryRemainder.length > 0 && <div class="media-gallery" aria-label="Медиа публикации">{galleryRemainder.map((item,index)=>item.type==="image"?<a href={item.publicPath}><img src={item.publicPath} alt={`${entry.data.title} · изображение ${index+1}`} loading={index>0?"lazy":"eager"} decoding="async" /></a>:item.type==="video"?<video controls playsinline preload="metadata" width="320" height="180" src={item.publicPath}>Видео из публикации</video>:item.type==="audio"?<audio controls preload="metadata" src={item.publicPath}>Аудио из публикации</audio>:<a class="media-document" href={item.publicPath}>Открыть документ ↗</a>)}</div>}
+    {entry.collection === "projects" && entry.data.gallery.length > 0 && (
+      <section class="media-carousel" data-media-carousel aria-label={`Концепты проекта · ${entry.data.gallery.length}`}>
+        <div class="media-carousel-viewport" data-carousel-viewport>
+          <div class="media-carousel-track">
+            {entry.data.gallery.map((slide, index) => <figure class="media-carousel-slide" data-carousel-slide><a href={slide.src}><img src={slide.src} alt={slide.caption} loading={index > 0 ? "lazy" : "eager"} decoding="async" /></a><figcaption>{slide.caption}</figcaption></figure>)}
+          </div>
+        </div>
+      </section>
+    )}
+    {entry.collection === "projects" && entry.data.gallery.length > 0 && <p class="media-carousel-note">Все изображения — концепты будущего внедрения, а не фотографии работающих инсталляций.</p>}
     <div class="entry-grid">
       <div class="prose"><Content />
         {chapters.length>0&&<section class="project-chapters" aria-labelledby="project-chapters-title"><h2 id="project-chapters-title">Главы и результаты проекта</h2><p>Материалы собраны здесь в контексте собственной инициативы, а не среди заказных работ.</p><div>{chapters.map((chapter)=><a href={hrefFor(chapter)}><small>{chapter.data.kind==="work"?chapter.data.year:""}</small><strong>{chapter.data.title}</strong><span>{chapter.data.summary}</span></a>)}</div></section>}
