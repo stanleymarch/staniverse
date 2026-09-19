@@ -56,6 +56,7 @@ const chrome = lang === "en" ? {
     ["/manifesto/", "Manifesto"],
     ["/donate/", "Support"],
     ["/privacy/", "Privacy"],
+    ["/licenses/", "Licenses"],
   ] as const,
   consentText: "Yandex Metrika shows which materials are useful. It loads only with your consent. See the",
   consentMore: "privacy policy",
@@ -83,6 +84,7 @@ const chrome = lang === "en" ? {
     ["/manifesto/", "Манифест"],
     ["/donate/", "Поддержать"],
     ["/privacy/", "Конфиденциальность"],
+    ["/licenses/", "Технологии и лицензии"],
   ] as const,
   consentText: "Яндекс Метрика помогает понять, какие материалы полезны. Она загрузится только с вашего согласия. Подробнее — в",
   consentMore: "политике конфиденциальности",
@@ -265,7 +267,29 @@ const articleLike = ["works", "projects", "garden", "articles", "topics"].includ
     {!immersive && (
       <footer class="site-footer">
         <div><strong>станивёрс</strong><p>{chrome.tagline}</p></div>
-        <div class="footer-links">{chrome.footerLinks.map(([href, label]) => <a href={href}>{label}</a>)}<a href="mailto:stas@staniverse.xyz">{lang === "en" ? "Email" : "Почта"}</a><a href="https://t.me/staniverse" target="_blank" rel="noreferrer">Telegram</a><a href="https://vk.com/staniverse" target="_blank" rel="noreferrer">VK</a><a href="https://www.youtube.com/@staniverse" target="_blank" rel="noreferrer">YouTube</a><a href="https://vk.com/yatygorod" target="_blank" rel="noreferrer">VK я.ты.город.</a><a href="https://www.youtube.com/@yatygorod" target="_blank" rel="noreferrer">YouTube я.ты.город.</a></div>
+        <div class="footer-links">
+          {chrome.footerLinks.map(([href, label]) => <a href={href}>{label}</a>)}
+          <a href="mailto:stas@staniverse.xyz">{lang === "en" ? "Email" : "Почта"}</a>
+          <a href="https://t.me/staniverse" target="_blank" rel="noreferrer">Telegram</a>
+          <span class="footer-social-group" aria-label={lang === "en" ? "Staniverse social media" : "Соцсети станивёрса"}>
+            <small>станивёрс</small>
+            <a class="footer-social-link" href="https://vk.com/staniverse" target="_blank" rel="noreferrer" aria-label={lang === "en" ? "Staniverse on VK" : "станивёрс во ВКонтакте"} title={lang === "en" ? "Staniverse on VK" : "станивёрс во ВКонтакте"}>
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="2" y="3" width="20" height="18" rx="5"></rect><path d="M6.3 8.1c.7 4.2 2.7 7.6 6.5 7.6h.8v-2.4c1.3.2 2.1 1.2 2.8 2.4h2.2c-.8-1.6-1.8-2.8-3-3.4 1.2-.8 2.1-2.2 2.8-4.2h-2.2c-.6 1.8-1.5 3.1-2.6 3.7V8.1h-2v5.3c-1.6-.6-2.7-2.6-3.2-5.3z"></path></svg>
+            </a>
+            <a class="footer-social-link" href="https://www.youtube.com/@staniverse" target="_blank" rel="noreferrer" aria-label={lang === "en" ? "Staniverse on YouTube" : "станивёрс на YouTube"} title={lang === "en" ? "Staniverse on YouTube" : "станивёрс на YouTube"}>
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="2.5" y="5.5" width="19" height="13" rx="4.5"></rect><path d="m10 9 5 3-5 3z"></path></svg>
+            </a>
+          </span>
+          <span class="footer-social-group" aria-label={lang === "en" ? "I. You. City social media" : "Соцсети «я.ты.город.»"}>
+            <small>я.ты.город.</small>
+            <a class="footer-social-link" href="https://vk.com/yatygorod" target="_blank" rel="noreferrer" aria-label={lang === "en" ? "I. You. City on VK" : "«я.ты.город.» во ВКонтакте"} title={lang === "en" ? "I. You. City on VK" : "«я.ты.город.» во ВКонтакте"}>
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="2" y="3" width="20" height="18" rx="5"></rect><path d="M6.3 8.1c.7 4.2 2.7 7.6 6.5 7.6h.8v-2.4c1.3.2 2.1 1.2 2.8 2.4h2.2c-.8-1.6-1.8-2.8-3-3.4 1.2-.8 2.1-2.2 2.8-4.2h-2.2c-.6 1.8-1.5 3.1-2.6 3.7V8.1h-2v5.3c-1.6-.6-2.7-2.6-3.2-5.3z"></path></svg>
+            </a>
+            <a class="footer-social-link" href="https://www.youtube.com/@yatygorod" target="_blank" rel="noreferrer" aria-label={lang === "en" ? "I. You. City on YouTube" : "«я.ты.город.» на YouTube"} title={lang === "en" ? "I. You. City on YouTube" : "«я.ты.город.» на YouTube"}>
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="2.5" y="5.5" width="19" height="13" rx="4.5"></rect><path d="m10 9 5 3-5 3z"></path></svg>
+            </a>
+          </span>
+        </div>
       </footer>
     )}
     {!immersive && (

@@ -1,0 +1,146 @@
+---
+import Base from "../../layouts/Base.astro";
+---
+
+<Base title="Технологии и лицензии" description="Открытые технологии, шрифты и лицензии, используемые при создании станивёрса.">
+  <article class="licenses-page content-shell">
+    <header class="licenses-hero">
+      <p class="section-kicker">Открытая инфраструктура</p>
+      <h1 class="display">Технологии и лицензии</h1>
+      <p class="licenses-lead">Сайт собирается на открытых инструментах. Здесь перечислены компоненты, которые работают в браузере, участвуют в сборке или проверке сайта, а также обязательные уведомления их авторов.</p>
+      <p class="licenses-note">Упоминание проекта или компании означает только атрибуцию и не подразумевает партнёрство, поддержку или одобрение ими станивёрса.</p>
+    </header>
+
+    <div class="licenses-sections prose">
+      <section aria-labelledby="runtime-title">
+        <p class="section-kicker">В браузере</p>
+        <h2 id="runtime-title">Работа сайта</h2>
+        <div class="license-list">
+          <article>
+            <h3><a href="https://threejs.org/" target="_blank" rel="noreferrer">Three.js</a></h3>
+            <p>3D-графика, вселенная связей и WebXR. MIT License. Copyright © 2010–2026 three.js authors.</p>
+            <details>
+              <summary>Текст лицензии MIT</summary>
+              <pre>The MIT License
+
+Copyright © 2010-2026 three.js authors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the “Software”), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.</pre>
+            </details>
+          </article>
+
+          <article>
+            <h3><a href="https://astro.build/" target="_blank" rel="noreferrer">Astro</a></h3>
+            <p>Генератор статического сайта. MIT License. Copyright © 2021 Fred K. Schott. Astro используется при сборке; его серверный код не отправляется посетителю.</p>
+            <p><a href="https://github.com/withastro/astro/blob/main/LICENSE" target="_blank" rel="noreferrer">Лицензия Astro ↗</a></p>
+          </article>
+        </div>
+      </section>
+
+      <section aria-labelledby="webar-title">
+        <p class="section-kicker">Mobile WebAR</p>
+        <h2 id="webar-title">8th Wall</h2>
+        <p>Для полноценного WebAR на iPhone выбран self-hosted 8th Wall. Пока адаптер не включён в публичную сборку, его бинарный модуль не загружается посетителям. После включения применяются следующие уведомления.</p>
+        <div class="license-list">
+          <article>
+            <h3><a href="https://github.com/8thwall/8thwall" target="_blank" rel="noreferrer">8th Wall Open Source Engine</a></h3>
+            <p>Создатель — Niantic Spatial, Inc. MIT License. Copyright 2026 Niantic Spatial, Inc.</p>
+            <details>
+              <summary>Текст лицензии MIT</summary>
+              <pre>Copyright 2026 Niantic Spatial, Inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the “Software”), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.</pre>
+            </details>
+          </article>
+
+          <article>
+            <h3><a href="https://github.com/8thwall/engine" target="_blank" rel="noreferrer">8th Wall XR Engine Binary</a></h3>
+            <p>Создатель — Niantic Spatial, Inc. Copyright © 2026 Niantic Spatial, Inc. All rights reserved.</p>
+            <p>Бинарный XR Engine лицензируется по <a href="https://github.com/8thwall/engine/blob/main/LICENSE" target="_blank" rel="noreferrer">XR Engine License Agreement</a>. Программное обеспечение и документация предоставляются <strong>“AS IS”</strong>, без каких-либо гарантий. Использование не означает связи, спонсорства или одобрения со стороны Niantic Spatial.</p>
+          </article>
+        </div>
+      </section>
+
+      <section aria-labelledby="fonts-title">
+        <p class="section-kicker">Типографика</p>
+        <h2 id="fonts-title">Шрифты</h2>
+        <p><strong>Geologica</strong> — Copyright 2020 The Geologisk Project Authors. <strong>Unbounded</strong> — Copyright 2022 The Unbounded Project Authors. Оба шрифта самостоятельно размещены на сайте по SIL Open Font License 1.1.</p>
+        <p><a href="/fonts/LICENSES.txt">Полный текст лицензий шрифтов ↗</a></p>
+      </section>
+
+      <section aria-labelledby="tools-title">
+        <p class="section-kicker">Сборка и проверка</p>
+        <h2 id="tools-title">Инструменты разработки</h2>
+        <p>Эти компоненты используются при подготовке и проверке сайта, но не загружаются как часть пользовательского интерфейса.</p>
+        <ul class="tool-list">
+          <li><a href="https://sharp.pixelplumbing.com/" target="_blank" rel="noreferrer">Sharp</a> — Apache License 2.0.</li>
+          <li><a href="https://www.typescriptlang.org/" target="_blank" rel="noreferrer">TypeScript</a>, Microsoft Corporation — Apache License 2.0.</li>
+          <li><a href="https://eemeli.org/yaml/" target="_blank" rel="noreferrer">YAML</a>, Copyright Eemeli Aro — ISC License.</li>
+          <li><a href="https://playwright.dev/" target="_blank" rel="noreferrer">Playwright</a>, Copyright Microsoft Corporation — Apache License 2.0; содержит код проекта Puppeteer.</li>
+          <li><a href="https://github.com/meta-quest/immersive-web-emulation-runtime" target="_blank" rel="noreferrer">IWER и IWER SEM</a>, Copyright Meta Platforms, Inc. and affiliates — MIT License.</li>
+        </ul>
+      </section>
+
+      <section aria-labelledby="content-title">
+        <p class="section-kicker">Материалы</p>
+        <h2 id="content-title">Тексты, фото и внешние источники</h2>
+        <p>Тексты, собственные фотографии, видео и графика принадлежат Станиславу Ермоленко, если рядом с материалом не указано иное. Заимствованные иллюстрации, цитаты, данные и встроенные публикации сопровождаются ссылкой на источник или атрибуцией в самом материале.</p>
+        <p>Если источник или автор указаны неточно, напишите на <a href="mailto:stas@staniverse.xyz">stas@staniverse.xyz</a> — подпись будет исправлена или материал удалён.</p>
+      </section>
+    </div>
+  </article>
+</Base>
+
+<style>
+  .licenses-page { padding-block: clamp(4rem, 10vw, 8rem); }
+  .licenses-hero { max-width: 64rem; margin-bottom: clamp(3rem, 8vw, 6rem); }
+  .licenses-lead { max-width: 48rem; margin-top: var(--s-4); color: var(--ink-2); font-size: clamp(1.02rem, 1.9vw, 1.35rem); line-height: 1.55; }
+  .licenses-note { max-width: 44rem; margin-top: var(--s-4); padding-left: var(--s-3); border-left: 2px solid var(--accent); color: var(--ink-3); font-size: var(--text-label); }
+  .licenses-sections { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-7); max-width: 76rem; }
+  .licenses-sections > section { min-width: 0; margin: 0; padding-top: var(--s-4); border-top: 1px solid var(--line); }
+  .licenses-sections h2 { margin-top: var(--s-2); }
+  .license-list { display: grid; gap: var(--s-4); }
+  .license-list article { min-width: 0; padding: var(--s-4); border: 1px solid var(--line); border-radius: var(--radius-2); background: color-mix(in srgb, var(--surface) 76%, transparent); }
+  .license-list h3 { margin-top: 0; font-size: 1rem; }
+  .license-list p:last-child { margin-bottom: 0; }
+  details { margin-top: var(--s-3); }
+  summary { color: var(--accent); cursor: pointer; }
+  pre { max-height: 24rem; overflow: auto; padding: var(--s-3); border: 1px solid var(--line); border-radius: var(--radius-1); background: var(--ground); color: var(--ink-2); font-size: .72rem; line-height: 1.45; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .tool-list { display: grid; gap: var(--s-2); padding-left: 1.2rem; }
+  @media (max-width: 760px) {
+    .licenses-sections { grid-template-columns: minmax(0, 1fr); gap: var(--s-6); }
+    .license-list article { padding: var(--s-3); }
+  }
+</style>

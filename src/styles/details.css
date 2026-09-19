@@ -125,7 +125,7 @@
 .media-carousel-dots button { width: .48rem; height: .48rem; padding: 0; border: 0; border-radius: 50%; background: var(--line-strong); cursor: pointer; transition: width var(--dur-1) var(--ease), background var(--dur-1) var(--ease); }
 .media-carousel-dots button[aria-current="true"] { width: 1.4rem; border-radius: var(--radius-pill); background: var(--accent); }
 .media-carousel-controls output { min-width: 3.2rem; color: var(--ink-2); font-size: .75rem; font-variant-numeric: tabular-nums; text-align: center; }
-.media-carousel-slide img, .media-gallery img { cursor: zoom-in; }
+img[data-lightbox-trigger] { cursor: zoom-in; }
 
 .entry-taxonomy { display: grid; gap: var(--s-3); margin-top: var(--s-6); padding-top: var(--s-4); border-top: 1px solid var(--line); }
 .entry-taxonomy h2 { margin: 0; font: 500 var(--text-h3) / 1.25 var(--font-display); }
@@ -181,9 +181,9 @@ audio.telegram-inline-media { min-height: 2.6rem; }
 .lightbox { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; opacity: 0; transition: opacity .25s ease; }
 .lightbox.is-open { opacity: 1; }
 @media (prefers-reduced-motion: reduce) { .lightbox { transition: none; } }
-.lightbox__backdrop { position: absolute; inset: 0; background: color-mix(in srgb, #030509 88%, transparent); backdrop-filter: blur(14px); }
+.lightbox__backdrop { position: absolute; inset: 0; background: color-mix(in srgb, #030509 88%, transparent); backdrop-filter: blur(14px); cursor: zoom-out; }
 .lightbox__figure { position: relative; z-index: 1; display: grid; justify-items: center; gap: var(--s-3); margin: 0; max-width: min(94vw, 96rem); }
-.lightbox__image { display: block; max-width: 94vw; max-height: 84dvh; border-radius: var(--radius-1); background: var(--surface); object-fit: contain; cursor: zoom-in; touch-action: none; user-select: none; -webkit-user-select: none; }
+.lightbox__image { display: block; max-width: 94vw; max-height: 84dvh; border-radius: var(--radius-1); background: var(--surface); object-fit: contain; cursor: default; touch-action: none; user-select: none; -webkit-user-select: none; }
 .lightbox__image.is-zoomed { cursor: grab; }
 .lightbox__image.is-zoomed:active { cursor: grabbing; }
 .lightbox__caption { display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline; gap: var(--s-3); margin: 0; color: var(--ink-2); font-size: .8rem; text-align: center; }

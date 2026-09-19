@@ -183,7 +183,7 @@ const entryJsonLd: Record<string, unknown> = {
 
       <div class="entry-aside">
         <TableOfContents headings={headings} />
-        <details class="graph-fold">
+        <details class="graph-fold" open>
           <summary class="graph-fold__title">Связи рядом</summary>
           <LocalGraph currentId={entry.data.id} nodes={nodes} edges={edges} />
         </details>
@@ -291,9 +291,13 @@ const entryJsonLd: Record<string, unknown> = {
     }
     button.addEventListener("click", () => {
       graph.open = true;
+      const title = graph.querySelector<HTMLElement>(".graph-fold__title");
+      if (!title) return;
+      /* Focus without scrolling first, then let the rail (or the page on
+         narrow screens) bring the heading into view in one smooth move. */
+      title.focus({ preventScroll: true });
       requestAnimationFrame(() => {
-        graph.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "nearest" });
-        graph.querySelector<HTMLElement>(".graph-fold__title")?.focus();
+        title.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "nearest" });
       });
     });
   });
@@ -322,22 +326,23 @@ const entryJsonLd: Record<string, unknown> = {
   .channel-gallery-grid a:hover img, .channel-gallery-grid a:focus-visible img { border-color: var(--accent); }
   @media (max-width: 900px) { .channel-gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
-  /* The right column keeps the contents reachable while the neighbourhood
-     remains one click away below it. */
-  .entry-aside { position: sticky; top: 7rem; display: flex; flex-direction: column; gap: var(--s-5); max-height: calc(100dvh - 8.5rem); }
+  /* The right column is one sticky rail on desktop: a bounded viewport with a
+     single scroll owner, so the contents and the whole neighbourhood travel
+     through it as one column instead of nesting a scroller each. */
+  .entry-aside { position: sticky; top: 7rem; display: flex; flex-direction: column; gap: var(--s-5); max-height: calc(100dvh - 8.5rem); overflow-y: auto; scrollbar-width: thin; }
   .entry-aside > * { min-width: 0; }
-  .entry-aside > :global(.toc) { flex: 0 1 auto; min-height: 0; }
-  @media (max-width: 1050px) { .entry-aside { position: static; max-height: none; } }
+  .entry-aside > :global(.toc) { flex: 0 0 auto; }
+  /* Narrow screens drop the rail entirely: the column returns to the flow. */
+  @media (max-width: 1050px) { .entry-aside { position: static; max-height: none; overflow: visible; } }
 
-  /* The neighbourhood folds under the contents: present on every page, never
-     in the way, one click deep. When opened it scrolls inside its own share of
-     the sticky rail; the table of contents remains above and reachable. */
-  .graph-fold { flex: 0 0 auto; min-height: 0; border-top: 1px solid var(--line); }
+  /* The neighbourhood sits under the contents, open by default and at its
+     natural height: the rail scrolls it into reach, nothing clips inside it. */
+  .graph-fold { flex: 0 0 auto; border-top: 1px solid var(--line); }
   .graph-fold__title { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-3); padding: var(--s-3) 0; color: var(--ink); font-size: .82rem; cursor: pointer; list-style: none; }
   .graph-fold__title::-webkit-details-marker { display: none; }
   .graph-fold__title::after { color: var(--accent); content: "+"; }
   .graph-fold[open] .graph-fold__title::after { content: "−"; }
-  .graph-fold[open] { flex: 1 1 18rem; min-height: 12rem; padding-bottom: var(--s-4); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+  .graph-fold[open] { padding-bottom: var(--s-4); }
   .graph-fold :global(.local-graph__header > .local-graph__kicker),
   .graph-fold :global(.local-graph__header > h2) { display: none; }
   .graph-fold :global(.local-graph) { margin: 0; }

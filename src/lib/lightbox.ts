@@ -5,7 +5,7 @@
    - a carousel or gallery group opens as a navigable set from the clicked item;
    - a bare content image opens on its own.
    Inside the overlay: side arrows, keyboard, swipe, counter, close on Esc,
-   backdrop or ✕, and pointer-anchored zoom (wheel, click toggle, drag, pinch).
+   backdrop or ✕, and pointer-anchored zoom (wheel, drag, pinch).
    A middle-click or modifier-click falls through to the browser default. */
 
 export interface LightboxItem {
@@ -25,7 +25,6 @@ interface OverlayRefs {
 
 const MIN_SCALE = 1;
 const MAX_SCALE = 6;
-const CLICK_SCALE = 2.5;
 const SWIPE_THRESHOLD = 44;
 
 const imageHref = (value: string) =>
@@ -60,7 +59,25 @@ class Lightbox {
   private refs: OverlayRefs | null = null;
 
   install() {
+    const candidates = document.querySelectorAll<HTMLImageElement>(".prose img, .media-carousel img, .media-gallery img");
+    for (const image of candidates) {
+      const anchor = image.closest<HTMLAnchorElement>("a");
+      if (anchor && !imageHref(anchor.getAttribute("href") ?? "")) continue;
+      image.dataset.lightboxTrigger = "";
+      if (!image.hasAttribute("title")) image.title = "Открыть изображение на весь экран";
+      if (!anchor) {
+        image.tabIndex = 0;
+        image.setAttribute("role", "button");
+        image.setAttribute("aria-label", image.alt ? `Открыть на весь экран: ${image.alt}` : "Открыть изображение на весь экран");
+      }
+    }
     document.addEventListener("click", (event) => this.delegate(event), { passive: false });
+    document.addEventListener("keydown", (event) => {
+      const target = event.target instanceof Element ? event.target.closest<HTMLImageElement>("img[data-lightbox-trigger]") : null;
+      if (!target || target.closest("a") || (event.key !== "Enter" && event.key !== " ")) return;
+      event.preventDefault();
+      target.click();
+    });
   }
 
   private delegate(event: MouseEvent) {
@@ -104,7 +121,7 @@ class Lightbox {
       <button type="button" class="lightbox__arrow is-prev" data-prev aria-label="Предыдущее изображение">←</button>
       <button type="button" class="lightbox__arrow is-next" data-next aria-label="Следующее изображение">→</button>
       <button type="button" class="lightbox__close" data-close aria-label="Закрыть просмотр">✕</button>
-      <p class="lightbox__hint">Колесо или клик — приблизить, протянуть — сдвинуть</p>`;
+      <p class="lightbox__hint">Колесо — масштаб, протянуть — сдвинуть · клик вне изображения — закрыть</p>`;
     document.body.append(root);
     const refs: OverlayRefs = {
       root,
@@ -113,10 +130,9 @@ class Lightbox {
       counter: root.querySelector("[data-counter]") as HTMLElement,
       previous: root.querySelector("[data-prev]") as HTMLButtonElement,
       next: root.querySelector("[data-next]") as HTMLButtonElement,
-      close: root.querySelector("[data-close]") as HTMLButtonElement,
+      close: root.querySelector(".lightbox__close") as HTMLButtonElement,
     };
     refs.image.addEventListener("load", () => this.measureBase());
-    refs.image.addEventListener("click", (event) => this.toggleZoom(event));
     refs.image.addEventListener("wheel", (event) => this.wheelZoom(event), { passive: false });
     refs.previous.addEventListener("click", () => this.step(-1));
     refs.next.addEventListener("click", () => this.step(1));
@@ -228,9 +244,6 @@ class Lightbox {
     this.applyTransform();
   }
 
-  private toggleZoom(event: MouseEvent) {
-    this.zoomAt(event.clientX, event.clientY, this.scale > MIN_SCALE + 0.01 ? MIN_SCALE : CLICK_SCALE);
-  }
 
   private wheelZoom(event: WheelEvent) {
     event.preventDefault();

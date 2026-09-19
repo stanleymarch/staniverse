@@ -232,16 +232,65 @@
   color: var(--accent);
 }
 .garden-topic-options label {
-  display: grid;
-  grid-template-columns: auto auto;
+  display: inline-grid;
+  grid-template-columns: minmax(0, auto) auto;
   align-items: center;
+  max-width: 100%;
+  min-height: 2.35rem;
+  overflow: hidden;
+  border: 1px solid #35435e;
+  border-radius: var(--radius-pill);
+  color: var(--muted);
+  transition: border-color .2s ease, background-color .2s ease, color .2s ease;
+}
+.garden-topic-options label > span {
+  min-width: 0;
+  min-height: 0;
+  padding: .45rem .2rem .45rem .7rem;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  overflow-wrap: anywhere;
 }
 .garden-topic-options small {
-  margin-left: -.45rem;
-  padding-right: .5rem;
-  color: #7487a3;
+  display: inline-grid;
+  min-width: 1.7rem;
+  min-height: 1.7rem;
+  place-items: center;
+  margin: 0 .35rem 0 .2rem;
+  padding: .15rem .38rem;
+  border-radius: var(--radius-pill);
+  background: #172238;
+  color: #8fa1bd;
   font-size: .62rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
   pointer-events: none;
+}
+.garden-topic-options label:hover {
+  border-color: #52617d;
+  color: var(--ink);
+}
+.garden-topic-options label:hover > span,
+.garden-topic-options input:checked + span {
+  border: 0;
+  background: transparent;
+  color: inherit;
+}
+.garden-topic-options label:has(input:focus-visible) {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.garden-topic-options input:focus-visible + span { outline: 0; }
+.garden-topic-options label:has(input:checked) {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 14%, #0d1422);
+  color: var(--accent);
+}
+.garden-topic-options label:has(input:checked) small {
+  background: color-mix(in srgb, var(--accent) 22%, #172238);
+  color: var(--accent);
 }
 .garden-reset {
   align-self: end;

@@ -387,6 +387,39 @@ iframe { max-width: 100%; }
 }
 .footer-links a:hover,
 .footer-links a:focus-visible { color: var(--ink); }
+.footer-social-group {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-1);
+}
+.footer-social-group > small {
+  margin-right: var(--s-1);
+  color: var(--ink-3);
+  font-size: .62rem;
+  letter-spacing: .04em;
+  white-space: nowrap;
+}
+.footer-links .footer-social-link {
+  width: 44px;
+  justify-content: center;
+  border-radius: var(--radius-pill);
+}
+.footer-social-link svg {
+  width: 1.35rem;
+  height: 1.35rem;
+  overflow: visible;
+}
+.footer-social-link svg rect {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+}
+.footer-social-link svg path { fill: currentColor; }
+.footer-links .footer-social-link:hover,
+.footer-links .footer-social-link:focus-visible {
+  background: color-mix(in srgb, var(--ink) 7%, transparent);
+  color: var(--ink);
+}
 
 .consent-banner {
   position: fixed;
@@ -466,6 +499,8 @@ iframe { max-width: 100%; }
 .signal-strip > a, .signal-strip > button { display: flex; flex-direction: column; justify-content: center; min-width: 0; min-height: 44px; padding: var(--s-3) clamp(var(--s-3), 3vw, var(--s-6)); border: 0; background: var(--ground); color: inherit; font: inherit; text-align: start; cursor: pointer; }
 .signal-strip strong { display: block; overflow-wrap: anywhere; font-size: 1.05rem; }
 .signal-strip span { color: var(--ink-2); font-size: .8rem; }
+
+.content-shell { min-width: 0; padding-inline: var(--rail-inset); }
 
 .section { min-width: 0; padding: var(--flow-section) var(--rail-inset); }
 /* A catalogue hero chains into the grid it introduces: the hero's half inset is the
