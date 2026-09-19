@@ -50,11 +50,11 @@ interface Voice {
 type AudioContextConstructor = new () => AudioContext;
 
 /** Five voices, one low pedal and four chord tones: theme changes retune, never rebuild. */
-const VOICE_LEVELS = [0.26, 0.23, 0.19, 0.14, 0.1];
+const VOICE_LEVELS = [0.22, 0.19, 0.16, 0.12, 0.09];
 const VOICE_GATES = [0, 0.04, 0.3, 0.52, 0.74];
 const VOICE_OCTAVES = [-12, 0, 0, 12, 12];
 const VOICE_SLOTS = [0, 0, 1, 2, 3];
-const VOICE_DRIFT = [0.45, 0.7, 1, 1.05, 1.25];
+const VOICE_DRIFT = [0.3, 0.45, 0.6, 0.65, 0.75];
 
 /**
  * Chord shapes as scale-degree indices. Walking the list is the progression: the first
@@ -73,61 +73,61 @@ const THEME_SPECS = {
     id: "aurora",
     scale: [0, 2, 4, 7, 9, 12, 14],
     root: 130.81,
-    waves: ["sine", "triangle", "sine", "triangle", "sine"],
-    brightness: 0.86,
-    drift: 10,
+    waves: ["sine", "sine", "sine", "sine", "sine"],
+    brightness: 0.8,
+    drift: 6,
     air: 0.85,
-    pulse: 0.48,
+    pulse: 0.32,
   },
   ember: {
     id: "ember",
     scale: [0, 2, 3, 5, 7, 10, 12],
     root: 116.54,
-    waves: ["sine", "triangle", "triangle", "sine", "triangle"],
-    brightness: 0.52,
-    drift: 14,
+    waves: ["sine", "sine", "sine", "sine", "sine"],
+    brightness: 0.5,
+    drift: 7,
     air: 0.42,
-    pulse: 0.72,
+    pulse: 0.4,
   },
   tide: {
     id: "tide",
     scale: [0, 2, 3, 5, 7, 9, 12],
     root: 146.83,
-    waves: ["sine", "sine", "triangle", "sine", "sine"],
-    brightness: 0.66,
-    drift: 9,
+    waves: ["sine", "sine", "sine", "sine", "sine"],
+    brightness: 0.62,
+    drift: 5,
     air: 0.72,
-    pulse: 0.6,
+    pulse: 0.36,
   },
   lattice: {
     id: "lattice",
     scale: [0, 2, 4, 6, 7, 9, 11],
     root: 123.47,
-    waves: ["sine", "sine", "sine", "triangle", "sine"],
-    brightness: 0.92,
-    drift: 12,
+    waves: ["sine", "sine", "sine", "sine", "sine"],
+    brightness: 0.86,
+    drift: 7,
     air: 0.9,
-    pulse: 0.4,
+    pulse: 0.3,
   },
   veil: {
     id: "veil",
     scale: [0, 1, 3, 5, 7, 8, 10],
     root: 110.0,
-    waves: ["sine", "triangle", "sine", "sine", "triangle"],
-    brightness: 0.44,
-    drift: 16,
+    waves: ["sine", "sine", "sine", "sine", "sine"],
+    brightness: 0.42,
+    drift: 8,
     air: 0.5,
-    pulse: 0.66,
+    pulse: 0.38,
   },
   quarry: {
     id: "quarry",
     scale: [0, 2, 4, 5, 7, 9, 10],
     root: 98.0,
-    waves: ["sine", "triangle", "triangle", "triangle", "sine"],
-    brightness: 0.6,
-    drift: 11,
+    waves: ["sine", "sine", "sine", "sine", "sine"],
+    brightness: 0.56,
+    drift: 6,
     air: 0.55,
-    pulse: 0.58,
+    pulse: 0.34,
   },
 } satisfies Record<string, ThemeSpec>;
 
@@ -283,8 +283,9 @@ export class GenerativeUniverseAudio {
     const context = this.context;
     if (!context) return;
     const now = context.currentTime;
-    // Harmony glides straight away; the oscillator shapes swap under a short fade.
-    this.glide(now, 1.1);
+    // Harmony morphs toward the new cluster over several seconds: a slow retune reads as
+    // one pad changing colour, never as a siren slide. Timbre crossfades under it.
+    this.glide(now, 4.5);
     if (this.enabled) {
       this.swapTimbre(now);
       this.nextBarAt = now + this.barSeconds();
@@ -292,27 +293,27 @@ export class GenerativeUniverseAudio {
   }
 
   /**
-   * Short accent for a star the visitor just chose: two partials of the current chord root,
-   * plucked and released, so a selection is audible without a UI blip. It rides the same opt-in
-   * envelope as everything else — it never starts the context and stays silent while sound is off.
+   * Selection breath: two low partials of the current chord root rising slowly and
+   * dissolving, so choosing a star feels like the pad leaning in — never a pluck or blip.
+   * It rides the same opt-in envelope as everything else: silent while sound is off.
    */
   accent() {
     const context = this.context;
     const bus = this.accentBus;
     if (this.disposed || !this.enabled || !context || !bus || context.state !== "running") return;
-    const now = context.currentTime + 0.01;
-    [2, 3].forEach((ratio, index) => {
+    const now = context.currentTime + 0.02;
+    [1, 1.5].forEach((ratio, index) => {
       const oscillator = context.createOscillator();
-      oscillator.type = index === 0 ? "sine" : "triangle";
+      oscillator.type = "sine";
       oscillator.frequency.value = this.root * ratio;
-      oscillator.detune.value = (this.spec.drift * (index === 0 ? -1 : 1)) / 2;
+      oscillator.detune.value = (this.spec.drift * (index === 0 ? -1 : 1)) / 4;
       const envelope = context.createGain();
       envelope.gain.setValueAtTime(0, now);
-      envelope.gain.linearRampToValueAtTime(index === 0 ? 0.32 : 0.12, now + 0.014);
-      envelope.gain.exponentialRampToValueAtTime(0.0001, now + (index === 0 ? 0.8 : 0.55));
+      envelope.gain.linearRampToValueAtTime(index === 0 ? 0.16 : 0.08, now + 0.35);
+      envelope.gain.exponentialRampToValueAtTime(0.0001, now + (index === 0 ? 2.4 : 1.8));
       oscillator.connect(envelope).connect(bus);
       oscillator.start(now);
-      oscillator.stop(now + 1);
+      oscillator.stop(now + 2.6);
       oscillator.addEventListener("ended", () => {
         oscillator.disconnect();
         envelope.disconnect();
@@ -334,13 +335,14 @@ export class GenerativeUniverseAudio {
     const proximity = 1 - clamp(raw <= 1 ? raw : 1 - 1 / (1 + raw), 0, 1);
     const pace = clamp(Number.isFinite(motion) ? motion : 0, 0, 1);
 
-    // Frame-rate independent smoothing: the ear should not hear the frame budget.
-    this.detail += (proximity - this.detail) * (1 - Math.exp(-step / 0.22));
-    this.motion += (pace - this.motion) * (1 - Math.exp(-step / 0.3));
+    // Meditative smoothing: seconds-long time constants, so flying between clusters
+    // breathes instead of stepping. The ear must never hear the frame budget.
+    this.detail += (proximity - this.detail) * (1 - Math.exp(-step / 1.8));
+    this.motion += (pace - this.motion) * (1 - Math.exp(-step / 1.2));
 
     const detail = this.detail;
     const target = this.enabled ? clamp(0.6 * detail + 0.4 * detail * this.motion, 0, 1) : 0;
-    this.energy += (target - this.energy) * (1 - Math.exp(-step / (target > this.energy ? 0.35 : 0.7)));
+    this.energy += (target - this.energy) * (1 - Math.exp(-step / (target > this.energy ? 1.4 : 2.6)));
 
     const context = this.context;
     if (context && this.enabled) {
@@ -452,14 +454,14 @@ export class GenerativeUniverseAudio {
     const bus = context.createGain();
     bus.gain.value = 1;
 
-    // Rhythm: a tremolo instead of scheduled notes, so the node count stays fixed.
+    // Breath, not rhythm: a slow tremolo instead of scheduled notes, so the node count stays fixed.
     const pulse = context.createGain();
     pulse.gain.value = 0.9;
     const pulseDepth = context.createGain();
-    pulseDepth.gain.value = 0.1;
+    pulseDepth.gain.value = 0.06;
     const pulseLfo = context.createOscillator();
     pulseLfo.type = "sine";
-    pulseLfo.frequency.value = 0.3;
+    pulseLfo.frequency.value = 0.12;
     pulseLfo.connect(pulseDepth).connect(pulse.gain);
 
     const tone = context.createBiquadFilter();
@@ -521,12 +523,11 @@ export class GenerativeUniverseAudio {
     limiter.release.value = 0.32;
     sum.connect(master).connect(gate).connect(limiter).connect(context.destination);
 
-    // Harmony: one shared drift LFO with per-voice depths, plus a static detune spread so
-    // the partials beat slowly against each other instead of sitting still.
+    // Harmony: one shared slow drift LFO with shallow per-voice depths, so the partials
+    // breathe against each other on a ~40s cycle instead of beating like a siren.
     const driftLfo = context.createOscillator();
     driftLfo.type = "sine";
-    driftLfo.frequency.value = 0.043;
-
+    driftLfo.frequency.value = 0.025;
     this.voices = VOICE_LEVELS.map((level, index) => {
       const oscillator = context.createOscillator();
       oscillator.type = this.spec.waves[index];
@@ -632,33 +633,33 @@ export class GenerativeUniverseAudio {
 
     if (this.tone) {
       const openness = 0.7 + 0.3 * spec.brightness;
-      ramp(this.tone.frequency, clamp(600 + 3400 * Math.pow(detail, 1.25) * openness, 420, 6200), 0.35, now);
+      ramp(this.tone.frequency, clamp(600 + 3400 * Math.pow(detail, 1.25) * openness, 420, 6200), 1.6, now);
     }
 
     if (this.pulseLfo && this.pulseDepth && this.pulse) {
       const depth = clamp(
-        (0.05 + 0.3 * detail) * spec.pulse * (calm ? 0.35 : 1) * (0.85 + 0.15 * motion),
+        (0.05 + 0.3 * detail) * spec.pulse * (calm ? 0.3 : 0.8) * (0.85 + 0.15 * motion),
         0,
-        0.42,
+        0.3,
       );
-      ramp(this.pulseLfo.frequency, clamp(0.24 + detail + 0.5 * motion, 0.2, 2.2), 0.5, now);
-      ramp(this.pulseDepth.gain, depth, 0.4, now);
-      ramp(this.pulse.gain, 1 - depth * 0.85, 0.4, now);
+      ramp(this.pulseLfo.frequency, clamp(0.2 + detail * 0.6 + 0.3 * motion, 0.15, 1.4), 1.8, now);
+      ramp(this.pulseDepth.gain, depth, 1.6, now);
+      ramp(this.pulse.gain, 1 - depth * 0.85, 1.6, now);
     }
 
     if (this.noiseGain && this.noiseFilter) {
       const air = spec.air * (0.03 + 0.13 * Math.pow(detail, 1.6)) * (calm ? 0.6 : 1);
-      ramp(this.noiseGain.gain, air, 0.4, now);
-      ramp(this.noiseFilter.frequency, 900 + 4200 * detail, 0.5, now);
+      ramp(this.noiseGain.gain, air, 1.8, now);
+      ramp(this.noiseFilter.frequency, 900 + 4200 * detail, 2, now);
     }
 
     const width = detail * (calm ? 0.6 : 1);
     for (let index = 0; index < this.wet.length; index += 1) {
       const first = index === 0;
-      ramp(this.wet[index].gain, first ? 0.06 + 0.26 * width : 0.07 + 0.28 * width, 0.5, now);
-      ramp(this.feedback[index].gain, first ? 0.24 + 0.16 * width : 0.22 + 0.16 * width, 0.6, now);
+      ramp(this.wet[index].gain, first ? 0.06 + 0.26 * width : 0.07 + 0.28 * width, 1.8, now);
+      ramp(this.feedback[index].gain, first ? 0.24 + 0.16 * width : 0.22 + 0.16 * width, 2.2, now);
       const pan = this.pan[index];
-      if (pan) ramp(pan.pan, first ? -(0.18 + 0.62 * width) : 0.18 + 0.62 * width, 0.6, now);
+      if (pan) ramp(pan.pan, first ? -(0.18 + 0.62 * width) : 0.18 + 0.62 * width, 2.2, now);
     }
 
     if (this.swapping) return; // the timbre swap owns the voice gains for a moment
@@ -666,24 +667,24 @@ export class GenerativeUniverseAudio {
       const voice = this.voices[index];
       const gate = index === 0 ? 1 : smoothstep(voice.gate, voice.gate + 0.22, detail);
       const lift = 1 + (index === 0 ? 0.04 : 0.12) * motion * detail;
-      ramp(voice.gain.gain, voice.level * gate * lift, index === 0 ? 0.5 : 0.3, now);
-      ramp(voice.drift.gain, detail * spec.drift * VOICE_DRIFT[index] * (calm ? 0.5 : 1), 0.5, now);
+      ramp(voice.gain.gain, voice.level * gate * lift, index === 0 ? 1.8 : 1.2, now);
+      ramp(voice.drift.gain, detail * spec.drift * VOICE_DRIFT[index] * (calm ? 0.5 : 1), 1.8, now);
     }
   }
 
-  /** Walks the chord progression in context time; closer nodes move a little faster. */
+  /** Walks the chord progression in context time; a slow 14–24s bar keeps the pad meditative. */
   private advance(now: number) {
     const bar = this.barSeconds();
     // A bar scheduled at the far edge shrinks as the visitor arrives, but never stretches.
     if (this.nextBarAt === 0 || this.nextBarAt > now + bar) this.nextBarAt = now + bar;
     if (now < this.nextBarAt) return;
     this.shapeIndex = (this.shapeIndex + 1) % CHORD_SHAPES.length;
-    this.glide(now, 0.55);
+    this.glide(now, 3.2);
     this.nextBarAt = now + bar;
   }
 
   private barSeconds() {
-    return clamp((9.5 - 5 * this.detail) * (1 - 0.18 * this.motion), 3.5, 9.5);
+    return clamp((24 - 10 * this.detail) * (1 - 0.12 * this.motion), 14, 24);
   }
 
   /** Retunes every voice to the current chord shape inside the theme scale. */

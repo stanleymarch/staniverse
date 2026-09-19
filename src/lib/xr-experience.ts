@@ -37,11 +37,25 @@ export function nextSnapTurn(state: SnapTurnState, axisX: number, yaw: number, d
   return { yaw: Math.atan2(Math.sin(turned), Math.cos(turned)), latched: true };
 }
 
+/** Tabletop diameter in meters: the default placement fits the whole constellation in reach. */
+export const AR_TABLE_DIAMETER_M = 1;
+/** Room diameter in meters: the constellation surrounds the viewer, reference-style. */
+export const AR_ROOM_DIAMETER_M = 3.5;
+/** Placement scale: `table` fits in reach, `room` surrounds the viewer. */
+export type ArPlacementMode = "table" | "room";
+
+/** Physical diameter for a placement mode; unknown input falls back to the tabletop. */
+export function arDiameterForMode(mode: ArPlacementMode): number {
+  return mode === "room" ? AR_ROOM_DIAMETER_M : AR_TABLE_DIAMETER_M;
+}
+
 /** Clearance in meters between the normalized constellation's bottom and the detected surface. */
 export const AR_SURFACE_CLEARANCE = 0.05;
-
-/** Normalizes graph extent into a 1m tabletop constellation with its bottom 5cm above the surface. */
-export function normalizedArContentTransform(positions: ReadonlyArray<{ x: number; y: number; z: number }>): { scale: number; offsetY: number } {
+/**
+ * Normalizes graph extent into a constellation `diameter` meters across (tabletop by
+ * default) with its bottom `AR_SURFACE_CLEARANCE` above the surface.
+ */
+export function normalizedArContentTransform(positions: ReadonlyArray<{ x: number; y: number; z: number }>, diameter = AR_TABLE_DIAMETER_M): { scale: number; offsetY: number } {
   if (!positions.length) return { scale: 1, offsetY: AR_SURFACE_CLEARANCE };
   let minX = Infinity, minY = Infinity, minZ = Infinity, maxX = -Infinity, maxY = -Infinity, maxZ = -Infinity;
   for (const p of positions) {
@@ -49,11 +63,10 @@ export function normalizedArContentTransform(positions: ReadonlyArray<{ x: numbe
     minY = Math.min(minY, p.y); maxY = Math.max(maxY, p.y);
     minZ = Math.min(minZ, p.z); maxZ = Math.max(maxZ, p.z);
   }
-  const diameter = Math.max(maxX - minX, maxY - minY, maxZ - minZ, 1e-6);
-  const scale = 1 / diameter;
+  const diameterExtent = Math.max(maxX - minX, maxY - minY, maxZ - minZ, 1e-6);
+  const scale = diameter / diameterExtent;
   return { scale, offsetY: -minY * scale + AR_SURFACE_CLEARANCE };
 }
-
 /**
  * Y offset for the movable content root. `normalizedArContentTransform` holds the bottom
  * `AR_SURFACE_CLEARANCE` above the surface at scale 1, so scaling the content has to scale that

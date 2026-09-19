@@ -52,6 +52,8 @@ export interface CameraArSession {
   cancelRelocate(): void;
   /** Scale in relative steps; rotation in radians. */
   adjust(scaleDelta: number, rotateDelta: number): void;
+  /** New tabletop normalization after a Стол/Комната switch; applies on placed content. */
+  setMode?(base: { scale: number; offsetY: number }): void;
   /** Resolves when the engine is stopped and the graph is back in the screen scene. */
   end(): Promise<void>;
   /** Raycast through the engine camera into the world meshes; a node id or nothing. */
@@ -297,6 +299,7 @@ export async function startCameraAr(options: CameraArOptions): Promise<CameraArS
       shared.rotation += rotateDelta;
       if (shared.placed) applyContentTransform(shared);
     },
+    setMode(base) { shared.options.contentBase = base; shared.scaleFactor = 1; if (shared.placed) applyContentTransform(shared); },
     async end() {
       if (shared.ended) return;
       window.clearTimeout(shared.readinessTimer);

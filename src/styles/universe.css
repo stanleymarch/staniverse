@@ -5,12 +5,12 @@
   follows the shared palette, grid and motion instead of inventing a second system.
 */
 .universe-page {
-  --page-ground: var(--ground, #06080f);
-  --page-surface: var(--surface, #0d1220);
-  --text: var(--ink, #eef3ff);
-  --muted: var(--ink-2, #93a5c0);
-  --cyan: var(--accent, #7fd4f0);
-  --panel: color-mix(in srgb, var(--page-surface) 84%, transparent);
+  --page-ground: var(--ground, #060b18);
+  --page-surface: var(--surface, #0d1930);
+  --text: var(--ink, #eef5ff);
+  --muted: var(--ink-2, #94aac8);
+  --cyan: var(--accent, #79d7f2);
+  --panel: color-mix(in srgb, var(--page-surface) 66%, transparent);
   --panel-solid: var(--page-surface);
   --hairline: var(--line, color-mix(in srgb, var(--muted) 24%, transparent));
   --hairline-strong: var(--line-strong, color-mix(in srgb, var(--muted) 46%, transparent));
@@ -42,10 +42,11 @@
   color: var(--text);
   font-family: var(--mono);
   background-color: var(--page-ground);
+  /* Lit cosmic backdrop behind the canvas: deep blue hearth, cyan breath, accent depth. */
   background-image:
-    radial-gradient(circle at 72% 20%, color-mix(in srgb, #dc36ad 18%, transparent), transparent 27rem),
-    radial-gradient(circle at 18% 78%, color-mix(in srgb, #2587dc 20%, transparent), transparent 32rem),
-    radial-gradient(circle at 54% 52%, color-mix(in srgb, #ff9645 8%, transparent), transparent 24rem);
+    radial-gradient(circle at 82% -12%, color-mix(in srgb, #2869d8 20%, transparent), transparent 38rem),
+    radial-gradient(circle at 10% 12%, color-mix(in srgb, #42b8e8 9%, transparent), transparent 34rem),
+    radial-gradient(circle at 8% 108%, color-mix(in srgb, var(--cyan) 8%, transparent), transparent 40rem);
 }
 /* The runtime, the AR dock and the loader all toggle overlay parts with the native hidden attribute. */
 .universe-page [hidden] { display: none !important; }
@@ -317,7 +318,6 @@
 .node-search input { width: 100%; min-width: 0; padding: 8px 10px; text-transform: none; }
 .node-search input::placeholder { color: color-mix(in srgb, var(--muted) 72%, transparent); }
 .node-search input:focus { border-color: color-mix(in srgb, var(--cyan) 60%, transparent); }
-
 /* --- AR dock: the same region as every other control, shown only inside a session. --- */
 .universe-ar-actions {
   display: none;
@@ -328,14 +328,19 @@
   width: max-content;
   max-width: 100%;
   padding: var(--s-2);
-  border: 1px solid color-mix(in srgb, var(--cyan) 34%, transparent);
-  border-top-color: color-mix(in srgb, var(--cyan) 62%, transparent);
-  border-radius: var(--radius);
-  background: var(--panel);
-  backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-line, var(--hairline));
+  border-radius: var(--radius-panel, 14px);
+  background: var(--glass-strong, var(--panel));
+  box-shadow: var(--glass-hi), var(--glass-glow, 0 12px 40px rgb(0 0 0 / .35));
+  backdrop-filter: var(--glass-blur, blur(16px) saturate(1.25));
+  -webkit-backdrop-filter: var(--glass-blur, blur(16px) saturate(1.25));
 }
 [data-xr="ar"] .universe-ar-actions, [data-xr="camera-ar"] .universe-ar-actions { display: flex; }
 [data-xr="ar"] .universe-ar-actions .icon-button, [data-xr="camera-ar"] .universe-ar-actions .icon-button { min-width: var(--target); min-height: var(--target); }
+.ar-mode { display: inline-flex; gap: 4px; padding: 3px; border: 1px solid var(--hairline); border-radius: var(--radius-round); background: color-mix(in srgb, var(--page-ground) 60%, transparent); }
+.ar-mode .icon-button { border-color: transparent; background: transparent; }
+.ar-mode .icon-button[aria-pressed="true"] { border-color: var(--line-accent); color: var(--cyan); background: color-mix(in srgb, var(--cyan) 12%, transparent); }
+.universe-ar-actions .ar-primary { border-color: var(--line-accent); color: var(--cyan); }
 [data-xr="ar"] .flight-joystick,
 [data-xr="ar"] .universe-tools,
 [data-xr="ar"] .node-search,
@@ -405,61 +410,57 @@
 .flight-joystick span { width: 1.85rem; aspect-ratio: 1; border: 1px solid color-mix(in srgb, var(--cyan) 50%, transparent); border-radius: var(--radius-round); background: color-mix(in srgb, var(--cyan) 18%, transparent); box-shadow: 0 0 1rem color-mix(in srgb, var(--cyan) 22%, transparent); pointer-events: none; }
 .flight-joystick small { position: absolute; top: calc(100% + 4px); color: color-mix(in srgb, var(--muted) 88%, transparent); font: 400 .52rem/1 var(--mono); letter-spacing: .18em; text-transform: uppercase; }
 
-/* --- Object dossier: one card above the dock, never under it. --- */
+/* --- Object dossier: the reference glass card, floating over the sky. --- */
 .node-card {
   position: absolute;
   right: var(--rail-end);
   bottom: calc(var(--dock) + var(--dock-h));
   display: block;
-  width: min(22rem, calc(100vw - 2 * var(--rail-start)));
+  width: min(26rem, calc(100vw - 2 * var(--rail-start)));
   max-height: min(72vh, 42rem);
-  padding: 15px 16px 16px;
+  padding: 18px 20px 20px;
   overflow: auto;
   overscroll-behavior: contain;
-  border: 1px solid var(--hairline-strong);
-  border-top-color: var(--line-accent);
-  border-radius: var(--radius-card);
-  background-color: var(--panel);
-  background-image:
-    linear-gradient(var(--dossier-tick, var(--line-accent)), var(--dossier-tick, var(--line-accent))),
-    linear-gradient(var(--dossier-tick, var(--line-accent)), var(--dossier-tick, var(--line-accent))),
-    linear-gradient(var(--dossier-tick, var(--line-accent)), var(--dossier-tick, var(--line-accent))),
-    linear-gradient(var(--dossier-tick, var(--line-accent)), var(--dossier-tick, var(--line-accent)));
-  background-position: 100% 100%, 100% 100%, 0 100%, 0 100%;
-  background-size: 1rem 1px, 1px 1rem, 1rem 1px, 1px 1rem;
-  background-repeat: no-repeat;
-  backdrop-filter: blur(14px);
+  border: 1px solid var(--glass-line, var(--hairline-strong));
+  border-radius: var(--radius-panel, 14px);
+  background: var(--glass-strong, var(--panel));
+  box-shadow: var(--glass-hi), var(--glass-glow, 0 12px 40px rgb(0 0 0 / .35));
+  backdrop-filter: var(--glass-blur, blur(16px) saturate(1.25));
+  -webkit-backdrop-filter: var(--glass-blur, blur(16px) saturate(1.25));
   animation: universe-card-in var(--u-dur-2) var(--u-ease) both;
 }
 @keyframes universe-card-in { from { opacity: 0; transform: translateY(.6rem); } }
-.node-head { display: flex; align-items: center; justify-content: space-between; gap: var(--gap); padding-bottom: var(--gap); border-bottom: 1px solid color-mix(in srgb, var(--muted) 16%, transparent); }
+.node-head { display: flex; align-items: center; justify-content: space-between; gap: var(--gap); padding-bottom: 10px; border-bottom: 1px solid color-mix(in srgb, var(--muted) 18%, transparent); }
 .node-close { min-height: var(--target); padding: 8px 10px; border: 1px solid var(--hairline); border-radius: var(--radius); background: transparent; color: color-mix(in srgb, var(--muted) 90%, var(--text)); font: 500 .58rem/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; cursor: pointer; }
 .node-close:hover, .node-close:focus-visible { border-color: var(--cyan); color: var(--cyan); }
-.node-card h2 { margin: var(--gap) 0; font: 500 clamp(.95rem, 1.4vw, 1.22rem)/1.25 var(--display); letter-spacing: -.02em; overflow-wrap: anywhere; }
-.node-summary { margin: 0 0 10px; color: color-mix(in srgb, var(--muted) 92%, var(--text)); font-size: clamp(.7rem, 1vw, .78rem); line-height: 1.45; text-wrap: pretty; }
-/* Tags read as one catalogue line inside the instrument, never as a row of pills. */
-.universe-page .tag-row { display: flex; flex-wrap: wrap; gap: 2px 9px; margin-bottom: 12px; color: var(--muted); font: 400 .6rem/1.45 var(--mono); letter-spacing: .03em; }
-.universe-page .tag-row span { padding: 0; border: 0; border-radius: 0; background: none; }
-.universe-page .tag-row span + span::before { color: color-mix(in srgb, var(--muted) 55%, transparent); content: "· "; }
-.node-neighbor-list button { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; align-items: flex-start; width: 100%; min-height: var(--target); padding: 6px 0; border: 0; border-bottom: 1px solid color-mix(in srgb, var(--muted) 12%, transparent); border-radius: 0; background: none; color: color-mix(in srgb, var(--text) 88%, var(--muted)); font: 400 .66rem/1.35 var(--mono); text-align: left; overflow: hidden; cursor: pointer; }
+.node-card h2 { margin: 12px 0 8px; font: 650 clamp(1.15rem, 1.6vw, 1.7rem)/1.12 var(--display); letter-spacing: -.025em; overflow-wrap: anywhere; text-wrap: balance; }
+.node-summary { margin: 0 0 12px; color: color-mix(in srgb, var(--text) 82%, var(--muted)); font-size: clamp(.78rem, 1vw, .88rem); line-height: 1.5; text-wrap: pretty; }
+/* Reference glass tags: frosted pills matching the site cards. */
+.universe-page .tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; color: var(--muted); font: 400 .6rem/1.45 var(--mono); letter-spacing: .03em; }
+.universe-page .tag-row span { padding: .25rem .6rem; border: 1px solid var(--glass-line, color-mix(in srgb, var(--text) 13%, transparent)); border-radius: var(--radius-round); background: color-mix(in srgb, var(--page-surface) 55%, transparent); box-shadow: var(--glass-hi, inset 0 1px 0 color-mix(in srgb, var(--text) 9%, transparent)); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
 .node-neighbors-title, .node-evidence > summary { margin-bottom: 6px; color: color-mix(in srgb, var(--muted) 88%, transparent); font: 500 .54rem/1 var(--mono); letter-spacing: .16em; text-transform: uppercase; }
-.node-neighbor-list { display: block; }
-.node-neighbor-list button { display: flex; align-items: center; width: 100%; min-height: var(--target); padding: 6px 0; border: 0; border-bottom: 1px solid color-mix(in srgb, var(--muted) 12%, transparent); border-radius: 0; background: none; color: color-mix(in srgb, var(--text) 88%, var(--muted)); font: 400 .66rem/1.35 var(--mono); text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
-.node-neighbor-list button:hover, .node-neighbor-list button:focus-visible { color: var(--cyan); }
+.node-neighbor-list { display: grid; gap: 2px; }
+.node-neighbor-list button { display: flex; align-items: center; width: 100%; min-height: var(--target); padding: 8px 10px; border: 1px solid transparent; border-radius: var(--radius); background: none; color: color-mix(in srgb, var(--text) 88%, var(--muted)); font: 400 .66rem/1.35 var(--mono); text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+.node-neighbor-list button:hover, .node-neighbor-list button:focus-visible { border-color: color-mix(in srgb, var(--cyan) 40%, transparent); color: var(--cyan); background: color-mix(in srgb, var(--cyan) 7%, transparent); }
 .node-neighbor-list button.node-neighbor-more { color: var(--cyan); letter-spacing: .1em; text-transform: uppercase; }
-.node-evidence { margin-top: 11px; padding-top: 10px; border-top: 1px solid color-mix(in srgb, var(--muted) 16%, transparent); }
+.node-evidence { margin-top: 12px; padding-top: 12px; border-top: 1px solid color-mix(in srgb, var(--muted) 16%, transparent); }
 .node-evidence > summary { min-height: var(--target); cursor: pointer; list-style-position: inside; }
 .node-evidence[open] > summary { color: var(--cyan); }
 .node-evidence-list { display: grid; gap: 6px; }
-.node-evidence-list details { border: 1px solid color-mix(in srgb, var(--muted) 16%, transparent); border-radius: var(--radius); background: color-mix(in srgb, var(--muted) 5%, transparent); }
+.node-evidence-list details { border: 1px solid color-mix(in srgb, var(--text) 12%, transparent); border-radius: var(--radius); background: color-mix(in srgb, var(--text) 4%, transparent); }
 .node-evidence-list summary { padding: 6px 8px; color: color-mix(in srgb, var(--text) 88%, var(--muted)); font: 400 .62rem/1.4 var(--mono); cursor: pointer; }
 .node-evidence-list summary:hover, .node-evidence-list summary:focus-visible { color: var(--cyan); }
 .node-evidence-list dl { display: grid; gap: 3px; margin: 0; padding: 6px 8px 8px; border-top: 1px solid color-mix(in srgb, var(--muted) 14%, transparent); color: color-mix(in srgb, var(--muted) 96%, var(--text)); font: 400 .58rem/1.45 var(--mono); }
 .node-evidence-list dl div { display: grid; grid-template-columns: max-content 1fr; gap: var(--gap); }
 .node-evidence-list dt { color: color-mix(in srgb, var(--muted) 84%, transparent); }
 .node-evidence-list dd { min-width: 0; margin: 0; overflow-wrap: anywhere; }
-.node-link { display: flex; align-items: center; gap: 6px; min-height: var(--target); margin-top: 14px; padding-top: 10px; border-top: 1px solid color-mix(in srgb, var(--muted) 16%, transparent); color: var(--cyan); font: 400 .6rem/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; }
+.node-link { display: flex; align-items: center; gap: 6px; min-height: var(--target); margin-top: 14px; padding-top: 12px; border-top: 1px solid color-mix(in srgb, var(--muted) 16%, transparent); color: var(--cyan); font: 400 .6rem/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; }
 .node-link:hover { color: color-mix(in srgb, var(--cyan) 72%, var(--text)); }
+/* In AR the dossier becomes the centered reference card: backlinks left, related right. */
+[data-xr="ar"] .node-card, [data-xr="camera-ar"] .node-card { right: 50%; left: auto; bottom: auto; top: max(76px, calc(var(--dock) + 64px)); width: min(34rem, calc(100vw - 2 * var(--rail-start))); max-height: min(60vh, 32rem); transform: translateX(50%); }
+@media (min-width: 900px) {
+  [data-xr="ar"] .node-neighbors, [data-xr="camera-ar"] .node-neighbors { grid-template-columns: 1fr 1fr; }
+}
 
 /* --- Accessible node list, inside the dock panel so no magic offset can drift. --- */
 .universe-fallback { width: 100%; overflow: hidden; border: 1px solid var(--hairline); border-radius: var(--radius); background-color: color-mix(in srgb, var(--page-ground) 72%, transparent); backdrop-filter: blur(12px); }
@@ -473,7 +474,6 @@
 .universe-node-list button { flex: 1 1 auto; min-height: var(--target); padding: 0; border: 0; background: none; color: color-mix(in srgb, var(--text) 88%, var(--muted)); font: inherit; text-align: left; cursor: pointer; }
 .universe-node-list button:hover, .universe-node-list button:focus-visible { color: var(--cyan); }
 .universe-node-list span { flex: none; color: color-mix(in srgb, var(--muted) 76%, transparent); font-size: .55rem; letter-spacing: .1em; text-transform: uppercase; }
-.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 
 /* Keyboard focus stays visible on every control, including the disclosure rows. */
 .universe-page :is(button, a, summary, input):focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
@@ -499,7 +499,8 @@
   .universe-intro :is(h1, h2) { max-width: none; font-size: clamp(1.3rem, 5.4vw, 1.9rem); }
   .intro-note { margin-bottom: 0; font-size: .75rem; }
   /* A phone dossier is a bottom sheet, not a takeover: the sky and the marked star stay visible above it. */
-  .node-card { right: var(--rail-start); left: var(--rail-start); width: auto; max-height: min(58dvh, 30rem); }
+  .node-card { right: var(--rail-start); left: var(--rail-start); width: auto; max-height: min(58dvh, 30rem); border-radius: var(--radius-panel, 14px); }
+  [data-xr="ar"] .node-card, [data-xr="camera-ar"] .node-card { right: var(--rail-start); left: var(--rail-start); top: max(76px, calc(var(--dock) + 64px)); transform: none; }
   .node-summary { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
   .flight-joystick small { display: none; }
 }

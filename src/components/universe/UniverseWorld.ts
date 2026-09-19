@@ -211,7 +211,9 @@ export class UniverseWorld {
   /** AR squeezes the world into ~1m; point sprites shrink with that scale, so their pixel size is compensated here. */
   private arPointCompensation = 1;
   private beaconLimit = 0;
-
+  /** Scratch vectors for per-frame proximity: no allocation in the hot path. */
+  private readonly probeEar: Vector3;
+  private readonly probePoint: Vector3;
   private constructor(
     host: UniverseWorldHost,
     graph: { nodes: GraphNode[]; edges: GraphEdge[] },
@@ -221,8 +223,9 @@ export class UniverseWorld {
     this.nodes = graph.nodes;
     this.edges = graph.edges;
     this.compact = options.compact;
+    this.probeEar = new this.THREE.Vector3();
+    this.probePoint = new this.THREE.Vector3();
     this.root = new this.THREE.Group();
-    host.scene.add(this.root);
     this.byId = new Map(graph.nodes.map((node) => [node.id, node]));
     this.neighbors = new Map();
     this.edgesByNode = new Map();
@@ -627,18 +630,21 @@ export class UniverseWorld {
       const group = new this.THREE.Group();
       group.position.copy(site.position);
       const haloSize = site.radius * 2.4;
-      const halo = new this.THREE.Sprite(new this.THREE.SpriteMaterial({ map: this.glowTexture, color: site.tint, transparent: true, opacity: .1, blending: this.THREE.AdditiveBlending, depthWrite: false }));
+      const halo = new this.THREE.Sprite(new this.THREE.SpriteMaterial({ map: this.glowTexture, color: site.tint, transparent: true, opacity: .18, blending: this.THREE.AdditiveBlending, depthWrite: false }));
       halo.userData.baseWorldScale = haloSize;
+      halo.userData.baseOpacity = .18;
       halo.scale.setScalar(haloSize);
       const pillarHeight = site.radius * 2.8;
       const pillar = new this.THREE.Line(
         new this.THREE.BufferGeometry().setFromPoints([new this.THREE.Vector3(0, -pillarHeight / 2, 0), new this.THREE.Vector3(0, pillarHeight / 2, 0)]),
-        new this.THREE.LineBasicMaterial({ color: site.tint, transparent: true, opacity: .18 }),
+        new this.THREE.LineBasicMaterial({ color: site.tint, transparent: true, opacity: .3 }),
       );
+      pillar.userData.baseOpacity = .3;
       const label = this.beaconLabel(site.title, site.tint);
-      const labelWidth = Math.min(14, Math.max(5, site.radius * 2.2));
+      const labelWidth = Math.min(18, Math.max(6, site.radius * 2.6));
       label.scale.set(labelWidth, labelWidth * BEACON_LABEL_HEIGHT_RATIO, 1);
       label.position.y = pillarHeight / 2 + labelWidth * .16;
+      label.userData.baseWidth = labelWidth;
       group.add(halo, pillar, label);
       this.beaconGroup.add(group);
       this.beacons.push({ id: site.id, title: site.title, tint: site.tint, position: site.position, radius: site.radius, group, label });
@@ -883,6 +889,8 @@ export class UniverseWorld {
    * up into unreadable collisions.
    */
   private focusBeacons(viewer: Vector3) {
+    // The AR mini-map owns its captions: per-frame ranking would fight the four named sectors.
+    if (this.arPresentation) return;
     const ordered = this.beaconOrder;
     ordered.length = 0;
     this.beacons.forEach((beacon) => { ordered.push({ beacon, distance: viewer.distanceTo(beacon.position) }); });
@@ -978,15 +986,16 @@ export class UniverseWorld {
   }
 
   /**
-   * AR shows the constellation over a live camera feed: the sector landmarks are sized for an
-   * open sky and would swallow a one-metre tabletop, so they step aside, and the content stars
-   * switch to opaque blending — additive dots vanish against a bright room, opaque ones still
-   * read as glowing, tracked stars over any feed.
+   * AR shows the constellation over a live camera feed: full-size sector landmarks would
+   * swallow a tabletop, so they shrink to a mini-map — compact tinted halos with readable
+   * captions — while content stars switch to opaque blending, because additive dots vanish
+   * against a bright room and opaque ones still read as tracked stars over any feed.
    */
   setArPresentation(enabled: boolean) {
     if (this.arPresentation === enabled) return;
     this.arPresentation = enabled;
-    this.beaconGroup.visible = !enabled;
+    this.beaconGroup.visible = true;
+    this.applyBeaconScale();
     this.starMaterial.blending = enabled ? this.THREE.NormalBlending : this.THREE.AdditiveBlending;
     // Additive auras vanish against a bright camera feed, so each revealed star gets its
     // compact opaque core back. updateHighlights applies the AR-specific aura and point-cloud
@@ -1000,6 +1009,37 @@ export class UniverseWorld {
     this.updateHighlights();
     if (!enabled) this.arPointCompensation = 1;
     this.backdrop.setPresentation(this.presentation());
+  }
+
+  /** Sector landmarks shrink into the AR mini-map and return to full sky scale after it. */
+  private applyBeaconScale() {
+    const mini = this.arPresentation;
+    this.beacons.forEach((beacon, index) => {
+      const halo = beacon.group.children[0] as Sprite;
+      const pillar = beacon.group.children[1] as Line;
+      const baseScale = Number(halo.userData.baseWorldScale);
+      const baseOpacity = Number(halo.userData.baseOpacity);
+      const pillarOpacity = Number(pillar.userData.baseOpacity);
+      const baseWidth = Number(beacon.label.userData.baseWidth);
+      if (mini) {
+        // Only the strongest sectors stay named on a tabletop; the rest keep a faint halo.
+        const named = index < 4;
+        if (Number.isFinite(baseScale)) halo.scale.setScalar(baseScale * .35);
+        if (Number.isFinite(baseOpacity)) (halo.material as SpriteMaterial).opacity = baseOpacity * .8;
+        if (Number.isFinite(pillarOpacity)) (pillar.material as LineBasicMaterial).opacity = pillarOpacity * .5;
+        beacon.label.visible = named;
+        if (named && Number.isFinite(baseWidth)) {
+          const width = Math.max(baseWidth * .5, 2.2);
+          beacon.label.scale.set(width, width * BEACON_LABEL_HEIGHT_RATIO, 1);
+        }
+      } else {
+        if (Number.isFinite(baseScale)) halo.scale.setScalar(baseScale);
+        if (Number.isFinite(baseOpacity)) (halo.material as SpriteMaterial).opacity = baseOpacity;
+        if (Number.isFinite(pillarOpacity)) (pillar.material as LineBasicMaterial).opacity = pillarOpacity;
+        if (Number.isFinite(baseWidth)) beacon.label.scale.set(baseWidth, baseWidth * BEACON_LABEL_HEIGHT_RATIO, 1);
+        beacon.label.visible = true;
+      }
+    });
   }
 
   private presentation(): "screen" | "ar" | "vr" {
@@ -1031,6 +1071,26 @@ export class UniverseWorld {
   /** Visual position of a node in world (graph) coordinates. */
   positionOf(id: string): Vector3 | undefined {
     return this.visuals.get(id)?.position;
+  }
+
+  /**
+   * Nearest revealed constellation to the listener in world coordinates. The drone follows
+   * the cluster the visitor is actually near — selection included — instead of one pinned node.
+   */
+  nearestPosition(camera: { getWorldPosition(target: Vector3): Vector3 }): Vector3 | undefined {
+    this.root.updateWorldMatrix(true, false);
+    camera.getWorldPosition(this.probeEar);
+    let best: Vector3 | undefined;
+    let bestDistance = Number.POSITIVE_INFINITY;
+    this.visuals.forEach((visual) => {
+      if (!visual.revealed) return;
+      if (this.selectedId && !visual.mesh?.visible) return;
+      this.probePoint.copy(visual.position);
+      this.root.localToWorld(this.probePoint);
+      const distance = this.probePoint.distanceTo(this.probeEar);
+      if (distance < bestDistance) { bestDistance = distance; best = visual.position; }
+    });
+    return best ?? this.visuals.get(this.selectedId ?? "")?.position;
   }
 
   dispose() {

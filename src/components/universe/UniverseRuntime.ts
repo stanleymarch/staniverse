@@ -1,7 +1,7 @@
 import type { CanvasTexture, Group, Line, LineBasicMaterial, LineSegments, Material, Mesh, Points, Quaternion, Vector3, XRTargetRaySpace } from "three";
 import type { GraphEdge, GraphNode } from "../../lib/graph";
 import { provenanceField, relationLabel } from "../../lib/graph-visuals";
-import { applyRadialDeadzone, arContentLift, cameraArOffer, cameraRelativeStep, createGestureTracker, experienceStateForAr, nearestScreenTarget, nextArPlacementState, nextExperienceState, nextSnapTurn, normalizedArContentTransform, xrOffer, VR_SPEED_METERS_PER_SECOND, type ArPlacementEvent, type ArPlacementState, type ExperienceState, type SnapTurnState } from "../../lib/xr-experience";
+import { applyRadialDeadzone, arContentLift, arDiameterForMode, cameraArOffer, cameraRelativeStep, createGestureTracker, experienceStateForAr, nearestScreenTarget, nextArPlacementState, nextExperienceState, nextSnapTurn, normalizedArContentTransform, xrOffer, VR_SPEED_METERS_PER_SECOND, type ArPlacementEvent, type ArPlacementMode, type ArPlacementState, type ExperienceState, type SnapTurnState } from "../../lib/xr-experience";
 import { startCameraAr, type CameraArSession, type CameraArStateEvent } from "./UniverseCameraAr";
 import { NODE_LABELS, UniverseWorld } from "./UniverseWorld";
 import { GenerativeUniverseAudio } from "./UniverseAudio";
@@ -235,15 +235,19 @@ export async function mountUniverse(scope: ParentNode = document) {
     });
 
     // --- Orbit state: the rig orbits `target`; look/zoom/flight change only rig and camera. ---
-    const initialPose: RigPose = { x: 0, y: 0, z: 0, yaw: 0, pitch: 0, zoom: 40 };
-    const pose: RigPose = { ...initialPose };
+    const reducedEntry = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const initialPose: RigPose = { x: 0, y: 0, z: 0, yaw: reducedEntry ? 0 : -.28, pitch: reducedEntry ? 0 : .1, zoom: reducedEntry ? 40 : 58 };
+    const pose: RigPose = reducedEntry ? { ...initialPose } : { ...initialPose, yaw: -.06, pitch: .02, zoom: 40 };
     let targetZoom = pose.zoom;
     let rigTween: RigTween | undefined;
+    // Cinematic entry: the camera settles from the wide establishing frame into the working
+    // orbit. Any pointer, wheel, key or joystick input cancels it — the visitor is driving now.
+    let entryFlight = reducedEntry || focusFromUrl() ? undefined : { start: performance.now(), duration: 1600 };
+    const cancelEntryFlight = () => { entryFlight = undefined; };
     const snapRig = () => { cameraRig.position.set(pose.x, pose.y, pose.z); };
     snapRig();
     camera.rotation.y = pose.yaw;
     camera.rotation.x = pose.pitch;
-
     let selectedId: string | null = null;
     let focusedHistoryDepth = 0;
     let neighborPage = neighborPageSizeOf(compactViewport);
@@ -303,7 +307,10 @@ export async function mountUniverse(scope: ParentNode = document) {
     };
 
     const poseSnapshot = (): RigPose => ({ ...pose });
+    /** The working orbit the entry flight settles into; the wide frame is only for the first paint. */
+    const workingPose: RigPose = { ...initialPose, yaw: -.06, pitch: .02, zoom: 40 };
     const applyPose = (next: RigPose, smooth: boolean) => {
+      cancelEntryFlight();
       Object.assign(pose, next);
       targetZoom = next.zoom;
       if (smooth && !motionReduced) {
@@ -354,7 +361,7 @@ export async function mountUniverse(scope: ParentNode = document) {
       delete root.dataset.focused;
       world.reset();
       neighborPage = neighborPageSizeOf(compactViewport);
-      if (resetView) applyPose({ ...initialPose }, true);
+      if (resetView) applyPose({ ...workingPose }, true);
       root.querySelector<HTMLElement>("[data-node-card]")!.hidden = true;
       root.querySelector<HTMLElement>("[data-intro]")?.removeAttribute("data-hidden");
       if (defaultAudioNode) audio.select(defaultAudioNode);
@@ -448,6 +455,7 @@ export async function mountUniverse(scope: ParentNode = document) {
       pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
     };
     canvas.addEventListener("pointerdown", (event) => {
+      cancelEntryFlight();
       pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
       canvas.setPointerCapture(event.pointerId);
       gesture.start(event.clientX, event.clientY);
@@ -477,7 +485,7 @@ export async function mountUniverse(scope: ParentNode = document) {
     canvas.addEventListener("pointerup", stopPointer, { signal: controller.signal });
     canvas.addEventListener("pointercancel", (event) => { stopPointer(event); resetInput(); }, { signal: controller.signal });
     canvas.addEventListener("lostpointercapture", stopPointer, { signal: controller.signal });
-    canvas.addEventListener("wheel", (event) => { targetZoom = THREE.MathUtils.clamp(targetZoom + event.deltaY * .018, 16, 76); }, { passive: true, signal: controller.signal });
+    canvas.addEventListener("wheel", (event) => { cancelEntryFlight(); targetZoom = THREE.MathUtils.clamp(targetZoom + event.deltaY * .018, 16, 76); }, { passive: true, signal: controller.signal });
     /**
      * Screen-space fallback for a raycast that missed. Every star the current selection allows to
      * be picked is projected to CSS pixels, so a fingertip only has to land inside one 44px target
@@ -513,6 +521,7 @@ export async function mountUniverse(scope: ParentNode = document) {
       if (node) focusNode(node);
     }, { signal: controller.signal });
     canvas.addEventListener("keydown", (event) => {
+      cancelEntryFlight();
       const code = event.code;
       if (["KeyW", "KeyA", "KeyS", "KeyD", "KeyQ", "KeyE"].includes(code)) { keys.add(code); syncKeyFlight(); event.preventDefault(); return; }
       const step = event.shiftKey ? .17 : .07;
@@ -543,7 +552,7 @@ export async function mountUniverse(scope: ParentNode = document) {
       joystickFlight.forward = -THREE.MathUtils.clamp((event.clientY - rect.top - rect.height / 2) / (rect.height / 2), -1, 1);
       knob?.style.setProperty("transform", `translate(${joystickFlight.strafe * 38}%, ${-joystickFlight.forward * 38}%)`);
     };
-    joystick?.addEventListener("pointerdown", (event) => { joystickPointer = event.pointerId; joystick.setPointerCapture(event.pointerId); moveJoystick(event); }, { signal: controller.signal });
+    joystick?.addEventListener("pointerdown", (event) => { cancelEntryFlight(); joystickPointer = event.pointerId; joystick.setPointerCapture(event.pointerId); moveJoystick(event); }, { signal: controller.signal });
     joystick?.addEventListener("pointermove", moveJoystick, { signal: controller.signal });
     const releaseJoystick = () => { joystickPointer = undefined; joystickFlight.forward = 0; joystickFlight.strafe = 0; knob?.style.removeProperty("transform"); };
     joystick?.addEventListener("pointerup", releaseJoystick, { signal: controller.signal });
@@ -646,7 +655,9 @@ export async function mountUniverse(scope: ParentNode = document) {
     arRoot.add(contentRoot);
     scene.add(arRoot);
     contentRoot.add(world.root);
-    const arBase = normalizedArContentTransform([...world.visuals.values()].map((visual) => visual.position));
+    const arPositions = [...world.visuals.values()].map((visual) => visual.position);
+    let arMode: ArPlacementMode = "table";
+    let arBase = normalizedArContentTransform(arPositions, arDiameterForMode(arMode));
     let arScaleFactor = 1;
     let arRotation = 0;
     const arBounds = world.contentBounds();
@@ -902,6 +913,26 @@ export async function mountUniverse(scope: ParentNode = document) {
       arRotation += rotateDelta;
       applyArTransform();
     };
+    const modeButtons = [...root.querySelectorAll<HTMLButtonElement>("[data-ar-mode]")];
+    const setArMode = (mode: ArPlacementMode) => {
+      arMode = mode;
+      if (!cameraArSession) {
+        arScaleFactor = 1;
+        arBase = normalizedArContentTransform(arPositions, arDiameterForMode(mode));
+        applyArTransform();
+      }
+      root.dataset.arMode = mode;
+      modeButtons.forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.arMode === mode)));
+      announce(mode === "room"
+        ? "Режим комнаты: созвездие 3,5 метра — обходите его и выбирайте звёзды."
+        : "Режим стола: созвездие 1 метр — в пределах досягаемости.");
+    };
+    modeButtons.forEach((button) => button.addEventListener("click", () => {
+      const mode = button.dataset.arMode as ArPlacementMode;
+      if (cameraArSession) cameraArSession.setMode?.(normalizedArContentTransform(arPositions, arDiameterForMode(mode)));
+      setArMode(mode);
+    }, { signal: controller.signal }));
+    root.dataset.arMode = arMode;
     root.querySelector<HTMLButtonElement>("[data-ar-place]")?.addEventListener("click", placeAr, { signal: controller.signal });
     root.querySelector<HTMLButtonElement>("[data-ar-relocate]")?.addEventListener("click", relocateAr, { signal: controller.signal });
     root.querySelector<HTMLButtonElement>("[data-ar-relocate-cancel]")?.addEventListener("click", cancelRelocate, { signal: controller.signal });
@@ -1076,7 +1107,7 @@ export async function mountUniverse(scope: ParentNode = document) {
       const surface = new THREE.Mesh(new THREE.PlaneGeometry(.8, .5), new THREE.MeshBasicMaterial({ map: panelTexture, transparent: true, side: THREE.DoubleSide }));
       panelGroup.add(surface);
       panelButtons = panelActions.map((action, index) => {
-        const plane = new THREE.Mesh(new THREE.PlaneGeometry(.104, .05), new THREE.MeshBasicMaterial({ transparent: true, opacity: .001 }));
+        const plane = new THREE.Mesh(new THREE.PlaneGeometry(.104, .07), new THREE.MeshBasicMaterial({ transparent: true, opacity: .001 }));
         plane.userData.panelAction = action;
         plane.position.set(-.338 + index * .1125, -.212, .001);
         panelGroup!.add(plane);
@@ -1092,24 +1123,33 @@ export async function mountUniverse(scope: ParentNode = document) {
       if (!context) return;
       context.clearRect(0, 0, 1024, 640);
       context.beginPath();
-      context.roundRect(6, 6, 1012, 628, 22);
-      context.fillStyle = "rgba(6,8,15,.93)";
+      context.roundRect(6, 6, 1012, 628, 28);
+      context.fillStyle = "rgba(10,14,26,.82)";
       context.fill();
-      context.strokeStyle = "rgba(109,225,244,.5)";
-      context.lineWidth = 3;
+      context.strokeStyle = "rgba(238,243,255,.22)";
+      context.lineWidth = 2;
       context.stroke();
-      context.fillStyle = "#9dddec";
-      context.font = "500 26px Geologica, sans-serif";
+      context.beginPath();
+      context.roundRect(6, 6, 1012, 120, [28, 28, 0, 0]);
+      context.fillStyle = "rgba(238,243,255,.06)";
+      context.fill();
+      context.beginPath();
+      context.roundRect(6, 6, 1012, 628, 28);
+      context.strokeStyle = "rgba(127,212,240,.4)";
+      context.lineWidth = 2;
+      context.stroke();
       const selected = selectedId ? world.byId.get(selectedId) : undefined;
-      context.fillText(selected ? (NODE_LABELS[selected.kind] ?? selected.kind).toUpperCase() : "СОЗВЕЗДИЕ", 36, 62);
-      context.fillStyle = "#eef6ff";
-      context.font = "650 40px Geologica, sans-serif";
-      const title = selected ? selected.title : "Узел не выбран";
-      context.fillText(title.length > 44 ? `${title.slice(0, 43)}…` : title, 36, 118);
-      context.font = "400 22px Geologica, sans-serif";
-      context.fillStyle = "#8fa6bc";
-      const excerpt = selected?.summary ?? "Выберите звезду, чтобы открыть её контекст и связи.";
-      context.fillText(excerpt.length > 76 ? `${excerpt.slice(0, 75)}…` : excerpt, 36, 158);
+      context.fillStyle = "#7fd4f0";
+      context.font = "500 24px Geologica, sans-serif";
+      context.fillText(selected ? `✦ ${(NODE_LABELS[selected.kind] ?? selected.kind).toUpperCase()} · ДОСЬЕ` : "✦ СОЗВЕЗДИЕ", 36, 56);
+      context.fillStyle = "#eef3ff";
+      context.font = "650 44px Unbounded, Geologica, sans-serif";
+      const title = selected ? selected.title : "Летайте между идеями";
+      context.fillText(title.length > 40 ? `${title.slice(0, 39)}…` : title, 36, 112);
+      context.font = "400 23px Geologica, sans-serif";
+      context.fillStyle = "#b8c7dd";
+      const excerpt = selected?.summary ?? "Выберите звезду лучом, чтобы открыть её контекст и связи.";
+      context.fillText(excerpt.length > 82 ? `${excerpt.slice(0, 81)}…` : excerpt, 36, 152);
       context.font = "400 25px Geologica, sans-serif";
       context.fillStyle = "#aebfd2";
       const neighbors = selected ? world.edgesByNode.get(selected.id) ?? [] : [];
@@ -1122,19 +1162,21 @@ export async function mountUniverse(scope: ParentNode = document) {
         const label = relationLabel(edge.type);
         const line = `${outgoing ? `${label} →` : `← ${label}`} ${neighbor?.title ?? ""}`;
         context.fillText(line.length > 58 ? `${line.slice(0, 57)}…` : line, 36, 210 + index * 66);
-        context.fillStyle = "rgba(109,225,244,.55)";
+        context.fillStyle = "rgba(127,212,240,.6)";
         context.fillText(`${Math.round(edge.confidence * 100)}% · ${edge.evidence}`, 60, 241 + index * 66);
         context.fillStyle = "#aebfd2";
       });
-      context.fillStyle = "#63788c";
-      context.fillText(`Соседи ${selected ? neighbors.length : 0} · страница ${panelPage + 1}/${pages}`, 36, 512);
+      context.fillStyle = "#8fa6bc";
+      context.font = "400 22px Geologica, sans-serif";
+      context.fillText(`Связей ${selected ? neighbors.length : 0} · страница ${panelPage + 1}/${pages}`, 36, 512);
       panelActions.forEach((action, index) => {
         const x = 36 + index * 140;
         context.beginPath();
-        context.roundRect(x, 540, 128, 66, 14);
-        context.fillStyle = action === "exit" ? "rgba(229,168,209,.18)" : "rgba(109,225,244,.12)";
+        context.roundRect(x, 540, 128, 66, 16);
+        context.fillStyle = action === "exit" ? "rgba(229,168,209,.16)" : "rgba(127,212,240,.12)";
         context.fill();
-        context.strokeStyle = action === "exit" ? "rgba(229,168,209,.42)" : "rgba(109,225,244,.42)";
+        context.strokeStyle = action === "exit" ? "rgba(229,168,209,.5)" : "rgba(238,243,255,.28)";
+        context.lineWidth = 2;
         context.stroke();
         context.fillStyle = "#dceefa";
         context.font = "500 24px Geologica, sans-serif";
@@ -1380,6 +1422,15 @@ export async function mountUniverse(scope: ParentNode = document) {
         });
       }
       if (!renderer.xr.isPresenting) {
+        if (entryFlight && !motionReduced) {
+          const t = Math.min(1, (performance.now() - entryFlight.start) / entryFlight.duration);
+          const eased = easeInOut(t);
+          camera.rotation.y = initialPose.yaw + (workingPose.yaw - initialPose.yaw) * eased;
+          camera.rotation.x = initialPose.pitch + (workingPose.pitch - initialPose.pitch) * eased;
+          syncLook();
+          targetZoom = initialPose.zoom + (workingPose.zoom - initialPose.zoom) * eased;
+          if (t >= 1) entryFlight = undefined;
+        }
         camera.position.z += (targetZoom - camera.position.z) * .07;
         pose.zoom = camera.position.z;
         const forward = THREE.MathUtils.clamp(keyFlight.forward + joystickFlight.forward, -1, 1);
@@ -1448,8 +1499,7 @@ export async function mountUniverse(scope: ParentNode = document) {
           }
         }
       }
-      const audioTargetId = selectedId ?? defaultAudioNode?.id;
-      const localAudioTarget = audioTargetId ? world.positionOf(audioTargetId) : undefined;
+      const localAudioTarget = selectedId ? world.positionOf(selectedId) : world.nearestPosition(camera);
       let audioDistance = 1;
       if (localAudioTarget) {
         world.root.updateWorldMatrix(true, false);
@@ -1463,9 +1513,9 @@ export async function mountUniverse(scope: ParentNode = document) {
       if (audioSignal && (displayedEnergy !== renderedAudioEnergy || audioState.theme !== renderedAudioTheme)) {
         renderedAudioEnergy = displayedEnergy;
         renderedAudioTheme = audioState.theme;
-        audioSignal.style.setProperty("--audio-energy", String(displayedEnergy));
         audioSignal.dataset.theme = audioState.theme;
         audioSignal.toggleAttribute("data-active", audioState.enabled);
+        audioSignal.style.setProperty("--audio-energy", String(displayedEnergy));
       }
       world.update(time / 1000, audioState.energy, camera.getWorldPosition(tmpAudioListener));
       if (xrDiagnosticsEnabled && renderer.xr.isPresenting) {

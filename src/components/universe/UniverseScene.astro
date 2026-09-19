@@ -77,7 +77,11 @@ const catalogue = `${nodeCount} ${pluralRu(nodeCount, "узел", "узла", "�
       <label class="node-search"><span class="sr-only">Найти узел</span><input data-node-search type="search" list="universe-nodes" placeholder="Найти узел…" autocomplete="off" /></label>
       <datalist id="universe-nodes">{graph.nodes.map((node) => <option value={node.title} />)}</datalist>
       <nav class="universe-ar-actions" data-ar-actions aria-label="Размещение созвездия в дополненной реальности">
-        <button class="icon-button" type="button" data-ar-place disabled>Разместить</button>
+        <div class="ar-mode" role="group" aria-label="Масштаб размещения">
+          <button class="icon-button" type="button" data-ar-mode="table" aria-pressed="true">Стол</button>
+          <button class="icon-button" type="button" data-ar-mode="room" aria-pressed="false">Комната</button>
+        </div>
+        <button class="icon-button ar-primary" type="button" data-ar-place disabled>Разместить</button>
         <button class="icon-button" type="button" data-ar-relocate disabled>Перенести</button>
         <button class="icon-button" type="button" data-ar-relocate-cancel hidden>Отмена</button>
         <button class="icon-button" type="button" data-ar-scale-down data-ar-adjust disabled aria-label="Уменьшить созвездие">−</button>
