@@ -50,5 +50,4 @@ Allow: /
 
 User-agent: *
 Allow: /
-
 Sitemap: https://staniverse.xyz/sitemap.xml

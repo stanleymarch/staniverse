@@ -130,6 +130,31 @@ export function xrOffer(capabilities: XrCapabilities): XrOffer {
   };
 }
 
+export interface CameraArCapabilities {
+  /** `"xr" in navigator`: a native WebXR implementation exists. */
+  xrSystem: boolean;
+  /** `isSessionSupported("immersive-ar")` answer. */
+  immersiveAr: boolean;
+  /** The primary pointer is a finger, not a mouse. */
+  coarsePointer: boolean;
+  /** getUserMedia needs a secure context. */
+  secureContext: boolean;
+}
+
+/**
+ * Whether the camera+SLAM adapter may be offered. It exists for the phones WebXR
+ * forgot — iOS WebKit exposes no `navigator.xr` at all — and is deliberately not
+ * offered where native `immersive-ar` already answered, nor on pointer-fine
+ * devices, so a desktop without WebXR keeps the plain touch-3D screen instead of
+ * a webcam surprise. Capability answers only; no user-agent sniffing.
+ */
+export function cameraArOffer(capabilities: CameraArCapabilities): boolean {
+  return capabilities.secureContext === true
+    && capabilities.xrSystem !== true
+    && capabilities.immersiveAr !== true
+    && capabilities.coarsePointer === true;
+}
+
 /** Cumulative travel, in CSS pixels, that turns a press into a look/flight drag. */
 export const GESTURE_DRAG_THRESHOLD_PX = 10;
 /** Minimum footprint of every interactive target, in-scene picks included. */

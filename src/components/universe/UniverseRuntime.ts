@@ -1,7 +1,8 @@
 import type { CanvasTexture, Group, Line, LineBasicMaterial, LineSegments, Material, Mesh, Points, Quaternion, Vector3, XRTargetRaySpace } from "three";
 import type { GraphEdge, GraphNode } from "../../lib/graph";
 import { provenanceField, relationLabel } from "../../lib/graph-visuals";
-import { applyRadialDeadzone, arContentLift, cameraRelativeStep, createGestureTracker, experienceStateForAr, nearestScreenTarget, nextArPlacementState, nextExperienceState, nextSnapTurn, normalizedArContentTransform, xrOffer, VR_SPEED_METERS_PER_SECOND, type ArPlacementEvent, type ArPlacementState, type ExperienceState, type SnapTurnState } from "../../lib/xr-experience";
+import { applyRadialDeadzone, arContentLift, cameraArOffer, cameraRelativeStep, createGestureTracker, experienceStateForAr, nearestScreenTarget, nextArPlacementState, nextExperienceState, nextSnapTurn, normalizedArContentTransform, xrOffer, VR_SPEED_METERS_PER_SECOND, type ArPlacementEvent, type ArPlacementState, type ExperienceState, type SnapTurnState } from "../../lib/xr-experience";
+import { startCameraAr, type CameraArSession, type CameraArStateEvent } from "./UniverseCameraAr";
 import { NODE_LABELS, UniverseWorld } from "./UniverseWorld";
 import { GenerativeUniverseAudio } from "./UniverseAudio";
 
@@ -126,9 +127,16 @@ interface RigTween {
   duration: number;
 }
 
-const NEIGHBOR_PAGE_SIZE = 6;
-/** How long a surface hit stays valid for placement; a DOM click in AR arrives outside the XR frame. */
-const AR_HIT_MAX_AGE_MS = 400;
+/** On a phone the card must not eat the sky: fewer rows before "Ещё соседи". */
+const neighborPageSizeOf = (compact: boolean) => compact ? 4 : 6;
+/**
+ * How many XR frames a surface hit stays valid for placement. A DOM click in AR arrives
+ * outside the XR frame loop, so a wall-clock window is the wrong unit: on a slow device
+ * (or a loaded workstation) frames can be a second apart and every click would read as
+ * stale. Counting frames keeps placement usable at any frame rate while still refusing
+ * evidence the viewer no longer sees.
+ */
+const AR_HIT_MAX_FRAME_AGE = 2;
 
 export async function mountUniverse(scope: ParentNode = document) {
   const root = scope.querySelector<HTMLElement>("[data-universe]");
@@ -208,7 +216,14 @@ export async function mountUniverse(scope: ParentNode = document) {
       .sort((a, b) => Number(b.featured) - Number(a.featured) || nodeDegreeOf(b.id) - nodeDegreeOf(a.id))
       .slice(0, 11)
       .forEach((node) => initialIds.add(node.id));
-
+    // Canvas label textures are drawn once and never redrawn: the exact Geologica
+    // faces they use must be loaded first, or sector captions silently bake in the
+    // system fallback for the whole session.
+    if (document.fonts?.load) {
+      try {
+        await Promise.all([document.fonts.load("600 30px Geologica"), document.fonts.load("500 24px Geologica")]);
+      } catch { /* the fallback face is acceptable if loading fails */ }
+    }
     const world = UniverseWorld.create({ THREE, scene }, graph, { compact: compactViewport, initialIds });
     const defaultAudioNode = graph.nodes.find((node) => initialIds.has(node.id)) ?? graph.nodes[0];
     if (defaultAudioNode) audio.select(defaultAudioNode);
@@ -231,7 +246,7 @@ export async function mountUniverse(scope: ParentNode = document) {
 
     let selectedId: string | null = null;
     let focusedHistoryDepth = 0;
-    let neighborPage = NEIGHBOR_PAGE_SIZE;
+    let neighborPage = neighborPageSizeOf(compactViewport);
     const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     let motionReduced = motionQuery.matches;
     root.dataset.motion = motionReduced ? "reduced" : "full";
@@ -279,7 +294,7 @@ export async function mountUniverse(scope: ParentNode = document) {
           more.type = "button";
           more.className = "node-neighbor-more";
           more.textContent = `Ещё соседи (${sorted.length - neighborPage})`;
-          more.addEventListener("click", () => { neighborPage += NEIGHBOR_PAGE_SIZE; renderNeighbors(); });
+          more.addEventListener("click", () => { neighborPage += neighborPageSizeOf(compactViewport); renderNeighbors(); });
           neighborsList.append(more);
         }
       };
@@ -321,7 +336,7 @@ export async function mountUniverse(scope: ParentNode = document) {
       if (push) pushFocus(node.id);
       selectedId = node.id;
       root.dataset.focused = "true";
-      neighborPage = NEIGHBOR_PAGE_SIZE;
+      neighborPage = neighborPageSizeOf(compactViewport);
       setCard(card.node, card.neighbors);
       root.querySelector<HTMLDetailsElement>(".universe-tools")?.removeAttribute("open");
       // Selection is informational in every mode. Never move the camera or XR rig:
@@ -338,7 +353,7 @@ export async function mountUniverse(scope: ParentNode = document) {
       selectedId = null;
       delete root.dataset.focused;
       world.reset();
-      neighborPage = NEIGHBOR_PAGE_SIZE;
+      neighborPage = neighborPageSizeOf(compactViewport);
       if (resetView) applyPose({ ...initialPose }, true);
       root.querySelector<HTMLElement>("[data-node-card]")!.hidden = true;
       root.querySelector<HTMLElement>("[data-intro]")?.removeAttribute("data-hidden");
@@ -353,7 +368,7 @@ export async function mountUniverse(scope: ParentNode = document) {
         const card = world.focus(node.id);
         selectedId = node.id;
         root.dataset.focused = "true";
-        neighborPage = NEIGHBOR_PAGE_SIZE;
+        neighborPage = neighborPageSizeOf(compactViewport);
         if (card) setCard(card.node, card.neighbors);
         if (statePose) applyPose(statePose, true);
         root.querySelector<HTMLElement>("[data-intro]")?.setAttribute("data-hidden", "true");
@@ -624,7 +639,6 @@ export async function mountUniverse(scope: ParentNode = document) {
     if (vrStatus) vrStatus.textContent = vrSupported ? "VR готов" : "VR недоступен";
     if (arStatus) arStatus.textContent = arSupported ? "AR готов" : "AR недоступен";
     if (xrStatus) xrStatus.textContent = screenModeLabel();
-
     // AR transform hierarchy: placementRoot (surface pose) → contentRoot (scale/rotation).
     // Node coordinates inside the world are never rewritten by placement.
     const arRoot = new THREE.Group();
@@ -738,7 +752,9 @@ export async function mountUniverse(scope: ParentNode = document) {
     let arSessionIdentity = 0;
     let lastHitMatrix: Float32Array | undefined;
     let lastHitResult: XRHitTestResult | undefined;
-    let lastHitAt = 0;
+    /** Monotonic XR frame counter and the tick of the last accepted surface hit. */
+    let arFrameTick = 0;
+    let lastHitTick = Number.NEGATIVE_INFINITY;
     let arAnchor: XRAnchor | undefined;
     let arAnchorMode = false;
     let relocating = false;
@@ -767,7 +783,7 @@ export async function mountUniverse(scope: ParentNode = document) {
     const clearHitEvidence = () => {
       lastHitMatrix = undefined;
       lastHitResult = undefined;
-      lastHitAt = 0;
+      lastHitTick = Number.NEGATIVE_INFINITY;
       arMarker.visible = false;
     };
     const onArSessionStart = () => {
@@ -817,16 +833,21 @@ export async function mountUniverse(scope: ParentNode = document) {
       if (activeXrMode === "immersive-ar") setArState("end");
     };
     const placeAr = () => {
-      if (arState !== "ready" || !lastHitMatrix || !lastHitResult) return;
+      if (cameraArSession) { cameraArSession.place(); return; }
+      if (!lastHitMatrix || !lastHitResult) return;
       // Placement also arrives from a DOM click in the AR overlay, i.e. outside the XR frame loop:
-      // only keep the surface evidence when it is recent and from a visible session, otherwise the
-      // anchor would be created from a hit the viewer no longer sees.
-      if (renderer.xr.getSession()?.visibilityState !== "visible" || performance.now() - lastHitAt > AR_HIT_MAX_AGE_MS) {
+      // only keep the surface evidence when it was refreshed within the last couple of frames and
+      // comes from a visible session, otherwise the anchor would be created from a hit the viewer
+      // no longer sees. Frame age, not milliseconds: a slow device must still be placeable.
+      if (renderer.xr.getSession()?.visibilityState !== "visible" || arFrameTick - lastHitTick > AR_HIT_MAX_FRAME_AGE) {
         clearHitEvidence();
         setArState("hit-missed");
         announce("AR: данные о поверхности устарели — наведите камеру на поверхность снова.");
         return;
       }
+      // A tap can land on the frame right after a momentary surface miss: the evidence is still
+      // valid, so the request is honoured instead of being swallowed by the transient state.
+      if (arState === "searching") setArState("hit");
       if (relocating) savedPlacement?.anchor?.delete();
       relocating = false;
       savedPlacement = undefined;
@@ -856,8 +877,8 @@ export async function mountUniverse(scope: ParentNode = document) {
       }
     };
     const relocateAr = () => {
+      if (cameraArSession) { cameraArSession.relocate(); return; }
       if (arState !== "placed") return;
-      savedPlacement = { position: arRoot.position.clone(), quaternion: arRoot.quaternion.clone(), anchor: arAnchor, anchorMode: arAnchorMode };
       arAnchor = undefined;
       arAnchorMode = false;
       relocating = true;
@@ -865,8 +886,8 @@ export async function mountUniverse(scope: ParentNode = document) {
       announce("Перенос: наведите камеру на новую поверхность и подтвердите размещение. Отмена вернёт прежнюю точку.");
     };
     const cancelRelocate = () => {
+      if (cameraArSession) { cameraArSession.cancelRelocate(); return; }
       if (!relocating || !savedPlacement) return;
-      arRoot.position.copy(savedPlacement.position);
       arRoot.quaternion.copy(savedPlacement.quaternion);
       arAnchor = savedPlacement.anchor;
       arAnchorMode = savedPlacement.anchorMode;
@@ -876,6 +897,7 @@ export async function mountUniverse(scope: ParentNode = document) {
       announce("Перенос отменён, прежнее размещение восстановлено.");
     };
     const adjustAr = (scaleDelta: number, rotateDelta: number) => {
+      if (cameraArSession) { cameraArSession.adjust(scaleDelta, rotateDelta); return; }
       arScaleFactor = THREE.MathUtils.clamp(arScaleFactor + scaleDelta, .5, 2);
       arRotation += rotateDelta;
       applyArTransform();
@@ -886,12 +908,122 @@ export async function mountUniverse(scope: ParentNode = document) {
     root.querySelector<HTMLButtonElement>("[data-ar-scale-down]")?.addEventListener("click", () => adjustAr(-.25, 0), { signal: controller.signal });
     root.querySelector<HTMLButtonElement>("[data-ar-scale-up]")?.addEventListener("click", () => adjustAr(.25, 0), { signal: controller.signal });
     root.querySelector<HTMLButtonElement>("[data-ar-rotate]")?.addEventListener("click", () => adjustAr(0, Math.PI / 8), { signal: controller.signal });
+
+    // --- Camera AR: the 8th Wall adapter for phones without native WebXR (iOS). ---
+    // Offered from capability answers alone: no navigator.xr at all, no immersive-ar,
+    // finger-primary pointer, secure context. The engine binary is not even fetched
+    // until this button is tapped.
+    let cameraArSession: CameraArSession | undefined;
+    let cameraArFailed = false;
+    const cameraArButton = cameraArOffer({
+      xrSystem: Boolean(xrNavigator?.requestSession),
+      immersiveAr: arSupported,
+      coarsePointer: window.matchMedia("(pointer: coarse)").matches,
+      secureContext: window.isSecureContext,
+    }) ? makeXrButton("AR через камеру") : undefined;
+    if (cameraArButton) cameraArButton.disabled = false;
+    const setCameraArControls = (view: "ready" | "placed") => {
+      if (placeControl) placeControl.disabled = view !== "ready";
+      if (relocateControl) relocateControl.disabled = view !== "placed";
+      adjustmentControls.forEach((control) => { control.disabled = view !== "placed"; });
+      if (relocateCancelControl) relocateCancelControl.hidden = true;
+    };
+    const endCameraAr = async () => {
+      const session = cameraArSession;
+      cameraArSession = undefined;
+      if (session) await session.end();
+      world.setArPresentation(false);
+      root.dataset.xr = "screen";
+      if (cameraArButton) {
+        cameraArButton.disabled = false;
+        cameraArButton.textContent = "AR через камеру";
+      }
+      if (arStatus) arStatus.textContent = arSupported ? "AR готов" : "AR: только через камеру";
+      if (xrStatus) xrStatus.textContent = screenModeLabel();
+      setExperienceState("exploring");
+      lastFrame = performance.now();
+      renderer.setAnimationLoop(frame);
+      void audio.resumeIfEnabled();
+      announce("Камера выключена. Возвращён экранный режим.");
+    };
+    cameraArButton?.addEventListener("click", async () => {
+      if (cameraArSession) { await endCameraAr(); return; }
+      if (cameraArButton.disabled) return;
+      cameraArButton.disabled = true;
+      cameraArButton.textContent = "Запускаю AR…";
+      cameraArFailed = false;
+      setExperienceState("loading", "Загружаю AR-движок…");
+      if (arStatus) arStatus.textContent = "AR: загружаю движок";
+      // The engine owns rendering while it runs; the screen loop and its camera stand down.
+      renderer.setAnimationLoop(null);
+      void audio.interrupt();
+      world.setArPresentation(true);
+      root.dataset.xr = "camera-ar";
+      try {
+        cameraArSession = await startCameraAr({
+          scriptUrl: "https://cdn.jsdelivr.net/npm/@8thwall/engine-binary@1.0.0/dist/xr.js",
+          THREE,
+          host: root,
+          worldRoot: world.root,
+          contentBase: arBase,
+          pickables: () => world.pickableMeshes(),
+          nodeIdFromPick: (mesh, index) => world.nodeIdFromPick(mesh, index),
+          worldUpdate: (elapsed, contentScale) => {
+            world.setArContentScale(contentScale);
+            world.update(elapsed, 0);
+          },
+          onState: (event: CameraArStateEvent, detail) => {
+            if (event === "camera-requesting") {
+              setExperienceState("loading", "Жду доступ к камере…");
+              if (arStatus) arStatus.textContent = "AR: жду камеру";
+              return;
+            }
+            if (event === "ready") {
+              setExperienceState("ready");
+              setCameraArControls("ready");
+              if (arStatus) arStatus.textContent = "AR: наведите камеру и разместите";
+              announce("Камера включена. Наведите её и нажмите «Разместить»: созвездие встанет по направлению взгляда.");
+              return;
+            }
+            if (event === "placed") {
+              setExperienceState("placed");
+              setCameraArControls("placed");
+              if (arStatus) arStatus.textContent = "AR: размещено по взгляду";
+              announce("Созвездие размещено по взгляду. Можно обойти его и выбрать звезду касанием.");
+              return;
+            }
+            if (event === "failed") {
+              cameraArFailed = true;
+              announce(`AR через камеру не запустился: ${detail ?? "ошибка"}. Возвращён экранный режим.`);
+              void endCameraAr();
+            }
+          },
+        });
+        // A camera error can arrive in the microtask gap before this awaited
+        // session handle is assigned. Finish teardown now that the handle exists.
+        if (cameraArFailed) {
+          await endCameraAr();
+          return;
+        }
+        // Taps on the engine canvas select stars through the adapter's own camera.
+        root.querySelector<HTMLCanvasElement>(".camera-ar-canvas")?.addEventListener("click", (event) => {
+          if (gesture.dragged) return;
+          const nodeId = cameraArSession?.pick(event.clientX, event.clientY);
+          const node = nodeId ? world.byId.get(nodeId) : undefined;
+          if (node) focusNode(node);
+        }, { signal: controller.signal });
+      } catch (error) {
+        console.warn("Camera AR unavailable", error);
+        announce("AR через камеру не загрузился на этом устройстве. Возвращён экранный режим.");
+        await endCameraAr();
+      }
+    });
     // Two-finger rotate on the AR overlay: equivalent to the rotate button; never selects a star.
     const arPointers = new Map<number, { x: number; y: number }>();
     let arGestureAngle = 0;
     let arGestureActive = false;
     root.addEventListener("pointerdown", (event) => {
-      if (root.dataset.xr !== "ar") return;
+      if (root.dataset.xr !== "ar" && root.dataset.xr !== "camera-ar") return;
       arPointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
       if (arPointers.size === 2) {
         const [a, b] = [...arPointers.values()];
@@ -904,9 +1036,12 @@ export async function mountUniverse(scope: ParentNode = document) {
       arPointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
       const [a, b] = [...arPointers.values()];
       const angle = Math.atan2(b.y - a.y, b.x - a.x);
-      arRotation += angle - arGestureAngle;
+      if (cameraArSession) cameraArSession.adjust(0, angle - arGestureAngle);
+      else {
+        arRotation += angle - arGestureAngle;
+        applyArTransform();
+      }
       arGestureAngle = angle;
-      applyArTransform();
     }, { signal: controller.signal });
     const endArGesture = (event: PointerEvent) => {
       arPointers.delete(event.pointerId);
@@ -1195,6 +1330,7 @@ export async function mountUniverse(scope: ParentNode = document) {
         renderer.setPixelRatio(nextStep === "low" ? Math.min(1.25, window.devicePixelRatio) : Math.min(window.devicePixelRatio, 1.8));
       }
       if (renderer.xr.isPresenting && xrFrame && hitTestSource && arReferenceSpace && activeXrMode === "immersive-ar") {
+        arFrameTick += 1;
         const viewerPose = xrFrame.getViewerPose(arReferenceSpace);
         // A null viewer pose is tracking loss: the runtime cannot locate the viewer, so hit tests,
         // placement and the anchor pose are all unusable even while the session reports "visible".
@@ -1206,7 +1342,7 @@ export async function mountUniverse(scope: ParentNode = document) {
           if (pose) {
             lastHitMatrix = pose.transform.matrix as unknown as Float32Array;
             lastHitResult = hit;
-            lastHitAt = performance.now();
+            lastHitTick = arFrameTick;
             arMarker.matrix.fromArray(lastHitMatrix);
             arMarker.visible = arState !== "placed" || relocating;
             // The reticle breathes while it waits for a tap, so a still surface still looks alive.
@@ -1353,6 +1489,9 @@ export async function mountUniverse(scope: ParentNode = document) {
       cleaned = true;
       controller.abort();
       timers.forEach((timer) => window.clearTimeout(timer));
+      const cameraSession = cameraArSession;
+      cameraArSession = undefined;
+      void cameraSession?.end();
       if (activeXrMode === "immersive-ar") onArSessionEnd();
       xrDisposers.forEach((dispose) => dispose());
       void renderer.xr.getSession()?.end();

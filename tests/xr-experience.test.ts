@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { applyRadialDeadzone, AR_SURFACE_CLEARANCE, arContentLift, cameraRelativeStep, createGestureTracker, experienceStateForAr, GESTURE_DRAG_THRESHOLD_PX, MIN_TOUCH_TARGET_PX, nearestScreenTarget, nextArPlacementState, nextExperienceState, nextSnapTurn, normalizedArContentTransform, xrOffer } from "../src/lib/xr-experience";
+import { applyRadialDeadzone, AR_SURFACE_CLEARANCE, arContentLift, cameraArOffer, cameraRelativeStep, createGestureTracker, experienceStateForAr, GESTURE_DRAG_THRESHOLD_PX, MIN_TOUCH_TARGET_PX, nearestScreenTarget, nextArPlacementState, nextExperienceState, nextSnapTurn, normalizedArContentTransform, xrOffer } from "../src/lib/xr-experience";
 
 test("flight motion follows the viewed direction", () => {
   assert.deepEqual(cameraRelativeStep({ forward: 1, strafe: 0, rise: 0 }, 0, 2), { x: 0, y: 0, z: -2 });
@@ -27,6 +27,19 @@ test("surface miss demotes only the found surface and relocate keeps placement u
   assert.equal(nextArPlacementState("ready", "relocate-cancel"), "placed");
   assert.equal(nextArPlacementState("lost", "relocate-cancel"), "lost-placed");
   assert.equal(nextArPlacementState("ready", "relocate"), "ready");
+});
+
+test("camera AR is offered only to touch-first devices WebXR forgot entirely", () => {
+  const ios = { xrSystem: false, immersiveAr: false, coarsePointer: true, secureContext: true };
+  assert.equal(cameraArOffer(ios), true);
+  // A device with native immersive-ar never needs the camera adapter.
+  assert.equal(cameraArOffer({ ...ios, xrSystem: true, immersiveAr: true }), false);
+  // navigator.xr exists but immersive-ar answered false (desktop Chrome): no webcam surprise.
+  assert.equal(cameraArOffer({ ...ios, xrSystem: true, immersiveAr: false }), false);
+  // A fine pointer (desktop Safari) keeps the touch-3D screen instead.
+  assert.equal(cameraArOffer({ ...ios, coarsePointer: false }), false);
+  // getUserMedia needs a secure context.
+  assert.equal(cameraArOffer({ ...ios, secureContext: false }), false);
 });
 
 test("radial deadzone keeps direction, kills drift and never amplifies beyond unit", () => {

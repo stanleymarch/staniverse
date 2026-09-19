@@ -81,6 +81,9 @@ const AMBIENT_EDGE_BUDGET = { compact: 24, full: 60 };
 const SQUASH_MIN = .82;
 /** How many sector captions stay readable at once; the rest fade with distance. */
 const BEACON_LABEL_BUDGET = 6;
+const BEACON_LABEL_WIDTH = 768;
+const BEACON_LABEL_HEIGHT = 104;
+const BEACON_LABEL_HEIGHT_RATIO = BEACON_LABEL_HEIGHT / BEACON_LABEL_WIDTH;
 
 
 /**
@@ -192,6 +195,8 @@ export class UniverseWorld {
   private constellation: ConstellationEdge[] = [];
   /** Spectral colour per node, cached: the sky is tinted once, never per frame. */
   private readonly spectra = new Map<string, Color>();
+  /** The selected star's marker: an instrument ring that stays readable over any sky. */
+  private readonly focusReticle: Sprite;
   private readonly beacons: WorldBeacon[] = [];
   /** Reused ranking buffer: sorting sector captions every frame must not allocate. */
   private readonly beaconOrder: Array<{ beacon: WorldBeacon; distance: number }> = [];
@@ -278,6 +283,43 @@ export class UniverseWorld {
     glowContext.arc(128, 128, 31, 0, Math.PI * 2);
     glowContext.stroke();
     this.glowTexture = new this.THREE.CanvasTexture(glowCanvas);
+
+    // Focus reticle: a soft dark backing plus a crisp ring and four ticks, drawn once. It marks
+    // the selected star in every presentation, including the bright AR camera feed. The stroke
+    // is heavy on purpose: the sprite spans only a few world units on screen.
+    const reticleCanvas = document.createElement("canvas");
+    reticleCanvas.width = 256;
+    reticleCanvas.height = 256;
+    const reticleContext = reticleCanvas.getContext("2d");
+    if (!reticleContext) throw new Error("Reticle canvas is unavailable");
+    const backing = reticleContext.createRadialGradient(128, 128, 30, 128, 128, 126);
+    backing.addColorStop(0, "rgba(3,6,13,.66)");
+    backing.addColorStop(.72, "rgba(3,6,13,.36)");
+    backing.addColorStop(1, "rgba(3,6,13,0)");
+    reticleContext.fillStyle = backing;
+    reticleContext.fillRect(0, 0, 256, 256);
+    reticleContext.strokeStyle = "rgba(219,242,252,.97)";
+    reticleContext.lineWidth = 13;
+    reticleContext.beginPath();
+    reticleContext.arc(128, 128, 88, 0, Math.PI * 2);
+    reticleContext.stroke();
+    reticleContext.lineWidth = 10;
+    for (let tick = 0; tick < 4; tick += 1) {
+      const angle = tick * Math.PI / 2;
+      reticleContext.beginPath();
+      reticleContext.moveTo(128 + Math.cos(angle) * 100, 128 + Math.sin(angle) * 100);
+      reticleContext.lineTo(128 + Math.cos(angle) * 122, 128 + Math.sin(angle) * 122);
+      reticleContext.stroke();
+    }
+    this.focusReticle = new this.THREE.Sprite(new this.THREE.SpriteMaterial({
+      map: new this.THREE.CanvasTexture(reticleCanvas),
+      transparent: true,
+      opacity: .85,
+      depthWrite: false,
+    }));
+    this.focusReticle.visible = false;
+    this.focusReticle.userData.baseWorldScale = 0;
+    this.root.add(this.focusReticle);
 
     // Stable graph coordinates, derived from the content alone: see layoutNodes.
     const layout = this.layoutNodes();
@@ -595,7 +637,7 @@ export class UniverseWorld {
       );
       const label = this.beaconLabel(site.title, site.tint);
       const labelWidth = Math.min(14, Math.max(5, site.radius * 2.2));
-      label.scale.set(labelWidth, labelWidth * .2, 1);
+      label.scale.set(labelWidth, labelWidth * BEACON_LABEL_HEIGHT_RATIO, 1);
       label.position.y = pillarHeight / 2 + labelWidth * .16;
       group.add(halo, pillar, label);
       this.beaconGroup.add(group);
@@ -603,23 +645,28 @@ export class UniverseWorld {
     });
   }
 
-  /** Sector caption: a small tinted canvas, the same procedural-label approach as node titles. */
+  /** Sector caption: tinted text lifted toward white over a soft dark backing, so it reads over
+   *  nebulae and bright star clouds alike. Normal blending keeps the backing dark instead of
+   *  additive-ignoring it. */
   private beaconLabel(text: string, tint: Color) {
     const canvas = document.createElement("canvas");
-    canvas.width = 320;
-    canvas.height = 64;
+    canvas.width = BEACON_LABEL_WIDTH;
+    canvas.height = BEACON_LABEL_HEIGHT;
     const context = canvas.getContext("2d");
     if (!context) return new this.THREE.Sprite();
-    context.font = "500 26px Geologica, sans-serif";
+    context.font = "600 30px Geologica, sans-serif";
     context.textAlign = "center";
-    context.fillStyle = `#${tint.getHexString()}`;
-    context.fillText(cleanTitle(text, 20).toUpperCase(), 160, 41);
+    context.textBaseline = "middle";
+    const readable = tint.clone().lerp(new this.THREE.Color(0xeef3ff), .58);
+    context.shadowColor = "rgba(3,6,13,.92)";
+    context.shadowBlur = 14;
+    context.fillStyle = `#${readable.getHexString()}`;
+    context.fillText(cleanTitle(text, 40).toUpperCase(), BEACON_LABEL_WIDTH / 2, 54);
     return new this.THREE.Sprite(new this.THREE.SpriteMaterial({
       map: new this.THREE.CanvasTexture(canvas),
       transparent: true,
-      opacity: .5,
+      opacity: .82,
       depthWrite: false,
-      blending: this.THREE.AdditiveBlending,
     }));
   }
 
@@ -631,12 +678,17 @@ export class UniverseWorld {
     if (!context) return undefined;
     context.font = "500 24px Geologica, sans-serif";
     context.textAlign = "center";
-    context.fillStyle = "rgba(235,244,255,.92)";
-    context.fillText(cleanTitle(text), 300, 47);
+    context.textBaseline = "middle";
+    // The caption has to survive crossing a bright edge or beacon halo: a soft dark
+    // backing keeps it readable without adding a visible plate to the sky.
+    context.shadowColor = "rgba(3,6,13,.9)";
+    context.shadowBlur = 10;
+    context.fillStyle = "rgba(238,245,255,.95)";
+    context.fillText(cleanTitle(text, 40), 300, 42);
     const texture = new this.THREE.CanvasTexture(labelCanvas);
     const sprite = new this.THREE.Sprite(new this.THREE.SpriteMaterial({ map: texture, transparent: true, depthWrite: false }));
     const presentationScale = this.vrPresentation ? .12 : 1;
-    sprite.scale.set(7.4 * presentationScale, .98 * presentationScale, 1);
+    sprite.scale.set(10 * presentationScale, 1.32 * presentationScale, 1);
     sprite.position.y = -1.05 * (this.vrPresentation ? .35 : 1);
     return { sprite, texture };
   }
@@ -782,6 +834,7 @@ export class UniverseWorld {
       const emphasis = this.selectedId === visual.node.id ? 1.22 : direct.has(visual.node.id) ? 1.08 : 1;
       visual.mesh.scale.setScalar(visual.radius * emphasis);
     });
+    this.focusReticle.visible = Boolean(this.selectedId && this.visuals.get(this.selectedId)?.mesh?.visible);
     this.ambientEdges.forEach((line) => {
       line.visible = !this.selectedId;
       (line.material as LineBasicMaterial | LineDashedMaterial).opacity = AMBIENT_EDGE_OPACITY;
@@ -819,6 +872,8 @@ export class UniverseWorld {
       item.spark.position.lerpVectors(item.from, item.to, (elapsedSeconds * .22 + item.phase) % 1);
     });
     if (viewer) this.focusBeacons(viewer);
+    // The reticle breathes only while the full experience allows motion; reduced motion keeps it still.
+    if (this.focusReticle.visible) (this.focusReticle.material as SpriteMaterial).opacity = motion ? .62 + .22 * Math.sin(elapsedSeconds * 1.7) : .85;
     this.backdrop.update(elapsedSeconds, energy);
   }
 
@@ -833,8 +888,8 @@ export class UniverseWorld {
     this.beacons.forEach((beacon) => { ordered.push({ beacon, distance: viewer.distanceTo(beacon.position) }); });
     ordered.sort((a, b) => a.distance - b.distance);
     ordered.forEach(({ beacon, distance }, rank) => {
-      const width = Math.min(26, Math.max(4, distance * .075));
-      beacon.label.scale.set(width, width * .2, 1);
+      const width = Math.min(30, Math.max(4, distance * .2));
+      beacon.label.scale.set(width, width * BEACON_LABEL_HEIGHT_RATIO, 1);
       const rankFade = rank < BEACON_LABEL_BUDGET ? 1 : Math.max(0, 1 - (rank - BEACON_LABEL_BUDGET + 1) / 4);
       (beacon.label.material as SpriteMaterial).opacity = .5 * rankFade;
       beacon.label.visible = rankFade > 0;
@@ -866,6 +921,16 @@ export class UniverseWorld {
     if (!card) return undefined;
     this.selectedId = id;
     this.reveal(id);
+    const focusedVisual = this.visuals.get(id);
+    if (focusedVisual) {
+      // The ring sits on the star itself, sized from its hit volume: the open card and the
+      // marker answer each other without any camera movement.
+      this.focusReticle.position.copy(focusedVisual.position);
+      const worldScale = this.THREE.MathUtils.clamp(focusedVisual.radius * 6, 2.2, 3.2) * (this.vrPresentation ? .3 : 1);
+      this.focusReticle.userData.baseWorldScale = worldScale;
+      this.focusReticle.scale.setScalar(worldScale);
+      this.focusReticle.visible = true;
+    }
     card.neighbors.forEach(({ edge }) => {
       this.reveal(edge.source === id ? edge.target : edge.source);
     });
@@ -884,6 +949,7 @@ export class UniverseWorld {
 
   reset() {
     this.selectedId = null;
+    this.focusReticle.visible = false;
     this.disposeConstellation();
     this.visuals.forEach((_visual, id) => this.releaseLabel(id));
     this.updateHighlights();
@@ -896,13 +962,15 @@ export class UniverseWorld {
     const labelScale = enabled ? .12 : 1;
     const labelOffset = enabled ? .35 : 1;
     const auraScale = enabled ? .18 : 1;
+    const reticleBase = Number(this.focusReticle.userData.baseWorldScale);
+    if (Number.isFinite(reticleBase) && reticleBase > 0) this.focusReticle.scale.setScalar(reticleBase * (enabled ? .3 : 1));
     this.visuals.forEach((visual) => {
       if (visual.aura) {
         const baseWorldScale = Number(visual.aura.userData.baseWorldScale);
         if (Number.isFinite(baseWorldScale)) visual.aura.scale.setScalar((baseWorldScale * auraScale) / visual.radius);
       }
       if (visual.label) {
-        visual.label.scale.set(7.4 * labelScale / visual.radius, .98 * labelScale / visual.radius, 1);
+        visual.label.scale.set(10 * labelScale / visual.radius, 1.32 * labelScale / visual.radius, 1);
         visual.label.position.y = -1.05 * labelOffset / visual.radius;
       }
     });
@@ -988,6 +1056,7 @@ export class UniverseWorld {
     this.beacons.forEach((beacon) => (beacon.label.material as SpriteMaterial).map?.dispose());
     this.sharedSphereGeometry.dispose();
     this.glowTexture.dispose();
+    (this.focusReticle.material as SpriteMaterial).map?.dispose();
     this.sharedMeshMaterial.dispose();
   }
 }

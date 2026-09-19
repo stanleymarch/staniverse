@@ -11,6 +11,7 @@ staniverse-skills-search.json
 pipeline/telegram/archive/
 pipeline/telegram/private/
 pipeline/telegram/incoming/
+pipeline/telegram/.venv/
 pipeline/enrichment/jobs/
 pipeline/enrichment/review/
 test-results/
