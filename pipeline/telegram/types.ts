@@ -13,6 +13,7 @@ export interface TelegramMessage {
   forwarded_from?: string;
   grouped_id?: string | number;
   photo?: string;
+  thumbnail?: string;
   file?: string;
   video_file?: string;
   audio_file?: string;
