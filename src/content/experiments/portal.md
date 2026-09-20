@@ -4,8 +4,8 @@ kind: experiment
 title: "Портал"
 summary: "AR-аркада: тап по полу открывает дверной проём, из него в игрока летят кубы — зелёные ловят тапом, от красных уворачиваются."
 status: "live"
-href: "https://stanleymarch.github.io/ar-experiments/experiments/portal/"
-repo: "https://github.com/stanleymarch/ar-experiments"
+href: "https://stanleymarch.github.io/xr-experiments/8thwall/portal/"
+repo: "https://github.com/stanleymarch/xr-experiments"
 stack: ["8th Wall", "A-Frame", "three.js"]
 types: ["игра"]
 platforms: ["мобильные"]
@@ -35,5 +35,5 @@ relations: []
 
 ## Ссылки
 
-- [Открыть демо на телефоне](https://stanleymarch.github.io/ar-experiments/experiments/portal/)
-- [Код эксперимента](https://github.com/stanleymarch/ar-experiments)
+- [Открыть демо на телефоне](https://stanleymarch.github.io/xr-experiments/8thwall/portal/)
+- [Код эксперимента](https://github.com/stanleymarch/xr-experiments)

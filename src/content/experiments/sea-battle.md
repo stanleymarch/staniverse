@@ -4,8 +4,8 @@ kind: experiment
 title: "Морской бой"
 summary: "Советский перископный автомат в дополненной реальности: тап по полу разворачивает акваторию, тапом выпускаешь торпеду и бьёшь с упреждением."
 status: "live"
-href: "https://stanleymarch.github.io/ar-experiments/experiments/sea-battle/"
-repo: "https://github.com/stanleymarch/ar-experiments"
+href: "https://stanleymarch.github.io/xr-experiments/8thwall/sea-battle/"
+repo: "https://github.com/stanleymarch/xr-experiments"
 stack: ["8th Wall", "A-Frame", "three.js", "WebAudio"]
 types: ["игра"]
 platforms: ["мобильные"]
@@ -36,5 +36,5 @@ relations: []
 
 ## Ссылки
 
-- [Открыть демо на телефоне](https://stanleymarch.github.io/ar-experiments/experiments/sea-battle/)
-- [Код эксперимента](https://github.com/stanleymarch/ar-experiments)
+- [Открыть демо на телефоне](https://stanleymarch.github.io/xr-experiments/8thwall/sea-battle/)
+- [Код эксперимента](https://github.com/stanleymarch/xr-experiments)

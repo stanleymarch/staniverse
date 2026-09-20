@@ -4,8 +4,8 @@ kind: experiment
 title: "Knockdown"
 summary: "Физическая песочница в AR: тап по полу ставит пирамиду из пятнадцати кирпичей, тапом бросаешь в неё шарик и считаешь заваленные."
 status: "live"
-href: "https://stanleymarch.github.io/ar-experiments/experiments/knockdown/"
-repo: "https://github.com/stanleymarch/ar-experiments"
+href: "https://stanleymarch.github.io/xr-experiments/8thwall/knockdown/"
+repo: "https://github.com/stanleymarch/xr-experiments"
 stack: ["8th Wall", "A-Frame", "cannon-es"]
 types: ["песочница"]
 platforms: ["мобильные"]
@@ -35,5 +35,5 @@ relations: []
 
 ## Ссылки
 
-- [Открыть демо на телефоне](https://stanleymarch.github.io/ar-experiments/experiments/knockdown/)
-- [Код эксперимента](https://github.com/stanleymarch/ar-experiments)
+- [Открыть демо на телефоне](https://stanleymarch.github.io/xr-experiments/8thwall/knockdown/)
+- [Код эксперимента](https://github.com/stanleymarch/xr-experiments)

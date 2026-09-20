@@ -1,4 +1,6 @@
 import { defineConfig } from "astro/config";
+import { unified } from "@astrojs/markdown-remark";
+import { rewriteOutboundLinks } from "./src/lib/content-link-redirects.mjs";
 
 /**
  * Deployment identity.
@@ -25,7 +27,7 @@ export default defineConfig({
      which read as a white flash between pages. Inlining paints the first frame
      styled and costs the same total bytes. */
   build: { format: "directory", inlineStylesheets: "always" },
-  markdown: { shikiConfig: { theme: "github-dark" } },
+  markdown: { shikiConfig: { theme: "github-dark" }, processor: unified({ rehypePlugins: [rewriteOutboundLinks] }) },
   /* Hovering a link starts fetching its document, so a click paints the next page
      from cache instead of waiting a round trip on a dark canvas. */
   prefetch: { prefetchAll: true, defaultStrategy: "hover" },

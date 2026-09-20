@@ -43,11 +43,13 @@ Pilot outputs:
 
 ## Pipeline order
 
-The source of truth for publications is the materialized Markdown in `src/content/publications/telegram` (the intermediate `canonical.json` archive is gone). Consequences:
+The source of truth for publications is the materialized Markdown in `src/content/publications/telegram`; `canonical.json` is a regenerated sync cache. The materializer reads two sidecars in order:
 
-- `content:refresh` (local sidecar + materialize) rewrites frontmatter from the deterministic sidecar and therefore resets `topics:`/`entities:` to local-rule values;
-- run `npm run content:retag` after any refresh to re-apply the reviewed combined topics/entities from `generated/full.json`;
-- the audit pair (`npm run audit:content`, `npm run audit:media`) reads the same loader and fails on stale sidecar hashes, broken relation targets, or missing/orphaned media;
-- body text and media files are never mutated by enrichment: a triple materialize run was verified byte-stable (EOL-normalized) over all 744 publications and 780 media files.
+1. `generated/full.json` supplies the reviewed enrichment cache only while its SHA-256 matches the source body. Its accepted topics, entities and relations survive Telegram re-syncs.
+2. `generated/telegram.json` is the deterministic fallback. It classifies an edited or newly fetched post immediately; an out-of-date reviewed result is never reapplied.
+
+`content:refresh` rebuilds the local sidecar and materializes both layers. No paid model call is required for new Telegram messages; they receive deterministic categories and exact-name relations until the next explicit full enrichment run. `content:retag` remains useful for applying a newly completed full bundle without materializing again, but it must not be used to override a stale bundle.
+
+The audit pair (`npm run audit:content`, `npm run audit:media`) reads the same loader and fails on stale sidecar hashes, broken relation targets, or missing/orphaned media. Body text and media files are never mutated by enrichment: a triple materialize run was verified byte-stable (EOL-normalized) over all 744 publications and 780 media files.
 
 No API key, response cache, unreviewed provider response, or embedding is committed. Re-running the Telegram import never depends on an LLM.

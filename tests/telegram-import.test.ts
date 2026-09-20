@@ -363,6 +363,20 @@ test("stale enrichment is ignored when Telegram source text changes",()=>{
   assert.deepEqual(merged.relations,[]);
 });
 
+test("sync keeps fresh reviewed enrichment and falls back locally for changed Telegram text",()=>{
+  const publication=normalizeExport({messages:[{id:911,text:"Nearventure и XR"}]})[0];
+  const local=enrichLocally(publication,new Set(["project:nearventure"]));
+  const cached={...local,provider:"openrouter",model:"jev-1.13",topics:["reviewed-topic"],entities:["Reviewed entity"],relations:[]};
+  const preserved=mergeEnrichment(publication,cached,[],local);
+  assert.deepEqual(preserved.topics,["reviewed-topic"]);
+  assert.deepEqual(preserved.entities,["Reviewed entity"]);
+  publication.body="Nearventure и WebXR после правки";
+  const refreshedLocal=enrichLocally(publication,new Set(["project:nearventure"]));
+  const fallback=mergeEnrichment(publication,cached,[],refreshedLocal);
+  assert.ok(fallback.topics.includes("xr"));
+  assert.equal(fallback.topics.includes("reviewed-topic"),false);
+});
+
 test("non-local topics land unless rejected while relations stay proposal-gated",()=>{
   const publication=normalizeExport({messages:[{id:92,text:"Nearventure и XR"}]})[0];
   const result=enrichLocally(publication,new Set(["project:nearventure"]));

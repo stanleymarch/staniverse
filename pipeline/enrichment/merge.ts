@@ -37,11 +37,14 @@ function materializedRelation(publication: CanonicalPublication, relation: Canon
   };
 }
 
-export function mergeEnrichment(publication: CanonicalPublication, result?: EnrichmentResult, reviews:ReviewDecision[] = []) {
+/** Prefer the reviewed cache while its source hash still matches. A local result
+ * is a deterministic fallback for edited and newly fetched Telegram posts. */
+export function mergeEnrichment(publication: CanonicalPublication, primary?: EnrichmentResult, reviews: ReviewDecision[] = [], fallback?: EnrichmentResult) {
+  const result = [primary, fallback].find((candidate): candidate is EnrichmentResult => Boolean(candidate && isFresh(candidate, publication.body)));
   const preservedRelations = (replaceLocalDerived = false) => publication.relations
     .filter((relation) => !replaceLocalDerived || provenanceKind(relation) !== "deterministic" || provenanceSource(relation) !== "local-rules")
     .map((relation) => materializedRelation(publication, relation));
-  if (!result || !isFresh(result, publication.body)) return { tags: publication.tags, sourceTags: publication.tags, topics: [] as string[], entities: [] as string[], relations: preservedRelations() };
+  if (!result) return { tags: publication.tags, sourceTags: publication.tags, topics: [] as string[], entities: [] as string[], relations: preservedRelations() };
   const accepted=new Set(reviews.filter((decision)=>decision.status==="accepted").map((decision)=>decision.key));
   const rejected=new Set(reviews.filter((decision)=>decision.status==="rejected").map((decision)=>decision.key));
   const automatic=result.provider==="local-rules";

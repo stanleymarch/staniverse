@@ -7,9 +7,11 @@ import { collectTopics, topicSlug } from "../../lib/topics";
 import { normalizeTopics, getTopicDefinition, topicRelations } from "../../lib/taxonomy";
 import "../../styles/garden.css";
 
+const gardenDate = (entry: Awaited<ReturnType<typeof getCollection>>[number]) =>
+  entry.data.date ?? (entry.collection === "projects" ? undefined : entry.data.updated);
 const included = [...await getCollection("articles"), ...await getCollection("publications"), ...await getCollection("projects"), ...await getCollection("works")]
   .filter((entry) => entry.id !== "manifesto" && (entry.collection !== "publications" || !["video", "youtube-video"].includes(entry.data.kind) || entry.data.ownership === "verified" || entry.data.ownership === "own"))
-  .sort((a, b) => (b.data.date?.getTime() ?? b.data.updated?.getTime() ?? 0) - (a.data.date?.getTime() ?? a.data.updated?.getTime() ?? 0));
+  .sort((a, b) => (gardenDate(b)?.getTime() ?? 0) - (gardenDate(a)?.getTime() ?? 0));
 const topics = collectTopics(included, true);
 const projects = new Map(included.filter((entry) => entry.collection === "projects").map((entry) => [entry.data.id, entry.data.title]));
 
@@ -49,7 +51,8 @@ const records = included.map((entry) => {
     kind: entry.data.kind,
     kindLabel: kindLabel[entry.data.kind],
     forwardFrom: entry.data.forwardFrom,
-    date: (entry.data.date ?? entry.data.updated)?.toISOString() ?? "",
+    // A project update is editorial maintenance, not a new garden publication.
+    date: gardenDate(entry)?.toISOString() ?? "",
     sourceTags,
     entities: entry.data.entities,
     topics: normalizeTopics([...entry.data.tags, ...entry.data.topics]).map((id) => {
@@ -204,7 +207,7 @@ const cloudTopics = [...topics].sort((a, b) => b.entries.length - a.entries.leng
                   <p>{record.summary}</p>
                   <div class="garden-row-topics">{record.topics.slice(0, 4).map((topic) => <span class={topic.origin === "automatic" ? "is-automatic" : "is-source"}>{topic.label}</span>)}</div>
                 </div>
-                <time class="garden-row-date" datetime={record.date}>{formatDate(record.date)}</time>
+                {record.date && <time class="garden-row-date" datetime={record.date}>{formatDate(record.date)}</time>}
               </a>
             ))}
           </div>

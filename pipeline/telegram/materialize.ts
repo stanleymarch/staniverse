@@ -6,13 +6,18 @@ import { mergeEnrichment } from "../enrichment/merge";
 import { readPublications } from "../enrichment/prepare";
 import { inlineTelegramMedia } from "./inline-media";
 
-const [input = "pipeline/telegram/archive/canonical.json", output = "src/content/publications/telegram", enrichmentInput = "pipeline/enrichment/generated/telegram.json",reviewInput="pipeline/enrichment/review/decisions.json"] = process.argv.slice(2);
+const [input = "pipeline/telegram/archive/canonical.json", output = "src/content/publications/telegram", localEnrichmentInput = "pipeline/enrichment/generated/telegram.json",reviewInput="pipeline/enrichment/review/decisions.json", cachedEnrichmentInput = "pipeline/enrichment/generated/full.json"] = process.argv.slice(2);
 const publications = await readPublications(input);
-let enrichment = new Map<string, EnrichmentBundle["results"][number]>();
-try {
-  const bundle = JSON.parse(await readFile(resolve(enrichmentInput), "utf8")) as EnrichmentBundle;
-  enrichment = new Map(bundle.results.map((result) => [result.id, result]));
-} catch {}
+async function readBundle(path: string) {
+  try {
+    const bundle = JSON.parse(await readFile(resolve(path), "utf8")) as EnrichmentBundle;
+    return new Map(bundle.results.map((result) => [result.id, result]));
+  } catch {
+    return new Map<string, EnrichmentBundle["results"][number]>();
+  }
+}
+const localEnrichment = await readBundle(localEnrichmentInput);
+const cachedEnrichment = await readBundle(cachedEnrichmentInput);
 let reviews:ReviewDecision[]=[];try{const bundle=JSON.parse(await readFile(resolve(reviewInput),"utf8")) as ReviewBundle;reviews=bundle.decisions}catch{}
 const destination = resolve(output);
 
@@ -23,7 +28,7 @@ await rm(destination, {recursive:true,force:true});
 await mkdir(destination, {recursive:true});
 
 for (const publication of publications) {
-  const enriched = mergeEnrichment(publication, enrichment.get(publication.id),reviews);
+  const enriched = mergeEnrichment(publication, cachedEnrichment.get(publication.id), reviews, localEnrichment.get(publication.id));
   const { title, summary, body: displayBody } = publicationDisplay(publication);
   const relations = enriched.relations;
   const media = publication.media.map(({sourcePath,publicPath,type,messageId}) => ({sourcePath,...publicPath?{publicPath}:{},type,messageId}));
