@@ -1,0 +1,33 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+
+const source = (await getCollection("experiments")).find((item) => item.data.id === "experiment:reality-field");
+const href = source?.data.href;
+const repo = source?.data.repo;
+const updated = source?.data.updated ? new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric" }).format(source.data.updated) : "";
+const description = "Your room becomes an interactive physical field: gestures release impulses, waves and particles that meet the table, floor and walls.";
+const jsonLd = { "@type": "CreativeWork", "@id": new URL("/en/experiments/reality-field/#content", Astro.site).href, url: new URL("/en/experiments/reality-field/", Astro.site).href, name: "REALITY//FIELD", description, inLanguage: "en", author: { "@id": new URL("/#stanislav-ermolenko", Astro.site).href }, isPartOf: { "@id": new URL("/#website", Astro.site).href }, ...(source?.data.updated ? { dateModified: source.data.updated.toISOString() } : {}) };
+---
+<Base title="REALITY//FIELD" description={description} lang="en" jsonLd={jsonLd}>
+  <article class="entry-shell">
+    <header class="entry-hero">
+      <div class="entry-hero-meta"><span class="section-kicker">Experiment · Running</span></div>
+      <h1>REALITY//FIELD</h1>
+      <p class="entry-summary">{description}</p>
+      <div class="publication-facts">{href && <a href={href}>Open experiment ↗</a>}{repo && <a href={repo}>Code ↗</a>}</div>
+      <dl class="work-facts"><div><dt>Type</dt><dd>Art experience</dd></div><div><dt>Platforms</dt><dd>Headsets · mobile · desktop</dd></div><div><dt>Technology</dt><dd>{source?.data.stack.join(" · ")}</dd></div>{updated && <div><dt>Updated</dt><dd>{updated}</dd></div>}</dl>
+    </header>
+    <div class="prose">
+      <h2>The experience</h2>
+      <p>The room stops being a background and becomes an interactive physical field. A flick releases an impulse: it meets a surface, flashes and travels across it as a wave. The point is not an object placed into AR, but the sense that the room itself has acquired physics.</p>
+      <h2>Interaction</h2>
+      <ul><li>Pinch charges a shot; select or click releases a regular impulse.</li><li>An open palm repels particles, a fist attracts them and two hands stretch the field.</li><li><strong>DEBUG REALITY</strong> exposes depth geometry, fallback planes, hands, rays and collision points; <strong>DREAM REALITY</strong> renders the same data as slow waves and luminous particles.</li></ul>
+      <h2>Limits</h2>
+      <p>On Quest 3 the work uses a live depth mesh when the browser provides one; phone and desktop paths retain select and fallback geometry. The mesh currently locates a strike and its normal, while particles remain a lightweight CPU system bounded by the room — per-particle collisions with the live mesh are not implemented.</p>
+      <p>Google XR Blocks depends on WebXR. Required browser capabilities can be absent on iOS, including Safari, so this experiment may not start there. Quest 3 is the target platform; the desktop simulator is for testing the mechanics.</p>
+      <h2>Links</h2><ul>{href && <li><a href={href}>Open the experience</a></li>}{repo && <li><a href={repo}>Source code</a></li>}</ul>
+      <p class="entry-original"><a class="text-link" href="/experiments/reality-field/">Original (Russian) →</a></p>
+    </div>
+  </article>
+</Base>

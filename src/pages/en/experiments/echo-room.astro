@@ -1,0 +1,23 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+
+const source = (await getCollection("experiments")).find((item) => item.data.id === "experiment:echo-room");
+const href = source?.data.href;
+const repo = source?.data.repo;
+const updated = source?.data.updated ? new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric" }).format(source.data.updated) : "";
+const description = "A spatial temporal debugger: rays and impulses leave a minute of traces, while an old trace opens a local rewind.";
+const jsonLd = { "@type": "CreativeWork", "@id": new URL("/en/experiments/echo-room/#content", Astro.site).href, url: new URL("/en/experiments/echo-room/", Astro.site).href, name: "ECHO//ROOM", description, inLanguage: "en", author: { "@id": new URL("/#stanislav-ermolenko", Astro.site).href }, isPartOf: { "@id": new URL("/#website", Astro.site).href }, ...(source?.data.updated ? { dateModified: source.data.updated.toISOString() } : {}) };
+---
+<Base title="ECHO//ROOM" description={description} lang="en" jsonLd={jsonLd}>
+  <article class="entry-shell">
+    <header class="entry-hero"><div class="entry-hero-meta"><span class="section-kicker">Experiment · Running</span></div><h1>ECHO//ROOM</h1><p class="entry-summary">{description}</p><div class="publication-facts">{href && <a href={href}>Open experiment ↗</a>}{repo && <a href={repo}>Code ↗</a>}</div><dl class="work-facts"><div><dt>Type</dt><dd>Tool · art experience</dd></div><div><dt>Platforms</dt><dd>Headsets · mobile · desktop</dd></div><div><dt>Technology</dt><dd>{source?.data.stack.join(" · ")}</dd></div>{updated && <div><dt>Updated</dt><dd>{updated}</dd></div>}</dl></header>
+    <div class="prose">
+      <h2>The experience</h2><p>Space keeps the last 60 seconds. A ray trajectory remains a translucent thread, a tap makes a ✦ impulse, and selecting an old impulse unfolds four states around it: NOW, −1, −2, −3 and −4 seconds. This is a three-dimensional temporal debugger of actions in the room, not a recording of the room.</p>
+      <h2>Interaction</h2><ul><li>Select in empty space creates a ✦.</li><li>Select near an old impulse opens local time layers.</li><li>Quest hand or controller rays, and the same select API on phones and desktop, work alike.</li><li><strong>Clear history</strong> removes all traces and layers.</li></ul>
+      <h2>What is stored</h2><p>The tab retains a ring buffer for the ray, impulses with world positions and up to a minute of lifetime, a compact movement journal and a selected point. Raw events stay in the tab and go nowhere. Only those actions are reconstructed: no image or video of the real room is recorded.</p>
+      <p>Google XR Blocks depends on WebXR. Required browser capabilities can be absent on iOS, including Safari, so this experiment may not start there. Quest 3 is the target platform; the desktop simulator is for testing the mechanics.</p>
+      <h2>Links</h2><ul>{href && <li><a href={href}>Open the experience</a></li>}{repo && <li><a href={repo}>Source code</a></li>}</ul><p class="entry-original"><a class="text-link" href="/experiments/echo-room/">Original (Russian) →</a></p>
+    </div>
+  </article>
+</Base>

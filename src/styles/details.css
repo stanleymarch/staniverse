@@ -190,9 +190,11 @@ audio.telegram-inline-media { min-height: 2.6rem; }
 
 /* Lightbox: one quiet room for one image. The reader's attention stays on the
    picture; chrome fades to hints. Zoom states change the cursor's meaning. */
-.lightbox { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; opacity: 0; transition: opacity .25s ease; }
-.lightbox.is-open { opacity: 1; }
-@media (prefers-reduced-motion: reduce) { .lightbox { transition: none; } }
+.lightbox { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .25s ease, visibility 0s linear .3s; }
+.lightbox.is-open { opacity: 1; visibility: visible; pointer-events: auto; transition: opacity .25s ease; }
+/* The class-based display must never beat the attribute: a closed overlay that
+   stayed `display: grid` kept swallowing clicks with a zoom-out cursor. */
+.lightbox[hidden] { display: none; }
 .lightbox__backdrop { position: absolute; inset: 0; background: color-mix(in srgb, #030509 88%, transparent); backdrop-filter: blur(14px); cursor: zoom-out; }
 .lightbox__figure { position: relative; z-index: 1; display: grid; justify-items: center; gap: var(--s-3); margin: 0; max-width: min(94vw, 96rem); }
 .lightbox__image { display: block; max-width: 94vw; max-height: 84dvh; border-radius: var(--radius-1); background: var(--surface); object-fit: contain; cursor: default; touch-action: none; user-select: none; -webkit-user-select: none; }

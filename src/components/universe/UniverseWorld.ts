@@ -720,8 +720,12 @@ export class UniverseWorld {
     if (!visual || visual.mesh || this.disposed) return visual;
     const mesh = new this.THREE.Mesh(this.sharedSphereGeometry, this.sharedMeshMaterial.clone());
     if (this.arPresentation) {
-      (mesh.material as MeshBasicMaterial).colorWrite = true;
-      (mesh.material as MeshBasicMaterial).opacity = .95;
+      // Opaque readable core over the camera feed — tinted like its star, never the
+      // raw white the shared hit material would otherwise show.
+      const material = mesh.material as MeshBasicMaterial;
+      material.colorWrite = true;
+      material.opacity = .95;
+      material.color.copy(this.spectral(id, visual.node.kind));
     }
     mesh.scale.setScalar(visual.radius);
     mesh.position.copy(visual.position);
@@ -864,6 +868,7 @@ export class UniverseWorld {
         spark,
       });
     });
+    this.toneConstellation();
   }
   updateHighlights() {
     const direct = this.selectedId ? this.neighbors.get(this.selectedId) ?? new Set<string>() : new Set<string>();
@@ -883,10 +888,10 @@ export class UniverseWorld {
     this.constellation.forEach((item) => {
       item.line.visible = true;
       item.active = item.edge.source === this.selectedId || item.edge.target === this.selectedId;
-      (item.material as LineBasicMaterial | LineDashedMaterial).opacity = item.active ? .92 : item.secondary ? .34 : .08;
+      (item.material as LineBasicMaterial | LineDashedMaterial).opacity = item.active ? (this.arPresentation ? 1 : .92) : item.secondary ? (this.arPresentation ? .6 : .34) : (this.arPresentation ? .2 : .08);
       item.spark.visible = false;
     });
-    this.starMaterial.uniforms.uOpacity.value = this.selectedId ? (this.arPresentation ? .08 : .34) : (this.arPresentation ? .55 : .9);
+    this.starMaterial.uniforms.uOpacity.value = this.selectedId ? (this.arPresentation ? .16 : .34) : (this.arPresentation ? .85 : .9);
   }
 
   /**
@@ -1022,9 +1027,8 @@ export class UniverseWorld {
 
   /**
    * AR shows the constellation over a live camera feed: full-size sector landmarks would
-   * swallow a tabletop, so they shrink to a mini-map — compact tinted halos with readable
-   * captions — while content stars switch to opaque blending, because additive dots vanish
-   * against a bright room and opaque ones still read as tracked stars over any feed.
+   * swallow a tabletop, so they shrink to a mini-map while stars, links and sparks switch
+   * to daylight-readable inks (see toneAmbientEdges / toneConstellation).
    */
   setArPresentation(enabled: boolean) {
     if (this.arPresentation === enabled) return;
@@ -1032,18 +1036,58 @@ export class UniverseWorld {
     this.beaconGroup.visible = true;
     this.applyBeaconScale();
     this.starMaterial.blending = enabled ? this.THREE.NormalBlending : this.THREE.AdditiveBlending;
+    this.starMaterial.uniforms.uDaylight.value = enabled ? 1 : 0;
     // Additive auras vanish against a bright camera feed, so each revealed star gets its
-    // compact opaque core back. updateHighlights applies the AR-specific aura and point-cloud
-    // density without accumulating opacity multipliers across repeated session entry/exit.
+    // compact opaque core back — tinted, not the raw white of the hit material.
     this.visuals.forEach((visual) => {
       if (!visual.mesh) return;
       const material = visual.mesh.material as MeshBasicMaterial;
       material.colorWrite = enabled;
       material.opacity = enabled ? .95 : 0;
+      if (enabled) material.color.copy(this.spectral(visual.node.id, visual.node.kind));
     });
+    this.toneAmbientEdges();
+    this.toneConstellation();
     this.updateHighlights();
     if (!enabled) this.arPointCompensation = 1;
     this.backdrop.setPresentation(this.presentation());
+  }
+
+  /** Ambient context lines are tuned for a dark sky. Over a daylight camera feed they
+   *  disappear entirely, so AR re-inks them darker and far more opaque. */
+  private toneAmbientEdges() {
+    const ar = this.arPresentation;
+    this.ambientEdges.forEach((line) => {
+      const material = line.material as LineBasicMaterial | LineDashedMaterial;
+      const inferred = material instanceof this.THREE.LineDashedMaterial;
+      const causal = (material as LineBasicMaterial).color.getHex() === 0xf1b7dd;
+      material.opacity = ar ? .48 : AMBIENT_EDGE_OPACITY;
+      (material as LineBasicMaterial).color.set(ar
+        ? inferred ? 0x1f6f86 : causal ? 0x9c3d6e : 0x2e4d68
+        : inferred ? 0x6de1f4 : causal ? 0xf1b7dd : 0x8ea6c0);
+    });
+  }
+
+  /** The focused constellation must stay legible over a bright feed: darker saturated
+   *  ink, full opacity on active legs, and normal-blended sparks that read as beads. */
+  private toneConstellation() {
+    const ar = this.arPresentation;
+    this.constellation.forEach((item) => {
+      const inferred = isInferredGraphEdge(item.edge);
+      const causal = isCausalRelation(item.edge);
+      (item.material as LineBasicMaterial).color.set(ar
+        ? inferred ? 0x1f8fae : causal ? 0xb84a7e : 0x2f6d94
+        : inferred ? 0x6de1f4 : causal ? 0xf1b7dd : 0x8ea6c0);
+      const spark = item.spark.material as SpriteMaterial;
+      spark.blending = ar ? this.THREE.NormalBlending : this.THREE.AdditiveBlending;
+      spark.opacity = ar ? 1 : .85;
+      const baseScale = Number(item.spark.userData.baseWorldScale);
+      if (!Number.isFinite(baseScale)) {
+        item.spark.userData.baseWorldScale = item.spark.scale.x;
+      } else {
+        item.spark.scale.setScalar(baseScale * (ar ? 1.7 : 1));
+      }
+    });
   }
 
   /** Sector landmarks shrink into the AR mini-map and return to full sky scale after it. */
@@ -1060,7 +1104,12 @@ export class UniverseWorld {
         // Only the strongest sectors stay named on a tabletop; the rest keep a faint halo.
         const named = index < 4;
         if (Number.isFinite(baseScale)) halo.scale.setScalar(baseScale * .35);
-        if (Number.isFinite(baseOpacity)) (halo.material as SpriteMaterial).opacity = baseOpacity * .8;
+        if (Number.isFinite(baseOpacity)) {
+          // Additive halos turn into milky white discs over a bright feed: in AR they
+          // become quiet tinted stains instead.
+          (halo.material as SpriteMaterial).blending = this.THREE.NormalBlending;
+          (halo.material as SpriteMaterial).opacity = baseOpacity * .55;
+        }
         if (Number.isFinite(pillarOpacity)) (pillar.material as LineBasicMaterial).opacity = pillarOpacity * .5;
         beacon.label.visible = named;
         if (named && Number.isFinite(baseWidth)) {
@@ -1069,8 +1118,11 @@ export class UniverseWorld {
         }
       } else {
         if (Number.isFinite(baseScale)) halo.scale.setScalar(baseScale);
-        if (Number.isFinite(baseOpacity)) (halo.material as SpriteMaterial).opacity = baseOpacity;
         if (Number.isFinite(pillarOpacity)) (pillar.material as LineBasicMaterial).opacity = pillarOpacity;
+        if (Number.isFinite(baseOpacity)) {
+          (halo.material as SpriteMaterial).blending = this.THREE.AdditiveBlending;
+          (halo.material as SpriteMaterial).opacity = baseOpacity;
+        }
         if (Number.isFinite(baseWidth)) beacon.label.scale.set(baseWidth, baseWidth * BEACON_LABEL_HEIGHT_RATIO, 1);
         beacon.label.visible = true;
       }
@@ -1092,8 +1144,19 @@ export class UniverseWorld {
       ? this.THREE.MathUtils.clamp(1 / scale, 1, 64)
       : 1;
   }
+  /**
+   * Point-cloud picking tolerance in world units. On screen one unit is one graph unit,
+   * so the base slop applies directly; in AR the whole constellation is squeezed into
+   * ~a metre and the same world-unit threshold would swallow half the graph, making taps
+   * pick stars nowhere near the finger. The tolerance shrinks with the live content scale.
+   */
+  pickTolerance(): number {
+    if (!this.arPresentation) return .42;
+    return this.THREE.MathUtils.clamp(.42 / this.arPointCompensation, .02, .42);
+  }
   /** Bounds of the revealed constellation in graph coordinates, for the AR ghost preview. */
   contentBounds(): { center: Vector3; size: Vector3 } {
+
     const box = new this.THREE.Box3();
     this.visuals.forEach((visual) => box.expandByPoint(visual.position));
     const center = new this.THREE.Vector3();

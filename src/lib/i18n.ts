@@ -56,6 +56,11 @@ export const languageAlternates: LanguageAlternate[] = [
   { ru: "/experiments/sea-battle/", en: "/en/experiments/sea-battle/" },
   { ru: "/experiments/stansim/", en: "/en/experiments/stansim/" },
   { ru: "/experiments/tyaga/", en: "/en/experiments/tyaga/" },
+  { ru: "/experiments/city-orbit/", en: "/en/experiments/city-orbit/" },
+  { ru: "/experiments/echo-room/", en: "/en/experiments/echo-room/" },
+  { ru: "/experiments/reality-field/", en: "/en/experiments/reality-field/" },
+  { ru: "/experiments/sound-space/", en: "/en/experiments/sound-space/" },
+  { ru: "/experiments/weather-room/", en: "/en/experiments/weather-room/" },
   { ru: "/articles/ai-waifu/", en: "/en/articles/ai-waifu/" },
   { ru: "/articles/ai-diploma/", en: "/en/articles/ai-diploma/" },
 ];

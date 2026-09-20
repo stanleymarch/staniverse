@@ -1,0 +1,29 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+
+const source = (await getCollection("experiments")).find((item) => item.data.id === "experiment:weather-room");
+const href = source?.data.href;
+const repo = source?.data.repo;
+const updated = source?.data.updated ? new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric" }).format(source.data.updated) : "";
+const description = "Your room becomes the weather outside: wind, rain, cloud cover, temperature and a timeline for yesterday and tomorrow.";
+const jsonLd = { "@type": "CreativeWork", "@id": new URL("/en/experiments/weather-room/#content", Astro.site).href, url: new URL("/en/experiments/weather-room/", Astro.site).href, name: "WEATHER//ROOM", description, inLanguage: "en", author: { "@id": new URL("/#stanislav-ermolenko", Astro.site).href }, isPartOf: { "@id": new URL("/#website", Astro.site).href }, ...(source?.data.updated ? { dateModified: source.data.updated.toISOString() } : {}) };
+---
+<Base title="WEATHER//ROOM" description={description} lang="en" jsonLd={jsonLd}>
+  <article class="entry-shell">
+    <header class="entry-hero">
+      <div class="entry-hero-meta"><span class="section-kicker">Experiment · Running</span></div>
+      <h1>WEATHER//ROOM</h1><p class="entry-summary">{description}</p>
+      <div class="publication-facts">{href && <a href={href}>Open experiment ↗</a>}{repo && <a href={repo}>Code ↗</a>}</div>
+      <dl class="work-facts"><div><dt>Type</dt><dd>Art experience</dd></div><div><dt>Platforms</dt><dd>Headsets · mobile · desktop</dd></div><div><dt>Technology</dt><dd>{source?.data.stack.join(" · ")}</dd></div>{updated && <div><dt>Updated</dt><dd>{updated}</dd></div>}</dl>
+    </header>
+    <div class="prose">
+      <h2>The experience</h2><p>Weather outside gets a physical body inside the room. Wind crosses the space from its real direction; rain seeks horizontal surfaces; clouds dim the virtual sun; temperature and pressure change the colour, movement and height of the atmosphere.</p>
+      <h2>Interaction</h2><ul><li>The <strong>−24h ← NOW → +24h</strong> timeline rewinds yesterday&rsquo;s weather or the nearest forecast.</li><li>On Quest it is a spatial XR Blocks interface; phone and desktop retain an HTML timeline.</li><li><strong>NOW</strong> returns to the current hour.</li></ul>
+      <h2>Data and limits</h2><p>The app makes one Open-Meteo request from the browser&rsquo;s location, then scrubs the loaded hourly series locally. Coordinates are used only for that request. With no network, an explicitly labelled synthetic scenario runs instead of pretending to be live weather. The simulator checks direction, scale and rainfall interaction; real depth-sensor quality is checked separately on Quest 3.</p>
+      <p>Google XR Blocks depends on WebXR. Required browser capabilities can be absent on iOS, including Safari, so this experiment may not start there. Quest 3 is the target platform; the desktop simulator is for testing the mechanics.</p>
+      <h2>Links</h2><ul>{href && <li><a href={href}>Open the experience</a></li>}{repo && <li><a href={repo}>Source code</a></li>}</ul>
+      <p class="entry-original"><a class="text-link" href="/experiments/weather-room/">Original (Russian) →</a></p>
+    </div>
+  </article>
+</Base>

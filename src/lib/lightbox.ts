@@ -143,7 +143,7 @@ class Lightbox {
     root.addEventListener("pointermove", (event) => this.pointerMove(event));
     root.addEventListener("pointerup", (event) => this.pointerUp(event));
     root.addEventListener("pointercancel", (event) => this.pointerUp(event));
-    root.addEventListener("keydown", (event) => this.keydown(event));
+    document.addEventListener("keydown", (event) => this.keydown(event));
     this.refs = refs;
     return refs;
   }
@@ -165,12 +165,20 @@ class Lightbox {
     const { root } = this.refs;
     root.classList.remove("is-open");
     document.documentElement.style.overflow = "";
+    let finished = false;
     const finish = () => {
+      if (finished) return;
+      finished = true;
       root.hidden = true;
       this.refs?.image.removeAttribute("src");
     };
+    // A cancelled or never-fired transition must not leave the overlay mounted:
+    // the visibility/pointer-events CSS already disarms it, this clears the DOM.
     if (matchMedia("(prefers-reduced-motion: reduce)").matches) finish();
-    else root.addEventListener("transitionend", finish, { once: true });
+    else {
+      root.addEventListener("transitionend", finish, { once: true });
+      window.setTimeout(finish, 400);
+    }
     this.restoredFocus?.focus?.();
     this.restoredFocus = null;
   }
@@ -304,6 +312,7 @@ class Lightbox {
   }
 
   private keydown(event: KeyboardEvent) {
+    if (!this.refs || this.refs.root.hidden) return;
     switch (event.key) {
       case "Escape": event.preventDefault(); this.closeOverlay(); break;
       case "ArrowLeft": event.preventDefault(); this.step(-1); break;

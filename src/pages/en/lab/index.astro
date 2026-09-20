@@ -40,6 +40,26 @@ const copy: Record<string, { title: string; summary: string }> = {
     title: "Craving",
     summary: "A web experience on p5.js about the mechanics of addiction: you hold on and hold on — and at some point you fail to let go of the intrusive thought and lose.",
   },
+  "experiment:city-orbit": {
+    title: "CITY//ORBIT",
+    summary: "A street from OpenStreetMap becomes a hologram: select places with a ray, lift their cards and change the city radius with a gesture.",
+  },
+  "experiment:echo-room": {
+    title: "ECHO//ROOM",
+    summary: "A spatial temporal debugger: rays and impulses leave a minute of traces, while an old trace opens a local rewind.",
+  },
+  "experiment:reality-field": {
+    title: "REALITY//FIELD",
+    summary: "Your room becomes an interactive physical field: gestures release impulses, waves and particles that meet the table, floor and walls.",
+  },
+  "experiment:sound-space": {
+    title: "SOUND//SPACE",
+    summary: "Sound becomes space: the microphone builds a luminous structure, while a pinch freezes a phrase, music or a clap into a 3D sculpture.",
+  },
+  "experiment:weather-room": {
+    title: "WEATHER//ROOM",
+    summary: "Your room becomes the weather outside: wind, rain, cloud cover, temperature and a timeline for yesterday and tomorrow.",
+  },
 };
 
 type Experiment = CollectionEntry<"experiments">;
@@ -82,7 +102,7 @@ const jsonLd = {
   <header class="catalog-hero">
     <div class="section-kicker">Lab</div>
     <h1>Experiments</h1>
-    <p class="hero-lead">Standalone applications rather than games alone: WebXR scenes, SDK demos, spatial mechanics, and further on — things with AI and a backend. Every experiment launches from a link on its card, and next to it lies a short breakdown: what is inside and how to use it. A demo with the camera is best opened from a phone.</p>
+    <p class="hero-lead">Standalone applications rather than games alone: WebXR scenes, SDK demos, spatial mechanics, and further on — things with AI and a backend. Every experiment launches from a link on its card, and next to it lies a short breakdown: what is inside and how to use it. Google XR Blocks work targets Quest 3; the WebXR capabilities they need can be absent on iOS Safari, so those demos may not start there. Camera-based demos are best opened from a phone.</p>
   </header>
   <section class="section">
     {entries.length === 0 ? (

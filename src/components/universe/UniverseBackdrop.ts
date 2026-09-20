@@ -124,6 +124,7 @@ const POINT_FRAGMENT_SHADER = `
   uniform float uOpacity;
   uniform float uSoftness;
   uniform float uCore;
+  uniform float uDaylight;
   uniform float uNebula;
   varying vec3 vColor;
   varying float vBrightness;
@@ -152,6 +153,11 @@ const POINT_FRAGMENT_SHADER = `
       float flares = (cross + diagonal * 0.18) * vSpikes;
       alpha = clamp(photosphere + halo + airy * vSpikes + flares, 0.0, 1.0) * uOpacity;
       colour = vColor * (0.42 + 1.18 * photosphere + 0.42 * flares) * vBrightness;
+      // Over a daylight camera feed an additive star is invisible: give every star a
+      // small dark plate under its core so the dot reads on any background.
+      float plate = exp(-radius * 2.6) * uDaylight * (0.35 + 0.65 * uOpacity);
+      alpha = max(alpha, plate);
+      colour = mix(colour, vec3(0.016, 0.043, 0.078), clamp(plate, 0.0, 1.0) * 0.85);
     }
     if (alpha < 0.004) discard;
     gl_FragColor = vec4(colour, alpha);
@@ -175,6 +181,7 @@ export function createPointCloudMaterial(THREE: ThreeModule, style: PointCloudSt
       uCore: { value: style.core },
       uMaxSize: { value: style.maxSize ?? 64 },
       uNebula: { value: style.nebula ? 1 : 0 },
+      uDaylight: { value: 0 },
     },
   ]);
   return new THREE.ShaderMaterial({

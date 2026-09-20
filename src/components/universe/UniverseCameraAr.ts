@@ -73,6 +73,13 @@ export interface CameraArOptions {
   /** Revealed pick volumes in world coordinates. */
   pickables: () => Mesh[];
   nodeIdFromPick: (mesh: Mesh, index?: number) => string | undefined;
+  /** Point-cloud pick slop in world units; AR squeezes the graph, so it must follow. */
+  pointTolerance?: () => number;
+  /**
+   * Screen-space fallback for taps between hit volumes: the engine camera and the
+   * canvas rect define the projection, the caller owns the node list.
+   */
+  nearestNode?: (camera: PerspectiveCamera, ndcX: number, ndcY: number, width: number, height: number) => string | undefined;
   /**
    * Per-frame world animation, replacing the paused screen render loop. The
    * second argument is the live content scale, so point sprites can compensate.
@@ -325,13 +332,16 @@ export async function startCameraAr(options: CameraArOptions): Promise<CameraArS
     pick(clientX, clientY) {
       if (shared.ended || !shared.xrCamera) return undefined;
       const rect = shared.canvas.getBoundingClientRect();
-      pointer.set(
-        ((clientX - rect.left) / rect.width) * 2 - 1,
-        -((clientY - rect.top) / rect.height) * 2 + 1,
-      );
+      const ndcX = ((clientX - rect.left) / rect.width) * 2 - 1;
+      const ndcY = -((clientY - rect.top) / rect.height) * 2 + 1;
+      pointer.set(ndcX, ndcY);
+      raycaster.params.Points.threshold = options.pointTolerance?.() ?? 1;
       raycaster.setFromCamera(pointer, shared.xrCamera);
       const hit = raycaster.intersectObjects(options.pickables(), false)[0];
-      return hit ? options.nodeIdFromPick(hit.object as Mesh, hit.index) : undefined;
+      const hitId = hit ? options.nodeIdFromPick(hit.object as Mesh, hit.index) : undefined;
+      // Hit volumes exist only for revealed stars; every other tap still deserves the
+      // nearest projected star, exactly like the screen canvas fallback.
+      return hitId ?? options.nearestNode?.(shared.xrCamera, ndcX, ndcY, rect.width, rect.height);
     },
   };
 }

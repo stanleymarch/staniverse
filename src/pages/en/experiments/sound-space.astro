@@ -1,0 +1,23 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+
+const source = (await getCollection("experiments")).find((item) => item.data.id === "experiment:sound-space");
+const href = source?.data.href;
+const repo = source?.data.repo;
+const updated = source?.data.updated ? new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric" }).format(source.data.updated) : "";
+const description = "Sound becomes space: the microphone builds a luminous structure, while a pinch freezes a phrase, music or a clap into a 3D sculpture.";
+const jsonLd = { "@type": "CreativeWork", "@id": new URL("/en/experiments/sound-space/#content", Astro.site).href, url: new URL("/en/experiments/sound-space/", Astro.site).href, name: "SOUND//SPACE", description, inLanguage: "en", author: { "@id": new URL("/#stanislav-ermolenko", Astro.site).href }, isPartOf: { "@id": new URL("/#website", Astro.site).href }, ...(source?.data.updated ? { dateModified: source.data.updated.toISOString() } : {}) };
+---
+<Base title="SOUND//SPACE" description={description} lang="en" jsonLd={jsonLd}>
+  <article class="entry-shell">
+    <header class="entry-hero"><div class="entry-hero-meta"><span class="section-kicker">Experiment · Running</span></div><h1>SOUND//SPACE</h1><p class="entry-summary">{description}</p><div class="publication-facts">{href && <a href={href}>Open experiment ↗</a>}{repo && <a href={repo}>Code ↗</a>}</div><dl class="work-facts"><div><dt>Type</dt><dd>Art experience</dd></div><div><dt>Platforms</dt><dd>Headsets · mobile · desktop</dd></div><div><dt>Capabilities</dt><dd>Sound</dd></div><div><dt>Technology</dt><dd>{source?.data.stack.join(" · ")}</dd></div>{updated && <div><dt>Updated</dt><dd>{updated}</dd></div>}</dl></header>
+    <div class="prose">
+      <h2>The experience</h2><p>Sound stops disappearing and becomes space. After microphone permission, a live FFT draws a luminous ribbon: speech becomes a nervous relief, music a spectral fabric, and a clap a short shock with an expanding ring. A chosen moment remains as a 3D sculpture; together they make a history of the last minutes.</p>
+      <h2>Interaction</h2><ul><li><strong>MIC</strong> requests the microphone.</li><li>Tap, click, pinch or <strong>FREEZE</strong> saves the current sound moment.</li><li>Drag moves or turns a selected sculpture; hold or squeeze removes it. <strong>Clear</strong> removes the entire history.</li></ul>
+      <h2>Data and limits</h2><p>The microphone stream stays inside Web Audio API: it is neither recorded nor sent to a server. This is an FFT heuristic, not speech recognition or AI. If microphone permission is unavailable, an example generator demonstrates speech, music and a clap without claiming they are live input.</p>
+      <p>Google XR Blocks depends on WebXR. Required browser capabilities can be absent on iOS, including Safari, so this experiment may not start there. Quest 3 is the target platform; the desktop simulator is for testing the mechanics.</p>
+      <h2>Links</h2><ul>{href && <li><a href={href}>Open the experience</a></li>}{repo && <li><a href={repo}>Source code</a></li>}</ul><p class="entry-original"><a class="text-link" href="/experiments/sound-space/">Original (Russian) →</a></p>
+    </div>
+  </article>
+</Base>

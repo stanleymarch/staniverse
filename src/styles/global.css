@@ -597,11 +597,15 @@ iframe { max-width: 100%; }
   html.reveal-on main .section[data-revealed], html.reveal-on main .catalog-hero[data-revealed] { opacity: 1; translate: none; transition: opacity var(--dur-3) var(--ease), translate var(--dur-3) var(--ease); }
 }
 /* Card titles are h3 in prose grids and h2 in catalogue grids: one style. */
-.content-card :where(h2, h3) { position: relative; max-width: 100%; margin: var(--s-4) 0 var(--s-2); font: 500 var(--card-title) / 1.2 var(--font-display); overflow-wrap: break-word; hyphens: auto; text-wrap: balance; }
-.content-card p { position: relative; max-width: 100%; margin-bottom: var(--s-4); color: var(--ink-2); font-size: var(--card-text); line-height: 1.6; overflow-wrap: break-word; hyphens: auto; text-wrap: pretty; }
-/* Tags sit at the card's floor: every card in a row ends aligned, regardless
-   of how long its summary is. */
-.content-card .tag-row { margin-top: auto; }
+/* One card rhythm: caption→title s-3, title→body s-2, body→chips ≥ s-2+s-2,
+   chip rows s-2 apart. Only the last in-flow block pins to the card floor
+   (with its own air), so rows of cards stay footer-aligned while no inner
+   block ever touches the next one. */
+.content-card :where(h2, h3) { position: relative; max-width: 100%; margin: var(--s-3) 0 var(--s-2); font: 500 var(--card-title) / 1.2 var(--font-display); overflow-wrap: break-word; hyphens: auto; text-wrap: balance; }
+.content-card p { position: relative; max-width: 100%; margin-bottom: var(--s-2); color: var(--ink-2); font-size: var(--card-text); line-height: 1.6; overflow-wrap: break-word; hyphens: auto; text-wrap: pretty; }
+.content-card .tag-row { margin-top: var(--s-2); }
+.content-card > :last-child { margin-top: auto; }
+.content-card > .tag-row:last-child, .content-card > .card-links:last-child { padding-top: var(--s-2); }
 
 /* Card meta is a quiet caption on hairline rails — the same vocabulary as the
    catalogue filters, not chips. Everything fits on one line: kind, status and
@@ -623,7 +627,10 @@ iframe { max-width: 100%; }
 .tag-row.is-inferred a { border: 1px dashed var(--accent-line); color: var(--ink-2); }
 /* A topic leads out of the material to its hub: same marker as every other link. */
 .tag-row.is-inferred a::after { margin-left: .3em; content: "↗"; }
-.card-arrow { position: absolute; right: var(--s-4); bottom: var(--s-3); color: var(--ink-2); font-size: 1.3rem; }
+/* The corner arrow is a decoration of the card itself, never of a link inside
+   it: lab cards nest ↗ inside their launch link, where absolute positioning
+   tore it loose and dropped it onto neighbouring buttons. */
+.content-card > .card-arrow { position: absolute; right: var(--s-4); bottom: var(--s-3); color: var(--ink-2); font-size: 1.3rem; }
 
 .entry-shell { min-width: 0; padding: var(--flow-section) var(--rail-inset); }
 .entry-hero { max-width: 980px; min-width: 0; margin-bottom: var(--s-7); }
@@ -635,6 +642,8 @@ iframe { max-width: 100%; }
 .prose { max-width: 760px; min-width: 0; font-size: 1.04rem; overflow-wrap: anywhere; }
 .prose :where(img, video) { display: block; width: 100%; max-width: 100%; height: auto; }
 .prose iframe { display: block; width: 100%; max-width: 100%; height: auto; aspect-ratio: auto 16 / 9; }
+.video-embed { display: grid; gap: var(--s-2); margin-block: var(--s-5); }
+.video-embed a { width: fit-content; font-size: .84rem; }
 .prose :where(pre, table) { max-width: 100%; overflow-x: auto; }
 .prose pre { padding: var(--s-3); }
 .prose table { display: block; width: max-content; min-width: 100%; }

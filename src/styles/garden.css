@@ -463,6 +463,10 @@
   display: grid;
   gap: var(--s-3);
   margin-top: var(--s-3);
+  /* Rows collapse on their own actual width, not the viewport: beside the ≥900px
+     facet sidebar a three-column row squeezed its body to ~20px and the title
+     wrapped one character per line. */
+  container: garden-list / inline-size;
 }
 /* Rows keep the site card surface, the site card type scale and a real focus ring. */
 .garden-row {
@@ -531,6 +535,22 @@
   font: 500 var(--card-title) / 1.2 Unbounded;
   overflow-wrap: anywhere;
   text-wrap: balance;
+}
+@container garden-list (max-width: 44rem) {
+  .garden-row {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "meta" "body" "date";
+    padding: var(--s-3);
+  }
+  .garden-row.has-thumbnail {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .garden-row-date {
+    justify-self: start;
+  }
+  .garden-row-thumbnail {
+    max-width: 22rem;
+  }
 }
 .garden-row p {
   margin: 0;

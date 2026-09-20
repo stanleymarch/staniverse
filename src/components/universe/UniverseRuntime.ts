@@ -1,4 +1,4 @@
-import type { CanvasTexture, Group, Line, LineBasicMaterial, LineSegments, Material, Mesh, Points, Quaternion, Vector3, XRTargetRaySpace } from "three";
+import type { Camera, CanvasTexture, Group, Line, LineBasicMaterial, LineSegments, Material, Mesh, Points, Quaternion, Vector3, XRTargetRaySpace } from "three";
 import type { GraphEdge, GraphNode } from "../../lib/graph";
 import { provenanceField, relationLabel } from "../../lib/graph-visuals";
 import { applyRadialDeadzone, arContentLift, arDiameterForMode, arModeSurrounds, cameraArOffer, cameraRelativeStep, createGestureTracker, experienceStateForAr, nearestScreenTarget, nextArPlacementState, nextExperienceState, nextSnapTurn, normalizedArContentTransform, xrOffer, AR_SURROUND_EYE_DROP_M, VR_SPEED_METERS_PER_SECOND, type ArPlacementEvent, type ArPlacementMode, type ArPlacementState, type ExperienceState, type SnapTurnState } from "../../lib/xr-experience";
@@ -425,7 +425,9 @@ export async function mountUniverse(scope: ParentNode = document) {
     // --- Input: look, zoom, flight. Keyboard uses physical codes (RU layout safe);
     // keyboard and joystick stay independent so releasing one never cancels the other. ---
     const raycaster = new THREE.Raycaster();
-    raycaster.params.Points.threshold = .42;
+    // Point-cloud slop follows the live presentation: AR squeezes the graph into ~a metre,
+    // where a fixed world-unit threshold would grab stars far from the finger.
+    raycaster.params.Points.threshold = world.pickTolerance();
     const pointer = new THREE.Vector2();
     const pointers = new Map<number, { x: number; y: number }>();
     // Tap versus drag is decided on the whole gesture, not on one sample: a slow finger travel
@@ -495,10 +497,10 @@ export async function mountUniverse(scope: ParentNode = document) {
     /**
      * Screen-space fallback for a raycast that missed. Every star the current selection allows to
      * be picked is projected to CSS pixels, so a fingertip only has to land inside one 44px target
-     * instead of exactly on a few rendered pixels.
+     * instead of exactly on a few rendered pixels. The projection camera is a parameter: the
+     * camera-AR adapter reuses this with the engine's own camera for its tap fallback.
      */
-    const nearestNodeAt = (event: PointerEvent) => {
-      const rect = canvas.getBoundingClientRect();
+    const nearestNodeIdAt = (projectionCamera: Camera, ndcX: number, ndcY: number, width: number, height: number) => {
       world.root.updateWorldMatrix(true, false);
       const projected = new THREE.Vector3();
       const targets: Array<{ id: string; x: number; y: number; visible: boolean }> = [];
@@ -506,20 +508,32 @@ export async function mountUniverse(scope: ParentNode = document) {
         // Mirrors pickableObjects(): the point cloud keeps every star pickable until a selection
         // narrows the scene down to the revealed neighborhood.
         if (selectedId && !visual.mesh?.visible) return;
-        projected.copy(visual.position).applyMatrix4(world.root.matrixWorld).project(camera);
+        projected.copy(visual.position).applyMatrix4(world.root.matrixWorld).project(projectionCamera);
         if (projected.z > 1) return;
         targets.push({
           id,
-          x: (projected.x * .5 + .5) * rect.width,
-          y: (-projected.y * .5 + .5) * rect.height,
+          x: (projected.x * .5 + .5) * width,
+          y: (-projected.y * .5 + .5) * height,
           visible: true,
         });
       });
-      return nearestScreenTarget(targets, event.clientX - rect.left, event.clientY - rect.top);
+      return nearestScreenTarget(targets, (ndcX * .5 + .5) * width, (ndcY * .5 + .5) * height)?.id;
+    };
+    const nearestNodeAt = (event: PointerEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      const id = nearestNodeIdAt(
+        camera,
+        ((event.clientX - rect.left) / rect.width) * 2 - 1,
+        -((event.clientY - rect.top) / rect.height) * 2 + 1,
+        rect.width,
+        rect.height,
+      );
+      return id ? { id } : undefined;
     };
     canvas.addEventListener("click", (event) => {
       if (gesture.dragged) return;
       setPointer(event);
+      raycaster.params.Points.threshold = world.pickTolerance();
       raycaster.setFromCamera(pointer, camera);
       const hit = raycaster.intersectObjects(world.pickableObjects(), false)[0];
       const nodeId = hit ? world.nodeIdFromPick(hit.object as Mesh | Points, hit.index) : undefined;
@@ -1016,6 +1030,9 @@ export async function mountUniverse(scope: ParentNode = document) {
           contentBase: arBase,
           pickables: () => world.pickableMeshes(),
           nodeIdFromPick: (mesh, index) => world.nodeIdFromPick(mesh, index),
+          pointTolerance: () => world.pickTolerance(),
+          nearestNode: (projectionCamera, ndcX, ndcY, width, height) =>
+            nearestNodeIdAt(projectionCamera, ndcX, ndcY, width, height),
           worldUpdate: (elapsed, contentScale) => {
             world.setArContentScale(contentScale);
             world.update(elapsed, 0);
@@ -1256,6 +1273,7 @@ export async function mountUniverse(scope: ParentNode = document) {
         if (arState !== "placed") return;
       }
       raycaster.setFromXRController(xrController);
+      raycaster.params.Points.threshold = world.pickTolerance();
       if (panelOpen && panelGroup?.visible) {
         const panelHit = raycaster.intersectObjects(panelButtons, false)[0];
         const action = panelHit ? (panelHit.object.userData as { panelAction?: PanelAction }).panelAction : undefined;
