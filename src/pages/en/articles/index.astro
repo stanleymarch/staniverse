@@ -1,0 +1,49 @@
+---
+import Base from "../../../layouts/Base.astro";
+import ContentCard from "../../../components/ContentCard.astro";
+import { getCollection } from "astro:content";
+
+/* A journal rather than a portfolio: the newest text is the one worth reading first,
+   which is exactly the date the card itself shows. */
+const entries = (await getCollection("articles")).sort((a, b) =>
+  ((b.data.date ?? b.data.updated)?.getTime() ?? 0) - ((a.data.date ?? a.data.updated)?.getTime() ?? 0));
+
+/* English titles and summaries for the articles collection, one line per entry. */
+const copy: Record<string, { title: string; summary: string }> = {
+  "article:ai-waifu": {
+    title: "Building an AI waifu and more: a guide to creating virtual companions",
+    summary: "They say marriages are made in heaven — but they may soon be made in cloud services and the home labs of enthusiasts. On Valentine's Day I look at how technology proposes to solve loneliness, why it can actually work, and what it takes to assemble a companion of your own.",
+  },
+  "article:ai-diploma": {
+    title: "How I defended my thesis with top marks using AI agents and a knowledge system",
+    summary: "How I defended my thesis with top marks and 89.3% originality while barely opening Word: Obsidian as a single source of truth, AI agents inside their harnesses, and an honest account of what came of it — no glossy presentations, no infobiz clichés.",
+  },
+  "article:manifesto": {
+    title: "Manifesto",
+    summary: "About the links between technology, memory, media and place — and about the human dimension of what comes next.",
+  },
+};
+
+/* The two long reads are translated in full and live on their English pages; the
+   manifesto keeps its Russian address, so its card points there unchanged. */
+const translatedArticles: Record<string, string> = {
+  "article:ai-waifu": "/en/articles/ai-waifu/",
+  "article:ai-diploma": "/en/articles/ai-diploma/",
+};
+
+/* Only tags that are Russian words get a translated chip: the card keeps the
+   Russian tag list for the graph, so nothing here may touch data-tags. */
+const tagNames: Record<string, string> = {
+  "технологии": "technology",
+  "город и наследие": "city and heritage",
+  "цифровая культура": "digital culture",
+};
+const tagsOf = (entry: (typeof entries)[number]) => {
+  const tags = entry.data.tags.slice(0, 4);
+  return tags.some((tag) => tagNames[tag]) ? tags.map((tag) => tagNames[tag] ?? tag) : undefined;
+};
+---
+<Base title="Articles" description="Long reads by Stanislav Ermolenko about generative AI, XR, automation and digital culture: research with sources, build guides and honest accounts of what actually came of it." lang="en">
+  <header class="catalog-hero"><div class="section-kicker">Articles</div><h1>Articles</h1><p class="hero-lead">Long reads about generative AI, XR, automation and digital culture: research with sources, practical guides and an honest account of what worked and what did not.</p></header>
+  <section class="section"><p class="section-copy">Both long reads are translated in full. The manifesto, the foundation text of the site, still lives in Russian at <a href="/manifesto/">/manifesto/</a>.</p><div class="card-grid">{entries.map((entry) => <ContentCard entry={entry} headingLevel="h2" hrefOverride={translatedArticles[entry.data.id]} titleOverride={copy[entry.data.id]?.title} summaryOverride={copy[entry.data.id]?.summary} kindLabelOverride="Article" tagsOverride={tagsOf(entry)} />)}</div></section>
+</Base>

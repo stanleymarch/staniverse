@@ -1,0 +1,110 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+
+/* The structural facts stay bound to the Russian entry — status, year, role, client
+   and genres are read from the collection, never retyped for the translation. */
+const source = (await getCollection("works")).find((item) => item.data.id === "work:dver-kotoraya-zhdyot");
+const statusLabels: Record<string, string> = { ongoing: "Ongoing", completed: "Completed" };
+const genreLabels: Record<string, string> = { xr: "XR", ai: "AI" };
+const status = source ? statusLabels[source.data.status] ?? source.data.status : "Completed";
+const genres = source?.data.genres.map((genre) => genreLabels[genre] ?? genre) ?? [];
+/* Role and client reach the page from the collection in Russian, so their translation
+   is keyed to the exact source fragments: anything unmatched falls back to the source. */
+const roleLabels: Record<string, string> = {
+  "Придумал и быстро переупаковал концепт под реальные сроки": "Invented the concept and quickly repackaged it to fit the real deadline",
+  "Собрал сцену в Unity c использованием VRChat SDK": "Assembled the scene in Unity with the VRChat SDK",
+  "Нашёл готовые дома на Sketchfab, чтобы пропустить тяжёлый этап моделирования": "Found ready-made buildings on Sketchfab to skip the heavy modelling stage",
+};
+const clientLabels: Record<string, string> = {};
+const year = source ? String(source.data.year).trim() : "";
+const role = (source?.data.role ?? "").split("; ").map((part) => roleLabels[part.trim()] ?? part.trim()).join(" · ");
+const client = clientLabels[source?.data.client ?? ""] ?? source?.data.client ?? "";
+
+const pageTitle = "The Door That Waits — a visual metaphor for ArtMasters";
+const description = "A qualifying entry for ArtMasters (Virtual World Designer category, May 2025): a visual metaphor on the theme “The door to the world I want to reach”, assembled in Unity with the VRChat SDK in a very tight deadline. The scene became a metaphor of anxious waiting — a door that opens but slams shut as you approach.";
+const workJsonLd = {
+  "@type": "CreativeWork",
+  "@id": new URL("/en/works/dver-kotoraya-zhdyot/#content", Astro.site).href,
+  url: new URL("/en/works/dver-kotoraya-zhdyot/", Astro.site).href,
+  name: "The Door That Waits",
+  headline: "The Door That Waits",
+  description,
+  inLanguage: "en",
+  author: { "@id": new URL("/#stanislav-ermolenko", Astro.site).href },
+  isPartOf: { "@id": new URL("/#website", Astro.site).href },
+  ...(source?.data.updated ? { dateModified: source.data.updated.toISOString() } : {}),
+};
+---
+<Base title={pageTitle} description={description} lang="en" jsonLd={workJsonLd}>
+  <article class="entry-shell">
+    <header class="entry-hero">
+      <div class="entry-hero-meta"><span class="section-kicker">Work · {status}</span></div>
+      <h1>The Door That Waits</h1>
+      <p class="entry-summary">{description}</p>
+      <dl class="work-facts">
+        {year && <div><dt>Year</dt><dd>{year}</dd></div>}
+        {role && <div><dt>Role</dt><dd>{role}</dd></div>}
+        {client && <div><dt>Client</dt><dd>{client}</dd></div>}
+        {genres.length > 0 && <div><dt>Genres</dt><dd>{genres.join(" · ")}</dd></div>}
+      </dl>
+    </header>
+    <div class="prose">
+      <h2>The brief</h2>
+      <p>At the qualifying stage of ArtMasters I had to create a visual metaphor on the theme &ldquo;The door to the world I want to reach&rdquo;, using a digital platform for virtual spaces.</p>
+
+      <h2>Context</h2>
+      <p>The work was made within a very tight schedule and literally crawled to the deadline. And yet it was exactly this piece that became the point of transition to the semi-final, even though by my own feeling it seemed raw and underfinished.</p>
+      <p>There is also a biographical layer that matters to me in this case. I did not break out of a small town into a big art scene and I did not suddenly find myself inside some new metropolitan norm. Moreover, I later moved not to Moscow but to Slobodskoy, a town even smaller than Kirov. So the theme of the door worked almost too literally here: this is not a story of a successful escape but a story of the chance to look, at least briefly, into the reality that had been beckoning for a long time.</p>
+      <p>What is formulated here are the fears and the anxieties of the impossibility of a better life for myself and for those who do not even know that such a door exists or would not want to walk towards it, staying inside their familiar four walls. Whatever those walls are — a town, an environment, a flat, a housing estate, an unloved job. And still it is not as bad as forever approaching the door and seeing it close again and again right in front of your nose.</p>
+
+      <iframe width="560" height="315" src="https://www.youtube.com/embed/21SnMUZwHwU?si=jmcJsiLqZCxW0jEQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+      <h2>Solution</h2>
+      <p>The finished work became a metaphor of anxious waiting and of the dream of leaving a stuffy, closed and monotonous reality. The space was a square courtyard surrounded by panel buildings, with a huge television set in the centre as an image of informational pressure and propaganda. The only hope here is a glowing door that opens but slams shut as you approach.</p>
+      <p>Originally a completely different scene was planned: a half-ruined bridge over a dried-up river, narrowing to a plank, after which the viewer would arrive in an ecotopia. But because of the time and the scope of the implementation a Plan B appeared: one small anxious scene and one interactive detail that carries the whole idea.</p>
+      <p>What I like now is that the image turned out to be not only about an abstract &ldquo;world of dreams&rdquo; but also about the distance between provincial everyday life and that field of art, technology and new media where I had been trying to find an entrance all along. The door in this space does not promise salvation. It rather shows that the desired world exists, but access to it is still unstable and fragile and demands effort.</p>
+
+      <h2>What I did personally</h2>
+      <ul>
+        <li>Invented the concept and quickly repackaged it to fit the real deadline</li>
+        <li>Assembled the scene in Unity with the VRChat SDK</li>
+        <li>Found ready-made buildings on Sketchfab to skip the heavy modelling stage</li>
+        <li>Generated the skybox locally</li>
+        <li>Built the door interaction with visual scripting within the limits of Udon</li>
+        <li>Prepared the documentation with the help of ChatGPT</li>
+      </ul>
+
+      <h2>Stack</h2>
+      <ul>
+        <li>Unity</li>
+        <li>VRChat SDK</li>
+        <li>Udon / visual scripting</li>
+        <li>Flux</li>
+        <li>Sketchfab</li>
+        <li>Freesound</li>
+        <li>ChatGPT</li>
+      </ul>
+
+      <h2>Skills</h2>
+      <ul>
+        <li>crisis production under a hard deadline</li>
+        <li>generative prototyping</li>
+        <li>interactive logic in an XR environment</li>
+        <li>working with metaphor and a spatial image</li>
+      </ul>
+
+      <h2>Result</h2>
+      <p>The work was submitted about 15 minutes before the deadline and unexpectedly took me to the ArtMasters semi-final. For me this is an important case not only as a competition entry but also as an early record of a very precise state: I had not yet entered the world I was reaching for, but I could already see that a door into it exists not only in the imagination.</p>
+      <p>That is why this work is valuable not so much for its technical assembly as for its intonation. It turned out more honest than a polished version could have been: a small person from a small town does not make a spectacular breakthrough but does glance for a second into the beckoning space of art, XR and the wider cultural scene. That turned out to be enough to keep going.</p>
+
+      <h2>Links</h2>
+      <ul>
+        <li><a href="https://t.me/staniverse/631">https://t.me/staniverse/631</a></li>
+        <li><a href="https://t.me/staniverse/632">https://t.me/staniverse/632</a></li>
+      </ul>
+
+      <p class="entry-original"><a class="text-link" href="/works/dver-kotoraya-zhdyot/">Original (Russian) →</a></p>
+    </div>
+  </article>
+</Base>

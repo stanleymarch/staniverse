@@ -1,0 +1,104 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+
+/* The structural facts stay bound to the Russian entry — status, facets, stack and
+   the update date are read from the collection, never retyped for the translation. */
+const source = (await getCollection("experiments")).find((item) => item.data.id === "experiment:tyaga");
+const statusLabels: Record<string, string> = { live: "Running", soon: "Coming soon" };
+const typeLabels: Record<string, string> = { "игра": "Game", "песочница": "Sandbox", "инструмент": "Tool", "арт-опыт": "Art experience" };
+const platformLabels: Record<string, string> = { "мобильные": "Mobile", "гарнитуры": "Headsets", "десктоп": "Desktop" };
+const capabilityLabels: Record<string, string> = { "физика": "Physics", "звук": "Sound" };
+const translate = (labels: Record<string, string>, values: string[]) => values.map((value) => labels[value] ?? value);
+const status = source ? statusLabels[source.data.status] ?? source.data.status : "Running";
+const types = translate(typeLabels, source?.data.types ?? []);
+const platforms = translate(platformLabels, source?.data.platforms ?? []);
+const capabilities = translate(capabilityLabels, source?.data.capabilities ?? []);
+const stack = source?.data.stack ?? [];
+const href = source?.data.href;
+const repo = source?.data.repo;
+const updated = source?.data.updated ? new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric" }).format(source.data.updated) : "";
+
+const pageTitle = "Craving — a web experience about the mechanics of addiction";
+const description = "A web experience on p5.js about the mechanics of addiction: you hold on and hold on — and at some point you fail to let go of the intrusive thought and lose.";
+const experimentJsonLd = {
+  "@type": "CreativeWork",
+  "@id": new URL("/en/experiments/tyaga/#content", Astro.site).href,
+  url: new URL("/en/experiments/tyaga/", Astro.site).href,
+  name: "Craving",
+  headline: "Craving",
+  description,
+  inLanguage: "en",
+  author: { "@id": new URL("/#stanislav-ermolenko", Astro.site).href },
+  isPartOf: { "@id": new URL("/#website", Astro.site).href },
+  ...(source?.data.updated ? { dateModified: source.data.updated.toISOString() } : {}),
+};
+---
+<Base title={pageTitle} description={description} lang="en" jsonLd={experimentJsonLd}>
+  <article class="entry-shell">
+    <header class="entry-hero">
+      <div class="entry-hero-meta"><span class="section-kicker">Experiment · {status}</span></div>
+      <h1>Craving</h1>
+      <p class="entry-summary">{description}</p>
+      <div class="publication-facts">
+        {status === "Running" && href && <a href={href}>Open experiment ↗</a>}
+        {repo && <a href={repo}>Code ↗</a>}
+      </div>
+      <dl class="work-facts">
+        <div><dt>Status</dt><dd>{status}</dd></div>
+        <div><dt>Type</dt><dd>{types.join(" · ")}</dd></div>
+        <div><dt>Platforms</dt><dd>{platforms.join(" · ")}</dd></div>
+        {capabilities.length > 0 && <div><dt>Capabilities</dt><dd>{capabilities.join(" · ")}</dd></div>}
+        <div><dt>Technology</dt><dd>{stack.join(" · ")}</dd></div>
+        {updated && <div><dt>Updated</dt><dd>{updated}</dd></div>}
+      </dl>
+    </header>
+    <div class="prose">
+      <h2>The essence</h2>
+      <p>A web experience on p5.js visualising the struggle with an addiction — the moment when you hold on and hold on, but if at some point you do not let the thought go, you lose.</p>
+
+      <h2>Context</h2>
+      <p>The work was made within the premasters track of the ITMO Art&amp;Science master&rsquo;s programme. I made it at a moment when I was myself in the process of cutting down a nicotine dependence and preparing to move on to other ways of working with the habit.</p>
+      <p>p5.js is an open-source JavaScript library for creative coding, created by Lauren McCarthy as the web successor of Processing. It makes interactive visual experiences quick to build right in the browser.</p>
+
+      <h2>The idea</h2>
+      <p>I needed to visualise how you hold on, hold on, hold on — but if at one particular moment you do not let go of the intrusive thought, you lose to the bad habit. You get a dose of nicotine, and together with it a dose of emptiness that scolds you for having taken it. In the end there is no positive effect from anything: the satisfaction is fleeting, and the emptiness remains.</p>
+      <p>Although the work grew out of my personal experience of nicotine dependence, it applies to any addictions and habits — the ones we are trying to give up or, on the contrary, are about to take up. The mechanic is always the same: the illusion of relief that never arrives.</p>
+
+      <h2>The solution</h2>
+      <p>An interactive web experience on p5.js where the user literally lives through this cycle — holding on, the lapse, the emptiness. The sound is generated with the means of p5.js as well. Claude helped with the implementation.</p>
+
+      <h2>What I did myself</h2>
+      <ul>
+        <li>Developed the concept and the visual metaphor</li>
+        <li>Built the interactive experience on p5.js</li>
+        <li>Generated the soundscape with the means of p5.js</li>
+        <li>Used Claude as an assistant in the code</li>
+      </ul>
+
+      <h2>Stack</h2>
+      <ul>
+        <li>p5.js</li>
+        <li>Claude</li>
+      </ul>
+
+      <h2>Skills</h2>
+      <ul>
+        <li>creative coding</li>
+        <li>generative sound</li>
+        <li>visualising inner states through interaction</li>
+        <li>conceptual work with personal experience</li>
+      </ul>
+
+      <h2>Result</h2>
+      <p>A finished web experience presented within the Art&amp;Science premasters track. For me the value of this work is in its honesty: it does not aestheticise addiction but shows the mechanic behind any habit you are trying to leave. The promise of relief → the lapse → the emptiness. No happy ending, only an awareness of the cycle.</p>
+
+      <h2>Links</h2>
+      <ul>
+        {href && <li><a href={href}>Launch the experience on OpenProcessing</a></li>}
+      </ul>
+
+      <p class="entry-original"><a class="text-link" href="/experiments/tyaga/">Original (Russian) →</a></p>
+    </div>
+  </article>
+</Base>

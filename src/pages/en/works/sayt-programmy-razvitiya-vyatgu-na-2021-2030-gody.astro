@@ -1,0 +1,100 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+
+/* The structural facts stay bound to the Russian entry — status, year, client, role
+   and genres are read from the collection, never retyped for the translation. */
+const source = (await getCollection("works")).find((item) => item.data.id === "work:sayt-programmy-razvitiya-vyatgu-na-2021-2030-gody");
+const statusLabels: Record<string, string> = { ongoing: "Ongoing", completed: "Completed" };
+const genreLabels: Record<string, string> = { web: "Web", education: "Education" };
+/* The catalogue stores these two fields in Russian; the page only relabels the values
+   it is given — an unmapped fragment would fall through in the original wording. */
+const clientLabels: Record<string, string> = { "ВятГУ": "VyatSU" };
+const roleLabels: Record<string, string> = {
+  "Проектировал структуру сайта": "Designed the website structure",
+  "Верстал и запускал сайт": "Built and launched the website",
+  "Упаковывал сложный стратегический контент в веб-формат": "Packaged complex strategic content into a web format",
+};
+const status = source ? statusLabels[source.data.status] ?? source.data.status : "Completed";
+const genres = source?.data.genres.map((genre) => genreLabels[genre] ?? genre) ?? [];
+const year = source ? String(source.data.year).trim() : "";
+const role = source ? source.data.role.split("; ").map((item) => roleLabels[item] ?? item).join(" · ") : "";
+const client = source?.data.client ? clientLabels[source.data.client] ?? source.data.client : "";
+
+const pageTitle = "Website for the VyatSU development programme 2021–2030 — strategy as a public resource";
+const description = "Assemble an official website that publicly and clearly presents VyatSU’s long-term development programme, its strategic projects, documents and results.";
+const workJsonLd = {
+  "@type": "CreativeWork",
+  "@id": new URL("/en/works/sayt-programmy-razvitiya-vyatgu-na-2021-2030-gody/#content", Astro.site).href,
+  url: new URL("/en/works/sayt-programmy-razvitiya-vyatgu-na-2021-2030-gody/", Astro.site).href,
+  name: "Website for the VyatSU development programme 2021–2030",
+  headline: "Website for the VyatSU development programme 2021–2030",
+  description,
+  inLanguage: "en",
+  author: { "@id": new URL("/#stanislav-ermolenko", Astro.site).href },
+  isPartOf: { "@id": new URL("/#website", Astro.site).href },
+  ...(source?.data.updated ? { dateModified: source.data.updated.toISOString() } : {}),
+};
+---
+<Base title={pageTitle} description={description} lang="en" jsonLd={workJsonLd}>
+  <article class="entry-shell">
+    <header class="entry-hero">
+      <div class="entry-hero-meta"><span class="section-kicker">Work · {status}</span></div>
+      <h1>Website for the VyatSU development programme 2021–2030</h1>
+      <p class="entry-summary">{description}</p>
+      <dl class="work-facts">
+        {year && <div><dt>Year</dt><dd>{year}</dd></div>}
+        {role && <div><dt>Role</dt><dd>{role}</dd></div>}
+        {client && <div><dt>Client</dt><dd>{client}</dd></div>}
+        {genres.length > 0 && <div><dt>Genres</dt><dd>{genres.join(" · ")}</dd></div>}
+      </dl>
+    </header>
+    <div class="prose">
+      <h2>The brief</h2>
+      <p>Assemble an official website that publicly and clearly presents VyatSU&rsquo;s long-term development programme, its strategic projects, documents and results.</p>
+
+      <h2>Context</h2>
+      <p>This is an institutional case for a large university client. What matters inside it is not a bright promo presentation but the careful packaging of a large volume of strategic information into a readable, public form.</p>
+      <p>The website was made as a presentation of the university&rsquo;s strategy within the <code>Priority 2030</code> programme, but for the portfolio what matters here is less the programme as a separate entity than the level of trust on the part of a large university client.</p>
+
+      <h2>Solution</h2>
+      <p>The website was assembled on <code>Tilda</code> as a multi-page resource. That format made it possible to spread strategic projects, documents, reports and the description of the programme&rsquo;s management logic across separate screens and sections. A news feed was made separately, so that the website would not remain a static presentation.</p>
+      <p>The case shows not just the ability to assemble a landing page but work with a large body of institutional content: programme documents and official wording had to be turned into a structure that can be read and used as a showcase of the university&rsquo;s development. It is also a case about the level of the tasks entrusted to you: not a domestic promo site but an official resource with a strategic agenda.</p>
+
+      <h2>What I did personally</h2>
+      <ul>
+        <li>Designed the website structure</li>
+        <li>Built and launched the website</li>
+        <li>Packaged complex strategic content into a web format</li>
+        <li>Worked with the university&rsquo;s presentation style and the constraints of an official resource</li>
+      </ul>
+
+      <h2>Stack</h2>
+      <ul>
+        <li>Tilda</li>
+        <li>a multi-page structure</li>
+        <li>content and navigation blocks</li>
+        <li>a news feed</li>
+      </ul>
+
+      <h2>Skills</h2>
+      <ul>
+        <li>information architecture</li>
+        <li>web design for an institutional context</li>
+        <li>working with long and complex texts</li>
+        <li>launching a public corporate resource</li>
+      </ul>
+
+      <h2>Result</h2>
+      <p>The outcome is a separate official resource where the university&rsquo;s strategy is presented as a coherent and comprehensible system. For the portfolio this is a strong example of working with complex content, university bureaucracy, a news feed and a multi-page structure on Tilda.</p>
+
+      <h2>Links</h2>
+      <ul>
+        <li><a href="https://vyatsu2030.tilda.ws/">https://vyatsu2030.tilda.ws/</a></li>
+        <li><a href="http://www.vyatsu.ru/prioritet2030.html">http://www.vyatsu.ru/prioritet2030.html</a></li>
+      </ul>
+
+      <p class="entry-original"><a class="text-link" href="/works/sayt-programmy-razvitiya-vyatgu-na-2021-2030-gody/">Original (Russian) →</a></p>
+    </div>
+  </article>
+</Base>

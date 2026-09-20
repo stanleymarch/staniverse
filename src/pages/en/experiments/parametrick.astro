@@ -1,0 +1,90 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+
+/* The structural facts stay bound to the Russian entry — status, facets, stack and
+   the update date are read from the collection, never retyped for the translation. */
+const source = (await getCollection("experiments")).find((item) => item.data.id === "experiment:parametrick");
+const statusLabels: Record<string, string> = { live: "Running", soon: "Coming soon" };
+const typeLabels: Record<string, string> = { "игра": "Game", "песочница": "Sandbox", "инструмент": "Tool", "арт-опыт": "Art experience" };
+const platformLabels: Record<string, string> = { "мобильные": "Mobile", "гарнитуры": "Headsets", "десктоп": "Desktop" };
+const capabilityLabels: Record<string, string> = { "физика": "Physics", "звук": "Sound" };
+const translate = (labels: Record<string, string>, values: string[]) => values.map((value) => labels[value] ?? value);
+const status = source ? statusLabels[source.data.status] ?? source.data.status : "Running";
+const types = translate(typeLabels, source?.data.types ?? []);
+const platforms = translate(platformLabels, source?.data.platforms ?? []);
+const capabilities = translate(capabilityLabels, source?.data.capabilities ?? []);
+const stack = source?.data.stack ?? [];
+const href = source?.data.href;
+const repo = source?.data.repo;
+const updated = source?.data.updated ? new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric" }).format(source.data.updated) : "";
+
+const pageTitle = "Parametrick — a generative vase designer";
+const description = "A generative vase designer: you load a song or a photograph, the app pulls out their features and builds a parametric form from them — a vase that encodes a personal memory.";
+const experimentJsonLd = {
+  "@type": "CreativeWork",
+  "@id": new URL("/en/experiments/parametrick/#content", Astro.site).href,
+  url: new URL("/en/experiments/parametrick/", Astro.site).href,
+  name: "Parametrick",
+  headline: "Parametrick",
+  description,
+  inLanguage: "en",
+  author: { "@id": new URL("/#stanislav-ermolenko", Astro.site).href },
+  isPartOf: { "@id": new URL("/#website", Astro.site).href },
+  ...(source?.data.updated ? { dateModified: source.data.updated.toISOString() } : {}),
+};
+---
+<Base title={pageTitle} description={description} lang="en" jsonLd={experimentJsonLd}>
+  <article class="entry-shell">
+    <header class="entry-hero">
+      <div class="entry-hero-meta"><span class="section-kicker">Experiment · {status}</span></div>
+      <h1>Parametrick</h1>
+      <p class="entry-summary">{description}</p>
+      <div class="publication-facts">
+        {status === "Running" && href && <a href={href}>Open experiment ↗</a>}
+        {repo && <a href={repo}>Code ↗</a>}
+      </div>
+      <dl class="work-facts">
+        <div><dt>Status</dt><dd>{status}</dd></div>
+        <div><dt>Type</dt><dd>{types.join(" · ")}</dd></div>
+        <div><dt>Platforms</dt><dd>{platforms.join(" · ")}</dd></div>
+        {capabilities.length > 0 && <div><dt>Capabilities</dt><dd>{capabilities.join(" · ")}</dd></div>}
+        <div><dt>Technology</dt><dd>{stack.join(" · ")}</dd></div>
+        {updated && <div><dt>Updated</dt><dd>{updated}</dd></div>}
+      </dl>
+    </header>
+    <div class="prose">
+      <h2>What it is</h2>
+      <p>The first public test of what later became the project <a href="/en/projects/mnemoform/">Mnemoform</a>: turning a memory into a physical object. The user brings a song or a photograph and receives a vase whose form is assembled from the features of that material.</p>
+
+      <h2>How it works</h2>
+      <ul>
+        <li><strong>Audio.</strong> Meyda extracts the spectral centroid, RMS, ZCR, spectral flatness and other features, while a temporal analysis maps the dynamics onto the height of the vase: loud passages give a wider profile, quiet ones a narrow one.</li>
+        <li><strong>Photo.</strong> Analysis on a canvas: brightness, saturation, edge density and colour distribution.</li>
+        <li>Everything is computed on the client — neither the audio nor the photograph is sent anywhere.</li>
+      </ul>
+
+      <h2>What you can change and where it ends up</h2>
+      <ul>
+        <li>A live 3D preview and sliders: twist, wave, bulge, curvature, wall thickness.</li>
+        <li>Export of watertight STL and 3MF with a physical scale, a print-volume check and material presets (PLA, PETG, PLA Silk).</li>
+        <li>The process is assembled from six steps: choosing the material → typology → context → synthesis → tectonic refinement → fabrication preview.</li>
+      </ul>
+
+      <h2>Stack</h2>
+      <ul>
+        <li>Next.js 16 (App Router), React 19, TypeScript</li>
+        <li>three.js via <code>@react-three/fiber</code></li>
+        <li>Meyda — audio feature extraction</li>
+        <li>Geometry: a B-spline profile → <code>LatheGeometry</code> → deformations → wall thickness → subdivision</li>
+      </ul>
+
+      <h2>Links</h2>
+      <ul>
+        {href && <li><a href={href}>Open the demo</a></li>}
+      </ul>
+
+      <p class="entry-original"><a class="text-link" href="/experiments/parametrick/">Original (Russian) →</a></p>
+    </div>
+  </article>
+</Base>

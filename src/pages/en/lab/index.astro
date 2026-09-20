@@ -1,0 +1,221 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { getCollection, type CollectionEntry } from "astro:content";
+
+/* The catalogue is the content collection itself: a facet vocabulary is derived
+   from the rows, so a new experiment adds its own type, platform, capability or
+   technology to the filters just by existing. A row without values never shows
+   (no empty chips). Facet values keep the Russian slugs in `data-value` — the
+   inline script compares them with the cards — so only the visible label is
+   translated. */
+const typeLabels: Record<string, string> = { "игра": "Game", "песочница": "Sandbox", "инструмент": "Tool", "арт-опыт": "Art experience" };
+const platformLabels: Record<string, string> = { "мобильные": "Mobile", "гарнитуры": "Headsets", "десктоп": "Desktop" };
+const capabilityLabels: Record<string, string> = { "физика": "Physics", "звук": "Sound" };
+const facetText = (value: string) => typeLabels[value] ?? platformLabels[value] ?? capabilityLabels[value] ?? value;
+
+/* English titles and summaries, keyed by stable id: the collection keeps the
+   Russian words the site is written in, the catalogue shows its translation. */
+const copy: Record<string, { title: string; summary: string }> = {
+  "experiment:knockdown": {
+    title: "Knockdown",
+    summary: "A physics sandbox in AR: a tap on the floor places a tower of fifteen bricks, a tap throws a ball at it, and you count what has been knocked down.",
+  },
+  "experiment:parametrick": {
+    title: "Parametrick",
+    summary: "A generative vase designer: you load a song or a photograph, the app pulls out their features and builds a parametric form from them — a vase that encodes a personal memory.",
+  },
+  "experiment:portal": {
+    title: "Portal",
+    summary: "An AR arcade: a tap on the floor opens a doorway, cubes fly out of it at the player — catch the green ones with a tap and dodge the red ones.",
+  },
+  "experiment:sea-battle": {
+    title: "Sea Battle",
+    summary: "A Soviet periscope arcade machine in augmented reality: a tap on the floor deploys the sea, a tap fires a torpedo, and you have to lead your target.",
+  },
+  "experiment:stansim": {
+    title: "Stanley Simulator",
+    summary: "A wave game in the void: you catch coffee, whisky, anime girls and VR headsets, dodge money, work and bureaucracy, keep your energy up and build a combo.",
+  },
+  "experiment:tyaga": {
+    title: "Craving",
+    summary: "A web experience on p5.js about the mechanics of addiction: you hold on and hold on — and at some point you fail to let go of the intrusive thought and lose.",
+  },
+};
+
+type Experiment = CollectionEntry<"experiments">;
+
+const titleOf = (entry: Experiment) => copy[entry.data.id]?.title ?? entry.data.title;
+const summaryOf = (entry: Experiment) => copy[entry.data.id]?.summary ?? entry.data.summary;
+
+const entries = (await getCollection("experiments")).sort((a, b) => titleOf(a).localeCompare(titleOf(b), "en"));
+const translated = (entry: Experiment) => `/en/experiments/${entry.id}/`;
+const vocabulary = (values: string[]) => [...new Set(values)].sort((a, b) => a.localeCompare(b, "en"));
+const facetRows = [
+  { key: "type", label: "Type", any: "All", values: vocabulary(entries.flatMap((entry) => entry.data.types)) },
+  { key: "platform", label: "Platform", any: "Any", values: vocabulary(entries.flatMap((entry) => entry.data.platforms)) },
+  { key: "capability", label: "Capabilities", any: "Any", values: vocabulary(entries.flatMap((entry) => entry.data.capabilities)) },
+  { key: "stack", label: "Technology", any: "All", values: vocabulary(entries.flatMap((entry) => entry.data.stack)) },
+
+].filter((row) => row.values.length > 0);
+const facetField: Record<string, "types" | "platforms" | "capabilities" | "stack"> = { type: "types", platform: "platforms", capability: "capabilities", stack: "stack" };
+const facetCount = (key: string, value: string) => entries.filter((entry) => (entry.data[facetField[key] ?? "types"]).includes(value)).length;
+
+const jsonLd = {
+  "@type": "CollectionPage",
+  "@id": new URL("/en/lab/#page", Astro.site).href,
+  url: new URL("/en/lab/", Astro.site).href,
+  name: "Lab — experiments of staniverse",
+  description: "Separate WebXR and browser experiments: games, applications and art pieces — from mobile AR to headsets. Each one has a launch and a page breaking down its mechanics.",
+  inLanguage: "en",
+  isPartOf: { "@id": new URL("/#website", Astro.site).href },
+  hasPart: entries.map((entry) => ({
+    "@type": "CreativeWork",
+    name: titleOf(entry),
+    description: summaryOf(entry),
+    keywords: [...entry.data.types, ...entry.data.platforms, ...entry.data.capabilities, ...entry.data.stack].map(facetText).join(", "),
+    url: entry.data.href ?? new URL(translated(entry), Astro.site).href,
+  })),
+};
+---
+
+<Base title="Lab" description="Separate WebXR and browser experiments by Stanislav Ermolenko: games, applications and art pieces — from mobile AR to headsets. Each one has a launch and a breakdown of its mechanics." lang="en" jsonLd={jsonLd}>
+  <header class="catalog-hero">
+    <div class="section-kicker">Lab</div>
+    <h1>Experiments</h1>
+    <p class="hero-lead">Standalone applications rather than games alone: WebXR scenes, SDK demos, spatial mechanics, and further on — things with AI and a backend. Every experiment launches from a link on its card, and next to it lies a short breakdown: what is inside and how to use it. A demo with the camera is best opened from a phone.</p>
+  </header>
+  <section class="section">
+    {entries.length === 0 ? (
+      <div class="lab-empty">
+        <p><strong>Empty for now — and that is honest.</strong></p>
+        <p>Cards will appear here at the same time as the first working experiments.</p>
+      </div>
+    ) : (
+      <>
+        <div class="lab-facets" data-lab-facets>
+          {facetRows.map((row) => (
+            <div class="catalog-controls" role="group" aria-label={row.label}>
+              <span class="facet-label">{row.label}</span>
+              <button type="button" class="filter-button active" data-facet={row.key} data-value="all" aria-pressed="true">{row.any}<small>{entries.length}</small></button>
+              {row.values.map((value) => <button type="button" class="filter-button" data-facet={row.key} data-value={value} aria-pressed="false">{facetText(value)}<small>{facetCount(row.key, value)}</small></button>)}
+            </div>
+          ))}
+          <div class="catalog-controls">
+            <label class="facet-label" for="lab-sort">Sorting</label>
+            <select class="filter-button lab-sort" id="lab-sort" data-lab-sort>
+              <option value="catalog">Catalogue order</option>
+              <option value="title">Title: A–Z</option>
+            </select>
+            <output class="lab-count" data-lab-count aria-live="polite">{entries.length} of {entries.length}</output>
+          </div>
+        </div>
+        <div class="card-grid" data-lab-grid>
+          {entries.map((entry, index) => (
+            <article
+              class:list={["content-card", { "is-soon": entry.data.status === "soon" }]}
+              id={entry.id}
+              data-kind="experiment"
+              data-index={index}
+              data-title={titleOf(entry)}
+              data-types={entry.data.types.join("|")}
+              data-platforms={entry.data.platforms.join("|")}
+              data-capabilities={entry.data.capabilities.join("|")}
+              data-stack={entry.data.stack.join("|")}
+            >
+              <div class="card-meta">
+                <span>Experiment</span>
+                {entry.data.status === "live"
+                  ? <span class="status">Running</span>
+                  : <span class="status">Coming soon</span>}
+              </div>
+              <h2><a class="card-title-link" href={translated(entry)}>{titleOf(entry)}</a></h2>
+              <p>{summaryOf(entry)}</p>
+              <div class="tag-row is-facet">{[...entry.data.types, ...entry.data.platforms, ...entry.data.capabilities].map((value) => <span>{facetText(value)}</span>)}</div>
+              <div class="tag-row">{entry.data.stack.map((item) => <span>#{item}</span>)}</div>
+              <div class="card-links">
+                {entry.data.status === "live" && entry.data.href
+                  ? <a class="card-arrow-link" href={entry.data.href}>Open experiment <span class="card-arrow" aria-hidden="true">↗</span></a>
+                  : <span class="card-arrow-link is-muted">Still in development</span>}
+                <a class="card-repo-link" href={translated(entry)}>How it works</a>
+                {entry.data.repo ? <a class="card-repo-link" href={entry.data.repo}>Code</a> : null}
+              </div>
+            </article>
+          ))}
+        </div>
+        <div class="empty-state" data-lab-empty>No experiments match this set of facets yet — clear some of the filters.</div>
+      </>
+    )}
+  </section>
+  <script is:inline>
+    (() => {
+      const grid = document.querySelector("[data-lab-grid]");
+      if (!grid) return;
+      const cards = [...grid.querySelectorAll("[data-kind='experiment']")];
+      const empty = document.querySelector("[data-lab-empty]");
+      const count = document.querySelector("[data-lab-count]");
+      const sortSelect = document.querySelector("[data-lab-sort]");
+      const state = { type: "all", platform: "all", capability: "all", stack: "all", sort: "catalog" };
+
+      const holds = (list, value) => value === "all" || (list || "").split("|").includes(value);
+      const matches = (card) =>
+        holds(card.dataset.types, state.type) &&
+        holds(card.dataset.platforms, state.platform) &&
+        holds(card.dataset.capabilities, state.capability) &&
+        holds(card.dataset.stack, state.stack);
+
+      const order = (card) => Number(card.dataset.index);
+      const compare = (a, b) => {
+        if (state.sort === "title") return a.dataset.title.localeCompare(b.dataset.title, "en");
+        return order(a) - order(b);
+      };
+
+      const render = () => {
+        cards.slice().sort(compare).forEach((card) => grid.append(card));
+        let shown = 0;
+        cards.forEach((card) => {
+          const visible = matches(card);
+          card.hidden = !visible;
+          if (visible) shown += 1;
+        });
+        if (empty) empty.style.display = shown ? "none" : "block";
+        if (count) count.textContent = `${shown} of ${cards.length}`;
+      };
+
+      document.querySelectorAll("[data-lab-facets] [data-facet]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const facet = button.dataset.facet;
+          state[facet] = button.dataset.value;
+          document.querySelectorAll(`[data-lab-facets] [data-facet="${facet}"]`).forEach((item) => {
+            const active = item === button;
+            item.classList.toggle("active", active);
+            item.setAttribute("aria-pressed", String(active));
+          });
+          render();
+        });
+      });
+      sortSelect?.addEventListener("change", () => { state.sort = sortSelect.value; render(); });
+    })();
+  </script>
+</Base>
+
+<style>
+  .content-card.is-soon { border-style: dashed; }
+  .lab-facets { display: flex; flex-wrap: wrap; align-items: baseline; gap: .2rem var(--s-6); max-width: 84rem; margin-bottom: var(--s-5); }
+  .lab-facets .catalog-controls { flex: 0 1 auto; margin-top: 0; }
+  .facet-label { display: inline-flex; align-items: center; min-height: 44px; margin-right: var(--s-1); color: var(--ink-2); font-size: .68rem; letter-spacing: .09em; text-transform: uppercase; }
+  .lab-sort { width: auto; padding-right: var(--s-5); color: var(--ink); font: inherit; }
+  .lab-count { display: inline-flex; align-items: center; min-height: 44px; color: var(--ink-2); font-size: .78rem; font-variant-numeric: tabular-nums; }
+  .tag-row.is-facet span { border: 1px solid var(--line); background: transparent; }
+  .card-title-link { color: inherit; text-decoration: none; }
+  .card-title-link:hover, .card-title-link:focus-visible { color: var(--accent); }
+  .card-links { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2) var(--s-4); margin-top: auto; padding-top: var(--s-3); }
+  .card-arrow-link { display: inline-flex; align-items: center; gap: 6px; color: var(--accent); font-size: .8rem; letter-spacing: .04em; }
+  .card-arrow-link.is-muted { color: var(--ink-2); }
+  .card-repo-link { color: var(--ink-2); font-size: .8rem; letter-spacing: .04em; border-bottom: 1px solid var(--line); }
+  .card-arrow-link:hover, .card-arrow-link:focus-visible,
+  .card-repo-link:hover, .card-repo-link:focus-visible { color: var(--ink); }
+  .card-repo-link:hover, .card-repo-link:focus-visible { border-bottom-color: var(--accent-line); }
+  .hero-lead code { font-family: ui-monospace, monospace; font-size: .85em; color: var(--ink); }
+  .lab-empty { display: grid; gap: var(--s-2); max-width: 44rem; padding: var(--s-6) var(--s-5); border: 1px dashed var(--line); border-radius: var(--radius-1); color: var(--ink-2); }
+  .lab-empty strong { color: var(--ink); font-weight: 550; }
+</style>

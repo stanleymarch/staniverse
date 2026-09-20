@@ -1,0 +1,79 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+
+/* The structural facts stay bound to the Russian entry — status, year, role, client
+   and genres are read from the collection, never retyped for the translation. */
+const source = (await getCollection("works")).find((item) => item.data.id === "work:rabota-k-yubileyu-goroda");
+const statusLabels: Record<string, string> = { ongoing: "Ongoing", completed: "Completed" };
+const genreLabels: Record<string, string> = { video: "Video", community: "Community" };
+const status = source ? statusLabels[source.data.status] ?? source.data.status : "Completed";
+const genres = source?.data.genres.map((genre) => genreLabels[genre] ?? genre) ?? [];
+/* Role and client reach the page from the collection in Russian, so their translation
+   is keyed to the exact source fragments: anything unmatched falls back to the source. */
+const roleLabels: Record<string, string> = { "Автор и исполнитель": "Author and performer" };
+const clientLabels: Record<string, string> = { "Проект: я.ты.город": "Project: я.ты.город" };
+const year = source ? String(source.data.year).trim() : "";
+const role = (source?.data.role ?? "").split("; ").map((part) => roleLabels[part.trim()] ?? part.trim()).join(" · ");
+const client = clientLabels[source?.data.client ?? ""] ?? source?.data.client ?? "";
+
+const pageTitle = "Every place in Kirov is beautiful — a social video for the city anniversary";
+const description = "Two lovers agreed to meet at the most beautiful place in the city. But at which one, if every place in Kirov is beautiful? A social video built on a simple romantic premise, through which the image of the city unfolds.";
+const workJsonLd = {
+  "@type": "CreativeWork",
+  "@id": new URL("/en/works/rabota-k-yubileyu-goroda/#content", Astro.site).href,
+  url: new URL("/en/works/rabota-k-yubileyu-goroda/", Astro.site).href,
+  name: "Every place in Kirov is beautiful",
+  headline: "Every place in Kirov is beautiful",
+  description,
+  inLanguage: "en",
+  author: { "@id": new URL("/#stanislav-ermolenko", Astro.site).href },
+  isPartOf: { "@id": new URL("/#website", Astro.site).href },
+  ...(source?.data.updated ? { dateModified: source.data.updated.toISOString() } : {}),
+};
+---
+<Base title={pageTitle} description={description} lang="en" jsonLd={workJsonLd}>
+  <article class="entry-shell">
+    <header class="entry-hero">
+      <div class="entry-hero-meta"><span class="section-kicker">Work · {status}</span></div>
+      <h1>Every place in Kirov is beautiful</h1>
+      <p class="entry-summary">{description}</p>
+      <dl class="work-facts">
+        {year && <div><dt>Year</dt><dd>{year}</dd></div>}
+        {role && <div><dt>Role</dt><dd>{role}</dd></div>}
+        {client && <div><dt>Client</dt><dd>{client}</dd></div>}
+        {genres.length > 0 && <div><dt>Genres</dt><dd>{genres.join(" · ")}</dd></div>}
+      </dl>
+    </header>
+    <div class="prose">
+      <h2>The idea</h2>
+      <p>Two lovers agreed to meet at the most beautiful place in the city. But at which one, if every place in Kirov is beautiful?</p>
+
+      <h2>Solution</h2>
+      <p>A social video built on this simple romantic premise. Through a personal story the image of the city unfolds — every corner of Kirov turns out to deserve attention.</p>
+
+      <iframe src="https://vk.com/video_ext.php?oid=-18037&id=456239937&hash=06d856dd5172034d" width="640" height="360" frameborder="0" allowfullscreen="1" style="background-color: #000" allow="autoplay; encrypted-media; fullscreen; picture-in-picture"></iframe>
+
+      <h2>My role</h2>
+      <ul>
+        <li>Author of the idea</li>
+        <li>Script</li>
+        <li>Shooting</li>
+        <li>Editing</li>
+      </ul>
+
+      <h2>Result</h2>
+      <p>Winner of the regional competition &ldquo;City over the Vyatka River&rdquo; in the &ldquo;Social video&rdquo; category (2023).</p>
+
+      <h2>Tools</h2>
+      <ul>
+        <li>Sony camera</li>
+        <li>DJI gimbal</li>
+        <li>DaVinci Resolve</li>
+        <li>One love. Although even two.</li>
+      </ul>
+
+      <p class="entry-original"><a class="text-link" href="/works/rabota-k-yubileyu-goroda/">Original (Russian) →</a></p>
+    </div>
+  </article>
+</Base>

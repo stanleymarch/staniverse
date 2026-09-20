@@ -1,0 +1,85 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+
+/* The structural facts stay bound to the Russian entry — status, facets, stack and
+   the update date are read from the collection, never retyped for the translation. */
+const source = (await getCollection("experiments")).find((item) => item.data.id === "experiment:stansim");
+const statusLabels: Record<string, string> = { live: "Running", soon: "Coming soon" };
+const typeLabels: Record<string, string> = { "игра": "Game", "песочница": "Sandbox", "инструмент": "Tool", "арт-опыт": "Art experience" };
+const platformLabels: Record<string, string> = { "мобильные": "Mobile", "гарнитуры": "Headsets", "десктоп": "Desktop" };
+const capabilityLabels: Record<string, string> = { "физика": "Physics", "звук": "Sound" };
+const translate = (labels: Record<string, string>, values: string[]) => values.map((value) => labels[value] ?? value);
+const status = source ? statusLabels[source.data.status] ?? source.data.status : "Running";
+const types = translate(typeLabels, source?.data.types ?? []);
+const platforms = translate(platformLabels, source?.data.platforms ?? []);
+const capabilities = translate(capabilityLabels, source?.data.capabilities ?? []);
+const stack = source?.data.stack ?? [];
+const href = source?.data.href;
+const repo = source?.data.repo;
+const updated = source?.data.updated ? new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric" }).format(source.data.updated) : "";
+
+const pageTitle = "Stanley Simulator — a wave game in the void";
+const description = "A wave game in the void: you catch coffee, whisky, anime girls and VR headsets, dodge money, work and bureaucracy, keep your energy up and build a combo.";
+const experimentJsonLd = {
+  "@type": "CreativeWork",
+  "@id": new URL("/en/experiments/stansim/#content", Astro.site).href,
+  url: new URL("/en/experiments/stansim/", Astro.site).href,
+  name: "Stanley Simulator",
+  headline: "Stanley Simulator",
+  description,
+  inLanguage: "en",
+  author: { "@id": new URL("/#stanislav-ermolenko", Astro.site).href },
+  isPartOf: { "@id": new URL("/#website", Astro.site).href },
+  ...(source?.data.updated ? { dateModified: source.data.updated.toISOString() } : {}),
+};
+---
+<Base title={pageTitle} description={description} lang="en" jsonLd={experimentJsonLd}>
+  <article class="entry-shell">
+    <header class="entry-hero">
+      <div class="entry-hero-meta"><span class="section-kicker">Experiment · {status}</span></div>
+      <h1>Stanley Simulator</h1>
+      <p class="entry-summary">{description}</p>
+      <div class="publication-facts">
+        {status === "Running" && href && <a href={href}>Open experiment ↗</a>}
+        {repo && <a href={repo}>Code ↗</a>}
+      </div>
+      <dl class="work-facts">
+        <div><dt>Status</dt><dd>{status}</dd></div>
+        <div><dt>Type</dt><dd>{types.join(" · ")}</dd></div>
+        <div><dt>Platforms</dt><dd>{platforms.join(" · ")}</dd></div>
+        {capabilities.length > 0 && <div><dt>Capabilities</dt><dd>{capabilities.join(" · ")}</dd></div>}
+        <div><dt>Technology</dt><dd>{stack.join(" · ")}</dd></div>
+        {updated && <div><dt>Updated</dt><dd>{updated}</dd></div>}
+      </dl>
+    </header>
+    <div class="prose">
+      <h2>What it is</h2>
+      <p>This is the experiment that started my acquaintance with the Meta Immersive Web SDK (iwsdk): a wave game in the void where you collect what gives you energy and get away from what drains it. Along the way it is a test of how the immersive web feels with a spatial interface, controllers and an &ldquo;observer mode&rdquo; on a flat screen.</p>
+
+      <h2>How to play</h2>
+      <ul>
+        <li><strong>In a headset:</strong> point the controller and pull the trigger. <strong>In the browser:</strong> WASD and the mouse, click to fire.</li>
+        <li><strong>Collectable:</strong> coffee, whisky, anime girls, VR headsets — energy plus.</li>
+        <li><strong>Not collectable:</strong> money, work, girlfriends, bureaucracy — energy minus.</li>
+        <li>Catching things in a row gives you a <code>COMBO</code> and more points; every wave is harder and faster; when the energy runs out you go into contemplation.</li>
+      </ul>
+
+      <h2>What is inside</h2>
+      <p>A start screen with the rules and a menu (&ldquo;ENTER THE VOID&rdquo;), a HUD with the score, the wave number and an energy bar, and a pulsing combo counter. The texts are in Russian and ironic about the process itself: &ldquo;Mark, I&rsquo;m in a VR headset, have mercy!&rdquo;, &ldquo;She knows what I had for breakfast. CachyOS, save me!&rdquo;. One build serves both the headset and a flat screen.</p>
+
+      <h2>Stack</h2>
+      <ul>
+        <li>Meta Immersive Web SDK (iwsdk) — spatial UIKit, locomotion, controllers</li>
+        <li>three.js — scene rendering</li>
+      </ul>
+
+      <h2>Links</h2>
+      <ul>
+        {href && <li><a href={href}>Open the simulator</a></li>}
+      </ul>
+
+      <p class="entry-original"><a class="text-link" href="/experiments/stansim/">Original (Russian) →</a></p>
+    </div>
+  </article>
+</Base>

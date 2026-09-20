@@ -1,0 +1,119 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+
+/* The structural facts stay bound to the Russian entry — status, year, client, role
+   and genres are read from the collection, never retyped for the translation. */
+const source = (await getCollection("works")).find((item) => item.data.id === "work:ya-obmanyvat-sebya-ne-stanu");
+const statusLabels: Record<string, string> = { ongoing: "Ongoing", completed: "Completed" };
+const genreLabels: Record<string, string> = { xr: "XR", video: "Video", art: "Art" };
+/* The catalogue stores the role in Russian; the page only relabels the values it is
+   given — an unmapped fragment would fall through in the original wording. */
+const roleLabels: Record<string, string> = {
+  "Придумал авторскую концептуальную рамку номера поверх исходного ТЗ": "Came up with the authorial conceptual frame of the piece on top of the original brief",
+  "Разрабатывал сценическое визуальное решение и собирал его в Unity": "Developed the stage visual solution and assembled it in Unity",
+  "Работал с логикой двухслойного вывода для LED-экрана и проекционной сетки": "Worked with the logic of two-layer output for the LED screen and the projection mesh",
+};
+const status = source ? statusLabels[source.data.status] ?? source.data.status : "Completed";
+const genres = source?.data.genres.map((genre) => genreLabels[genre] ?? genre) ?? [];
+const year = source ? String(source.data.year).trim() : "";
+const role = source ? source.data.role.split("; ").map((item) => roleLabels[item] ?? item).join(" · ") : "";
+const client = source?.data.client ?? "";
+
+const pageTitle = "I won’t deceive myself — digital scenography for ArtMasters";
+const description = "Final work at ArtMasters (Virtual World Designer category, August 2025). Digital scenography for a multimedia piece marking the 130th anniversary of Sergei Yesenin.";
+const workJsonLd = {
+  "@type": "CreativeWork",
+  "@id": new URL("/en/works/ya-obmanyvat-sebya-ne-stanu/#content", Astro.site).href,
+  url: new URL("/en/works/ya-obmanyvat-sebya-ne-stanu/", Astro.site).href,
+  name: "I won’t deceive myself",
+  alternateName: "Я обманывать себя не стану",
+  headline: "I won’t deceive myself",
+  description,
+  inLanguage: "en",
+  author: { "@id": new URL("/#stanislav-ermolenko", Astro.site).href },
+  isPartOf: { "@id": new URL("/#website", Astro.site).href },
+  ...(source?.data.updated ? { dateModified: source.data.updated.toISOString() } : {}),
+};
+---
+<Base title={pageTitle} description={description} lang="en" jsonLd={workJsonLd}>
+  <article class="entry-shell">
+    <header class="entry-hero">
+      <div class="entry-hero-meta"><span class="section-kicker">Work · {status}</span></div>
+      <h1>I won&rsquo;t deceive myself</h1>
+      <p class="entry-summary">{description}</p>
+      <dl class="work-facts">
+        {year && <div><dt>Year</dt><dd>{year}</dd></div>}
+        {role && <div><dt>Role</dt><dd>{role}</dd></div>}
+        {client && <div><dt>Client</dt><dd>{client}</dd></div>}
+        {genres.length > 0 && <div><dt>Genres</dt><dd>{genres.join(" · ")}</dd></div>}
+      </dl>
+    </header>
+    <div class="prose">
+      <p>Final work at ArtMasters (Virtual World Designer category, August 2025). Digital scenography for a multimedia piece marking the 130th anniversary of Sergei Yesenin.</p>
+
+      <h2>The brief</h2>
+      <p>At the final stage of the <code>Virtual World Designer</code> category I had to work in collaboration with other participants on a visual solution for a multimedia piece marking the 130th anniversary of Sergei Yesenin. This was no longer an abstract metaverse location but work to a stage brief for a real venue: with timings, directorial input, an LED screen and a projection mesh.</p>
+
+      <h2>Context</h2>
+      <p>The ArtMasters final turned out to be an important shift for me — from VR and metaverse thinking to digital scenography and multimedia production. Before that I had thought in the logic of interactive worlds, but here I had to quickly learn an adjacent language: stage light, screen planes, projection surfaces, spatial composition and synchronising the image with the music, the movement and the logic of the piece.</p>
+      <p>The technical setup was quite concrete: a <code>12 by 6 metre</code> LED screen and a projection mesh of roughly the same size on the forestage. At least two visual layers were expected of me, working together not as a backdrop with a video file but as a multi-layered environment.</p>
+
+<iframe src="https://vkvideo.ru/video_ext.php?oid=-194343825&id=456241276&hash=69ec24cb00373cbb" width="640" height="360" frameborder="0" allowfullscreen="1" style="background-color: #000" allow="autoplay; encrypted-media; fullscreen; picture-in-picture"></iframe>
+
+      <h2>The idea</h2>
+      <p>On top of the basic request for cyberspace I came up with my own conceptual superstructure, connected with Baudrillard, hyperreality and simulacra. It mattered to me not simply to make a beautiful screen background but to assemble a system of imagery in which the digital environment works as a statement.</p>
+      <p>The space was conceived as a semiotic cell or an information prison cell, in which users, shadows, cubes, signs and streams of data appear. Meanings in this construction are not born but rather killed by an excess of information. The finale of the piece was to become the rupture of an overloaded simulation and an attempt to give the viewer back a stable sign.</p>
+      <p>Initially I thought about this as an XR experience with biosensors, where the state of the viewer literally affects the environment. In a theatrical format that was impossible, so the bodily signal had to be replaced by a musical one: the pulse of the world became the pulse of the track. That is how the idea from the field of interactive environments was translated into audio-reactive scenography.</p>
+
+      <h2>Solution</h2>
+      <p>I assembled the scene in <code>Unity</code> and designed it as a multi-layered composition for two carriers at once: the main LED screen and the projection mesh. In addition, the organisers gave me a 3D model of the hall, so that I could estimate the scale, the position of the piano, the artists and the overall readability of the solution in the physical space.</p>
+      <p>The key technical device was audio reactivity. I synchronised the pulsation of the cell, the emission of materials, the behaviour of fractal structures and the constructions of cubes with the music. For this I used <code>AudioLink</code>, <code>Poiyomi</code>, my own scripts and timeline logic, where as many parameters as possible were moved into adjustable variables.</p>
+      <p>I accelerated part of the pipeline through AI tools. I wrote the scripts in <code>VS Code</code> and <code>Cursor</code> with <code>RooCode</code> and <code>Gemini</code>, ran certain things through <code>ChatGPT</code> as through a technical interlocutor, and assembled some objects — the piano model, for instance — through <code>Hunyuan3D</code> from a photograph of the physical world.</p>
+      <p>At the same time, what mattered to me was not only production but the medium as such: how an image behaves on a mesh, how black starts to work almost like transparency, how the same image reads differently on a dense screen and on an almost ghostly surface in front of the stage.</p>
+
+      <h2>What I did personally</h2>
+      <ul>
+        <li>Came up with the authorial conceptual frame of the piece on top of the original brief</li>
+        <li>Developed the stage visual solution and assembled it in Unity</li>
+        <li>Worked with the logic of two-layer output for the LED screen and the projection mesh</li>
+        <li>Wrote and tuned scripts for the movement of objects, rhythm and audio reactivity</li>
+        <li>Experimented with shaders, materials and constructions of cubes</li>
+        <li>Used AI tools to speed up code, generate objects and do R&amp;D</li>
+        <li>Adjusted to the real staging constraints of the venue and the medium</li>
+      </ul>
+
+      <h2>Stack</h2>
+      <ul>
+        <li>Unity</li>
+        <li>VRChat SDK</li>
+        <li>Cursor</li>
+        <li>VS Code</li>
+        <li>Gemini 2.5 Pro / Flash</li>
+        <li>ChatGPT</li>
+        <li>RooCode</li>
+        <li>Hunyuan3D</li>
+        <li>AudioLink</li>
+        <li>Poiyomi</li>
+      </ul>
+
+      <h2>Skills</h2>
+      <ul>
+        <li>scenographic thinking</li>
+        <li>real-time production</li>
+        <li>integrating GenAI into a production pipeline</li>
+        <li>working in an unfamiliar staging environment</li>
+        <li>translating an XR idea into a system of imagery for the stage</li>
+        <li>working with a projection mesh and a multi-layered screen composition</li>
+        <li>conceptualising a digital environment as an artistic statement</li>
+      </ul>
+
+      <h2>Result</h2>
+      <p>This case took me to the ArtMasters final stage and fixed an important turn: from an interest in virtual worlds as a separate medium to scenography, immersive environments and spatial digital art production. For me it is valuable not only for the fact of taking part in the final but because here an artistic concept, stage engineering, generative tools and an attempt to think of the image as spatial dramaturgy came together for the first time.</p>
+      <p>The honest side of this experience matters separately too: I saw where real-time logic works well in the stage medium and where it starts to demand compromises, crutches and reassembly into the format of finished video files. That is exactly why the case is not decorative for me but exploratory.</p>
+      <p>Looking at this story as a whole, its entry point was the <a href="/works/dver-kotoraya-zhdyot/">ArtMasters qualifying work</a> with the image of a door into a desired world. There I was only feeling for the possibility of entry, while here I was already testing how that entry works in a real production and artistic context.</p>
+
+      <p class="entry-original"><a class="text-link" href="/works/ya-obmanyvat-sebya-ne-stanu/">Original (Russian) →</a></p>
+    </div>
+  </article>
+</Base>

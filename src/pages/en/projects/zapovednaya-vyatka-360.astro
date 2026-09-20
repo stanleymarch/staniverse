@@ -1,0 +1,83 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+
+/* The structural facts stay bound to the Russian entry — status, domains and the
+   update date are read from the collection, never retyped for the translation. */
+const source = (await getCollection("projects")).find((item) => item.data.id === "project:zapovednaya-vyatka-360");
+const statusLabels: Record<string, string> = { idea: "Idea", planned: "Planned", development: "In development", active: "Active", paused: "Paused", completed: "Completed", archived: "Archived" };
+const domainLabels: Record<string, string> = { xr: "XR", video: "Video", education: "Education", ai: "AI" };
+const status = source ? statusLabels[source.data.status] ?? source.data.status : "Planned";
+const domains = source?.data.domains.map((domain) => domainLabels[domain] ?? domain) ?? [];
+const updated = source?.data.updated ? new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric" }).format(source.data.updated) : "";
+
+const pageTitle = "Protected Vyatka 360° — digital presence for the protected areas of the Kirov region";
+const description = "Protected Vyatka 360° is not a media project about nature. It is an attempt to solve a real problem: the protected natural areas of the Kirov region have almost no digital presence, and their inspectors have no resources to protect it.";
+const projectJsonLd = {
+  "@type": "CreativeWork",
+  "@id": new URL("/en/projects/zapovednaya-vyatka-360/#content", Astro.site).href,
+  url: new URL("/en/projects/zapovednaya-vyatka-360/", Astro.site).href,
+  name: "Protected Vyatka 360°",
+  alternateName: "Заповедная Вятка 360°",
+  headline: "Protected Vyatka 360°",
+  description,
+  inLanguage: "en",
+  author: { "@id": new URL("/#stanislav-ermolenko", Astro.site).href },
+  isPartOf: { "@id": new URL("/#website", Astro.site).href },
+  ...(source?.data.updated ? { dateModified: source.data.updated.toISOString() } : {}),
+};
+---
+<Base title={pageTitle} description={description} lang="en" jsonLd={projectJsonLd}>
+  <article class="entry-shell">
+    <header class="entry-hero">
+      <div class="entry-hero-meta"><span class="section-kicker">Own project · {status}</span></div>
+      <h1>Protected Vyatka 360°</h1>
+      <p class="entry-summary">{description}</p>
+      <dl class="work-facts">
+        <div><dt>Status</dt><dd>{status}</dd></div>
+        <div><dt>Domains</dt><dd>{domains.join(" · ")}</dd></div>
+        {updated && <div><dt>Updated</dt><dd>{updated}</dd></div>}
+      </dl>
+    </header>
+    <div class="prose">
+      <p><code>Protected Vyatka 360°</code> is not a media project about nature. It is an attempt to solve a real problem: the protected natural areas of the Kirov region have almost no digital presence, and their inspectors have no resources to protect it.</p>
+
+      <h2>The problem you only see from the inside</h2>
+      <p>The project was not born out of an abstract interest in ecology. While filming natural monuments for <a href="/projects/ya-ty-gorod/">я.ты.город.</a>, I saw from the inside what resources the local nature protection service really has, what is worth protecting and how little is known about many of the monuments. And then I accidentally ran an investigation: I discovered that my favourite view of the Nemda near Chimbulat, inside the state nature sanctuary &ldquo;Pizhemsky&rdquo;, had been sold by the administration at auction for 658 thousand roubles. The plot was immediately bought up and listed on Avito with a mark-up of a million. <a href="https://t.me/yatygorod/919">The story of the investigation</a> and <a href="https://t.me/yatygorod/948">how it ended</a> — the prosecutor&rsquo;s office cancelled the deal. But a residue remained: a protected area that nobody protects in the digital sense.</p>
+      <p>A single inspector may be responsible for thousands of hectares of a sanctuary. One person, one UAZ, an enormous territory. Patrolling every kilometre is a utopia. I went out with inspectors myself and flew my own drone to record violations — simply because there was not enough equipment.</p>
+      <p>At the same time tourists and local residents are constantly in the forest. They see illegal logging and campfires in forbidden places. But there is nowhere to send a signal — there is no tool. The inspector drives hundreds of kilometres blind, not knowing the exact location.</p>
+      <p>In parallel: schoolchildren in Kirov have never been to the national park &ldquo;Bylina&rdquo; — it exists only on paper, still under construction, hours away by road. How do you instil a love for a place that is physically inaccessible?</p>
+
+      <h2>Three modules, one system</h2>
+      <p>The answer I have assembled is a combination of three parts.</p>
+      <p><strong><code>M1 — EcoVyatka</code></strong> — a Telegram bot for tourists and concerned residents. A pocket reference on protected areas: routes, rules, history. Inside there is a <code>RAG</code> assistant for knowledge about the sanctuaries. And the main button: &ldquo;Report a violation&rdquo; with a geotag. A tourist sees illegal logging → presses it → the coordinates go to the inspector. He no longer drives blind — he sends a drone to exactly those coordinates. The gamification here is not for points: it turns a random visitor into a participant in citizen science.</p>
+      <p><strong><code>M2 — Protected Vyatka 360°</code></strong> — VR tours of the remote natural areas of the region. At city events we put Quest or Pico headsets on schoolchildren — and they find themselves in a forest they would not otherwise see. The content is partly based on the materials of <a href="/projects/ya-ty-gorod/">я.ты.город.</a>, converted into stereo and panoramas. The AI guide from <code>EcoVyatka</code> lives here no longer as text but as a 3D character (<code>WebXR</code>, a <code>VRM</code> avatar) — on information stands in the sanctuaries, on the screens of visitor centres as a fish-tank illusion.</p>
+      <p><strong><code>M3 — Technical infrastructure</code></strong> — drones with thermal cameras and a network of 4G camera traps for remote monitoring. The logic is simple: more equipment → more recorded violations → more fines → less damage. Plus a preventive effect: a poacher knows that there are cameras in the forest.</p>
+
+      <h2>How they reinforce each other</h2>
+      <p>Here is the part I especially like.</p>
+      <ul>
+        <li><strong>Signal → drone</strong> (<code>M1 + M3</code>): a tourist sends a geotag through the bot — the inspector does not drive 200 km blind but launches a drone to exactly those coordinates.</li>
+        <li><strong>Heat map</strong> (<code>M1 → M2/M3</code>): the bot collects statistics on signals → a map of violations is built → inspectors understand where to place camera traps, and the film crew understands which locations to shoot for VR first.</li>
+        <li><strong>Content from the forest</strong> (<code>M3 → M1/M2</code>): camera traps and drones catch not only poachers but also rare animals. Those frames go into the bot&rsquo;s posts and into VR content. Zero waste production — the field produces media by itself.</li>
+        <li><strong>One character</strong> (<code>M1 + M2</code>): the AI guide lives on all the platforms at once. In Telegram it answers with text, the <code>/360</code> command takes you into VR, where it appears in three dimensions. On the screen of a visitor centre it is a fish-tank illusion through camera tracking.</li>
+        <li><strong>A closed loop</strong> (<code>M2 → M1</code>): people see VR → fall in love with the place → come as tourists → use the bot → become citizen inspectors → send signals about violations.</li>
+      </ul>
+      <p>This is not just a beautiful showcase of environmental education. It is a model of how the cultural and the digital layer can work for the real visibility of a problem.</p>
+
+      <h2>The potential for integration</h2>
+      <p>For now this is a concept and partly a prototype. But if the partners have real nature protection infrastructure, the system is not simply &ldquo;shown&rdquo; — it is embedded into existing processes: monitoring, education, the recording of signals. The difference between a demo and a working tool is only the presence of a partner with authority.</p>
+
+      <h2>Stack</h2>
+      <ul>
+        <li><code>WebXR</code> + <code>VRM</code> — a 3D guide and immersive tours</li>
+        <li>Telegram Bot API + <code>Mini App</code> — the bot and the web layer (independent of the fate of a single platform)</li>
+        <li><code>RAG</code> over the knowledge base about the protected areas</li>
+        <li>drones with thermal cameras + 4G camera traps</li>
+        <li>360° panoramas and stereo video from my own filming</li>
+      </ul>
+
+      <p class="entry-original"><a class="text-link" href="/projects/zapovednaya-vyatka-360/">Original (Russian) →</a></p>
+    </div>
+  </article>
+</Base>

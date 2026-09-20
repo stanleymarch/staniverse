@@ -1,0 +1,77 @@
+---
+import Base from "../../../layouts/Base.astro";
+---
+<Base title="Contacts" description="How to contact Stanislav Ermolenko: email, Telegram, YouTube and social media. XR and WebXR, AI automation, digital archives and media — for business, museums and cultural projects." lang="en" pageType="ContactPage">
+  <header class="catalog-hero">
+    <div class="section-kicker">Contact</div>
+    <h1>Contacts</h1>
+    <p class="hero-lead">The easiest way is to write to my email or on Telegram. I read everything myself and reply as best I can — usually within a couple of days.</p>
+  </header>
+  <section class="section" aria-labelledby="channels-title">
+    <div class="section-head"><div><div class="section-kicker">Channels</div><h2 id="channels-title">Where to write</h2></div></div>
+    <div class="card-grid">
+      <a class="content-card" href="mailto:stas@staniverse.xyz">
+        <div class="card-meta"><span>Email</span></div>
+        <h3>stas@staniverse.xyz</h3>
+        <p>For proposals, questions and anything that needs a longer text.</p>
+        <span class="card-arrow" aria-hidden="true">↗</span>
+      </a>
+      <a class="content-card" href="https://t.me/staniverse" target="_blank" rel="noreferrer">
+        <div class="card-meta"><span>Channel</span></div>
+        <h3>Telegram · @staniverse</h3>
+        <p>My main living diary: XR, AI agents, the city and the process of work. Direct messages are open.</p>
+        <span class="card-arrow" aria-hidden="true">↗</span>
+      </a>
+      <a class="content-card" href="https://www.youtube.com/@staniverse" target="_blank" rel="noreferrer">
+        <div class="card-meta"><span>Video</span></div>
+        <h3>YouTube · @staniverse</h3>
+        <p>Breakdowns, impressions of headsets and notes from virtual worlds.</p>
+        <span class="card-arrow" aria-hidden="true">↗</span>
+      </a>
+      <a class="content-card" href="https://www.youtube.com/@yatygorod" target="_blank" rel="noreferrer">
+        <div class="card-meta"><span>City project</span></div>
+        <h3>YouTube · я.ты.город. (I. You. City.)</h3>
+        <p>Video sketches about the urban environment and local history — the archive of the project.</p>
+        <span class="card-arrow" aria-hidden="true">↗</span>
+      </a>
+      <a class="content-card" href="https://vk.com/staniverse" target="_blank" rel="noreferrer">
+        <div class="card-meta"><span>Social network</span></div>
+        <h3>VK · staniverse</h3>
+        <p>A mirror of the main publications for those who live there.</p>
+        <span class="card-arrow" aria-hidden="true">↗</span>
+      </a>
+    </div>
+  </section>
+  <section class="section brief" aria-labelledby="brief-title">
+    <div class="section-head"><div><div class="section-kicker">What to write</div><h2 id="brief-title">Messages that are easy to answer</h2></div></div>
+    <div class="brief-grid">
+      <article><h3>Task</h3><p>What needs to be done and what the result looks like: a process that is overdue for automation, an XR experience, an archive, a website, a shoot.</p></article>
+      <article><h3>Context</h3><p>Who you are and where this will live: a company, a museum, a cultural project, an institution or your own experiment.</p></article>
+      <article><h3>Timeline and constraints</h3><p>When you need the result and what constraints it has to fit — if they are already clear to you.</p></article>
+      <article><h3>Links and materials</h3><p>The current website, a prototype, references: everything that helps me understand the task without a week of back-and-forth.</p></article>
+    </div>
+    <p class="brief-note">Write in your own words, without a ten-page brief — I will ask the clarifying questions myself. If the task is not mine, I will say so directly.</p>
+  </section>
+</Base>
+
+<style>
+  /* Local composition only: the brief reuses the shared 12/6/4 grid, type
+     scale and lines, so nothing here needs a palette of its own. */
+  .brief-grid {
+    display: grid;
+    grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr));
+    gap: var(--s-4) var(--s-3);
+  }
+  .brief-grid article {
+    grid-column: span 3;
+    padding-top: var(--s-3);
+    border-top: 1px solid var(--line);
+  }
+  .brief-grid h3 { margin: 0 0 var(--s-2); font: 500 var(--text-h3) / 1.3 var(--font-display); }
+  .brief-grid p { margin: 0; color: var(--ink-2); font-size: .9rem; line-height: 1.6; }
+  .brief-note { max-width: 52rem; margin: var(--s-4) 0 0; color: var(--ink-2); font-size: .9rem; }
+
+  @media (max-width: 700px) {
+    .brief-grid article { grid-column: 1 / -1; }
+  }
+</style>

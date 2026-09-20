@@ -1,0 +1,94 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+
+/* The structural facts stay bound to the Russian entry — status, domains and the
+   update date are read from the collection, never retyped for the translation. */
+const source = (await getCollection("projects")).find((item) => item.data.id === "project:loci");
+const statusLabels: Record<string, string> = { idea: "Idea", planned: "Planned", development: "In development", active: "Active", paused: "Paused", completed: "Completed", archived: "Archived" };
+const domainLabels: Record<string, string> = { ai: "AI", xr: "XR", culture: "Culture", voice: "Voice", "3d": "3D" };
+const status = source ? statusLabels[source.data.status] ?? source.data.status : "In development";
+const domains = source?.data.domains.map((domain) => domainLabels[domain] ?? domain) ?? [];
+const updated = source?.data.updated ? new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric" }).format(source.data.updated) : "";
+
+const pageTitle = "LOCI — digital characters for organisations, starting with a museum";
+const description = "LOCI builds digital characters through which an organisation talks to its audience: the persona has a look, a voice and a character, while the knowledge and the allowed actions are set and limited by the client.";
+const projectJsonLd = {
+  "@type": "CreativeWork",
+  "@id": new URL("/en/projects/loci/#content", Astro.site).href,
+  url: new URL("/en/projects/loci/", Astro.site).href,
+  name: "LOCI",
+  headline: "LOCI",
+  description,
+  inLanguage: "en",
+  author: { "@id": new URL("/#stanislav-ermolenko", Astro.site).href },
+  isPartOf: { "@id": new URL("/#website", Astro.site).href },
+  ...(source?.data.updated ? { dateModified: source.data.updated.toISOString() } : {}),
+};
+---
+<Base title={pageTitle} description={description} lang="en" jsonLd={projectJsonLd}>
+  <article class="entry-shell">
+    <header class="entry-hero">
+      <div class="entry-hero-meta"><span class="section-kicker">Own project · {status}</span></div>
+      <h1>LOCI</h1>
+      <p class="entry-summary">{description}</p>
+      <dl class="work-facts">
+        <div><dt>Status</dt><dd>{status}</dd></div>
+        <div><dt>Domains</dt><dd>{domains.join(" · ")}</dd></div>
+        {updated && <div><dt>Updated</dt><dd>{updated}</dd></div>}
+      </dl>
+    </header>
+    <div class="prose">
+      <h2>The essence</h2>
+      <p><code>LOCI</code> builds digital characters through which an organisation talks to its audience. A persona has a look, a voice and a character, while the knowledge and the allowed actions are set and limited by the client. The first pilot is a museum. After that the same product applies to showrooms, hotels and service companies, including the role of a virtual brand ambassador in messengers.</p>
+      <p>For a cultural institution this is a digital mediator: it helps a visitor build their own understanding of the exhibition, ask questions and find connections. For commercial clients the same product is called a consultant or a brand character. The technological core is shared, while the implementation packages and the success criteria differ.</p>
+      <p>The name comes from locus — &ldquo;place&rdquo;; in genius loci it means the &ldquo;spirit of the place&rdquo;, and there is an additional association with the method of loci, memorising through spatial connections. Knowledge and character turn out to be tied to the institution and portable between interfaces, while the digital channel becomes one more place of meeting. Whether the name is available as a trademark has not been checked.</p>
+
+      <h2>Why a museum needs it</h2>
+      <p>A visitor arrives with the question &ldquo;why does this matter to me specifically&rdquo;, not for one more pre-written text. A label next to an object answers the question &ldquo;what is this&rdquo;, the guided tour has already gone, and a personal explanation is needed right now. A conversation with a fictional character gives room for that: to ask in your own words, to get an answer based on the museum&rsquo;s own materials and gradually to assemble your own understanding of the exhibition.</p>
+      <p>I mark the limit of what is possible honestly. The added value of an avatar over an ordinary voice or text bot has to be proved by an experiment: identical answers and an identical voice, with the avatar and without it. If there is no measurable gain, the client still has a useful text and voice channel, and that is the result of the comparison rather than a reason to hide it. The infrastructure of conversational characters already exists on the market, for instance Convai and Inworld; I do not claim that they lack RAG, languages or customisation. <code>LOCI</code> tests the convenience of a ready-made industry implementation and the control over sources.</p>
+
+      <h2>The pilot and the client</h2>
+      <p>The hypothesis for the first client is a museum or an independent exhibition space with a changing display, an accessible digital corpus and a member of staff ready to become the owner of the pilot. We start with one exhibition, one language plus EN tests, one character and one entry point: a scope like that can be brought to the end instead of being spread across several scenarios at once.</p>
+      <p>The roles inside the client have to be kept apart. The buyer is the head of the institution or of the development and digital projects department. The initiator is a curator or the head of visitor services. The user is the visitor. The visitor may like the avatar, but the budget is allocated by another person, and in one negotiation those roles are not mixed.</p>
+      <p>The second segment to test is a showroom with a complex product range or a hotel with recurring questions: there the consultations, qualified enquiries and transitions to booking or making an appointment are measured. Shops, clinics and banks at the same time are not the first strategy.</p>
+
+      <h2>What already exists</h2>
+      <p>A pipeline of open data is already working for the knowledge base of a walking guide: collection, normalisation, merging duplicates, georeferencing and preserving the provenance of every fact, with the set handed over to a routing service. RAG enrichment and the verification of the cards are the next stage.</p>
+      <p>Separately, an end-to-end demonstration is being assembled: question — answer with a source — voice — VRM in the browser. That is the path shown to the client and the one on which latency and cost are measured.</p>
+
+      <h2>The character and the channels</h2>
+      <p>Every institution gets its own persona: role, manner of speech, appearance, voice, knowledge and allowed actions. At the first stage the appearance is assembled in VRoid and exported to VRM. After that come authorial design and an AI pipeline: text, image, 3D model, rigging, VRM. I do not promise a fully automatic readiness of the character.</p>
+      <p>One and the same persona lives on the website, on a screen in the hall, in AR and VR on compatible devices and in messengers — as text, voice and video messages in Telegram or VK. For the client this is one character and one set of knowledge rather than several unrelated bots.</p>
+
+      <h2>The application</h2>
+      <p>This is an application to the ITMO accelerator; right now it is at the submission stage. The product and the economics are described in it as working hypotheses, not as sales results: there is no pilot and no paid contract yet.</p>
+      <p>What is needed from the accelerator is access to budget holders, a test of pricing and unit economics, and help with partnerships and with the composition of the team. Investment comes after demand is proved; the size of the round and the valuation of the company are not invented.</p>
+
+      <h2>The three-month plan</h2>
+      <ul>
+        <li>Start: interviews with institutions, clarifying the client and the pain, finding a venue and choosing one scenario. The result is an understandable user journey, a corpus of materials and criteria of usefulness.</li>
+        <li>Middle: an end-to-end demonstration and a comparison with the version without an avatar, using the same answers and the same voice.</li>
+        <li>Finish: a test on site, an error log, measurement of latency and compute costs.</li>
+      </ul>
+      <p>The minimum result of three months is a first working version and a decision about the pilot. A paid contract remains the next commercial goal rather than a promised outcome.</p>
+
+      <h2>Metrics</h2>
+      <ul>
+        <li>the share of correct answers by curatorial assessment, and of correct refusals;</li>
+        <li>completed useful dialogues, repeat questions, requests to call a human;</li>
+        <li>the latency of the first sound, p50 and p95;</li>
+        <li>the cost of a dialogue;</li>
+        <li>for a museum — comprehensibility and interest, moving on to the next exhibit.</li>
+      </ul>
+      <p>An avatar cannot be credited with sales growth without controlling for alternative causes: without a comparison against an alternative explanation the effect remains unproved.</p>
+
+      <h2>What is needed next</h2>
+      <p>The team is being formed. The confirmed founder is Stanislav Ermolenko. There are people at ITMO with whom participation can be discussed, but there are no agreements yet and they are not counted as part of the team.</p>
+      <p>The author can assemble the end-to-end MVP himself: a web interface, VRM, RAG, voice and already existing components. Specialists are needed in order to work in parallel and in more depth: ML, RAG and audio; inference and infrastructure; 3D and VRM; culture and partnerships. The roles can be combined.</p>
+      <p>On the economics: there is no fixed price list, because the cost of a dialogue is calculated from the measurements of the pilot, and local inference is not free — GPU rental or depreciation, electricity, maintenance and a capacity reserve all go into the calculation.</p>
+
+      <p class="entry-original"><a class="text-link" href="/projects/loci/">Original (Russian) →</a></p>
+    </div>
+  </article>
+</Base>

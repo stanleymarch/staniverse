@@ -1,0 +1,119 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+
+/* The structural facts stay bound to the Russian entry — status, year, role, client
+   and genres are read from the collection, never retyped for the translation. */
+const source = (await getCollection("works")).find((item) => item.data.id === "work:chertezhi-tekhdiplomy");
+const statusLabels: Record<string, string> = { ongoing: "Ongoing", completed: "Completed" };
+const genreLabels: Record<string, string> = { web: "Web", automation: "Automation", ai: "AI" };
+const status = source ? statusLabels[source.data.status] ?? source.data.status : "Completed";
+const genres = source?.data.genres.map((genre) => genreLabels[genre] ?? genre) ?? [];
+/* Role and client reach the page from the collection in Russian, so their translation
+   is keyed to the exact source fragments: anything unmatched falls back to the source. */
+const roleLabels: Record<string, string> = {
+  "Переносил e-commerce проект между CMS": "Moved an e-commerce project between CMS platforms",
+  "Работал с цифровым каталогом товаров": "Worked with a digital product catalogue",
+  "Программно выгружал и переносил большой объём цифровых позиций из старого OpenCart": "Programmatically exported and moved a large volume of digital items out of the old OpenCart",
+};
+const clientLabels: Record<string, string> = { "Основатель Техдиплом.ру и Купичертеж.ру": "Founder of Tekhdiplom.ru and Kupichertezh.ru", };
+const year = source ? String(source.data.year).trim() : "";
+const role = (source?.data.role ?? "").split("; ").map((part) => roleLabels[part.trim()] ?? part.trim()).join(" · ");
+const client = clientLabels[source?.data.client ?? ""] ?? source?.data.client ?? "";
+
+const pageTitle = "Drawings + Technical Diplomas — e-commerce migration and an automatic AI content loop";
+const description = "Build an e-commerce case on digital goods: move the shop between platforms and turn the catalogue into an automatic AI loop that runs a Telegram channel. Thousands of digital items were exported programmatically from an old OpenCart into WooCommerce, and the catalogue of the Drawings store became a regularly updated stream of content.";
+const workJsonLd = {
+  "@type": "CreativeWork",
+  "@id": new URL("/en/works/chertezhi-tekhdiplomy/#content", Astro.site).href,
+  url: new URL("/en/works/chertezhi-tekhdiplomy/", Astro.site).href,
+  name: "Drawings + Technical Diplomas",
+  headline: "Drawings + Technical Diplomas",
+  description,
+  inLanguage: "en",
+  author: { "@id": new URL("/#stanislav-ermolenko", Astro.site).href },
+  isPartOf: { "@id": new URL("/#website", Astro.site).href },
+  ...(source?.data.updated ? { dateModified: source.data.updated.toISOString() } : {}),
+};
+---
+<Base title={pageTitle} description={description} lang="en" jsonLd={workJsonLd}>
+  <article class="entry-shell">
+    <header class="entry-hero">
+      <div class="entry-hero-meta"><span class="section-kicker">Work · {status}</span></div>
+      <h1>Drawings + Technical Diplomas</h1>
+      <p class="entry-summary">{description}</p>
+      <dl class="work-facts">
+        {year && <div><dt>Year</dt><dd>{year}</dd></div>}
+        {role && <div><dt>Role</dt><dd>{role}</dd></div>}
+        {client && <div><dt>Client</dt><dd>{client}</dd></div>}
+        {genres.length > 0 && <div><dt>Genres</dt><dd>{genres.join(" · ")}</dd></div>}
+      </dl>
+    </header>
+    <div class="prose">
+      <h2>The brief</h2>
+      <p>Build an e-commerce case on digital goods and, at least for one of the projects, move the shop between platforms.</p>
+
+      <h2>Context</h2>
+      <p>The client is the founder of the services &ldquo;Tekhdiplom.ru&rdquo; and &ldquo;Kupichertezh.ru&rdquo;.</p>
+      <p>This is a single e-commerce circuit with two projects of digital goods that are close in logic. The key task was not simply to assemble a shop but to pull a large catalogue out of an ancient version of OpenCart, export thousands of digital items programmatically and move them into a livelier system on WooCommerce.</p>
+      <p>For now this case remains a combined entry for two closely related stores. That is convenient for the internal base, but for further publication it may be worth splitting into two standalone cases once more confirmed material about <code>Tekhdiplomy</code> appears.</p>
+
+      <h2>Solution</h2>
+      <p>For <code>Chertezhi</code> and <code>Tekhdiplomy</code> a single project approach was built: thousands of digital goods were exported programmatically from the old OpenCart and moved into WooCommerce. After the migration a payment integration was set up, and then an automatic AI loop for running a Telegram channel appeared on top of the store.</p>
+      <p>For <code>Chertezhi</code> the base confirms a catalogue of more than 2,500 digital goods and automation through <code>n8n</code>, <code>Google Sheets</code>, the <code>WooCommerce API</code> and an LLM via OpenRouter.</p>
+      <p>The strength of this case is that it does not fall apart into &ldquo;a shop&rdquo; and &ldquo;automation&rdquo; separately. Here it is exactly one e-commerce circuit: moving the catalogue, restoring operational stability, connecting payments and then turning the catalogue into a living content stream.</p>
+
+      <h3>The automatic Telegram channel of &ldquo;Chertezhi&rdquo;</h3>
+      <p>After the store moved to WooCommerce it became logical not only to maintain the catalogue but also to use it as a source for an automatic content circuit. A workflow was assembled that takes product data from the store, processes it and publishes it to a Telegram channel without manually rewriting product cards or doing constant routine work. This line inside the case belongs to 2025.</p>
+      <p><code>n8n</code> and <code>Google Sheets</code> were used to manage the logic and the queue, and an LLM via <code>OpenRouter</code> — specifically <code>DeepSeek</code> — was connected to rewrite descriptions and bring them into the required format. The AI part helped to form the text, links and hashtags correctly.</p>
+      <p>This is no longer just a CMS migration but the transformation of a static product catalogue into a regularly updated media stream. The AI is built not into an abstract &ldquo;demo project&rdquo; but into a real operational task of the store.</p>
+
+      <h2>What I did personally</h2>
+      <ul>
+        <li>Moved an e-commerce project between CMS platforms</li>
+        <li>Worked with a digital product catalogue</li>
+        <li>Programmatically exported and moved a large volume of digital items out of the old OpenCart</li>
+        <li>Set up the payment integration after the move</li>
+        <li>Set up the automation of the content channel for <code>Chertezhi</code></li>
+        <li>Worked with data from WooCommerce through the API</li>
+        <li>Assembled the <code>n8n</code> workflow that publishes to Telegram</li>
+        <li>Connected AI (DeepSeek via OpenRouter) to rewrite and format the posts</li>
+      </ul>
+
+      <h2>Stack</h2>
+      <ul>
+        <li>OpenCart</li>
+        <li>WooCommerce</li>
+        <li>WordPress</li>
+        <li>n8n</li>
+        <li>Google Sheets</li>
+        <li>WooCommerce API</li>
+        <li>OpenRouter / DeepSeek</li>
+        <li>Telegram</li>
+      </ul>
+
+      <h2>Skills</h2>
+      <ul>
+        <li>e-commerce migration</li>
+        <li>maintaining and rebuilding an online store</li>
+        <li>working with content and a catalogue</li>
+        <li>automating the marketing and content circuit</li>
+        <li>joining a catalogue with a content channel</li>
+        <li>practical application of LLMs to operational tasks</li>
+        <li>low-code / no-code integrations</li>
+      </ul>
+
+      <h2>Result</h2>
+      <p>The case records experience with e-commerce, platform migration and content automation. Its essence is not only the change of CMS but the fact that a large old catalogue of digital goods was pulled out, moved into a new system, given payments and then launched into automatic AI maintenance of the store&rsquo;s channel.</p>
+      <p>Within the project a working Telegram channel was created for <code>Chertezhi</code>, filled automatically from the store catalogue. AI (DeepSeek via OpenRouter) was used to rewrite and format content for publication, and the automation through <code>n8n</code> + <code>Google Sheets</code> cut down the manual work with a catalogue of digital goods. The result is a channel that turns a static catalogue into a regularly updated stream of content.</p>
+      <p>What I like about it for the portfolio is one simple thing: this is not a neural-network trick made for a pretty case but a real applied build, where an old digital asset did not die but received new infrastructure and a new way of working for the project.</p>
+
+      <h2>Links</h2>
+      <ul>
+        <li><a href="https://kupi-chertezh.ru/">https://kupi-chertezh.ru/</a></li>
+      </ul>
+
+      <p class="entry-original"><a class="text-link" href="/works/chertezhi-tekhdiplomy/">Original (Russian) →</a></p>
+    </div>
+  </article>
+</Base>

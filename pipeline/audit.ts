@@ -7,7 +7,10 @@ import { readPublications } from "./enrichment/prepare";
 
 const input = process.argv[2] ?? "pipeline/telegram/archive/canonical.json";
 const sourceRoot = process.argv[3] ? resolve(process.argv[3]) : undefined;
-const enrichmentPath = process.argv[4] ?? "pipeline/enrichment/generated/full.json";
+/* The archived gate tracks drift against the full LLM bundle; the materialized
+   gate verifies the parity of what materialize actually consumed — the local
+   bundle — so the two modes must not silently compare against different sets. */
+const enrichmentPath = process.argv[4] ?? (existsSync(resolve(input)) ? "pipeline/enrichment/generated/full.json" : "pipeline/enrichment/generated/telegram.json");
 
 function frontmatterList(raw: string, key: string): string[] {
   const match = raw.match(new RegExp("^" + key + ": (.*)$", "m"));

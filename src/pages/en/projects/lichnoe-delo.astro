@@ -1,0 +1,102 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+
+/* The structural facts stay bound to the Russian entry — status, domains and the
+   update date are read from the collection, never retyped for the translation. */
+const source = (await getCollection("projects")).find((item) => item.data.id === "project:lichnoe-delo");
+const statusLabels: Record<string, string> = { idea: "Idea", planned: "Planned", development: "In development", active: "Active", paused: "Paused", completed: "Completed", archived: "Archived" };
+const domainLabels: Record<string, string> = { ai: "AI", memory: "Memory", identity: "Identity", research: "Research", "media-art": "Media art" };
+const status = source ? statusLabels[source.data.status] ?? source.data.status : "Idea";
+const domains = source?.data.domains.map((domain) => domainLabels[domain] ?? domain) ?? [];
+const updated = source?.data.updated ? new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric" }).format(source.data.updated) : "";
+
+const pageTitle = "Personal File — a description of a person written by a machine";
+const description = "A work about what happens when a machine writes a person’s description — from their own words, with their consent — and that description then affects the person themselves.";
+const projectJsonLd = {
+  "@type": "CreativeWork",
+  "@id": new URL("/en/projects/lichnoe-delo/#content", Astro.site).href,
+  url: new URL("/en/projects/lichnoe-delo/", Astro.site).href,
+  name: "Personal File",
+  alternateName: "Личное дело",
+  headline: "Personal File",
+  description,
+  inLanguage: "en",
+  author: { "@id": new URL("/#stanislav-ermolenko", Astro.site).href },
+  isPartOf: { "@id": new URL("/#website", Astro.site).href },
+  ...(source?.data.updated ? { dateModified: source.data.updated.toISOString() } : {}),
+};
+---
+<Base title={pageTitle} description={description} lang="en" jsonLd={projectJsonLd}>
+  <article class="entry-shell">
+    <header class="entry-hero">
+      <div class="entry-hero-meta"><span class="section-kicker">Own project · {status}</span></div>
+      <h1>Personal File</h1>
+      <p class="entry-summary">{description}</p>
+      <dl class="work-facts">
+        <div><dt>Status</dt><dd>{status}</dd></div>
+        <div><dt>Domains</dt><dd>{domains.join(" · ")}</dd></div>
+        {updated && <div><dt>Updated</dt><dd>{updated}</dd></div>}
+      </dl>
+    </header>
+    <div class="prose">
+      <h2>The essence</h2>
+      <p>My personal agent keeps an external memory about me. It records facts, generalisations and conclusions there: some of them psychological, some domestic rubbish. The records are loaded into every next conversation and influence the behaviour of the system: it suggests, warns or stays silent because it &ldquo;remembers&rdquo; something definite about me.</p>
+      <p>The question of the work is not whether I am being watched. The question is who is the author of what is known about me, if the author has become an algorithm and the material is myself; and what that description does to the person who reads it. The roles here have coincided: I am at the same time the operator of the observation, the object of the observation, the author of the material and the one who lives under this description.</p>
+
+      <h2>A concrete case</h2>
+      <p>I opened the file that my agent keeps and read a conclusion I had never formulated myself: &ldquo;his desire to systematise every area of life is held back by defence mechanisms. He automates, but he does not let automation erase his own voice.&rdquo; More precise than I would have put it myself.</p>
+      <p>Twenty lines further down, &ldquo;a moderator with six reviews&rdquo; and the address of a parcel pickup point lay there as information about me of equal standing. Next to them, a record saying that my automation for clearing tasks does not work and that it worries me. A technical bug turned into a character trait. I keep this specific detail deliberately: it makes the project verifiable rather than abstract.</p>
+      <p><em>A screenshot of the agent&rsquo;s external memory, from the caption in the <a href="https://t.me/staniverse/1162">announcement post</a>: &ldquo;Inspiration from Hermes + Honcho.&rdquo;</em></p>
+
+      <h2>The material</h2>
+      <p>The work rests on real records from my system since 2026: saved conclusions about me, notes, the calendar, tasks, data about my body and sleep, correspondence with agents. This is not a shop window arranged with hindsight but a layer that I use every day and that keeps filling up while the work is being made. Part of the material needs editing — third parties, health, things that are close to me. That is not a technical obstacle but the ethical part of the project.</p>
+
+      <h2>Mechanics</h2>
+      <ul>
+        <li><strong>The register of statements about myself.</strong> Every saved statement, and next to it the phrase of mine it grew out of. You can see the divergence between what was said and what was written down, and it can be unpleasant.</li>
+        <li><strong>Status and trace.</strong> Accept, contest, delete — and what happens afterwards: what the system remembers as accepted, what it ignores, what it rewrites on its own.</li>
+        <li><strong>The right to be forgotten as an interface.</strong> An attempt to delete a record and an honest report about what is left. Machine forgetting is arranged so that the deleted is recognised by its traces, which is why deletion here is a negotiation rather than a service.</li>
+        <li><strong>Counters of bets that came true.</strong> Every conclusion is a bet on how I will act. The register shows how many times the description turned out to be right, how many times it was wrong, how many times I corrected it. It is a prediction market about me without a poll, but with a history of results — and that history is not in my favour.</li>
+        <li><strong>An audit without access to the records.</strong> What can be established about a person without reading their files — from the way the system changes its behaviour because of what it stores.</li>
+        <li><strong>Publication as an interface.</strong> The work lives online and changes while I live with the system, instead of turning into a fixed picture.</li>
+      </ul>
+
+      <h2>The second circuit</h2>
+      <p>The same mechanism turns on the visitor. Agents on the page record what he rereads, where he lingered, what of my register they would say about him too. A few minutes later he receives his own &ldquo;preliminary file&rdquo; in the same language as my register: part of it is true, part of it is rubbish, part of it are conclusions he never formulated. With his portrait he can do the same as I do with mine: accept it, contest it, try to delete it and honestly see what is left. The shared counter of portraits that came true and were contested is arranged the same way as mine.</p>
+
+      <h2>The application</h2>
+      <p>This is an application to the online laboratory of the New Media programme at the Garage Museum of Contemporary Art. Stage: the application has been submitted, the work is at the stage of a draft of the mechanics. The request to the laboratory is for a form, a conversation and frameworks, not for material or code: how to show something like this without sliding into a confession, a diary of self-observation or a demonstration of the stack. If the form does not come together within three months, the honest result is a protocol and a working fragment rather than a finished work.</p>
+
+      <h2>Context and frameworks</h2>
+      <ul>
+        <li><strong>Lynn Hershman Leeson, &ldquo;Roberta Breitmore&rdquo; (1973–1978).</strong> A person became real through documents about them. The difference is that today the document is constantly rewritten and changes the behaviour of the system.</li>
+        <li><strong>Jennifer Lynne Morone™ Inc (2013 — present).</strong> Data as property and commodity; what interests me is the appropriation of meaning, not the collection of data.</li>
+        <li><strong>Kosinski, Stillwell, Graepel, PNAS 2013.</strong> Sensitive traits of a person are predicted from digital traces, and mistaken predictions work too.</li>
+        <li><strong>&ldquo;The Algorithmic Self-Portrait&rdquo; (ACM Web Conference 2026).</strong> 2,050 memory records from 80 users: 96% of the records were created by the system unilaterally, 52% contain psychological conclusions. This is the same phenomenon in data; I can show what living with it looks like when the record is wrong.</li>
+        <li><strong>UMPeek (2026).</strong> The hidden user model is reconstructed from the visible choices of the agent, even when the records are closed: privacy by records and privacy by behaviour are different things.</li>
+        <li><strong>Machine unlearning, FUMA and &ldquo;Unlearned but Not Forgotten&rdquo; (2025).</strong> What has been forgotten is recognised by residual traces; hence the understanding of deletion as a negotiation.</li>
+        <li><strong>The local field.</strong> Yuri Chernyshev, &ldquo;Это не я&rdquo; (It&rsquo;s Not Me); Polina Savina, &ldquo;Самозванцы&rdquo; (Impostors); Elena Demidova and Maxim Kalmykov, &ldquo;Нейрочадо 2.0&rdquo; (Neurochild 2.0). These works are about the image and about what is desired; what interests me is what has accumulated and been appropriated.</li>
+      </ul>
+
+      <h2>Constraints</h2>
+      <ul>
+        <li>Working with personal data means editing and losing part of the material: not everything strong can be shown.</li>
+        <li>The genre of &ldquo;an artist showing their data&rdquo; already exists, so the difference has to be in the mechanics: in my case what works is a description that influences the next conversation, not an archive of the past.</li>
+        <li>The expected objection to the second circuit is that it is simply behavioural analytics turned on the viewer.</li>
+        <li>There is no option to refuse without closing the page, just as there is none in the systems this work is about. The only honest offer of refusal is that the refusal is recorded too.</li>
+      </ul>
+
+      <h2>Next</h2>
+      <p>The next entry point of the same question is a bodily circuit in a headset. A conclusion the person never formulated is assembled from behaviour: what the gaze lingered on, where they stood longer, what they hesitated in front of. The right to be forgotten becomes more unpleasant there: a record can be erased, but a movement that has already happened cannot. For me this is not a separate project about XR but the same question at another entry point, and I would like to test it right here.</p>
+
+      <h2>Links</h2>
+      <ul>
+        <li><a href="https://t.me/staniverse/1162">The announcement post &ldquo;Personal File&rdquo; on Telegram</a></li>
+        <li><a href="https://t.me/staniverse">My own channel</a></li>
+      </ul>
+
+      <p class="entry-original"><a class="text-link" href="/projects/lichnoe-delo/">Original (Russian) →</a></p>
+    </div>
+  </article>
+</Base>

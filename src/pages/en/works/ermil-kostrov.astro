@@ -1,0 +1,106 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+
+/* The structural facts stay bound to the Russian entry — status, year, role, client
+   and genres are read from the collection, never retyped for the translation. */
+const source = (await getCollection("works")).find((item) => item.data.id === "work:ermil-kostrov");
+const statusLabels: Record<string, string> = { ongoing: "Ongoing", completed: "Completed" };
+const genreLabels: Record<string, string> = { video: "Video", animation: "Animation" };
+const status = source ? statusLabels[source.data.status] ?? source.data.status : "Completed";
+const genres = source?.data.genres.map((genre) => genreLabels[genre] ?? genre) ?? [];
+/* Role and client reach the page from the collection in Russian, so their translation
+   is keyed to the exact source fragments: anything unmatched falls back to the source. */
+const roleLabels: Record<string, string> = {
+  "Саунд-дизайн: звуковая среда, эффекты, атмосфера": "Sound design: sound environment, effects, atmosphere",
+  "Подбор музыкальных композиций": "Selecting music tracks",
+  "Запись и обработка войсовера": "Recording and processing the voice-over",
+};
+const clientLabels: Record<string, string> = { "Слободской музейно-выставочный центр": "Slobodskoy Museum and Exhibition Centre", };
+const year = source ? String(source.data.year).trim() : "";
+const role = (source?.data.role ?? "").split("; ").map((part) => roleLabels[part.trim()] ?? part.trim()).join(" · ");
+const client = clientLabels[source?.data.client ?? ""] ?? source?.data.client ?? "";
+
+const pageTitle = "Ermil Kostrov — sound design and editing for an animated short film";
+const description = "Create the complete sound environment and edit an animated short film about the poet Ermil Kostrov — an outstanding native of the Kirov region and the first translator of the Iliad into Russian. The work covered the whole sound layer of the film, from sound design to the voice-over recording and the final edit.";
+const workJsonLd = {
+  "@type": "CreativeWork",
+  "@id": new URL("/en/works/ermil-kostrov/#content", Astro.site).href,
+  url: new URL("/en/works/ermil-kostrov/", Astro.site).href,
+  name: "Ermil Kostrov",
+  headline: "Ermil Kostrov",
+  description,
+  inLanguage: "en",
+  author: { "@id": new URL("/#stanislav-ermolenko", Astro.site).href },
+  isPartOf: { "@id": new URL("/#website", Astro.site).href },
+  ...(source?.data.updated ? { dateModified: source.data.updated.toISOString() } : {}),
+};
+---
+<Base title={pageTitle} description={description} lang="en" jsonLd={workJsonLd}>
+  <article class="entry-shell">
+    <header class="entry-hero">
+      <div class="entry-hero-meta"><span class="section-kicker">Work · {status}</span></div>
+      <h1>Ermil Kostrov</h1>
+      <p class="entry-summary">{description}</p>
+      <dl class="work-facts">
+        {year && <div><dt>Year</dt><dd>{year}</dd></div>}
+        {role && <div><dt>Role</dt><dd>{role}</dd></div>}
+        {client && <div><dt>Client</dt><dd>{client}</dd></div>}
+        {genres.length > 0 && <div><dt>Genres</dt><dd>{genres.join(" · ")}</dd></div>}
+      </dl>
+    </header>
+    <div class="prose">
+      <h2>The brief</h2>
+      <p>Create the complete sound environment and edit an animated short film about the poet Ermil Kostrov — an outstanding native of the Kirov region and the first translator of the <em>Iliad</em> into Russian.</p>
+
+      <h2>Context</h2>
+      <p>The animated film &ldquo;Ermil Kostrov&rdquo; was created on the initiative of the Slobodskoy Museum and Exhibition Centre by students and staff of VyatSU and the Vyatka Art College. The director, scriptwriter and artist was Maxim Naumov, and the film was voiced by Alexander Korolevsky, an actor of the Kirov &ldquo;Theatre on Spasskaya&rdquo;. The film runs for about five minutes and tells the story of the difficult life of the poet, a native of the village of Sinegorye in the Nagorsky district. Kostrov was the first in Russia to translate Homer&rsquo;s <em>Iliad</em> and Apuleius&rsquo;s <em>Golden Ass</em> into Russian, Catherine II admired his works, and Pushkin devoured his translations. <a href="https://www.kirov.kp.ru/daily/27451/4704667/">Komsomolskaya Pravda</a> wrote about the project.</p>
+
+      <iframe src="https://vk.com/video_ext.php?oid=-163594633&id=456239133&hash=83dd5db2f25bb7bb" width="640" height="360" frameborder="0" allowfullscreen="1" style="background-color: #000" allow="autoplay; encrypted-media; fullscreen; picture-in-picture"></iframe>
+
+      <h2>Solution</h2>
+      <p>Full responsibility for the entire sound component of the film and for the final edit. The work included:</p>
+      <ul>
+        <li>Sound design — creating the sound environment, atmosphere and effects</li>
+        <li>Selecting music tracks that shape the emotional rhythm of the film</li>
+        <li>Recording and processing the voice-over — working with the voice recording of Alexander Korolevsky</li>
+        <li>Editing — assembling the animated material into a single piece with the right rhythm and dynamics</li>
+      </ul>
+
+      <h2>What I did personally</h2>
+      <ul>
+        <li>Sound design: sound environment, effects, atmosphere</li>
+        <li>Selecting music tracks</li>
+        <li>Recording and processing the voice-over</li>
+        <li>Editing the animated material</li>
+      </ul>
+
+      <h2>Stack</h2>
+      <ul>
+        <li>sound design</li>
+        <li>editing</li>
+        <li>voice recording and processing</li>
+        <li>post-production</li>
+      </ul>
+
+      <h2>Skills</h2>
+      <ul>
+        <li>audio-visual dramaturgy</li>
+        <li>working with rhythm and scene structure</li>
+        <li>sound design for animation</li>
+        <li>recording and processing vocals and voice-over</li>
+      </ul>
+
+      <h2>Result</h2>
+      <p>The animated film &ldquo;Ermil Kostrov&rdquo; is an educational project telling the story of an outstanding local figure. The premiere went well, and the people of Kirov rated the work highly. The case demonstrates a full cycle of work with sound in an animated project — from sound design to recording and processing the voice-over.</p>
+
+      <h2>Links</h2>
+      <ul>
+        <li><a href="https://web.archive.org/web/20250424215724/https://vk.com/video-163594633_456239133">https://web.archive.org/web/20250424215724/https://vk.com/video-163594633_456239133</a></li>
+        <li><a href="https://www.kirov.kp.ru/daily/27451/4704667/">https://www.kirov.kp.ru/daily/27451/4704667/</a></li>
+      </ul>
+
+      <p class="entry-original"><a class="text-link" href="/works/ermil-kostrov/">Original (Russian) →</a></p>
+    </div>
+  </article>
+</Base>

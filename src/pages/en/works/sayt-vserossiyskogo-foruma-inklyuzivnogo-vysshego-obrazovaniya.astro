@@ -1,0 +1,100 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+
+/* The structural facts stay bound to the Russian entry — status, year, client, role
+   and genres are read from the collection, never retyped for the translation. */
+const source = (await getCollection("works")).find((item) => item.data.id === "work:sayt-vserossiyskogo-foruma-inklyuzivnogo-vysshego-obrazovaniya");
+const statusLabels: Record<string, string> = { ongoing: "Ongoing", completed: "Completed" };
+const genreLabels: Record<string, string> = { web: "Web", education: "Education", community: "Community" };
+/* The catalogue stores these two fields in Russian; the page only relabels the values
+   it is given — an unmapped fragment would fall through in the original wording. */
+const clientLabels: Record<string, string> = { "ВятГУ": "VyatSU" };
+const roleLabels: Record<string, string> = {
+  "Разрабатывал сайт форума": "Developed the forum website",
+  "Работал с университетским/событийным контекстом": "Worked within the university and event context",
+  "Собирал сценарий регистрации и информационного сопровождения форума": "Assembled the registration and information support scenario for the forum",
+};
+const status = source ? statusLabels[source.data.status] ?? source.data.status : "Completed";
+const genres = source?.data.genres.map((genre) => genreLabels[genre] ?? genre) ?? [];
+const year = source ? String(source.data.year).trim() : "";
+const role = source ? source.data.role.split("; ").map((item) => roleLabels[item] ?? item).join(" · ") : "";
+const client = source?.data.client ? clientLabels[source.data.client] ?? source.data.client : "";
+
+const pageTitle = "Website for the All-Russian Forum on Inclusive Higher Education — a nationwide event online";
+const description = "Assemble the website of a nationwide event for VyatSU that packages the forum programme and works as a clear entry point for participants.";
+const workJsonLd = {
+  "@type": "CreativeWork",
+  "@id": new URL("/en/works/sayt-vserossiyskogo-foruma-inklyuzivnogo-vysshego-obrazovaniya/#content", Astro.site).href,
+  url: new URL("/en/works/sayt-vserossiyskogo-foruma-inklyuzivnogo-vysshego-obrazovaniya/", Astro.site).href,
+  name: "Website for the All-Russian Forum on Inclusive Higher Education",
+  headline: "Website for the All-Russian Forum on Inclusive Higher Education",
+  description,
+  inLanguage: "en",
+  author: { "@id": new URL("/#stanislav-ermolenko", Astro.site).href },
+  isPartOf: { "@id": new URL("/#website", Astro.site).href },
+  ...(source?.data.updated ? { dateModified: source.data.updated.toISOString() } : {}),
+};
+---
+<Base title={pageTitle} description={description} lang="en" jsonLd={workJsonLd}>
+  <article class="entry-shell">
+    <header class="entry-hero">
+      <div class="entry-hero-meta"><span class="section-kicker">Work · {status}</span></div>
+      <h1>Website for the All-Russian Forum on Inclusive Higher Education</h1>
+      <p class="entry-summary">{description}</p>
+      <dl class="work-facts">
+        {year && <div><dt>Year</dt><dd>{year}</dd></div>}
+        {role && <div><dt>Role</dt><dd>{role}</dd></div>}
+        {client && <div><dt>Client</dt><dd>{client}</dd></div>}
+        {genres.length > 0 && <div><dt>Genres</dt><dd>{genres.join(" · ")}</dd></div>}
+      </dl>
+    </header>
+    <div class="prose">
+      <h2>The brief</h2>
+      <p>Assemble the website of a nationwide event for VyatSU that packages the forum programme and works as a clear entry point for participants.</p>
+
+      <h2>Context</h2>
+      <p>The case is on the short list of works I put forward as portfolio examples. What matters for it is not only web development but also a social function: the website worked on the topic of inclusive higher education and helped spread practical solutions across the country.</p>
+
+      <h2>Solution</h2>
+      <p>A website for the inclusive higher education forum was developed on <code>Tilda</code>. During the forum itself the website ran a registration form complying with the required personal data rules, the programme and the live streams. After the forum ended the streams were arranged into an archival format.</p>
+      <p>A separate important part of the project was the shop of boxed solutions from the RUMC: users from different regions could choose the solution they were interested in and receive by email a contact for getting in touch and discussing its implementation.</p>
+      <p>For me this is also a good example of the fact that in web projects I work not only with the visual and technical side. Here I also had to think about compliance: how registration is arranged, where the boundary of personal data processing lies, which consents and texts must accompany the form — so that the website is not only convenient but also correct under the requirements.</p>
+
+      <h2>What I did personally</h2>
+      <ul>
+        <li>Developed the forum website</li>
+        <li>Worked within the university and event context</li>
+        <li>Assembled the registration and information support scenario for the forum</li>
+        <li>Supported the transition from the live mode of the forum to an archive of materials</li>
+        <li>Took account of the legal circuit of registration and personal data processing</li>
+      </ul>
+
+      <h2>Stack</h2>
+      <ul>
+        <li>Tilda</li>
+        <li>registration forms</li>
+        <li>video / an archive of streams</li>
+      </ul>
+
+      <h2>Skills</h2>
+      <ul>
+        <li>event website</li>
+        <li>working with an academic context</li>
+        <li>quickly packaging a complex programme into a clear structure</li>
+        <li>socially oriented service web</li>
+        <li>basic design of a compliance layer for forms and registrations</li>
+      </ul>
+
+      <h2>Result</h2>
+      <p>The website became one of the selected portfolio cases and shows experience of working with educational and institutional events. It is especially valuable because it combined an event mode, an archival mode, a practical tool for spreading boxed solutions on inclusion and careful work with the registration and legal circuit.</p>
+
+      <h2>Links</h2>
+      <ul>
+        <li><a href="https://forum.vyatsu.ru/">https://forum.vyatsu.ru/</a></li>
+      </ul>
+
+      <p class="entry-original"><a class="text-link" href="/works/sayt-vserossiyskogo-foruma-inklyuzivnogo-vysshego-obrazovaniya/">Original (Russian) →</a></p>
+    </div>
+  </article>
+</Base>

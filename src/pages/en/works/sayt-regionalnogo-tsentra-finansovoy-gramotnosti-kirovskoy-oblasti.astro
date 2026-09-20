@@ -1,0 +1,102 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+
+/* The structural facts stay bound to the Russian entry — status, year, client, role
+   and genres are read from the collection, never retyped for the translation. */
+const source = (await getCollection("works")).find((item) => item.data.id === "work:sayt-regionalnogo-tsentra-finansovoy-gramotnosti-kirovskoy-oblasti");
+const statusLabels: Record<string, string> = { ongoing: "Ongoing", completed: "Completed" };
+const genreLabels: Record<string, string> = { web: "Web", education: "Education" };
+/* The catalogue stores these two fields in Russian; the page only relabels the values
+   it is given — an unmapped fragment would fall through in the original wording. */
+const clientLabels: Record<string, string> = { "Региональный центр финансовой грамотности Кировской области": "Regional Centre for Financial Literacy of the Kirov region" };
+const roleLabels: Record<string, string> = {
+  "Проектировал и собирал сайт": "Designed and assembled the website",
+  "Делал дизайн и техническую реализацию": "Did the design and the technical implementation",
+  "Настраивал сценарии интеграции и уведомлений": "Set up the integration and notification scenarios",
+};
+const status = source ? statusLabels[source.data.status] ?? source.data.status : "Completed";
+const genres = source?.data.genres.map((genre) => genreLabels[genre] ?? genre) ?? [];
+const year = source ? String(source.data.year).trim() : "";
+const role = source ? source.data.role.split("; ").map((item) => roleLabels[item] ?? item).join(" · ") : "";
+const client = source?.data.client ? clientLabels[source.data.client] ?? source.data.client : "";
+
+const pageTitle = "Website for the Regional Centre for Financial Literacy of the Kirov region — an information service with a social function";
+const description = "Build an official website for the regional financial literacy centre that works as a clear information hub for the residents of the Kirov region and as a working tool for collecting enquiries and applications.";
+const workJsonLd = {
+  "@type": "CreativeWork",
+  "@id": new URL("/en/works/sayt-regionalnogo-tsentra-finansovoy-gramotnosti-kirovskoy-oblasti/#content", Astro.site).href,
+  url: new URL("/en/works/sayt-regionalnogo-tsentra-finansovoy-gramotnosti-kirovskoy-oblasti/", Astro.site).href,
+  name: "Website for the Regional Centre for Financial Literacy of the Kirov region",
+  headline: "Website for the Regional Centre for Financial Literacy of the Kirov region",
+  description,
+  inLanguage: "en",
+  author: { "@id": new URL("/#stanislav-ermolenko", Astro.site).href },
+  isPartOf: { "@id": new URL("/#website", Astro.site).href },
+  ...(source?.data.updated ? { dateModified: source.data.updated.toISOString() } : {}),
+};
+---
+<Base title={pageTitle} description={description} lang="en" jsonLd={workJsonLd}>
+  <article class="entry-shell">
+    <header class="entry-hero">
+      <div class="entry-hero-meta"><span class="section-kicker">Work · {status}</span></div>
+      <h1>Website for the Regional Centre for Financial Literacy of the Kirov region</h1>
+      <p class="entry-summary">{description}</p>
+      <dl class="work-facts">
+        {year && <div><dt>Year</dt><dd>{year}</dd></div>}
+        {role && <div><dt>Role</dt><dd>{role}</dd></div>}
+        {client && <div><dt>Client</dt><dd>{client}</dd></div>}
+        {genres.length > 0 && <div><dt>Genres</dt><dd>{genres.join(" · ")}</dd></div>}
+      </dl>
+    </header>
+    <div class="prose">
+      <h2>The brief</h2>
+      <p>Build an official website for the regional financial literacy centre that works as a clear information hub for the residents of the Kirov region and as a working tool for collecting enquiries and applications.</p>
+
+      <h2>Context</h2>
+      <p>This is not just a promo website but a useful service resource with a social function. It had to explain a complex topic in plain language and at the same time support the work of the centre through forms, applications and notifications.</p>
+      <p>The client was connected to the Ministry of Finance circuit. That adds weight to the case as work with institutional and educational subject matter, but with the current density of material it is reasonable to keep it in the story rather than among the featured items.</p>
+
+      <h2>Solution</h2>
+      <p>The website was assembled on <code>Tilda</code>. Beyond the design and the technical implementation, the integration scenarios matter in this case: applications and registrations could be pushed into a CRM, and notifications about new enquiries sent to <code>Telegram</code> and <code>Google Sheets</code>.</p>
+      <p>Thanks to that the website played two roles at once: an external one, as a public entry point for the audience, and an internal one, as a working tool for handling interest and enquiries.</p>
+      <p>The legal layer of working with websites showed up separately here as well: when a project has forms, applications, analytics and integrations, you need to understand not only where the data goes but also how it is explained to the user, which consents are collected and how compatible all of it is with local personal data requirements.</p>
+
+      <h2>What I did personally</h2>
+      <ul>
+        <li>Designed and assembled the website</li>
+        <li>Did the design and the technical implementation</li>
+        <li>Set up the integration and notification scenarios</li>
+        <li>Worked with an information website in a social and educational subject area</li>
+        <li>Took account of the requirements for collecting and transferring personal data in web forms</li>
+      </ul>
+
+      <h2>Stack</h2>
+      <ul>
+        <li>Tilda</li>
+        <li>CRM integrations</li>
+        <li>Telegram notifications</li>
+        <li>Google Sheets</li>
+      </ul>
+
+      <h2>Skills</h2>
+      <ul>
+        <li>designing information service websites</li>
+        <li>automating web forms</li>
+        <li>clearly packaging a complex topic</li>
+        <li>connecting a website with operational processes</li>
+        <li>basic compliance logic for web projects with forms and analytics</li>
+      </ul>
+
+      <h2>Result</h2>
+      <p>The outcome is a working website for the regional centre that is not limited to publishing materials but is built into the practical work with enquiries and registrations. For the portfolio this is a strong case at the junction of Tilda development and applied automation.</p>
+
+      <h2>Links</h2>
+      <ul>
+        <li><a href="https://rcfg43.ru/">https://rcfg43.ru/</a></li>
+      </ul>
+
+      <p class="entry-original"><a class="text-link" href="/works/sayt-regionalnogo-tsentra-finansovoy-gramotnosti-kirovskoy-oblasti/">Original (Russian) →</a></p>
+    </div>
+  </article>
+</Base>

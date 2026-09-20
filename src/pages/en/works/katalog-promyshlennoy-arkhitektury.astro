@@ -1,0 +1,101 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+
+/* The structural facts stay bound to the Russian entry — status, year, role, client
+   and genres are read from the collection, never retyped for the translation. */
+const source = (await getCollection("works")).find((item) => item.data.id === "work:katalog-promyshlennoy-arkhitektury");
+const statusLabels: Record<string, string> = { ongoing: "Ongoing", completed: "Completed" };
+const genreLabels: Record<string, string> = { web: "Web", community: "Community", heritage: "Heritage" };
+const status = source ? statusLabels[source.data.status] ?? source.data.status : "Completed";
+const genres = source?.data.genres.map((genre) => genreLabels[genre] ?? genre) ?? [];
+/* Role and client reach the page from the collection in Russian, so their translation
+   is keyed to the exact source fragments: anything unmatched falls back to the source. */
+const roleLabels: Record<string, string> = {
+  "Разработка на WordPress: каталог, личный кабинет, формы": "WordPress development: the catalogue, the personal account area, the forms",
+  "Интеграция Telegram-бота для уведомлений администраторов": "Integration of the Telegram bot for administrator notifications",
+  "Проектирование структуры каталога и карточек объектов": "Designing the structure of the catalogue and of the object records",
+};
+const clientLabels: Record<string, string> = { "Водонапорная башня Слободского": "Slobodskoy Water Tower", };
+const year = source ? String(source.data.year).trim() : "";
+const role = (source?.data.role ?? "").split("; ").map((part) => roleLabels[part.trim()] ?? part.trim()).join(" · ");
+const client = clientLabels[source?.data.client ?? ""] ?? source?.data.client ?? "";
+
+const pageTitle = "Catalogue of industrial architecture — an open catalogue for local historians and museums";
+const description = "Create a digital catalogue of industrial architecture monuments of the Kirov region on the website of the Slobodskoy water tower (slbtower.ru). The catalogue has to be open for local history museums and activists to add to.";
+const workJsonLd = {
+  "@type": "CreativeWork",
+  "@id": new URL("/en/works/katalog-promyshlennoy-arkhitektury/#content", Astro.site).href,
+  url: new URL("/en/works/katalog-promyshlennoy-arkhitektury/", Astro.site).href,
+  name: "Catalogue of industrial architecture",
+  headline: "Catalogue of industrial architecture",
+  description,
+  inLanguage: "en",
+  author: { "@id": new URL("/#stanislav-ermolenko", Astro.site).href },
+  isPartOf: { "@id": new URL("/#website", Astro.site).href },
+  ...(source?.data.updated ? { dateModified: source.data.updated.toISOString() } : {}),
+};
+---
+<Base title={pageTitle} description={description} lang="en" jsonLd={workJsonLd}>
+  <article class="entry-shell">
+    <header class="entry-hero">
+      <div class="entry-hero-meta"><span class="section-kicker">Work · {status}</span></div>
+      <h1>Catalogue of industrial architecture</h1>
+      <p class="entry-summary">{description}</p>
+      <dl class="work-facts">
+        {year && <div><dt>Year</dt><dd>{year}</dd></div>}
+        {role && <div><dt>Role</dt><dd>{role}</dd></div>}
+        {client && <div><dt>Client</dt><dd>{client}</dd></div>}
+        {genres.length > 0 && <div><dt>Genres</dt><dd>{genres.join(" · ")}</dd></div>}
+      </dl>
+    </header>
+    <div class="prose">
+      <h2>The brief</h2>
+      <p>Create a digital catalogue of industrial architecture monuments of the Kirov region on the website of the Slobodskoy water tower (slbtower.ru). The catalogue has to be open for local history museums and activists to add to.</p>
+
+      <h2>Context</h2>
+      <p>The project was delivered with the support of the Potanin Foundation. A catalogue of industrial architecture appeared on the website of the Slobodskoy water tower — water towers, plants, factories and other objects of the region. The building records state the status (in use / under restoration / lost), the style, the year of construction and a gallery of images. Local history museums of the region&rsquo;s districts joined in filling the catalogue (the first was the Nolinsk Museum of History and Local Lore). Anyone can take part.</p>
+
+      <h2>Solution</h2>
+      <p>A catalogue was developed on WordPress. What was implemented:</p>
+      <ul>
+        <li>A personal account area for working with objects</li>
+        <li>A form for proposing a new object to the catalogue</li>
+        <li>Notifications for administrators through a Telegram bot when new proposals arrive</li>
+        <li>Building records with status, style, year of construction and a gallery of images</li>
+      </ul>
+
+      <h2>What I did personally</h2>
+      <ul>
+        <li>WordPress development: the catalogue, the personal account area, the forms</li>
+        <li>Integration of the Telegram bot for administrator notifications</li>
+        <li>Designing the structure of the catalogue and of the object records</li>
+      </ul>
+
+      <h2>Stack</h2>
+      <ul>
+        <li>WordPress</li>
+        <li>Telegram Bot API</li>
+        <li>the content structure of the catalogue</li>
+      </ul>
+
+      <h2>Skills</h2>
+      <ul>
+        <li>WordPress development</li>
+        <li>cataloguing and information architecture</li>
+        <li>integrating messengers into web projects</li>
+      </ul>
+
+      <h2>Result</h2>
+      <p>A tool was created for local historians and museums — an open catalogue that is filled by the community. The project was covered by <a href="https://kirov-grad.ru/news/v-kirovskoy-oblasti-sozdayut-katalog-pamyatnikov-promyshlennoy-arkhitektury/">kirov-grad.ru</a> and <a href="https://www.istochnik.online/news/v-kirove-poyavilsya-onlajn-katalog-promyshlennoj-arhitektury">istochnik.online</a>.</p>
+
+      <h2>Links</h2>
+      <ul>
+        <li><a href="https://slbtower.ru/industrial-buildings/">https://slbtower.ru/industrial-buildings/</a></li>
+        <li><a href="https://web.archive.org/web/20250424215724/https://slobtower.ru/industrial-buildings/">https://web.archive.org/web/20250424215724/https://slobtower.ru/industrial-buildings/</a></li>
+      </ul>
+
+      <p class="entry-original"><a class="text-link" href="/works/katalog-promyshlennoy-arkhitektury/">Original (Russian) →</a></p>
+    </div>
+  </article>
+</Base>

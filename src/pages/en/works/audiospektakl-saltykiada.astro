@@ -1,0 +1,104 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+
+/* The structural facts stay bound to the Russian entry — status, year, role, client
+   and genres are read from the collection, never retyped for the translation. */
+const source = (await getCollection("works")).find((item) => item.data.id === "work:audiospektakl-saltykiada");
+const statusLabels: Record<string, string> = { ongoing: "Ongoing", completed: "Completed" };
+const genreLabels: Record<string, string> = { audio: "Audio" };
+const status = source ? statusLabels[source.data.status] ?? source.data.status : "Completed";
+const genres = source?.data.genres.map((genre) => genreLabels[genre] ?? genre) ?? [];
+/* Role and client reach the page from the collection in Russian, so their translation
+   is keyed to the exact source fragments: anything unmatched falls back to the source. */
+const roleLabels: Record<string, string> = {
+  "Запись голосов актёров": "Recording the actors’ voices",
+  "Редактура и монтаж аудиоматериала": "Editing and assembling the audio material",
+  "Создание и подбор звуковых эффектов (SFX)": "Creating and selecting sound effects (SFX)",
+};
+const clientLabels: Record<string, string> = { "ВятГУ / Максим Наумов": "VyatSU / Maxim Naumov", };
+const year = source ? String(source.data.year).trim() : "";
+const role = (source?.data.role ?? "").split("; ").map((part) => roleLabels[part.trim()] ?? part.trim()).join(" · ");
+const client = clientLabels[source?.data.client ?? ""] ?? source?.data.client ?? "";
+
+const pageTitle = "Audio play “Saltykiada” — full-cycle audio production for a museum premiere";
+const description = "Deliver the full audio production of an audio play based on the works and the biography of M. E. Saltykov-Shchedrin: from recording the actors' voices to the final mastering. The recording became part of a large cultural project marking the 190th anniversary of the writer's birth.";
+const workJsonLd = {
+  "@type": "CreativeWork",
+  "@id": new URL("/en/works/audiospektakl-saltykiada/#content", Astro.site).href,
+  url: new URL("/en/works/audiospektakl-saltykiada/", Astro.site).href,
+  name: "Audio play “Saltykiada”",
+  headline: "Audio play “Saltykiada”",
+  description,
+  inLanguage: "en",
+  author: { "@id": new URL("/#stanislav-ermolenko", Astro.site).href },
+  isPartOf: { "@id": new URL("/#website", Astro.site).href },
+  ...(source?.data.updated ? { dateModified: source.data.updated.toISOString() } : {}),
+};
+---
+<Base title={pageTitle} description={description} lang="en" jsonLd={workJsonLd}>
+  <article class="entry-shell">
+    <header class="entry-hero">
+      <div class="entry-hero-meta"><span class="section-kicker">Work · {status}</span></div>
+      <h1>Audio play &ldquo;Saltykiada&rdquo;</h1>
+      <p class="entry-summary">{description}</p>
+      <dl class="work-facts">
+        {year && <div><dt>Year</dt><dd>{year}</dd></div>}
+        {role && <div><dt>Role</dt><dd>{role}</dd></div>}
+        {client && <div><dt>Client</dt><dd>{client}</dd></div>}
+        {genres.length > 0 && <div><dt>Genres</dt><dd>{genres.join(" · ")}</dd></div>}
+      </dl>
+    </header>
+    <div class="prose">
+      <h2>The brief</h2>
+      <p>Deliver the full audio production of an audio play based on the works and the biography of M. E. Saltykov-Shchedrin: from recording the actors&rsquo; voices to the final mastering.</p>
+
+      <h2>Context</h2>
+      <p>&ldquo;Saltykiada&rdquo; is a large cultural and educational project by Maxim Vladimirovich Naumov, a lecturer at VyatSU, marking the 190th anniversary of the birth of M. E. Saltykov-Shchedrin. The project brought together several formats: graphic works, a play, an audio play (2017), an animated short film and a puppet performance (2018).</p>
+      <p>Mikhail Evgrafovich Saltykov-Shchedrin is one of the main Russian satirists, exiled to Vyatka in 1848 &ldquo;for freethinking&rdquo; at the age of 22. He lived in the provincial town for seven years (1848–1855), and his impressions of provincial life became the basis of the famous &ldquo;Provincial Sketches&rdquo; and many other works. The coinage &ldquo;Saltykiada&rdquo; is Naumov&rsquo;s own play on words, joining the classic&rsquo;s name with the suffix -iad, which denotes a large-scale action.</p>
+      <p>The audio play, described as a &ldquo;phantasmagoric comedy based on the biography and works of Saltykov-Shchedrin&rdquo;, featured well-known figures of the city of Kirov: the Honoured Artist of the Russian Federation Alexander Korolevsky, the director of the Vyatka Art Museum Tatyana Mazur, the executive director of the radio station &ldquo;Maria FM&rdquo; Mikhail Lebedev, the news anchor Alexander Timshin and other media personalities. The director was Dmitry Isupov. The presentation took place on 21 April 2017 in the marble building of the Vyatka Art Museum.</p>
+      <p>The work was carried out as part of the Student Media Centre of VyatSU (2015–2023).</p>
+
+      <h2>Solution</h2>
+      <p>The full audio production cycle of the audio play: recording the actors&rsquo; voices, editing and assembling the audio material, creating and selecting sound effects (SFX), music design, the final mix and mastering.</p>
+      <p>For me this case matters as an early full-fledged practice of audio engineering — the skills laid down by the Berklee College of Music certificate courses (MB110x Introduction to the Music Business and BMPR365x Vocal Recording Technology, 2015) were applied here for the first time in a real production project with actors and complex dramaturgy.</p>
+
+      <h2>What I did personally</h2>
+      <ul>
+        <li>Recorded the actors&rsquo; voices</li>
+        <li>Edited and assembled the audio material</li>
+        <li>Created and selected sound effects (SFX)</li>
+        <li>Designed the music</li>
+        <li>Did the final mix and mastering</li>
+      </ul>
+
+      <h2>Stack</h2>
+      <ul>
+        <li>studio recording</li>
+        <li>sound design</li>
+        <li>audio editing</li>
+        <li>mastering</li>
+      </ul>
+
+      <h2>Skills</h2>
+      <ul>
+        <li>working with actors in the studio</li>
+        <li>recording and processing vocals and speech</li>
+        <li>sound design for dramatic works</li>
+        <li>audio-visual dramaturgy</li>
+        <li>mastering</li>
+      </ul>
+
+      <h2>Result</h2>
+      <p>The audio play was successfully presented on 21 April 2017 in the marble building of the Vyatka Art Museum. The recording became part of a large cultural project that also included the graphic exhibition &ldquo;Saltykiada. The story of one book&rdquo; (22 graphic works), an animated film and a puppet performance. Later, works from the &ldquo;Saltykiada&rdquo; cycle were donated to the M. E. Saltykov-Shchedrin house museum in Kirov.</p>
+      <p>For me this is one of the key early cases in audio production — the first experience of a full cycle of work with sound inside a real cultural project.</p>
+
+      <h2>Links</h2>
+      <ul>
+        <li><a href="https://media.vyatsu.ru/otherprojects/saltykiada">https://media.vyatsu.ru/otherprojects/saltykiada</a></li>
+      </ul>
+
+      <p class="entry-original"><a class="text-link" href="/works/audiospektakl-saltykiada/">Original (Russian) →</a></p>
+    </div>
+  </article>
+</Base>

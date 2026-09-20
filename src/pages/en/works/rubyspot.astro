@@ -1,0 +1,102 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+
+/* The structural facts stay bound to the Russian entry — status, year, client, role
+   and genres are read from the collection, never retyped for the translation. */
+const source = (await getCollection("works")).find((item) => item.data.id === "work:rubyspot");
+const statusLabels: Record<string, string> = { ongoing: "Ongoing", completed: "Completed" };
+const genreLabels: Record<string, string> = { web: "Web", xr: "XR" };
+/* The catalogue stores these two fields in Russian; the page only relabels the values
+   it is given — an unmapped fragment would fall through in the original wording. */
+const roleLabels: Record<string, string> = {
+  "Спроектировал структуру WebXR-сцены": "Designed the structure of the WebXR scene",
+  "Собрал сцену на A-Frame": "Built the scene in A-Frame",
+  "Настроил интеграцию демонстрационного видео": "Set up the demo video integration",
+};
+const status = source ? statusLabels[source.data.status] ?? source.data.status : "Completed";
+const genres = source?.data.genres.map((genre) => genreLabels[genre] ?? genre) ?? [];
+const year = source ? String(source.data.year).trim() : "";
+const role = source ? source.data.role.split("; ").map((item) => roleLabels[item] ?? item).join(" · ") : "";
+const client = source?.data.client ?? "";
+
+const pageTitle = "RubySpot — WebXR calling card for an immersive content studio";
+const description = "Quickly build a WebXR calling card for a studio that creates immersive content in game engines (Unreal Engine 5). The scene had to work for an event with potential investors and be available both in a flat browser and in VR mode on compatible headsets.";
+const workJsonLd = {
+  "@type": "CreativeWork",
+  "@id": new URL("/en/works/rubyspot/#content", Astro.site).href,
+  url: new URL("/en/works/rubyspot/", Astro.site).href,
+  name: "RubySpot",
+  headline: "RubySpot",
+  description,
+  inLanguage: "en",
+  author: { "@id": new URL("/#stanislav-ermolenko", Astro.site).href },
+  isPartOf: { "@id": new URL("/#website", Astro.site).href },
+  ...(source?.data.updated ? { dateModified: source.data.updated.toISOString() } : {}),
+};
+---
+<Base title={pageTitle} description={description} lang="en" jsonLd={workJsonLd}>
+  <article class="entry-shell">
+    <header class="entry-hero">
+      <div class="entry-hero-meta"><span class="section-kicker">Work · {status}</span></div>
+      <h1>RubySpot</h1>
+      <p class="entry-summary">{description}</p>
+      <dl class="work-facts">
+        {year && <div><dt>Year</dt><dd>{year}</dd></div>}
+        {role && <div><dt>Role</dt><dd>{role}</dd></div>}
+        {client && <div><dt>Client</dt><dd>{client}</dd></div>}
+        {genres.length > 0 && <div><dt>Genres</dt><dd>{genres.join(" · ")}</dd></div>}
+      </dl>
+    </header>
+    <div class="prose">
+      <h2>The brief</h2>
+      <p>Quickly build a WebXR calling card for a studio that creates immersive content in game engines (Unreal Engine 5). The scene had to be ready for an event with potential investors and to be available both in a flat browser and in VR mode on compatible headsets.</p>
+
+      <h2>Context</h2>
+      <p>RubySpot.xyz is a studio that shoots 360° video and assembles immersive content in Unreal Engine 5. For an event with investors it needed an interactive presentation that is not limited to an ordinary website or a PDF pitch, but lets people step into the atmosphere of the studio right in the browser or in VR.</p>
+      <p>The showing took place in the USA — an industry XR conference in Long Beach, June 2025; by dates and place this is AWE USA (10–12 June).</p>
+      <p><code>WebXR</code> as a format was a deliberate choice: it requires no app installation, works on any compatible device, and <code>A-Frame</code> makes it possible to assemble a scene within a tight deadline without heavy production.</p>
+
+      <h2>Solution</h2>
+      <p>The WebXR scene is assembled in <code>A-Frame</code>. A demo video showing the studio&rsquo;s capabilities is integrated into the scene. The scene is adapted for two modes: flat viewing through a browser and an immersive VR mode on compatible headsets.</p>
+
+      <h2>What I did personally</h2>
+      <ul>
+        <li>Designed the structure of the WebXR scene</li>
+        <li>Built the scene in A-Frame</li>
+        <li>Set up the demo video integration</li>
+        <li>Made sure it works both in flat mode and in VR</li>
+      </ul>
+
+      <h2>Stack</h2>
+      <ul>
+        <li>A-Frame</li>
+        <li>WebXR</li>
+      </ul>
+
+      <h2>Skills</h2>
+      <ul>
+        <li>WebXR development</li>
+        <li>fast assembly of interactive 3D scenes</li>
+        <li>the immersive web</li>
+        <li>presenting immersive content to investors</li>
+      </ul>
+
+      <h2>Result</h2>
+      <p>The outcome is a working WebXR calling card, available at rubyspot.xyz. The scene was used at an industry XR conference in the USA (Long Beach, June 2025), demonstrating the studio&rsquo;s approach to immersive content through the direct experience of immersion rather than a static presentation.</p>
+
+      <h2>Case video</h2>
+
+<video class="is-square" controls playsinline preload="metadata" src="/media/video/rubyspot-case.mp4">A recording of the RubySpot WebXR scene walkthrough in a headset</video>
+
+      <p>A recording of the scene in a headset: panels with studio content and the showreel, the demo environment and a model inside it. The frame is square — that is how the material was recorded.</p>
+
+      <h2>Links</h2>
+      <ul>
+        <li><a href="https://rubyspot.xyz">https://rubyspot.xyz</a></li>
+      </ul>
+
+      <p class="entry-original"><a class="text-link" href="/works/rubyspot/">Original (Russian) →</a></p>
+    </div>
+  </article>
+</Base>

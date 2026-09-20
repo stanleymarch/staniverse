@@ -1,0 +1,97 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+
+/* The structural facts stay bound to the Russian entry — status, year, role, client
+   and genres are read from the collection, never retyped for the translation. */
+const source = (await getCollection("works")).find((item) => item.data.id === "work:lending-prilozheniya-logoped-buduschego");
+const statusLabels: Record<string, string> = { ongoing: "Ongoing", completed: "Completed" };
+const genreLabels: Record<string, string> = { web: "Web", education: "Education" };
+const status = source ? statusLabels[source.data.status] ?? source.data.status : "Completed";
+const genres = source?.data.genres.map((genre) => genreLabels[genre] ?? genre) ?? [];
+/* Role and client reach the page from the collection in Russian, so their translation
+   is keyed to the exact source fragments: anything unmatched falls back to the source. */
+const roleLabels: Record<string, string> = {
+  "Продумывал структуру лендинга": "Thought through the structure of the landing page",
+  "Делал дизайн страницы": "Designed the page",
+  "Собирал сайт на Tilda": "Assembled the site on Tilda",
+};
+const clientLabels: Record<string, string> = { "Команда «Логопед Будущего»": "The “Logoped Budushchego” team", };
+const year = source ? String(source.data.year).trim() : "";
+const role = (source?.data.role ?? "").split("; ").map((part) => roleLabels[part.trim()] ?? part.trim()).join(" · ");
+const client = clientLabels[source?.data.client ?? ""] ?? source?.data.client ?? "";
+
+const pageTitle = "Landing page for the Logoped Budushchego app — packaging an ML product for the web";
+const description = "Prepare a landing page to present the Logoped Budushchego mobile app and gather the core information about the product in one place. The landing had to turn a technological speech-correction product with trained ML models into a clear offer for a user or a partner.";
+const workJsonLd = {
+  "@type": "CreativeWork",
+  "@id": new URL("/en/works/lending-prilozheniya-logoped-buduschego/#content", Astro.site).href,
+  url: new URL("/en/works/lending-prilozheniya-logoped-buduschego/", Astro.site).href,
+  name: "Landing page for the Logoped Budushchego app",
+  headline: "Landing page for the Logoped Budushchego app",
+  description,
+  inLanguage: "en",
+  author: { "@id": new URL("/#stanislav-ermolenko", Astro.site).href },
+  isPartOf: { "@id": new URL("/#website", Astro.site).href },
+  ...(source?.data.updated ? { dateModified: source.data.updated.toISOString() } : {}),
+};
+---
+<Base title={pageTitle} description={description} lang="en" jsonLd={workJsonLd}>
+  <article class="entry-shell">
+    <header class="entry-hero">
+      <div class="entry-hero-meta"><span class="section-kicker">Work · {status}</span></div>
+      <h1>Landing page for the Logoped Budushchego app</h1>
+      <p class="entry-summary">{description}</p>
+      <dl class="work-facts">
+        {year && <div><dt>Year</dt><dd>{year}</dd></div>}
+        {role && <div><dt>Role</dt><dd>{role}</dd></div>}
+        {client && <div><dt>Client</dt><dd>{client}</dd></div>}
+        {genres.length > 0 && <div><dt>Genres</dt><dd>{genres.join(" · ")}</dd></div>}
+      </dl>
+    </header>
+    <div class="prose">
+      <h2>The brief</h2>
+      <p>Prepare a landing page to present the <code>Logoped Budushchego</code> mobile app and gather the core information about the product in one place.</p>
+
+      <h2>Context</h2>
+      <p>This is a case at the junction of product packaging and fast web production. What mattered here was not simply to make a beautiful page but to turn the app into a clear offer for a user or a partner.</p>
+      <p>The product is connected to speech correction based on trained ML models. The client was the product&rsquo;s legal entity — a Skolkovo resident. So the case matters not only as a landing page but also as an example of how I package a complex technological product into an accessible and convincing web form.</p>
+
+      <h2>Solution</h2>
+      <p>The landing page was assembled on Tilda. I designed the structure of the page, the logic of the presentation and the visual part, and then brought it to a working website.</p>
+      <p>The site explained a product from a sensitive applied field, so careful communication mattered here as much as the assembly: how to talk about an AI/ML approach without overload and still keep trust in the product.</p>
+
+      <h2>What I did personally</h2>
+      <ul>
+        <li>Thought through the structure of the landing page</li>
+        <li>Designed the page</li>
+        <li>Assembled the site on Tilda</li>
+        <li>Packaged the app into a clear web presentation</li>
+      </ul>
+
+      <h2>Stack</h2>
+      <ul>
+        <li>Tilda</li>
+        <li>a single-page site</li>
+        <li>a product landing page</li>
+      </ul>
+
+      <h2>Skills</h2>
+      <ul>
+        <li>product landing</li>
+        <li>structuring an offer</li>
+        <li>launching a promo site quickly</li>
+      </ul>
+
+      <h2>Result</h2>
+      <p>The outcome was a working landing page for a mobile app connected to a product of Skolkovo residents and to an ML approach to speech correction. For the portfolio this is already stronger than an ordinary promo site: the case shows the ability to explain and package a technological product.</p>
+
+      <h2>Links</h2>
+      <ul>
+        <li><a href="https://web.archive.org/web/20220115213340/https://futurelogopedist.ru/">https://web.archive.org/web/20220115213340/https://futurelogopedist.ru/</a></li>
+      </ul>
+
+      <p class="entry-original"><a class="text-link" href="/works/lending-prilozheniya-logoped-buduschego/">Original (Russian) →</a></p>
+    </div>
+  </article>
+</Base>

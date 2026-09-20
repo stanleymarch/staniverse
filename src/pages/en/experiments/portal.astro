@@ -1,0 +1,86 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+
+/* The structural facts stay bound to the Russian entry — status, facets, stack and
+   the update date are read from the collection, never retyped for the translation. */
+const source = (await getCollection("experiments")).find((item) => item.data.id === "experiment:portal");
+const statusLabels: Record<string, string> = { live: "Running", soon: "Coming soon" };
+const typeLabels: Record<string, string> = { "игра": "Game", "песочница": "Sandbox", "инструмент": "Tool", "арт-опыт": "Art experience" };
+const platformLabels: Record<string, string> = { "мобильные": "Mobile", "гарнитуры": "Headsets", "десктоп": "Desktop" };
+const capabilityLabels: Record<string, string> = { "физика": "Physics", "звук": "Sound" };
+const translate = (labels: Record<string, string>, values: string[]) => values.map((value) => labels[value] ?? value);
+const status = source ? statusLabels[source.data.status] ?? source.data.status : "Running";
+const types = translate(typeLabels, source?.data.types ?? []);
+const platforms = translate(platformLabels, source?.data.platforms ?? []);
+const capabilities = translate(capabilityLabels, source?.data.capabilities ?? []);
+const stack = source?.data.stack ?? [];
+const href = source?.data.href;
+const repo = source?.data.repo;
+const updated = source?.data.updated ? new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric" }).format(source.data.updated) : "";
+
+const pageTitle = "Portal — an AR arcade about the space around you";
+const description = "An AR arcade: a tap on the floor opens a doorway, cubes fly out of it at the player — catch the green ones with a tap and dodge the red ones.";
+const experimentJsonLd = {
+  "@type": "CreativeWork",
+  "@id": new URL("/en/experiments/portal/#content", Astro.site).href,
+  url: new URL("/en/experiments/portal/", Astro.site).href,
+  name: "Portal",
+  headline: "Portal",
+  description,
+  inLanguage: "en",
+  author: { "@id": new URL("/#stanislav-ermolenko", Astro.site).href },
+  isPartOf: { "@id": new URL("/#website", Astro.site).href },
+  ...(source?.data.updated ? { dateModified: source.data.updated.toISOString() } : {}),
+};
+---
+<Base title={pageTitle} description={description} lang="en" jsonLd={experimentJsonLd}>
+  <article class="entry-shell">
+    <header class="entry-hero">
+      <div class="entry-hero-meta"><span class="section-kicker">Experiment · {status}</span></div>
+      <h1>Portal</h1>
+      <p class="entry-summary">{description}</p>
+      <div class="publication-facts">
+        {status === "Running" && href && <a href={href}>Open experiment ↗</a>}
+        {repo && <a href={repo}>Code ↗</a>}
+      </div>
+      <dl class="work-facts">
+        <div><dt>Status</dt><dd>{status}</dd></div>
+        <div><dt>Type</dt><dd>{types.join(" · ")}</dd></div>
+        <div><dt>Platforms</dt><dd>{platforms.join(" · ")}</dd></div>
+        {capabilities.length > 0 && <div><dt>Capabilities</dt><dd>{capabilities.join(" · ")}</dd></div>}
+        <div><dt>Technology</dt><dd>{stack.join(" · ")}</dd></div>
+        {updated && <div><dt>Updated</dt><dd>{updated}</dd></div>}
+      </dl>
+    </header>
+    <div class="prose">
+      <h2>What it is</h2>
+      <p>The first of three AR demos on 8th Wall: a short arcade where the space around you becomes a playing field. A tap on the floor sets an anchor, a &ldquo;portal&rdquo; unfolds from it, and cubes start coming at the player through it.</p>
+
+      <h2>How to play</h2>
+      <ul>
+        <li><strong>Tap the floor</strong> — places the portal on a real surface.</li>
+        <li><strong>Green cube</strong> — catch it with a tap; each one scores a point.</li>
+        <li><strong>Red cube</strong> — stay out of its way: tapping it and letting it come closer than a couple of metres to the camera each cost one of your three lives.</li>
+      </ul>
+
+      <h2>What is inside</h2>
+      <p>Cubes appear roughly every 1.3 seconds, and about half of them are green. The target is fixed at the moment a cube spawns, not at the moment it is hit, so you can dodge with your body: the cube flies to where you were, not to where you have moved. The scoring, lives and portal logic lives in <code>src/cubes.js</code> and <code>src/index.html</code> of the repository.</p>
+
+      <h2>Stack</h2>
+      <ul>
+        <li>8th Wall (SLAM, camera access)</li>
+        <li>A-Frame (scene)</li>
+        <li>three.js (rendering)</li>
+      </ul>
+
+      <h2>Links</h2>
+      <ul>
+        {href && <li><a href={href}>Open the demo on your phone</a></li>}
+        {repo && <li><a href={repo}>Experiment source code</a></li>}
+      </ul>
+
+      <p class="entry-original"><a class="text-link" href="/experiments/portal/">Original (Russian) →</a></p>
+    </div>
+  </article>
+</Base>

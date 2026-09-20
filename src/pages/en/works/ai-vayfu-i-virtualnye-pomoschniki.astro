@@ -1,0 +1,101 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+
+/* The structural facts stay bound to the Russian entry — status, year, role, client
+   and genres are read from the collection, never retyped for the translation. */
+const source = (await getCollection("works")).find((item) => item.data.id === "work:ai-vayfu-i-virtualnye-pomoschniki");
+const statusLabels: Record<string, string> = { ongoing: "Ongoing", completed: "Completed" };
+const genreLabels: Record<string, string> = { ai: "AI", xr: "XR", writing: "Writing" };
+const status = source ? statusLabels[source.data.status] ?? source.data.status : "Ongoing";
+const genres = source?.data.genres.map((genre) => genreLabels[genre] ?? genre) ?? [];
+/* Role and client reach the page from the collection in Russian, so their translation
+   is keyed to the exact source fragments: anything unmatched falls back to the source. */
+const roleLabels: Record<string, string> = {
+  "Исследовал архитектуру виртуальных помощников и AI-компаньонов": "Researched the architecture of virtual assistants and AI companions",
+  "Писал длинные объясняющие материалы и инструкции по сборке": "Wrote long explainer pieces and build guides",
+  "Экспериментировал с персонажами, памятью, голосом и визуальным воплощением": "Experimented with characters, memory, voice and visual embodiment",
+};
+const clientLabels: Record<string, string> = { "Проект: LOCI": "Project: LOCI", };
+const year = source ? String(source.data.year).trim() : "";
+const role = (source?.data.role ?? "").split("; ").map((part) => roleLabels[part.trim()] ?? part.trim()).join(" · ");
+const client = clientLabels[source?.data.client ?? ""] ?? source?.data.client ?? "";
+
+const pageTitle = "AI waifus and virtual assistants — memory, character and presence in AI";
+const description = "Research and build digital companions and personal AI assistants that work not as a dumb chatbot but as an entity with memory, voice, character, an interface and a potential place in the daily life of a user. The work sits at the crossing of agentic systems, UX, multimodality and emotional interaction between a person and AI.";
+const workJsonLd = {
+  "@type": "CreativeWork",
+  "@id": new URL("/en/works/ai-vayfu-i-virtualnye-pomoschniki/#content", Astro.site).href,
+  url: new URL("/en/works/ai-vayfu-i-virtualnye-pomoschniki/", Astro.site).href,
+  name: "AI waifus and virtual assistants",
+  headline: "AI waifus and virtual assistants",
+  description,
+  inLanguage: "en",
+  author: { "@id": new URL("/#stanislav-ermolenko", Astro.site).href },
+  isPartOf: { "@id": new URL("/#website", Astro.site).href },
+  ...(source?.data.updated ? { dateModified: source.data.updated.toISOString() } : {}),
+};
+---
+<Base title={pageTitle} description={description} lang="en" jsonLd={workJsonLd}>
+  <article class="entry-shell">
+    <header class="entry-hero">
+      <div class="entry-hero-meta"><span class="section-kicker">Work · {status}</span></div>
+      <h1>AI waifus and virtual assistants</h1>
+      <p class="entry-summary">{description}</p>
+      <dl class="work-facts">
+        {year && <div><dt>Year</dt><dd>{year}</dd></div>}
+        {role && <div><dt>Role</dt><dd>{role}</dd></div>}
+        {client && <div><dt>Client</dt><dd>{client}</dd></div>}
+        {genres.length > 0 && <div><dt>Genres</dt><dd>{genres.join(" · ")}</dd></div>}
+      </dl>
+    </header>
+    <div class="prose">
+      <h2>The brief</h2>
+      <p>Research and build digital companions and personal AI assistants that work not as a dumb chatbot but as an entity with memory, voice, character, an interface and a potential place in the daily life of a user.</p>
+
+      <h2>Context</h2>
+      <p>From the outside this topic can sound provocative or meme-like, but in essence it is a large research and applied circuit at the intersection of agentic systems, UX, multimodality and emotional interaction between a person and AI.</p>
+      <p>Translation between contexts matters here too: what one audience calls an <code>AI waifu</code>, another calls a <code>virtual assistant</code>, a <code>personal assistant</code> or a <code>digital companion</code>. The technology underneath is very nearly the same.</p>
+
+      <h2>Solution</h2>
+      <p>I did not just write about the topic — I assembled an architecture and a practical frame around it. Longreads and build guides for virtual assistants appeared, along with experiments with characters, voice, visualisation and agentic logic, and reflections on how such entities could live in an XR and WebXR environment.</p>
+      <p>According to the notes from NotebookLM, this circuit also involved more complex technological builds with memory, multimodality, voice and a visual layer. In this entry it should still be read as a direction and a practical R&amp;D circuit rather than one finished product.</p>
+
+      <h2>What I did personally</h2>
+      <ul>
+        <li>Researched the architecture of virtual assistants and AI companions</li>
+        <li>Wrote long explainer pieces and build guides</li>
+        <li>Experimented with characters, memory, voice and visual embodiment</li>
+        <li>Connected the theme of agentic systems with the XR and WebXR direction</li>
+      </ul>
+
+      <h2>Stack</h2>
+      <ul>
+        <li>OpenRouter</li>
+        <li><code>PydanticAI</code> / <code>ElizaOS</code></li>
+        <li><code>WebXR</code> / <code>VRM</code></li>
+        <li>voice and multimodal interfaces</li>
+      </ul>
+
+      <h2>Skills</h2>
+      <ul>
+        <li>AI agent design</li>
+        <li>UX of digital characters</li>
+        <li>packaging a complex topic into understandable content</li>
+        <li>researching new user scenarios for AI</li>
+      </ul>
+
+      <h2>Immediate focus</h2>
+      <ul>
+        <li>Separate published concepts from prototypes that were actually built</li>
+        <li>Add concrete links to videos, articles and demos</li>
+        <li>As the topic grows further, carve out a separate product layer on top of the case</li>
+      </ul>
+
+      <h2>Result</h2>
+      <p>The case shows that I work with AI not only in applied business automation but also in a more complex human zone: memory, character, trust, an interface, a sense of presence. For the portfolio this is a strong research piece at the junction of technology, culture and new forms of interaction.</p>
+
+      <p class="entry-original"><a class="text-link" href="/works/ai-vayfu-i-virtualnye-pomoschniki/">Original (Russian) →</a></p>
+    </div>
+  </article>
+</Base>

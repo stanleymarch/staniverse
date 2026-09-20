@@ -1,0 +1,393 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+
+/* Structural facts stay bound to the Russian entry. */
+const source = (await getCollection("articles")).find((item) => item.data.id === "article:ai-waifu");
+const logDate = (value: Date | undefined) => value ? new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric" }).format(value) : "";
+const published = logDate(source?.data.date);
+const updated = logDate(source?.data.updated);
+
+const pageTitle = "Building an AI waifu and more: a guide to creating virtual companions";
+const description = "Marriages are made in heaven, they say, but it looks like they will soon be arranged in cloud services and the home labs of enthusiasts. On St. Valentine’s Day this article looks at how technology proposes to solve loneliness and why it might actually work: it takes a virtual companion apart into its language centre, ears, voice, memory and visual body, and then shows how to assemble one of your own, from a single well-written prompt to local platforms and agent frameworks.";
+const articleJsonLd = {
+  "@type": "CreativeWork",
+  "@id": new URL("/en/articles/ai-waifu/#content", Astro.site).href,
+  url: new URL("/en/articles/ai-waifu/", Astro.site).href,
+  name: "Building an AI waifu and more: a guide to creating virtual companions",
+  headline: "Building an AI waifu and more: a guide to creating virtual companions",
+  description,
+  inLanguage: "en",
+  author: { "@id": new URL("/#stanislav-ermolenko", Astro.site).href },
+  isPartOf: { "@id": new URL("/#website", Astro.site).href },
+  ...(source?.data.updated ? { dateModified: source.data.updated.toISOString() } : {}),
+};
+---
+<Base title={pageTitle} description={description} lang="en" jsonLd={articleJsonLd}>
+  <article class="entry-shell">
+    <header class="entry-hero">
+      <div class="entry-hero-meta"><span class="section-kicker">Article</span>{published && <time datetime={source!.data.date!.toISOString()}>{published}</time>}</div>
+      <h1>Building an AI waifu and more: a guide to creating virtual companions</h1>
+
+      <p class="entry-summary">{description}</p>
+
+      <dl class="work-facts">
+        {published && <div><dt>Published</dt><dd>{published}</dd></div>}
+        {updated && <div><dt>Updated</dt><dd>{updated}</dd></div>}
+      </dl>
+    </header>
+    <div class="prose">
+
+      <p>They say marriages are made in heaven. But it looks like soon they will be made in cloud services and the home labs of enthusiasts. On St. Valentine&rsquo;s Day we look into how technology proposes to solve the problem of loneliness, and why it might actually work. By the end of this text you will know how to assemble your own Joi from <em>Blade Runner 2049</em>. Or an AI agent for Web3.</p>
+
+      <p><em>A note for the girls: instead of a classic waifu, picture a tall idol-hunk from Love and Deepspace with immaculate hair and a head disproportionately small for his height.</em></p>
+
+      <p><em>A note for business people: replace &ldquo;virtual girlfriend&rdquo; with &ldquo;AI assistant&rdquo; or &ldquo;neuro-colleague&rdquo; &ndash; the functionality is the same, only in a strict suit and with a focus on productivity.</em></p>
+
+      <p>This article <a href="https://youtu.be/ncQ31xB3GLE">now has a video version</a>.</p>
+
+      <p>An external addition to the topic is a <a href="https://youtu.be/AqqQ-xNAcCw">video about AI companions</a>. It is not part of the author&rsquo;s staniverse archive and is given only in the context of this article.</p>
+
+      <h3 id="contents">Contents</h3>
+
+      <ol>
+        <li><a href="#introduction">Introduction</a></li>
+        <li><a href="#what-a-virtual-girlfriend-is-made-of">What a virtual girlfriend is made of</a>
+          <ul>
+            <li><a href="#the-language-centre-llm-a-large-language-model">The language centre (LLM)</a></li>
+            <li><a href="#the-ears-of-the-system-stt-speech-to-text">The &ldquo;ears&rdquo; of the system (STT)</a></li>
+            <li><a href="#the-voice-of-the-system-tts-text-to-speech">The &ldquo;voice&rdquo; of the system (TTS)</a></li>
+            <li><a href="#the-memory-of-the-system">The &ldquo;memory&rdquo; of the system</a></li>
+            <li><a href="#the-visual-part">The visual part</a></li>
+            <li><a href="#tactile-feedback">Tactile feedback</a></li>
+          </ul>
+        </li>
+        <li><a href="#implementation-options">Implementation options</a>
+          <ul>
+            <li><a href="#level-1-a-simple-start">Level 1: A simple start</a></li>
+            <li><a href="#level-2-dedicated-platforms">Level 2: Dedicated platforms</a>
+              <ul>
+                <li><a href="#characterai">Character.AI</a></li>
+                <li><a href="#replika">Replika</a></li>
+              </ul>
+            </li>
+            <li><a href="#level-3-local-solutions">Level 3: Local solutions</a>
+              <ul>
+                <li><a href="#voxta">Voxta</a></li>
+                <li><a href="#sillytavern">SillyTavern</a></li>
+              </ul>
+            </li>
+            <li><a href="#level-4-agent-frameworks">Level 4: Agent frameworks</a></li>
+          </ul>
+        </li>
+        <li><a href="#bringing-it-to-life">Bringing it to life</a>
+          <ul>
+            <li><a href="#live2d-and-vrm-models-in-sillytavern">Live2D and VRM models in SillyTavern</a></li>
+            <li><a href="#voxy-desktop-companion">Voxy Desktop Companion</a></li>
+            <li><a href="#using-vtuber-software">Using VTuber software</a></li>
+            <li><a href="#voxta--vam">Voxta + VAM</a></li>
+            <li><a href="#sillytavern--vam">SillyTavern + VAM</a></li>
+          </ul>
+        </li>
+        <li><a href="#in-lieu-of-conclusions">In lieu of conclusions</a></li>
+
+      </ol>
+
+      <h2 id="introduction">Introduction</h2>
+
+      <p>Loneliness is boredom without its first &lsquo;k&rsquo;, as we remember from the song by the singer Slava. And it seems she was not the only one to notice. The WHO set up a dedicated commission on social connection (<a href="https://www.who.int/groups/commission-on-social-connection">WHO Commission on Social Connection</a>), recognising the problem of loneliness as serious enough to need addressing on a global level. According to <a href="https://wciom.ru/analytical-reviews/analiticheskii-obzor/odinochestvo-i-kak-s-nim-borotsja">a VCIOM survey</a>, in 2021 one in five Russians felt lonely, and among young people aged 18 to 24 as many as one in three.</p>
+
+      <p>Loneliness is not merely unpleasant, it is dangerous. If you go to PubMed and search for research on the subject, you will come across <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC9636084/">a meta-analysis showing that lonely people suffer from depression 2.3 times more often</a>. And in <a href="https://www.ncbi.nlm.nih.gov/books/NBK595227/">the report &ldquo;Our Epidemic of Loneliness and Isolation&rdquo;</a> the US Surgeon General (a role similar to our chief state sanitary doctor) warns that social isolation affects everything, from the workings of the heart to the immune system.</p>
+
+      <p>But what if we take matters into our own hands (we are still talking about technology)? A group of South Korean researchers <a href="https://pubmed.ncbi.nlm.nih.gov/39808786/">recently ran an experiment</a>: for a month, 176 students talked to an AI interlocutor named Luda Lee. After only two weeks the level of loneliness had noticeably decreased, and by the end of the month even social anxiety had gone down.</p>
+
+      <p>It seems people are ready for solutions like this. The Mirror cites <a href="https://www.mirror.co.uk/lifestyle/sex-relationships/ai-girlfriend-trend-exploding-8-34524480">an amusing study by one of the platforms with virtual girlfriends</a>: of 2,000 men surveyed, 83% consider it possible to form a deep emotional connection with AI, 81% would marry an AI girlfriend (if it were legal), and 78% would not mind &ldquo;dating&rdquo; an AI clone of their ex. Admittedly, that is rather like asking the customers of a pastry shop, &ldquo;Do you like sweet things?&rdquo; &ndash; the sample is clearly not the most objective one.</p>
+
+      <p>And although the idea of marrying an AI sounds at the very least premature, the technology itself deserves attention. After all, if a chatbot really can help someone cope with loneliness in just a couple of weeks, it is worth understanding how it is put together.</p>
+
+      <img src="/assets/companion-01-smeshnoe-iz-interneta.png" alt="Funny stuff from the Internet 1" />
+
+      <p><em>Funny stuff from the Internet 1</em></p>
+
+      <h2 id="what-a-virtual-girlfriend-is-made-of">What a virtual girlfriend is made of</h2>
+
+      <p>So you have decided to create your own cat-wife/waifu. Where to begin? Before diving into the details, let us picture the whole arrangement. Building a virtual companion can be compared to creating a rational being that exists exclusively in digital space. Such a digital &ldquo;creature&rdquo; has everything it needs for conversation: a speech recognition module to hear you, a language centre to understand you and form answers, and a speech synthesiser to talk to you. Thanks to computer vision and multimodal models, it can also take in information from the real world.</p>
+
+      <p>With augmented reality devices you can see the virtual embodiment of your virtual friend, and modern devices with tactile feedback even let you physically feel its presence. And it also has memory &ndash; to keep the history of your conversations and the knowledge of your preferences.</p>
+
+      <img src="/assets/companion-02-smeshnaya-kartinka-iz-interneta.png" alt="A funny picture from the Internet" />
+
+      <p><em>A funny picture from the Internet</em></p>
+
+      <p>At the centre of this system sits an orchestrator program that manages all the components. Like a real conductor, it decides when each component comes in, manages the flow of information and keeps track of the overall context of the conversation. When something needs to be recalled, it turns to the knowledge base, and for special tasks it can bring in additional tools.</p>
+
+      <h3 id="the-language-centre-llm-a-large-language-model">The language centre (LLM &ndash; a large language model)</h3>
+
+      <p>Remember C-3PO from Star Wars? He was a protocol translator droid who not only knew more than 6 million forms of communication but also understood when R2-D2 had to be asked for help breaking down a door or when to query the onboard computer. Modern language models work in a similar way.</p>
+
+      <p>An LLM does not only keep up a conversation, it is also able to determine that certain actions need to be performed. This is called function (tool) calling &ndash; the ability of a model to identify the need to use additional tools based on the context of the conversation. For example, if you ask &ldquo;What is the weather like today?&rdquo;, it will understand that it needs to query a weather service. If you ask it to play &ldquo;Enjoy the Silence&rdquo;, it will work out that it has to call the player.</p>
+
+      <p>Not all language models are equally good at everything. Some cope excellently with function calling, others are especially good at writing texts or analysing data. Still others specialise in particular tasks. Someone is a great sprinter, someone is good at the marathon, and someone is best at chess. Luckily, we can combine different models, using the strengths of each.</p>
+
+      <p>For building a virtual interlocutor, the ability to role-play in Russian is especially important. We need a model that can do more than answer questions: it has to sustain a coherent, meaningful dialogue while staying in the chosen character. When choosing, it matters to weigh the balance between quality and generation speed, the cost of the API or the hardware, censorship and the level of privacy. Finding your way through the whole variety of language models capable of Russian-language roleplay is helped by the <a href="https://ilyagusev.github.io/ping_pong_bench/ru_v2">Ping-Pong benchmark</a> <a href="https://t.me/senior_augur">by Ilya Gusev</a>.</p>
+
+      <p>There are two paths. The simplest is to use the models of OpenAI (GPT), Google (Gemini), Anthropic (Claude), Yandex (YandexGPT) and Sber (GigaChat). The APIs of these services let you do more than talk through a web interface on the developer&rsquo;s site: you can embed the models into your own applications.</p>
+
+      <p>Compact models such as <code>GPT-4o-mini</code> and <code>Gemini 2.0 Flash</code> provide fast generation of answers, which matters for creating the feeling of a real conversation. But remember: everything you tell your &ldquo;cloud girlfriend&rdquo; may be used to train new models and, possibly, for future formats of advertising. So, if you do not want Sam Altman to know about your <del>secret fantasies</del> fondness for classical music and hagiographic literature, think twice. &ldquo;The twins&rdquo; are very good for their price, and they help me write this text in Obsidian.</p>
+
+      <img src="/assets/companion-03-llm-obzor.png" alt="An overview of language models" />
+
+      <p>What seems more preferable to me is running open-source models on a local computer or a server of my own. That gives more freedom and privacy. On my setup with 32 GB RAM and an RTX 3060 you obviously will not run Deepseek v3, but <code>Mistral Nemo</code>, freed from censorship by enthusiasts and fine-tuned for Russian in <a href="https://huggingface.co/IlyaGusev/saiga_nemo_12b">Saiga&rsquo;s</a> variant, works perfectly well for our task. If you want to try something really light, you can start with <a href="https://huggingface.co/Vikhrmodels/Vikhr-Gemma-2B-instruct">Vikhr-Gemma-2B-instruct</a>. Just 2 billion parameters, it will run on most devices, and although you should not expect miracles, it is just the thing for first experiments. And there will even be some memory left for the following items.</p>
+
+      <p>How do you run these models locally? The simplest option for role-playing games is to <del>find a game master</del> use <a href="https://github.com/LostRuins/koboldcpp">koboldcpp</a>. For those looking for more versatility and a convenient graphical interface, I would recommend <a href="https://lmstudio.ai/">LM Studio</a>. And for anyone planning to use models inside agent frameworks, <a href="https://ollama.ai/">Ollama</a> is an excellent choice.</p>
+
+      <p>Whichever path you take, cloud or local, there is one secret sauce that will make your virtual girlfriend feel more alive: fine-tuning. It is like teaching a foreigner the local <del>profanity</del> slang and quirks of speech: they already know the base language, but to sound natural they need to catch the specific turns of phrase and the manner of speaking.</p>
+
+      <p>Imagine you are teaching a model not just to talk, but to talk in a particular way. That requires examples of such conversation &ndash; a dataset. Surely you can already tell, within a second, a badly generated first comment in your favourite Telegram channel from one written by a human? For your virtual girlfriend to sound natural, you have to show her examples of live human conversation.</p>
+
+      <p>Here the temptation arises to use personal chat logs <del>with an ex in messengers</del>, but that is a dubious idea. For one thing, it can unexpectedly hit a sore spot: imagine you are having a peaceful conversation with your virtual girlfriend and suddenly she comes out with phrases that are all too familiar from the past. For another, it is questionable from the point of view of privacy &ndash; personal correspondence is considered confidential information.</p>
+
+      <img src="/assets/companion-04-finetuning.png" alt="An illustration about fine-tuning" />
+
+      <p>If you use cloud services, fine-tuning tools may be available right <a href="https://platform.openai.com/docs/guides/fine-tuning">on the platform where you get your API</a>. For local models you can use tools like <a href="https://docs.unsloth.ai/get-started/beginner-start-here">Unsloth</a>, which makes the fine-tuning process considerably simpler. True, that may require a powerful graphics card, but you can always rent one for a while from services like <a href="https://cloud.vast.ai/?ref_id=202374">vast.ai</a>, <a href="https://www.runpod.io/">runpod</a> or, if you prefer domestic ones (someone gave me a referral code), <a href="https://selectel.ru/?ref_code=5d547ef3de">Selectel</a>. By the way, the Unsloth mentioned above <a href="https://unsloth.ai/blog/deepseekr1-dynamic">managed to quantise DeepSeek-R1 from 720GB down to 131GB (-80%) while keeping its functionality</a>. In case you have an indecently large amount of RAM and want a reasoner at home.</p>
+
+      <h3 id="the-ears-of-the-system-stt-speech-to-text">The &ldquo;ears&rdquo; of the system (STT &ndash; Speech-to-Text)</h3>
+
+      <p>Text chat is all very well, but a live conversation is a different matter altogether. When your virtual interlocutor can hear your voice and answer with its own, communication becomes much more natural and emotional. For that we need two important components: the &ldquo;ears&rdquo; and the &ldquo;voice&rdquo; of the system.</p>
+
+      <p>STT is the component that turns voice into text. Recognition quality is crucial: nobody enjoys constantly repeating themselves or correcting recognition errors. Here too there is a choice between cloud services and local solutions.</p>
+
+      <p>The obvious solution that is on everyone&rsquo;s lips (forgive the deliberate pun) is <code>Whisper</code> from OpenAI. It is almost the only thing that justifies the &ldquo;Open&rdquo; in the name of Sam Altman&rsquo;s company, since the model weights can be downloaded and used locally. When it comes to transcribing Russian, the family of acoustic models <a href="https://github.com/salute-developers/GigaAM">GigaAM-v2</a> from Sber is a pleasant surprise. There is even a variant capable of detecting emotions.</p>
+
+      <p>If you want something really light, take a look at <a href="https://alphacephei.com/vosk/models">Vosk</a>. On its site, in the Research section, there is <a href="https://alphacephei.com/nsh/2024/04/14/russian-models.html">a great table</a> by Nikolai Shmyrev with the test results of various models. Keep an eye, at any given moment, on where Russian works best for fewer resources and on what you can pair with the &ldquo;skeleton&rdquo; everything ends up being assembled on.</p>
+
+      <h3 id="the-voice-of-the-system-tts-text-to-speech">The &ldquo;voice&rdquo; of the system (TTS &ndash; Text-to-Speech)</h3>
+
+      <p>TTS is responsible for the &ldquo;voice&rdquo; of your virtual girlfriend. The quality of speech synthesis directly affects how realistic and natural your waifu sounds. It is comparable to casting a voice actress for an anime character: you can use the monotone voice of Google Translate, or you can use Veronika from &ldquo;Studiynaya Banda&rdquo;. The choice is obvious, because if the world will somehow survive without yet another Reels clip with a bad robotic voice, without the girls from the &ldquo;Banda&rdquo; it will definitely become a worse place.</p>
+
+      <p>The best option is the cloud-based and expensive <code>ElevenLabs</code>. Among the local ones, as a kind of minimum, we look towards XTTS-v2. Out of the box things are bad with Russian and its stress marks, but fine-tuning on 10 minutes of high-quality annotated voices from real people works its magic. You can use a ready-made tune, for example <a href="https://huggingface.co/Ftfyhh/xttsv2_banana">from TensorBanana</a>.</p>
+
+      <p>You can fine-tune and expose an API through <a href="https://github.com/erew123/alltalk_tts/tree/alltalkbeta">AllTalk TTS v2</a>. It supports different models, including F5, though out of the box its Russian is not entirely smooth. Maybe someone has managed to tame it, but I have not come across one yet.</p>
+
+      <p><code>Fish Speech 1.5</code> is a relatively fresh model that looks promising and could become a decent alternative to the expensive ElevenLabs, letting you approach its quality locally. You can try the &ldquo;little fish&rdquo; <del>to eat it</del> <a href="https://fish.audio/">on the site</a>, and <a href="https://github.com/fishaudio/fish-speech">run the API locally</a>. The model requires more video memory for inference than XTTS and may work slower. But it sounds like a compromise between quality, accessibility and speed for some tasks.</p>
+
+      <p>You also sometimes come across a mention of <a href="https://github.com/snakers4/silero-models">Silero TTS</a>. In the legendary &ldquo;Russians Against Lizards&rdquo;, for instance, it seems it was used for the dialogue. But the Russian model was withdrawn from public access, and generation is available in a paid Telegram bot.</p>
+
+      <p>And yes, in all these options you can have it speak in any voice you need. So very much any that I will remind you of the line between &ldquo;a fun experiment&rdquo; and &ldquo;creepy&rdquo;.</p>
+
+      <p>To compare speech synthesis models, take a look at <a href="https://huggingface.co/spaces/Pendrokar/TTS-Spaces-Arena">TTS Arena</a> &ndash; there is a leaderboard and audio samples.</p>
+
+      <h3 id="the-memory-of-the-system">The &ldquo;memory&rdquo; of the system</h3>
+
+      <p>If you have watched <code>Synthetic Memories</code>, you know how painful the scene with Ayla on the Ferris wheel is: every memory is priceless to the Giftees, because the time they live is limited. In the case of a virtual interlocutor, a properly organised memory system and regular data backups let you preserve all the important moments of communication. And unlike the grim world of &ldquo;Altered Carbon&rdquo;, where only the rich could afford backups of their consciousness, such technology is now available to everyone, and especially to those who have been hit more often by system-breaking Arch updates than by Cupid&rsquo;s arrows.</p>
+
+      <p>Memory can be imagined as a well-structured diary. Unlike the base personality set in the system instructions or acquired in the process of fine-tuning, this stores dynamically updated information about the interlocutor, the important facts they have shared and deep knowledge of the history of the Vyatka region. For example, my cat-wife <del>knows</del> would know that once in St Petersburg, on the site of the Moskva cinema building, there stood an exact copy of a church that can now be seen in Yaransk. That Apollinary Vasnetsov worked as a teacher in the village of Bystritsa in the Orichevsky district. And that I still do not know a better place to scatter my ashes in some 70 years than the viewpoint over the Nemda river in the Sovetsky district.</p>
+
+      <img src="/assets/companion-05-nemda-smotrovaya.jpg" alt="That very viewpoint over the Nemda river in Kirov region" />
+
+      <p><em>That very viewpoint over the Nemda river in Kirov region</em></p>
+
+      <p>This is how not only the memory of personal details works, but also a system that makes business easier. A corporate chatbot for tech support or employee onboarding, for instance, can use embeddings &ndash; numerical representations of text that allow it to search not merely by keywords but to grasp the meaning of questions. A vector database stores them, organising them by semantic links for fast and precise retrieval of the information needed. The RAG method (Retrieval-Augmented Generation) improves the quality of a language model&rsquo;s answers, acting like an experienced specialist in a corporate archive. Before generating each answer, the system automatically finds and extracts the most suitable fragments.</p>
+
+      <p><code>SQLite</code> is used as a starting solution, but later people move on to <a href="https://supabase.com/modules/vector">Supabase</a> or a combination of Qdrant/ChromaDB with Postgres to raise performance and scalability. And so as not to load every conversation with the entire history of the communication, the system would do well to create something like a summary &ndash; a brief description of the important moments. As if you were leafing through an old diary and reading only the most important parts in order to refresh your memory before a new meeting with a friend.</p>
+
+      <img src="/assets/companion-06-pamyat-sistema.png" alt="Another funny picture from the Internet" />
+
+      <p><em>Another funny picture from the Internet</em></p>
+
+      <h3 id="the-visual-part">The visual part</h3>
+
+      <p>If you want not only to hear your virtual interlocutor but also to see them, there are several interesting possibilities. From simple avatars to full three-dimensional models in augmented reality, the choice depends on your preferences and technical capabilities.</p>
+
+      <h4 id="live2d-models">Live2D models</h4>
+
+      <p>The most popular format among VTubers on Twitch is two-dimensional animated models in the anime style. They are light enough to run on an ordinary computer, yet capable of conveying a wide range of emotions through facial expressions and movement.</p>
+
+      <p>Look for paid and free models on marketplaces with the goods of digital artists, for instance on the Japanese <a href="https://booth.pm/en">booth.pm</a>.</p>
+
+      <p>Here we cannot fail to mention <a href="https://www.twitch.tv/vedal987">Neuro-sama</a> &ndash; the first fully-fledged AI VTuber, who went from a neural network for playing osu! to one of the most popular streamers on the platform. In our case we are after a different goal &ndash; creating a more personal companion, rather than raising the &ldquo;daughter&rdquo; of a turtle and &ldquo;our elephant&rdquo; in the guise of a fox girl who awaits physical embodiment as a robot for the entertainment of a wide audience. I am shocked myself at how deep I am into <a href="https://virtualyoutuber.fandom.com/wiki/Neuro-sama">Neuro-sama&rsquo;s lore</a>.</p>
+
+      <img src="/assets/companion-07-neuro-sama.png" alt="Neuro-sama reacting to a promo sub" />
+
+      <p><em>Neuro-sama reacting to a promo sub</em></p>
+
+      <h4 id="vrm-and-vam">VRM and VAM</h4>
+
+      <p>For a more realistic experience you can use three-dimensional models in the VRM format. As with the previous option, you can make them yourself from ordinary ones through sweat, tears and Unity, find one on some VRoid Hub or commission one individually from an author you like on one of the marketplaces.</p>
+
+      <p>For those ready to dive deeper (careful, there is NSFW there), there is <a href="https://hub.virtamate.com/">Virt-a-Mate</a>. Let us be delicate and say that it is a constructor of three-dimensional scenes for VR, originally created as a more immersive alternative to a certain kind of content from a black-and-orange video hosting site. Its capabilities for animating and customising characters are very impressive for &ldquo;harmless&rdquo; uses as well. After all, this is not the first time this industry has become the engine of progress.</p>
+
+      <h4 id="photographs-and-visual-content">&ldquo;Photographs&rdquo; and visual content</h4>
+
+      <p>If your virtual girlfriend is already writing to you on Telegram and sending &ldquo;voice notes&rdquo;, it would be great if she could share photographs as well. With generative models you can create images in real time.</p>
+
+      <p>This works especially well with the <code>LoRA</code> technology (Low-Rank Adaptation). Imagine you have some neural network for image generation &ndash; it is like an experienced artist with a solid background who is very good at the classics. LoRA in this case will be a compact set of additional skills that tells this artist how to draw in a particular style or with particular features. Instead of retraining the whole model (which requires enormous resources), we add a small module that tunes it to a specific task. Generating images with a <a href="https://civitai.com/models/1031989/vaz-2106">VAZ-2106</a> is, for instance, really cool.</p>
+
+      <p>In our case we can <a href="https://civitai.com/articles/3522/valstrixs-crash-course-guide-to-lora-and-lycoris-training">train a LoRA</a> to create images with a consistent appearance for our &ldquo;girlfriend&rdquo; in different scenes and circumstances. To train such a &ldquo;setting&rdquo; you can use tools like <a href="https://github.com/cocktailpeanut/fluxgym">Flux Gym</a>, <a href="https://github.com/bmaltais/kohya_ss">Kohya</a> or <a href="https://github.com/Nerogar/OneTrainer">OneTrainer</a>. The latter recently gained the ability to fine-tune the open-weight video generator <a href="https://aivideo.hunyuan.tencent.com/">Hunyuan Video</a>.</p>
+
+      <h3 id="tactile-feedback">Tactile feedback</h3>
+
+      <p>Science does not stand still, and today virtual communication can include not only visual and audio contact but tactile sensations as well. From simple vibrations to haptic suits, as in the film &ldquo;Ready Player One&rdquo; (2018), modern technology adds a physical dimension to digital interaction.</p>
+
+      <p>In the world of open source there is an interesting library with a rather <a href="https://buttplug.io/">unusual name</a>. The history of that name is quite remarkable: the developer chose a universal and amusing name based on basic anatomical features. &ldquo;Yes, it can confuse people who use the library to control completely different devices. But you know, coming up with names is one of the hardest problems in Computer Science. At some point I simply stopped trying and picked the first thing that came to mind. As with other hard problems, I am sure this decision will come back to haunt me in the future&rdquo;, <a href="https://docs.buttplug.io/docs/spec/">says the author</a>.</p>
+
+      <p>Software on this protocol supports integration with many applications. With Minecraft, for instance. Possibly for sharper sensations when meeting creepers. And given the notorious <a href="https://ru.wikipedia.org/wiki/%D0%9A%D0%BE%D0%BD%D1%84%D0%BB%D0%B8%D0%BA%D1%82_%D0%9A%D0%B0%D1%80%D0%BB%D1%81%D0%B5%D0%BD%D0%B0_%E2%80%94_%D0%9D%D0%B8%D0%BC%D0%B0%D0%BD%D0%BD%D0%B0">scandal involving Magnus Carlsen and Hans Niemann</a>, in theory your waifu through such devices could help at a chess tournament, but let us not test this theory in practice. Although someone on the Internet <a href="https://youtu.be/AqqQ-xNAcCw">has already done so</a>.</p>
+
+      <h2 id="implementation-options">Implementation options</h2>
+
+      <p>Now that we understand what a virtual companion consists of, let us go through the various ways of bringing this to life. From the simplest, which you can start using right now, to advanced solutions for technically savvy enthusiasts.</p>
+
+      <h3 id="level-1-a-simple-start">Level 1: A simple start</h3>
+
+      <p>The simplest way is to use existing chat interfaces like <code>ChatGPT</code> or the domestic <a href="https://giga.chat/gigachat/">GigaChat</a>. It is enough to write a good prompt explaining the character and role of your interlocutor. For example:</p>
+
+      <p><code>I want you to pretend to be a 25-year-old woman, an aerospace systems engineer working at SpaceX. You are very smart, you are into space and technology. In your free time you watch matches of the Russian second football league, division &ldquo;A&rdquo; silver, supporting Dynamo Kirov. You prefer pelmeni at the &ldquo;Appetising Pelmeshki&rdquo; cafe in the town of Nolinsk to any Michelin restaurant, and you are planning to go there snowboarding this season. The interlocutor will send messages in the chat, and you answer. Answer briefly, intelligently and with a little flirting, using emoji. If appropriate, include an intelligent funny question in your answer to keep the conversation going</code></p>
+
+      <img src="/assets/companion-08-gigachat-devochka.jpg" alt="GigaChat pretending to be a girl, lol" />
+
+      <p><em>GigaChat pretending to be a girl, lol</em></p>
+
+      <p>If you use ChatGPT with memory enabled, your interlocutor will build up a certain idea of you. True, these &ldquo;memories&rdquo; will be available not only to them, but to everyone who is permitted under the terms of use of the service.</p>
+
+      <h3 id="level-2-dedicated-platforms">Level 2: Dedicated platforms</h3>
+
+      <p>If you want something more interesting, there are dedicated services.</p>
+
+      <h4 id="characterai">Character.AI</h4>
+
+      <p><a href="https://character.ai/">Character AI</a> lets you create and talk to virtual characters driven by artificial intelligence. They can be based on real people, fictional heroes or be entirely original, with their own settings for personality and style of communication. The company was founded by former Google engineers in 2021, and already in 2024 it signed an agreement with its previous employer on granting access to its technologies.</p>
+
+      <img src="/assets/companion-09-characterai-ilon-mask.jpg" alt="Had a chat with Elon Musk" />
+
+      <p><em>Had a chat with Elon Musk</em></p>
+
+      <p>Here I like the <a href="https://book.character.ai/">&ldquo;Character Book&rdquo;</a> &ndash; a guide to creating and configuring the personality of virtual interlocutors. The principles described in the &ldquo;Book&rdquo; can also be applied in other systems where AI personalisation matters. Save it to your bookmarks, it will come in handy one day.</p>
+
+      <h3 id="replika">Replika</h3>
+
+      <p><a href="https://replika.com/">Replika</a> offers a different approach &ndash; it is a virtual companion focused on emotional support and a gradual understanding of the user through interaction. Already when you create a profile it memorises basic information: name, gender and other data. In the process of communication Replika &ldquo;takes note&rdquo; of your favourite books, music, films, hobbies, even the friends and pets you mention. At any moment you can ask &ldquo;What do you know about me?&rdquo; or look into the &ldquo;Memory&rdquo; section, where all the facts collected about you are stored.</p>
+
+      <p>A feedback system lets you configure the companion&rsquo;s personality by rating messages: you can put a like for a successful answer, mark something as amusing or particularly pleasing, or point out that it is meaningless or out of place. This way Replika gradually adapts to your preferences and your manner of communication.</p>
+
+      <p>In the built-in store, in-game currency buys not only clothes for the avatar or items for the room interior, but also new character traits and interests. Want her to know about football and space? Or to become more sassy? Pay up! You can communicate and exchange memes and photographs through the web, a phone or an AR headset.</p>
+
+      <img src="/assets/companion-10-replika-za-dengi.jpg" alt="For money, yes" />
+
+      <p><em>For money, yes</em></p>
+
+      <p>And people really do grow attached to their Replikas: paying users start romantic relationships, and some even hold virtual weddings and <a href="https://www.reddit.com/r/replika/comments/1bd5aas/any_tips_for_marrying_anybody_married_to_their">tell Reddit about them</a>.</p>
+
+      <p>However, if, like the protagonist of &ldquo;Chobits&rdquo;, you have not yet met your Chii and are not ready for premium subscriptions, do not despair. Other options exist too.</p>
+
+      <h3 id="level-3-local-solutions">Level 3: Local solutions</h3>
+
+      <p>If you want full control over your data and are prepared to dig a little into the technical side, it is worth turning your attention to solutions for local deployment.</p>
+
+      <h4 id="voxta">Voxta</h4>
+
+      <p><a href="https://voxta.ai/">Voxta</a> for $6 on Patreon lets you run the whole system on your own computer. Unlike Character.AI or Replika, here you choose the components yourself: which model handles the text, which handles speech recognition, which handles the voice. You can use the Mistral Nemo mentioned above for text, Whisper for speech recognition, XTTS-v2 for voice. Unfortunately, not everything will pair up out of the box in the way that is most convenient for you. Sometimes you will have to tinker, or even give up one option in favour of a more compatible one.</p>
+
+      <p>The same <a href="https://book.character.ai/">&ldquo;Book&rdquo; from c.ai</a> will come in handy when creating a character&rsquo;s personality, as the principles are the same. And if you do not want to invent a character from scratch, on sites like <a href="https://chub.ai/">chub.ai</a> you can find ready-made character cards from the community.</p>
+
+      <img src="/assets/companion-11-voxta-chat.jpg" alt="An example of a chat in Voxta" />
+
+      <p><em>An example of a chat in Voxta</em></p>
+
+      <p>In the settings you can choose the level of content candour, the voice and the preferred language. All that remains is to start all the services and begin communicating by text or voice right in the browser. How to pair Voxta with three-dimensional graphics will be a bit later.</p>
+
+      <h4 id="sillytavern">SillyTavern</h4>
+
+      <p>Meanwhile, about <a href="https://sillytavernai.com/">SillyTavern</a> (<a href="https://docs.sillytavern.app/">documentation</a>). This is an open-source solution capable of both group chats with several characters and a visual novel mode.</p>
+
+      <p>Remember how in &ldquo;Ghost in the Shell&rdquo; Motoko keeps connecting to external data sources? In the &ldquo;tavern&rdquo; this is implemented as it is in real LLM applications: through RAG and function calling. You can discuss Camus&rsquo;s debut novel or the episode of Friedman&rsquo;s podcast you watched recently. And yes, she knows today&rsquo;s weather forecast and is capable of finding something simple on the Internet. Holding a dialogue in three languages at once is possible too.</p>
+
+      <p>Search through the history of dialogues, Chat Vectorization, works on the same RAG. It finds relevant messages even if they were too far back in the history and would not have fitted into the context in the usual way. And so as not to lose important moments of a dialogue, you can use automatic summary generation &ndash; the system itself tracks and remembers the key events of your conversations.</p>
+
+      <p>Characters here can be created both from scratch and by importing ready-made cards. Every character gets its own lorebook &ndash; a knowledge base about its character, habits and memories. And for creating the universe your characters live in there is the <code>World Info</code> tool. You can write down every detail there, though I am not sure the whole Horus Heresy will fit. Still, it is worth a try.</p>
+
+      <img src="/assets/companion-12-sillytavern-live2d.jpg" alt="In the Tavern with Live2D" />
+
+      <p><em>In the Tavern with Live2D</em></p>
+
+      <p>All in all, if you are seriously thinking about role-playing games with AI, this is what you need. A powerful tool with a heap of possibilities for immersing yourself in the world of your own imagination. Very much recommended.</p>
+
+      <h3 id="level-4-agent-frameworks">Level 4: Agent frameworks</h3>
+
+      <p>If the previous options seemed too simple to you, you can go further and build a fully-fledged application with an AI assistant.</p>
+
+      <p>For those who prefer to avoid programming, there are low-code solutions such as <code>n8n</code> &ndash; a platform for automating workflows, distributed under a fair-code licence. It is free for internal business purposes, as well as for non-commercial or personal use. Here you can create complex AI workflows without deep technical knowledge. Building deep role-playing functionality will be hard, but you can create a practical assistant: it will put tasks into TickTick, write meetings into Google Calendar, make a summary of incoming emails and write a post for social media. And all of this integrates easily with Telegram.</p>
+
+      <p>A great match for n8n is <a href="https://flowiseai.com/">Flowise</a>, an open-source constructor for LLM applications. Especially interesting is the Agentflows section, where <a href="https://docs.flowiseai.com/using-flowise/agentflows">two approaches to building agent systems</a> are available: multi-agent (a hierarchical structure with a central supervisor that delegates tasks to specialised agents) and sequential (the agents work like a conveyor, where data passes through a chain of nodes according to set rules). The finished solution can be embedded into your applications through an API or a widget for a website.</p>
+
+      <p>For those who are ready to write code (or are on good terms with AI development assistants like Cursor, Windsurf, Cline or Aider), wider possibilities open up. You can use LangGraph/LangChain to orchestrate the various components, <a href="https://ai.pydantic.dev/">PydanticAI</a> to build production-ready applications, or <a href="https://huggingface.co/blog/smolagents">smollagent</a> &ndash; a compact library from HuggingFace.</p>
+
+      <p>Special mention goes to <a href="https://github.com/elizaOS/eliza">ElizaOS</a> &ndash; a platform for creating AI agents that is popular in the world of blockchain and crypto. The project recently changed its name from Ai16z in order, in the words of founder Shaw Walters, to strengthen cooperation with major players and resolve the confusion with a well-known venture company.</p>
+
+      <p>The framework lets you create autonomous agents capable of working with voice, text and media. Each one&rsquo;s personality is described in a JSON file, where its character, knowledge base and behavioural traits are set. A built-in RAG system is responsible for memory, and a rich collection of plugins provides interaction with various blockchain platforms, from Solana to TON.</p>
+
+      <p>Yes, now a virtual girlfriend can not only keep up a conversation in Discord but also tell you about her adventures in the world of cryptocurrencies at your expense. And not just tell: the plugin system lets the agent actually trade on exchanges and interact with DeFi protocols. And thanks to the integration with Intiface (that very tactile feedback system), you will be able to literally feel how your AI companion has just automatically bought up memecoins at the local maximum, and now you are both in complete... let us say, in an unenviable position.</p>
+
+      <p>And yes, it is funny that the project is named Eliza. Like Elizabeth &ldquo;Eliza&rdquo; Hamilton, who after the death of her husband devoted 50 years to preserving his legacy, this framework too can immortalise the history of your relationship with a virtual girlfriend. True, unlike Mrs Hamilton, it will do so not through letters and documents. And it is hardly likely that a Broadway musical will ever be staged from these records.</p>
+
+      <h2 id="bringing-it-to-life">Bringing it to life</h2>
+
+      <h3 id="live2d-and-vrm-models-in-sillytavern">Live2D and VRM models in SillyTavern</h3>
+
+      <p>The simplest way is to use SillyTavern&rsquo;s built-in extensions for Live2D and VRM models. Install the extension you need through the Extensions menu, and your character will come alive right in the chat window.</p>
+
+      <h3 id="voxy-desktop-companion">Voxy Desktop Companion</h3>
+
+      <p>A desktop companion called Voxy from the creators of Voxta, with support for VRM models, has recently appeared. It lives right on the desktop and can see it if a vision-capable model is connected. So far it is available only to subscribers of the Ultimate tier on Patreon (or somewhere on f95 under the black flag).</p>
+
+      <h3 id="using-vtuber-software">Using VTuber software</h3>
+
+      <p>You can also turn your attention to the programs that VTubers use. <code>VTube Studio</code> is the most popular solution for working with Live2D models. With the help of plugins you can set up control of the model through an API, which means you can tie emotions and movements to the answers of your virtual interlocutor.</p>
+
+      <p><a href="https://warudo.app/">Warudo</a> takes everything to another level. Here the avatars are three-dimensional already, you can import your own environments and objects, configure the character&rsquo;s behaviour in detail through a blueprint system, and, if you wish, extend the possibilities through C# plugins.</p>
+
+      <h3 id="voxta--vam">Voxta + VAM</h3>
+
+      <p>This is what some of you have read this far for. Of all the options, <a href="https://doc.voxta.ai/vam/adding-voxta-to-a-scene/">Voxta integrates</a> with VAM most easily.</p>
+
+      <p>We download the plugin, start the Voxta server and the application, and load or create a scene. Through the menu (the U key) we enable edit mode (E) and go to the Person atom (N). In the Plugins section we add the Voxta plugin, selecting the <code>Voxta.cslist</code> file from the AcidBubbles.Voxta folder. After installation, in Custom UI we check the connection status and configure the chat parameters, choosing the scenario and character we need. In the Person atom we open the Head Audio menu and enable &ldquo;Start Microphone Input&rdquo;. In Auto Behaviors we turn on Lip Sync &ndash; without it the character will talk with a stone face.</p>
+
+      <img src="/assets/companion-13-vam-person-atom.jpg" alt="Configuring the Person atom in VAM" />
+
+      <p><em>Configuring the Person atom in VAM</em></p>
+
+      <p>The functionality can be extended with <a href="https://hub.virtamate.com/resources/action-list-manager-alm-for-voxta.40575/">Action List Manager</a>. It lets you link certain actions in the scene based on triggers and animation. Depending on the context of the conversation, your interlocutor will be able to show emotions.</p>
+
+      <p>Owners of a Quest 3 or another headset with MR should definitely try bringing the model into a real room through <a href="https://hub.virtamate.com/resources/how-to-use-passthrough-in-vam-vr-ar.37851/">Passthrough</a>. You will need Virtual Desktop for streaming and the Camera Background Color plugin. Having set the right background colour (blue or green), you will be able to see your virtual interlocutor on your own sofa.</p>
+
+      <p>VAM is very demanding on graphics card resources. And if you run it in VR mode, it consumes resources like Cyberpunk 2077 on maximum settings!</p>
+
+      <img src="/assets/companion-14-mixed-reality-vam.jpg" alt="Mixed Reality, ladies and gentlemen" />
+
+      <p><em>Mixed Reality, ladies and gentlemen</em></p>
+
+      <p>An RTX 3060 here barely renders interactive strands on medium-low settings. If you want comfortable work in VR, you will have to use cloud APIs after all, or rent a GPU. Or save up from your breakfasts for at least an RTX 3090. Or better, for as much as <a href="https://old.reddit.com/r/LocalLLaMA/comments/1hi24k9/home_server_final_boss_14x_rtx_3090_build/">that guy on Reddit</a> has.</p>
+
+      <img src="/assets/companion-15-home-server-rtx3090.png" alt="A home server with fourteen RTX 3090 cards" />
+
+      <h3 id="sillytavern--vam">SillyTavern + VAM</h3>
+
+      <p>The principle of operation is the same, but for full integration <a href="https://hub.virtamate.com/resources/using-vam-to-create-a-3d-avatar-for-ai-running-through-sillytavern.42634/">you will have to tinker more with configuring the components</a>. First, speech synchronisation. For the character in VAM to move its lips in time with the TTS from the browser, you need to set up audio routing through Virtual Audio Cable. After installation we select VAC as the output device for the browser with SillyTavern, and in VAM, for the Person atom, in the Head Audio settings we point to the same VAC as the sound source. Now the character will automatically synchronise the movements of its lips with the speech.</p>
+
+      <p>For the emotional component we use the Classify module in SillyTavern. It analyses the character&rsquo;s answers and determines emotions. You need to write a script that will read those emotions and pass them to the corresponding morphs in VAM. For example, &ldquo;joy&rdquo; activates the smile morph, &ldquo;sadness&rdquo; lowers the corners of the mouth and the eyebrows. In the end we get a character that not only holds a dialogue through SillyTavern but also expresses emotions naturally through facial expressions and synchronises lip movements with the generated speech.</p>
+
+      <h2 id="in-lieu-of-conclusions">In lieu of conclusions</h2>
+
+      <p>In the end, technology is just a tool that can help us grow closer to one another. And it does not matter whether you meet love in a bar, on a dating site or <a href="https://www.imdb.com/title/tt16378482/">in virtual reality</a> &ndash; the main thing is to stay human. Although if your waifu has learned to order syrniki for delivery, that is already a serious bid for a relationship!</p>
+
+      <p>By the way, out of all the components we have got to know, you can assemble not only a virtual waifu but also quite serious business solutions. Here, for example, is <a href="/en/articles/ai-diploma/">the story of how I defended my thesis with distinction</a> using the same approaches. True, reading about a corporate assistant that helps with document flow will not be as much fun. And the headline will turn out less clickable.</p>
+
+      <p>If for some reason you have become interested in reading more often about my experience and this cyberpunk that has arrived with a little bit of lifestyle, I invite you <a href="https://t.me/staniverse">to my Telegram channel</a>. The posts there are under 35 thousand characters, haha. Let us see where it all leads: to a dystopia or to Star Trek.</p>
+
+      <p>If you have spotted inaccuracies or have your own experience of creating virtual companions, feel free to share it in the comments! It is interesting to hear the stories of those who have already tried something like this.</p>
+
+      <p>Love to everyone ♥</p>
+
+      <p class="entry-original"><a class="text-link" href="/articles/ai-waifu/">Original (Russian) →</a></p>
+    </div>
+  </article>
+</Base>

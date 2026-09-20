@@ -1,0 +1,136 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+
+/* The structural facts stay bound to the Russian entry — status, year, client, role
+   and genres are read from the collection, never retyped for the translation. */
+const source = (await getCollection("works")).find((item) => item.data.id === "work:tsifrovoy-sad-staniverse-xyz");
+const statusLabels: Record<string, string> = { ongoing: "Ongoing", completed: "Completed" };
+const genreLabels: Record<string, string> = { web: "Web", xr: "XR", ai: "AI", automation: "Automation" };
+/* The catalogue stores these two fields in Russian; the page only relabels the values
+   it is given — an unmapped fragment would fall through in the original wording. */
+const clientLabels: Record<string, string> = { "Проект: staniverse": "Project: staniverse" };
+const roleLabels: Record<string, string> = {
+  "Спроектировал архитектуру: Telegram → tgsync → tgparser (LLM-разметка) → Obsidian → syncvault → Quartz → GitLab Pages": "Designed the architecture: Telegram → tgsync → tgparser (LLM tagging) → Obsidian → syncvault → Quartz → GitLab Pages",
+  "Написал пайплайн импорта: tgsync.py, tgparser.py с LLM-генерацией заголовков, тегов, типов, сущностей": "Wrote the import pipeline: tgsync.py, tgparser.py with LLM generation of titles, tags, types and entities",
+  "Собрал WebXR-граф на Three.js: VR, AR, десктоп, мобильные, полёт, hand tracking": "Built the WebXR graph on Three.js: VR, AR, desktop, mobile, flight, hand tracking",
+};
+const status = source ? statusLabels[source.data.status] ?? source.data.status : "Ongoing";
+const genres = source?.data.genres.map((genre) => genreLabels[genre] ?? genre) ?? [];
+const year = source ? String(source.data.year).trim() : "";
+const role = source ? source.data.role.split("; ").map((item) => roleLabels[item] ?? item).join(" · ") : "";
+const client = source?.data.client ? clientLabels[source.data.client] ?? source.data.client : "";
+
+const pageTitle = "Digital garden staniverse.xyz — a portfolio that is a WebXR constellation";
+const description = "A portfolio site is usually built on AIDA: attract attention, hold interest, create desire, prompt action. Email capture forms, SEO copy, a call to action on every screen — I went the other way.";
+const workJsonLd = {
+  "@type": "CreativeWork",
+  "@id": new URL("/en/works/tsifrovoy-sad-staniverse-xyz/#content", Astro.site).href,
+  url: new URL("/en/works/tsifrovoy-sad-staniverse-xyz/", Astro.site).href,
+  name: "Digital garden staniverse.xyz",
+  headline: "Digital garden staniverse.xyz",
+  description,
+  inLanguage: "en",
+  author: { "@id": new URL("/#stanislav-ermolenko", Astro.site).href },
+  isPartOf: { "@id": new URL("/#website", Astro.site).href },
+  ...(source?.data.updated ? { dateModified: source.data.updated.toISOString() } : {}),
+};
+---
+<Base title={pageTitle} description={description} lang="en" jsonLd={workJsonLd}>
+  <article class="entry-shell">
+    <header class="entry-hero">
+      <div class="entry-hero-meta"><span class="section-kicker">Work · {status}</span></div>
+      <h1>Digital garden staniverse.xyz</h1>
+      <p class="entry-summary">{description}</p>
+      <dl class="work-facts">
+        {year && <div><dt>Year</dt><dd>{year}</dd></div>}
+        {role && <div><dt>Role</dt><dd>{role}</dd></div>}
+        {client && <div><dt>Client</dt><dd>{client}</dd></div>}
+        {genres.length > 0 && <div><dt>Genres</dt><dd>{genres.join(" · ")}</dd></div>}
+      </dl>
+    </header>
+    <div class="prose">
+      <h2>The idea</h2>
+      <p>A portfolio site is usually built on AIDA: attract attention, hold interest, create desire, prompt action. Email capture forms, SEO copy, a call to action on every screen. I went the other way. I did not need a landing page that lists works and asks you to subscribe to a newsletter. I needed a space where you can see how one thing grows out of another — and not in a paragraph of text but literally: a 3D graph of connections that you can enter from a VR headset browser and find yourself inside.</p>
+      <p>I work with XR, I talk about immersive technology, I convince people that they need it. I consider it wrong to be a person who broadcasts about XR from a flat screen but does not show how he builds and applies it with his own hands. staniverse.xyz is my answer: here is a WebXR experience, here is how it is assembled, here is what you hear and see. Come in from a Quest 3 and fly between my posts and cases as between stars. Or open it on your phone in AR — the graph will lie down right in your room. Or simply on the desktop.</p>
+      <p>The constellation is not there for the sake of a pretty metaphor. ya.ty.gorod. is the root node: out of it grew the Arch, MetaVyatka and Protected Vyatka (directly, as a bachelor&rsquo;s thesis). Protected Vyatka may later join MetaVyatka. Albina is a separate line, but may find use in both: an embodied AI guide for natural areas or for the digital archive of the region. The graph on the home page is the map of this branching practice. You can fly across it and see the connections for yourself, without explanations.</p>
+      <p>Even the sidebar works on the same principle: the lab is the only section that unfolds child files in the navigation, because it is the space of experiments and connections matter especially there.</p>
+      <p>staniverse.xyz is literally a reified methodology. Not a description of connections but a space where connections are tangible. You can show not only the works but also the way they are connected in your head — and make that a means of the art itself. The process of making is a separate layer: a Telegram channel (raw human output) → LLM tagging (machine structuring) → an Obsidian vault (knowledge architecture) → WebXR constellations (immersive visualisation). A full cycle from the chaos of personal experience to spatial navigation through meanings.</p>
+
+      <h2>Context</h2>
+      <p>Projects, notes, cases and posts live in my Obsidian vault. The Telegram channel @staniverse is a stream of observations about GenAI, XR and automation. Posts from it are normalised by an LLM and settle into the structure of the vault. Part of this space has become public — not as a static calling card but as a working reflection of how I think and connect ideas. staniverse.xyz is the public slice of the vault. A portfolio, a knowledge archive and an XR venue in one place. The whole stack: tagging the Telegram channel → Obsidian → a Python sync script → Quartz → GitLab Pages.</p>
+
+      <h2>How it works</h2>
+
+      <h3>WebXR: a constellation instead of a list</h3>
+      <p>A Three.js scene loads on the home page, where every post, case, project and note is a star. Each category has its own colour: XR is purple, AI is light blue, technology is green, places are yellow, thoughts are pink, media is blue. The nodes are tied together by edges of shared subject matter, and you can travel through that graph.</p>
+      <p>In VR (Quest 3, Supermedium, any headset with a browser):</p>
+      <ul>
+        <li>You are inside the graph. The stars are around you in 3D, each with a name, a type and a date</li>
+        <li>The left stick moves you forwards, backwards and sideways. Smooth, as in a simulator</li>
+        <li>The right stick turns you and changes altitude. You circle a cluster of AI nodes from above, dive into XR projects</li>
+        <li><code>Grip</code> is acceleration. The faster you fly, the louder the whistle of pink noise</li>
+        <li>The trigger selects a star. A 3D card (CanvasTexture) opens with a description, tags and an &ldquo;Open&rdquo; button</li>
+        <li>The thumbrest opens the page in the browser</li>
+      </ul>
+      <p>Hand tracking (Quest 3, Vision Pro): a pinch selects a star, a fist plus a drag moves you.</p>
+      <p>Desktop: the mouse turns, the wheel flies. Mobile: a touch joystick on the left and a swipe to turn the camera.</p>
+      <p>AR mode for smartphones: the graph is projected onto the room, the nodes arranged in a sphere of about two metres around you. You walk and tap the stars with your finger.</p>
+      <p>If you touch nothing at all, an automatic drift starts: the camera slowly travels between hubs, as if the site is guiding itself.</p>
+
+      <h3>Generative music</h3>
+      <p>Everything you hear on the home page is synthesised in real time through the Web Audio API. No files are loaded — it is generative ambient that never repeats. It is based on the pentatonic scale: it guarantees consonance with any number of voices sounding at the same time. A custom library of timbres.</p>
+      <p>The sound reacts to your position in the graph. Fly up to a cluster and new frequencies open up; density and volume change. The graph sounds different depending on where you are. There are interactive sounds for hovering, selecting a node and flying. A dynamics compressor protects against clipping.</p>
+      <p>The architecture of the audio scene keeps being refined — the current version is not the final one.</p>
+
+      <h3>Architecture: Telegram → Obsidian → the site</h3>
+      <p>Posts from @staniverse enter the vault in two steps. First <code>tg_sync.py</code> pulls new messages from the Telegram API through Telethon and saves them to <code>result.json</code>. Then <code>rebuild_channel_notes.py</code> runs <code>tg_parser.parse_export()</code>: it groups messages into threads (by continuation markers, <code>reply_to</code> and albums), sends each thread to a local LLM (Qwen 3.5-9B via LM Studio) with a prompt that returns JSON — title, tags, summary, type (tech/personal/project/share/event/mixed), entities, mood. In parallel a regex filter looks for known entities (Unity, WebXR, n8n, Claude…) as a fallback. For new entities wiki stubs are created — you mention a new tool and a stub appears in <code>04-knowledge/wiki/</code>. The first occurrence of every entity becomes a wiki link. The resulting <code>.md</code> gets frontmatter with <code>source: https://t.me/staniverse/N</code>.</p>
+      <p>Content is published through <code>sync_vault.py</code>: filtering by <code>publish: true</code> in the frontmatter, mapping into the structure of Quartz&rsquo;s <code>content/</code>, processing wiki links, converting assets into <code>/assets/foo.jpg</code> and video into a <code>&lt;video&gt;</code> tag.</p>
+      <p>The build is local — GitLab CI only publishes the finished <code>public/</code>. <code>deploy.sh</code> runs sync_vault plus the Quartz build, prunes unused assets, publishes video to the GitLab Package Registry, deletes video from <code>public/</code> (too heavy for Pages) and pushes the orphan <code>pages</code> branch. GitLab publishes in about ten seconds.</p>
+      <p>The single unsolved problem is video. GitLab Pages cannot carry heavy artefacts, so the plan is to move to a dedicated server or Cloudflare R2.</p>
+
+      <h2>What I did personally</h2>
+      <ul>
+        <li>Designed the architecture: Telegram → <code>tg_sync</code> → <code>tg_parser</code> (LLM tagging) → Obsidian → <code>sync_vault</code> → Quartz → GitLab Pages</li>
+        <li>Wrote the import pipeline: <code>tg_sync.py</code>, <code>tg_parser.py</code> with LLM generation of titles, tags, types and entities</li>
+        <li>Assembled the WebXR graph on Three.js: VR, AR, desktop, mobile, flight, hand tracking</li>
+        <li>Wrote the generative audio scene on the Web Audio API: ambient on the pentatonic scale with proximity reactivity and category mixing</li>
+        <li>Set up CI/CD: <code>deploy.sh</code>, the orphan branch, asset pruning, GitLab Pages</li>
+        <li>Integrated custom Quartz components: <code>graph-xr</code>, <code>fluid-bg</code>, <code>garden-filter</code></li>
+        <li>Wrote the frontend through vibe coding with OpenAI Codex and GLM-5.1</li>
+      </ul>
+
+      <h2>Stack</h2>
+      <ul>
+        <li>Quartz 4</li>
+        <li>Obsidian</li>
+        <li>Three.js (0.184)</li>
+        <li>WebXR / Web Audio API</li>
+        <li>GitLab Pages / Git LFS</li>
+        <li>Python (tg_parser.py, sync_vault.py)</li>
+        <li>Telethon</li>
+        <li>Shell (deploy.sh)</li>
+        <li>Qwen 3.5-9B (LLM tagging of posts)</li>
+        <li>OpenAI Codex (vibe coding the frontend)</li>
+        <li>GLM-5.1 (vibe coding the frontend)</li>
+      </ul>
+
+      <h2>Immediate focus</h2>
+      <ul>
+        <li>Move to a dedicated server or Cloudflare R2 for video</li>
+        <li>Migrate to a new version of Quartz or switch to Astro</li>
+        <li>More interactive elements in the graph: filtering by time, a &ldquo;connections only&rdquo; mode</li>
+      </ul>
+
+      <h2>Result</h2>
+      <p>staniverse.xyz is not a landing page with a subscription form and SEO copy. It is a public slice of living thought: an Obsidian vault you can walk into. You fly from an AI agent to a photogrammetry model of the Vyatka arch and you see the connections not because I wrote a paragraph about &ldquo;how we arrived at the conclusion&rdquo; but because they are there — the nodes are joined by edges, the graph changes the music next to different clusters, and you hear it. I could have made an ordinary website by the rules. But then I would be a person who talks about immersive technology from a flat screen.</p>
+
+      <h2>Links</h2>
+      <ul>
+        <li><a href="https://staniverse.xyz">https://staniverse.xyz</a></li>
+      </ul>
+
+      <p class="entry-original"><a class="text-link" href="/works/tsifrovoy-sad-staniverse-xyz/">Original (Russian) →</a></p>
+    </div>
+  </article>
+</Base>

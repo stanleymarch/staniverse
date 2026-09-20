@@ -1,0 +1,112 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+
+/* The structural facts stay bound to the Russian entry — status, year, role, client
+   and genres are read from the collection, never retyped for the translation. */
+const source = (await getCollection("works")).find((item) => item.data.id === "work:maslenitsa-v-slobodskom");
+const statusLabels: Record<string, string> = { ongoing: "Ongoing", completed: "Completed" };
+const genreLabels: Record<string, string> = { xr: "XR", art: "Art", community: "Community" };
+const status = source ? statusLabels[source.data.status] ?? source.data.status : "Completed";
+const genres = source?.data.genres.map((genre) => genreLabels[genre] ?? genre) ?? [];
+/* Role and client reach the page from the collection in Russian, so their translation
+   is keyed to the exact source fragments: anything unmatched falls back to the source. */
+const roleLabels: Record<string, string> = {
+  "Спроектировал и собрал VR-сцену в Unity для Somnium Space": "Designed and assembled the VR scene in Unity for Somnium Space",
+  "Воссоздал архитектурный ансамбль Соборной площади Слободского": "Recreated the architectural ensemble of Cathedral Square in Slobodskoy",
+  "Выполнил фотограмметрию льва с натуры": "Photogrammetrised a lion from life",
+};
+const clientLabels: Record<string, string> = { "Проект: staniverse": "Project: staniverse", };
+const year = source ? String(source.data.year).trim() : "";
+const role = (source?.data.role ?? "").split("; ").map((part) => roleLabels[part.trim()] ?? part.trim()).join(" · ");
+const client = clientLabels[source?.data.client ?? ""] ?? source?.data.client ?? "";
+
+const pageTitle = "Maslenitsa in Slobodskoy — a social VR experience on Somnium Space";
+const description = "Create a social VR experience on the Somnium Space platform that lets a European audience immerse themselves in the Russian Maslenitsa tradition — against the real architecture of Cathedral Square in the town of Slobodskoy.";
+const workJsonLd = {
+  "@type": "CreativeWork",
+  "@id": new URL("/en/works/maslenitsa-v-slobodskom/#content", Astro.site).href,
+  url: new URL("/en/works/maslenitsa-v-slobodskom/", Astro.site).href,
+  name: "Maslenitsa in Slobodskoy",
+  headline: "Maslenitsa in Slobodskoy",
+  description,
+  inLanguage: "en",
+  author: { "@id": new URL("/#stanislav-ermolenko", Astro.site).href },
+  isPartOf: { "@id": new URL("/#website", Astro.site).href },
+  ...(source?.data.updated ? { dateModified: source.data.updated.toISOString() } : {}),
+};
+---
+<Base title={pageTitle} description={description} lang="en" jsonLd={workJsonLd}>
+  <article class="entry-shell">
+    <header class="entry-hero">
+      <div class="entry-hero-meta"><span class="section-kicker">Work · {status}</span></div>
+      <h1>Maslenitsa in Slobodskoy</h1>
+      <p class="entry-summary">{description}</p>
+      <dl class="work-facts">
+        {year && <div><dt>Year</dt><dd>{year}</dd></div>}
+        {role && <div><dt>Role</dt><dd>{role}</dd></div>}
+        {client && <div><dt>Client</dt><dd>{client}</dd></div>}
+        {genres.length > 0 && <div><dt>Genres</dt><dd>{genres.join(" · ")}</dd></div>}
+      </dl>
+    </header>
+    <div class="prose">
+      <h2>The brief</h2>
+      <p>Create a social VR experience on the Somnium Space platform that lets a European audience immerse themselves in the Russian Maslenitsa tradition — against the real architecture of Cathedral Square in the town of Slobodskoy.</p>
+
+      <h2>Context</h2>
+      <p>This was the final project within my studies at the Somnium Space Academy. I moved to Slobodskoy in November 2025 and discovered that there are few city activities here, apart from fairs, perhaps. One of the few big holidays (even bigger than New Year) turned out to be Maslenitsa.</p>
+      <p>Maslenitsa is an East Slavic traditional holiday marking the farewell to winter, celebrated for a whole week before Great Lent. Its main symbols are pancakes as an image of the sun, a straw effigy burned on the farewell Sunday, and festive amusements — including climbing a smooth Maslenitsa pole for prizes.</p>
+      <p>I wanted to connect this local cultural experience with the Somnium Space audience, which is predominantly European. The idea: to give a user in VR the chance to see the Vyatka region as it really is — with real pancakes, Cathedral Square, the bell tower that is a triumphal arch, and the chance to crawl up a Maslenitsa pole.</p>
+
+      <h2>Solution</h2>
+      <p>I recreated Cathedral Square in Slobodskoy — an architectural ensemble of federal significance shaped in the age of classicism. The central object is the 66-metre bell tower of the Transfiguration Cathedral, originally built as a triumphal arch commemorating the victory over Napoleon (1822–1824). Beside it stands the Annunciation Church (1784) with a spire of its own. All of this formed the historical decoration for the Maslenitsa action.</p>
+      <p>The scene included:</p>
+      <ul>
+        <li><strong>The Maslenitsa pole</strong> — an interactive element you can crawl up, with prizes on top, as at a real celebration</li>
+        <li><strong>The Maslenitsa effigy</strong> — which you can set on fire, as is done on the farewell Sunday</li>
+        <li><strong>Pancakes</strong> — Vyatka ones, possibly</li>
+        <li><strong>A photogrammetric model of a lion</strong> — in the former Vyatka province lions appear on the entrance groups of buildings. Slobodskoy is no exception, so together with friends I photogrammetrised it. In VR it came out in a snowy form, and now, with the help of 3D printing, silicone and plaster, it is also sold as a physical souvenir</li>
+        <li><strong>A large labyrinth</strong> — I noticed that when decorating squares for winter our cities like to make small labyrinths. So I made a large one</li>
+      </ul>
+      <p>For me this is an example of how the culture of a region could promote itself in the world — or how a tourism centre could work if it thought in the paradigm of immersive technologies. Cat-girls and furries crawling up a Maslenitsa pole against the backdrop of a bell tower that is a triumphal arch: that is exactly the cultural exchange which does not happen through official channels but can happen through social VR.</p>
+
+      <h2>What I did personally</h2>
+      <ul>
+        <li>Designed and assembled the VR scene in Unity for Somnium Space</li>
+        <li>Recreated the architectural ensemble of Cathedral Square in Slobodskoy</li>
+        <li>Photogrammetrised a lion from life</li>
+        <li>Created 3D models in Blender</li>
+        <li>Generated additional models through Meshy and the Chinese model GLM-5.1</li>
+        <li>Set up the interactions: crawling up the pole, setting the effigy on fire, navigating the labyrinth</li>
+      </ul>
+
+      <h2>Stack</h2>
+      <ul>
+        <li>Unity</li>
+        <li>Blender</li>
+        <li>Meshy</li>
+        <li>GLM-5.1</li>
+        <li>Somnium Space SDK</li>
+      </ul>
+
+      <h2>Skills</h2>
+      <ul>
+        <li>worldbuilding for a social VR platform</li>
+        <li>photogrammetry of real objects</li>
+        <li>cultural representation in XR</li>
+        <li>3D modelling and optimisation for VR</li>
+      </ul>
+
+      <h2>Result</h2>
+      <p>The experience is published and available on the Somnium Space platform. This case is directly connected to the place where I live and to the way I see cultural exchange through immersive technologies. A European user can literally visit Maslenitsa in a provincial Russian town — see pancakes, burn the effigy and crawl up the pole against the background of a bell tower built to honour the victory over Napoleon.</p>
+      <p>In the longer term — porting the world to <a href="https://github.com/BasisVR/Basis">BasisVR</a>, an open-source framework for social VR, to provide access through a self-hosted server in case of a separated internet.</p>
+
+      <h2>Links</h2>
+      <ul>
+        <li><a href="https://somniumspace.com/world/9395">https://somniumspace.com/world/9395</a></li>
+      </ul>
+
+      <p class="entry-original"><a class="text-link" href="/works/maslenitsa-v-slobodskom/">Original (Russian) →</a></p>
+    </div>
+  </article>
+</Base>

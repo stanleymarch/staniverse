@@ -1,0 +1,103 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+
+/* The structural facts stay bound to the Russian entry — status, year, client, role
+   and genres are read from the collection, never retyped for the translation. */
+const source = (await getCollection("works")).find((item) => item.data.id === "work:sistema-sbora-i-analiza-trendov-na-n8n");
+const statusLabels: Record<string, string> = { ongoing: "Ongoing", completed: "Completed" };
+const genreLabels: Record<string, string> = { automation: "Automation", ai: "AI", writing: "Writing" };
+/* The catalogue stores these two fields in Russian; the page only relabels the values
+   it is given — an unmapped fragment would fall through in the original wording. */
+const clientLabels: Record<string, string> = { "Проект: OmniPub": "Project: OmniPub" };
+const roleLabels: Record<string, string> = {
+  "Проектировал архитектуру автоматизации": "Designed the automation architecture",
+  "Собирал и тестировал n8n-воркфлоу": "Assembled and tested n8n workflows",
+  "Проверял сценарии через MCP, Telegram и внешние источники": "Tested the scenarios through MCP, Telegram and external sources",
+};
+const status = source ? statusLabels[source.data.status] ?? source.data.status : "Ongoing";
+const genres = source?.data.genres.map((genre) => genreLabels[genre] ?? genre) ?? [];
+const year = source ? String(source.data.year).trim() : "";
+const role = source ? source.data.role.split("; ").map((item) => roleLabels[item] ?? item).join(" · ") : "";
+const client = source?.data.client ? clientLabels[source.data.client] ?? source.data.client : "";
+
+const pageTitle = "Trend collection and analysis system on n8n — an R&D circuit for a content autopilot";
+const description = "Build a system that automatically monitors sources, pulls out signals and topics, filters the noise, helps with the analysis and turns it into publication drafts or finished content for different platforms.";
+const workJsonLd = {
+  "@type": "CreativeWork",
+  "@id": new URL("/en/works/sistema-sbora-i-analiza-trendov-na-n8n/#content", Astro.site).href,
+  url: new URL("/en/works/sistema-sbora-i-analiza-trendov-na-n8n/", Astro.site).href,
+  name: "Trend collection and analysis system on n8n",
+  headline: "Trend collection and analysis system on n8n",
+  description,
+  inLanguage: "en",
+  author: { "@id": new URL("/#stanislav-ermolenko", Astro.site).href },
+  isPartOf: { "@id": new URL("/#website", Astro.site).href },
+  ...(source?.data.updated ? { dateModified: source.data.updated.toISOString() } : {}),
+};
+---
+<Base title={pageTitle} description={description} lang="en" jsonLd={workJsonLd}>
+  <article class="entry-shell">
+    <header class="entry-hero">
+      <div class="entry-hero-meta"><span class="section-kicker">Work · {status}</span></div>
+      <h1>Trend collection and analysis system on n8n</h1>
+      <p class="entry-summary">{description}</p>
+      <dl class="work-facts">
+        {year && <div><dt>Year</dt><dd>{year}</dd></div>}
+        {role && <div><dt>Role</dt><dd>{role}</dd></div>}
+        {client && <div><dt>Client</dt><dd>{client}</dd></div>}
+        {genres.length > 0 && <div><dt>Genres</dt><dd>{genres.join(" · ")}</dd></div>}
+      </dl>
+    </header>
+    <div class="prose">
+      <h2>The brief</h2>
+      <p>Build a system that automatically monitors sources, pulls out signals and topics, filters the noise, helps with the analysis and turns it into publication drafts or finished content for different platforms.</p>
+
+      <h2>Context</h2>
+      <p>This is no longer just &ldquo;posting automation&rdquo; but a more mature circuit for content and analytical work. The problem here is that manually monitoring sources, news and topics quickly turns into routine, and without filtering the signals AI starts spending tokens and attention in the wrong place.</p>
+      <p>The case matters as a transition from individual <code>n8n</code> connections to thinking about a full-fledged content autopilot.</p>
+
+      <h2>Solution</h2>
+      <p>An R&amp;D circuit was assembled around <code>n8n</code>, in which workflows can be used as MCP tools, connected to search, extraction of data from pages, rewriting into the required tone of voice and publication to channels. According to the data from NotebookLM, this was developing towards a more complex system of collecting, normalising, filtering and evaluating content before publication.</p>
+      <p>The strength of the case is that automation here is understood not as &ldquo;press a button and earn a million&rdquo; but as engineering work with bugs, limitations and integration architecture.</p>
+      <p>The framing of the task itself matters separately: to automate not only publication but also the reading of the world. That is, to assemble a circuit that looks for signals, cleans the noise, is able to take an editorial frame into account and only then hands something over to content work.</p>
+
+      <h2>What I did personally</h2>
+      <ul>
+        <li>Designed the automation architecture</li>
+        <li>Assembled and tested <code>n8n</code> workflows</li>
+        <li>Tested the scenarios through MCP, Telegram and external sources</li>
+        <li>Thought about the circuit of filtering, rewriting and publishing for different channels</li>
+      </ul>
+
+      <h2>Stack</h2>
+      <ul>
+        <li>n8n</li>
+        <li>MCP</li>
+        <li>OpenRouter</li>
+        <li>Telegram</li>
+        <li>Perplexity / search and data extraction</li>
+      </ul>
+
+      <h2>Skills</h2>
+      <ul>
+        <li>automation design</li>
+        <li>building content pipelines</li>
+        <li>engineering work with AI integrations</li>
+        <li>reducing manual routine in research and publishing</li>
+      </ul>
+
+      <h2>Immediate focus</h2>
+      <ul>
+        <li>Settle the final name of the project</li>
+        <li>Add a diagram of the pipeline and its key nodes</li>
+        <li>Clarify what has already been brought to an MVP and what remains at the level of an experiment</li>
+      </ul>
+
+      <h2>Result</h2>
+      <p>This case shows that I can look at automation not as a set of chaotic individual integrations but as a system. It is especially strong for the future website, because it connects my work with agents, content, research and applied engineering.</p>
+
+      <p class="entry-original"><a class="text-link" href="/works/sistema-sbora-i-analiza-trendov-na-n8n/">Original (Russian) →</a></p>
+    </div>
+  </article>
+</Base>

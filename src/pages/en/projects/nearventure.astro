@@ -1,0 +1,77 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+
+/* The structural facts stay bound to the Russian entry — status, domains and the
+   update date are read from the collection, never retyped for the translation. */
+const source = (await getCollection("projects")).find((item) => item.data.id === "project:nearventure");
+const statusLabels: Record<string, string> = { idea: "Idea", planned: "Planned", development: "In development", active: "Active", paused: "Paused", completed: "Completed", archived: "Archived" };
+const domainLabels: Record<string, string> = { geo: "Geo", routing: "Routing", "open-data": "Open data", "civic-tech": "Civic tech", travel: "Travel" };
+const status = source ? statusLabels[source.data.status] ?? source.data.status : "Active";
+const domains = source?.data.domains.map((domain) => domainLabels[domain] ?? domain) ?? [];
+const updated = source?.data.updated ? new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric" }).format(source.data.updated) : "";
+
+const pageTitle = "Nearventure — a planner for micro-adventures nearby";
+const description = "A micro-adventure planner: you set the time and the way you travel, and get a route through interesting places with a map, elevation data and GPX.";
+const projectJsonLd = {
+  "@type": "CreativeWork",
+  "@id": new URL("/en/projects/nearventure/#content", Astro.site).href,
+  url: new URL("/en/projects/nearventure/", Astro.site).href,
+  name: "Nearventure",
+  headline: "Nearventure",
+  description,
+  inLanguage: "en",
+  author: { "@id": new URL("/#stanislav-ermolenko", Astro.site).href },
+  isPartOf: { "@id": new URL("/#website", Astro.site).href },
+  ...(source?.data.updated ? { dateModified: source.data.updated.toISOString() } : {}),
+};
+---
+<Base title={pageTitle} description={description} lang="en" jsonLd={projectJsonLd}>
+  <article class="entry-shell">
+    <header class="entry-hero">
+      <div class="entry-hero-meta"><span class="section-kicker">Own project · {status}</span></div>
+      <h1>Nearventure</h1>
+      <p class="entry-summary">{description}</p>
+      <dl class="work-facts">
+        <div><dt>Status</dt><dd>{status}</dd></div>
+        <div><dt>Domains</dt><dd>{domains.join(" · ")}</dd></div>
+        {updated && <div><dt>Updated</dt><dd>{updated}</dd></div>}
+      </dl>
+    </header>
+    <div class="prose">
+      <h2>The essence</h2>
+      <p><code>Nearventure</code> helps you come up with a short adventure next to where you are. I set a starting point, a time budget and a way of travelling, choose interests — natural places, cultural heritage, museums or unusual objects — and get a route that can genuinely be walked or ridden in that time. The result can be taken away as GPX and used in any navigator.</p>
+      <p>The project grew out of a very personal need: I like cycling trips, but I do not want to hunt for points by hand every time, estimate the mileage and assemble a new loop. I need a tool in the spirit of: &ldquo;Here are 40 kilometres through a lake and an abandoned church — get on and ride.&rdquo;</p>
+
+      <h2>What already works</h2>
+      <ul>
+        <li>a web application with a map, a catalogue of POI, isochrones and route building;</li>
+        <li>manual and automatic selection of points within a given time budget;</li>
+        <li>seven travel profiles: from a car to a scenic walk and MTB;</li>
+        <li>export of a route to GPX;</li>
+        <li>a Telegram bot and a Mini App with the same domain logic;</li>
+        <li>a catalogue of the entire Volga Federal District: 14 federal subjects and 32,459 objects according to the public version;</li>
+        <li>an open data pipeline with the provenance and the attribution of every field.</li>
+      </ul>
+
+      <h2>Why this continues earlier experience</h2>
+      <p>In the project &ldquo;я.ты.город.&rdquo; I looked for places myself, built routes, travelled there and documented local journeys. <code>Nearventure</code> turns that experience into a tool for others: not &ldquo;look where I went&rdquo; but &ldquo;get a route and set off yourself&rdquo;.</p>
+      <p>It also connects with MetaVyatka and &ldquo;Protected Vyatka 360°&rdquo;: a trip can become a way not only to see a place but also to contribute to open data, to take a photograph, to make a sound recording or to create a digital trace of an object.</p>
+
+      <h2>Technology and principles</h2>
+      <p>The project is built on Vue 3, Tailwind and shadcn-vue in the front end; MapLibre GL and Protomaps are responsible for the map; NestJS 11, PostgreSQL, PostGIS and pgvector handle the API, the data and the geo search; GraphHopper 11 builds routes and elevation; grammY is used in the Telegram bot, while a Python pipeline collects and links POI. The web app, the bot, the Mini App and the API use a single capabilities layer, so the logic of finding points and building routes is not duplicated.</p>
+      <p><code>Nearventure</code> works with open data from OpenStreetMap, Wikidata, Wikimedia Commons, Wikivoyage and ЕГРКН. For images and descriptions the source, the licence and the attribution are preserved. This is not only a technical constraint but also part of the idea of citizen science: a journey can improve the shared map and the digital memory of a place.</p>
+
+      <h2>Now</h2>
+      <p>The project has left the stage of a hidden prototype and works as a public beta. The next question is no longer &ldquo;can a route be built&rdquo; but &ldquo;does the route turn out to be genuinely interesting and convenient on a real trip&rdquo;.</p>
+
+      <h2>Links</h2>
+      <ul>
+        <li><a href="https://github.com/stanleymarch/nearventure">Code and documentation of Nearventure</a></li>
+        <li><a href="https://github.com/stanleymarch/poi-toolkit">poi-toolkit — the open data pipeline of the project</a></li>
+      </ul>
+
+      <p class="entry-original"><a class="text-link" href="/projects/nearventure/">Original (Russian) →</a></p>
+    </div>
+  </article>
+</Base>

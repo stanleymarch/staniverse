@@ -1,0 +1,99 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+
+/* The structural facts stay bound to the Russian entry — status, year, client, role
+   and genres are read from the collection, never retyped for the translation. */
+const source = (await getCollection("works")).find((item) => item.data.id === "work:video-dlya-regionalnogo-operatora-po-obrascheniyu-s-tko");
+const statusLabels: Record<string, string> = { ongoing: "Ongoing", completed: "Completed" };
+const genreLabels: Record<string, string> = { video: "Video" };
+/* The catalogue stores these two fields in Russian; the page only relabels the values
+   it is given — an unmapped fragment would fall through in the original wording. */
+const roleLabels: Record<string, string> = {
+  "Придумывал идею и сюжетную подачу": "Came up with the idea and the narrative treatment",
+  "Работал как сценарист": "Worked as the screenwriter",
+  "Снимал материал": "Shot the material",
+};
+const status = source ? statusLabels[source.data.status] ?? source.data.status : "Completed";
+const genres = source?.data.genres.map((genre) => genreLabels[genre] ?? genre) ?? [];
+const year = source ? String(source.data.year).trim() : "";
+const role = source ? source.data.role.split("; ").map((item) => roleLabels[item] ?? item).join(" · ") : "";
+const client = source?.data.client ?? "";
+
+const pageTitle = "Video for the regional municipal waste operator — explaining the system through real stories";
+const description = "Produce video materials for the communication of the regional operator for municipal solid waste, explaining how the system works through real stories.";
+const workJsonLd = {
+  "@type": "CreativeWork",
+  "@id": new URL("/en/works/video-dlya-regionalnogo-operatora-po-obrascheniyu-s-tko/#content", Astro.site).href,
+  url: new URL("/en/works/video-dlya-regionalnogo-operatora-po-obrascheniyu-s-tko/", Astro.site).href,
+  name: "Video for the regional municipal waste operator",
+  headline: "Video for the regional municipal waste operator",
+  description,
+  inLanguage: "en",
+  author: { "@id": new URL("/#stanislav-ermolenko", Astro.site).href },
+  isPartOf: { "@id": new URL("/#website", Astro.site).href },
+  ...(source?.data.updated ? { dateModified: source.data.updated.toISOString() } : {}),
+};
+---
+<Base title={pageTitle} description={description} lang="en" jsonLd={workJsonLd}>
+  <article class="entry-shell">
+    <header class="entry-hero">
+      <div class="entry-hero-meta"><span class="section-kicker">Work · {status}</span></div>
+      <h1>Video for the regional municipal waste operator</h1>
+      <p class="entry-summary">{description}</p>
+      <dl class="work-facts">
+        {year && <div><dt>Year</dt><dd>{year}</dd></div>}
+        {role && <div><dt>Role</dt><dd>{role}</dd></div>}
+        {client && <div><dt>Client</dt><dd>{client}</dd></div>}
+        {genres.length > 0 && <div><dt>Genres</dt><dd>{genres.join(" · ")}</dd></div>}
+      </dl>
+    </header>
+    <div class="prose">
+      <h2>The brief</h2>
+      <p>Produce video materials for the communication of the regional operator for municipal solid waste, explaining how the system works through real stories.</p>
+
+      <h2>Context</h2>
+      <p>The portfolio and the channel mention at least two videos: about a day with a refuse truck crew and about an eco-centre. This is the format of applied institutional production, where working processes have to be shown in plain human language rather than in a dry corporate presentation.</p>
+
+      <h2>Solution</h2>
+      <p>Judging by the available data, this was a series of educational and reportage videos for the public communication of the operator. NotebookLM confirms that here I acted not only as the editor but also as the screenwriter and the camera operator.</p>
+      <p>For the video about the refuse truck I personally went out with the shift to the landfill, in order to show the work of the crew from the inside. Thanks to that the topic of waste management received not impersonal infographics but a living and vivid story.</p>
+
+      <h2>What I did personally</h2>
+      <ul>
+        <li>Came up with the idea and the narrative treatment</li>
+        <li>Worked as the screenwriter</li>
+        <li>Shot the material</li>
+        <li>Edited the videos</li>
+        <li>Packaged the topic of waste management into a clear human format</li>
+      </ul>
+
+      <h2>Stack</h2>
+      <ul>
+        <li>filming</li>
+        <li>editing</li>
+        <li>sound</li>
+        <li>a reportage trip</li>
+      </ul>
+
+      <h2>Skills</h2>
+      <ul>
+        <li>production for a socially significant topic</li>
+        <li>explanatory video</li>
+        <li>working with documentary material</li>
+        <li>working with an institutional client</li>
+      </ul>
+
+      <h2>Result</h2>
+      <p>There are at least two published videos that can be used as examples of working with institutional and educational video. The case is valuable because a complex topic — not the audience&rsquo;s favourite one — was shown simply and humanly.</p>
+
+      <h2>Links</h2>
+      <ul>
+        <li><a href="https://vkvideo.ru/video-175922705_456239360">https://vkvideo.ru/video-175922705_456239360</a></li>
+        <li><a href="https://vkvideo.ru/video-175922705_456239374">https://vkvideo.ru/video-175922705_456239374</a></li>
+      </ul>
+
+      <p class="entry-original"><a class="text-link" href="/works/video-dlya-regionalnogo-operatora-po-obrascheniyu-s-tko/">Original (Russian) →</a></p>
+    </div>
+  </article>
+</Base>

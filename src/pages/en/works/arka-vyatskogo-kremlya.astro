@@ -1,0 +1,109 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+
+/* The structural facts stay bound to the Russian entry — status, year, role, client
+   and genres are read from the collection, never retyped for the translation. */
+const source = (await getCollection("works")).find((item) => item.data.id === "work:arka-vyatskogo-kremlya");
+const statusLabels: Record<string, string> = { ongoing: "Ongoing", completed: "Completed" };
+const genreLabels: Record<string, string> = { xr: "XR", community: "Community" };
+const status = source ? statusLabels[source.data.status] ?? source.data.status : "Completed";
+const genres = source?.data.genres.map((genre) => genreLabels[genre] ?? genre) ?? [];
+/* Role and client reach the page from the collection in Russian, so their translation
+   is keyed to the exact source fragments: anything unmatched falls back to the source. */
+const roleLabels: Record<string, string> = {
+  "Снял объект на DJI Mini 2": "Filmed the object with a DJI Mini 2",
+  "Собрал фотограмметрическую модель в RealityCapture": "Assembled a photogrammetric model in RealityCapture",
+  "Почистил и доработал скан в Blender": "Cleaned up and refined the scan in Blender",
+};
+const clientLabels: Record<string, string> = { "Проект: MetaVyatka": "Project: MetaVyatka", };
+const year = source ? String(source.data.year).trim() : "";
+const role = (source?.data.role ?? "").split("; ").map((part) => roleLabels[part.trim()] ?? part.trim()).join(" · ");
+const client = clientLabels[source?.data.client ?? ""] ?? source?.data.client ?? "";
+
+const pageTitle = "The Arch of the Vyatka Kremlin — photogrammetry and digital conservation in XR";
+const description = "Preserve and rethink in digital form a people's landmark of Kirov, draw attention to it and show how local cultural heritage can live in the metaverse, beyond the physical vulnerability of the original object. The arch was filmed from a drone, rebuilt as a photogrammetric model and opened as a curated virtual space in Spatial.";
+const workJsonLd = {
+  "@type": "CreativeWork",
+  "@id": new URL("/en/works/arka-vyatskogo-kremlya/#content", Astro.site).href,
+  url: new URL("/en/works/arka-vyatskogo-kremlya/", Astro.site).href,
+  name: "The Arch of the Vyatka Kremlin",
+  headline: "The Arch of the Vyatka Kremlin",
+  description,
+  inLanguage: "en",
+  author: { "@id": new URL("/#stanislav-ermolenko", Astro.site).href },
+  isPartOf: { "@id": new URL("/#website", Astro.site).href },
+  ...(source?.data.updated ? { dateModified: source.data.updated.toISOString() } : {}),
+};
+---
+<Base title={pageTitle} description={description} lang="en" jsonLd={workJsonLd}>
+  <article class="entry-shell">
+    <header class="entry-hero">
+      <div class="entry-hero-meta"><span class="section-kicker">Work · {status}</span></div>
+      <h1>The Arch of the Vyatka Kremlin</h1>
+      <p class="entry-summary">{description}</p>
+      <dl class="work-facts">
+        {year && <div><dt>Year</dt><dd>{year}</dd></div>}
+        {role && <div><dt>Role</dt><dd>{role}</dd></div>}
+        {client && <div><dt>Client</dt><dd>{client}</dd></div>}
+        {genres.length > 0 && <div><dt>Genres</dt><dd>{genres.join(" · ")}</dd></div>}
+      </dl>
+    </header>
+    <div class="prose">
+      <h2>The brief</h2>
+      <p>Preserve and rethink in digital form a people&rsquo;s landmark of Kirov, draw attention to it and show how local cultural heritage can live in the metaverse, beyond the physical vulnerability of the original object.</p>
+
+      <h2>Context</h2>
+      <p>The Arch of the Vyatka Kremlin is tied to the last surviving fragment of the fence around the archbishop&rsquo;s compound. After the monument came close to being lost, I wanted to conserve it digitally and make it accessible in a new environment. In essence it was an early gesture of digital conservation: not waiting for ideal conditions and large institutional support, but simply managing to save a fragment of culture with the means that were at hand.</p>
+      <p>The personal backstory of the project: I volunteered on this territory and, through the ya.ty.gorod channel, told the story of the path from an overgrown wasteland to a garden. Later I discovered metaverses and came across <a href="https://rd.nytimes.com/projects/an-end-to-end-guide-to-photogrammetry-with-mobile-devices/">a guide to photogrammetry from the NYT</a>. The ideas connected — it turned out that Japanese creators in VRChat had long been moving real places into virtual spaces at a high level. That is how the plan appeared: to connect local cultural heritage with accessible digital tools and to show that not only an institution but also an individual can do this. The project became a case of the link between local cultural preservation and digital practice.</p>
+
+      <iframe src="https://vk.com/video_ext.php?oid=-211528750&id=456239114&hash=4fd092c01657b851" width="640" height="360" frameborder="0" allowfullscreen="1" style="background-color: #000" allow="autoplay; encrypted-media; fullscreen; picture-in-picture"></iframe>
+
+      <h2>Solution</h2>
+      <p>The object was filmed from a drone, assembled by photogrammetry, then cleaned and prepared for display in a virtual space. After it was uploaded to the <code>Spatial</code> platform the space was additionally designed with three exhibition layers.</p>
+      <p>What I like most about this case today is not only the metaverse form itself but the fact that here the digital twin works as a cultural mediator. It returns access to the place for those who cannot be there physically, and at the same time it fixes the state of the object in a moment. This matters especially because the physical condition of the arch worsened after the shoot.</p>
+      <p>A <a href="https://getgems.io/collection/EQBWSSsOvm8MiQXm_Ik0x_RZOJR94coxbIu8gwpGbr85KGAS">series of NFTs</a> made together with the Kirov artist Sasha Glushka (<a href="https://www.youtube.com/shorts/VlHe-lVKQ1A">the process</a>) was timed to the opening of the virtual space.</p>
+
+      <h2>What I did personally</h2>
+      <ul>
+        <li>Filmed the object with a DJI Mini 2</li>
+        <li>Assembled a photogrammetric model in RealityCapture</li>
+        <li>Cleaned up and refined the scan in Blender</li>
+        <li>Published and designed the space in Spatial</li>
+        <li>Built a small exhibition dramaturgy around the object instead of just dropping a mesh online</li>
+      </ul>
+
+      <h2>Stack</h2>
+      <ul>
+        <li>DJI Mini 2</li>
+        <li>RealityCapture</li>
+        <li>Blender</li>
+        <li>Spatial</li>
+      </ul>
+
+      <h2>Skills</h2>
+      <ul>
+        <li>photogrammetry</li>
+        <li>spatial storytelling</li>
+        <li>working with cultural heritage</li>
+        <li>packaging local identity into a digital format</li>
+      </ul>
+
+      <h2>Result</h2>
+      <p>The project became an early and important XR case showing that local architecture can not only be recorded but also emotionally returned to the viewer. What I valued especially was the response of a person who had not lived in Kirov for about twenty years but, thanks to this work, could touch his native territory again.</p>
+      <p>Today this case reads even more strongly than it did at the moment of creation. First, it recorded the state of the object, which later changed for the worse. Second, if the source materials have survived, they can be repackaged with more modern means: into a cleaner mesh, a <code>gaussian splat</code> or another format of spatial representation. So the work turned out to be not only a one-off action but also a seed for a longer archival future.</p>
+
+      <h2>Links</h2>
+      <ul>
+        <li><a href="https://www.youtube.com/watch?v=XzgDv5ck1zI">Stream of the opening of the Arch&rsquo;s virtual space with a tour by the author</a></li>
+        <li><a href="https://www.youtube.com/watch?v=qxUfiC6KF4g">Meeting with the winners of the Delphic Games of Russia</a></li>
+        <li><a href="https://youtu.be/ag2qmZcFHag">How and why the Arch was created — a feature by DVUKHNAUCHPOP</a></li>
+        <li><a href="https://t.me/yatygorod/603">Satirical action &ldquo;Signing for the use of a picture with a transparent background&rdquo;</a></li>
+        <li><a href="https://getgems.io/collection/EQBWSSsOvm8MiQXm_Ik0x_RZOJR94coxbIu8gwpGbr85KGAS">NFT series with Sasha Glushka</a></li>
+        <li><a href="https://www.youtube.com/shorts/VlHe-lVKQ1A">The making of the NFT</a></li>
+      </ul>
+
+      <p class="entry-original"><a class="text-link" href="/works/arka-vyatskogo-kremlya/">Original (Russian) →</a></p>
+    </div>
+  </article>
+</Base>

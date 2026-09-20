@@ -1,0 +1,101 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+
+/* The structural facts stay bound to the Russian entry — status, year, client, role
+   and genres are read from the collection, never retyped for the translation. */
+const source = (await getCollection("works")).find((item) => item.data.id === "work:sayt-advokata-antona-okulova");
+const statusLabels: Record<string, string> = { ongoing: "Ongoing", completed: "Completed" };
+const genreLabels: Record<string, string> = { web: "Web" };
+/* The catalogue stores these two fields in Russian; the page only relabels the values
+   it is given — an unmapped fragment would fall through in the original wording. */
+const clientLabels: Record<string, string> = { "Антон Окулов": "Anton Okulov" };
+const roleLabels: Record<string, string> = {
+  "Проектировал связку сайта и метаофиса": "Designed how the website and the meta-office work together",
+  "Разрабатывал сайт на Tilda": "Developed the website on Tilda",
+  "Продумывал пользовательский путь от знакомства к обращению": "Thought through the user journey from first contact to an enquiry",
+};
+const status = source ? statusLabels[source.data.status] ?? source.data.status : "Completed";
+const genres = source?.data.genres.map((genre) => genreLabels[genre] ?? genre) ?? [];
+const year = source ? String(source.data.year).trim() : "";
+const role = source ? source.data.role.split("; ").map((item) => roleLabels[item] ?? item).join(" · ") : "";
+const client = source?.data.client ? clientLabels[source.data.client] ?? source.data.client : "";
+
+const pageTitle = "Website for the lawyer Anton Okulov — private practice online";
+const description = "Build a personal website for the lawyer Anton Okulov that works not only as a calling card but as a clear entry point into a consultation, an expert brand and related digital services.";
+const workJsonLd = {
+  "@type": "CreativeWork",
+  "@id": new URL("/en/works/sayt-advokata-antona-okulova/#content", Astro.site).href,
+  url: new URL("/en/works/sayt-advokata-antona-okulova/", Astro.site).href,
+  name: "Website for the lawyer Anton Okulov",
+  headline: "Website for the lawyer Anton Okulov",
+  description,
+  inLanguage: "en",
+  author: { "@id": new URL("/#stanislav-ermolenko", Astro.site).href },
+  isPartOf: { "@id": new URL("/#website", Astro.site).href },
+  ...(source?.data.updated ? { dateModified: source.data.updated.toISOString() } : {}),
+};
+---
+<Base title={pageTitle} description={description} lang="en" jsonLd={workJsonLd}>
+  <article class="entry-shell">
+    <header class="entry-hero">
+      <div class="entry-hero-meta"><span class="section-kicker">Work · {status}</span></div>
+      <h1>Website for the lawyer Anton Okulov</h1>
+      <p class="entry-summary">{description}</p>
+      <dl class="work-facts">
+        {year && <div><dt>Year</dt><dd>{year}</dd></div>}
+        {role && <div><dt>Role</dt><dd>{role}</dd></div>}
+        {client && <div><dt>Client</dt><dd>{client}</dd></div>}
+        {genres.length > 0 && <div><dt>Genres</dt><dd>{genres.join(" · ")}</dd></div>}
+      </dl>
+    </header>
+    <div class="prose">
+      <h2>The brief</h2>
+      <p>Build a personal website for a lawyer that works not only as a calling card but as a clear entry point into a consultation, an expert brand and related digital services.</p>
+
+      <h2>Context</h2>
+      <p>This is a case about packaging an expert legal service. What mattered here was assembling a trustworthy and modern website for a private practice without sliding into an impersonal template legal site.</p>
+      <p>A separate strength of the case is that the website was connected to a meta-office. The web part did not live on its own but led the user towards a more unusual format of interaction.</p>
+
+      <h2>Solution</h2>
+      <p>The website was assembled on <code>Tilda</code>. It packaged the legal practice, gave a clear structure for getting to know the service and worked as the main entry point into the consultation scenario.</p>
+      <p>In addition, the project featured an AI bot answering typical questions, and the website itself was connected to a separate virtual office that could be entered from the web interface.</p>
+      <p>For projects like this I usually care not only about design built for trust but also about the legal accuracy of the interface: consent texts, the data processing policy, the clarity of the enquiry scenario, and generally that the website does not promise too much or leave the client exposed over formalities.</p>
+
+      <h2>What I did personally</h2>
+      <ul>
+        <li>Designed how the website and the meta-office work together</li>
+        <li>Developed the website on Tilda</li>
+        <li>Thought through the user journey from first contact to an enquiry</li>
+        <li>Packaged a complex expert service into a clear digital form</li>
+        <li>Took part in working out the legal and documentary layer of the website</li>
+      </ul>
+
+      <h2>Stack</h2>
+      <ul>
+        <li>Tilda</li>
+        <li>GenAI / AI bot</li>
+        <li>consultation scenarios</li>
+      </ul>
+
+      <h2>Skills</h2>
+      <ul>
+        <li>expert websites</li>
+        <li>UX for legal services</li>
+        <li>design for trust and a personal brand</li>
+        <li>connecting a website with unconventional digital formats</li>
+        <li>understanding of the legal context of consultation and lead-generation websites</li>
+      </ul>
+
+      <h2>Result</h2>
+      <p>The outcome is a personal website for a lawyer that solves the classic task of trust and introduction to the service, yet extends into a more unusual digital ecosystem. For the portfolio this is a strong case about working with a private practice and unconventional positioning.</p>
+
+      <h2>Links</h2>
+      <ul>
+        <li><a href="https://metaadvokat.ru/">https://metaadvokat.ru/</a></li>
+      </ul>
+
+      <p class="entry-original"><a class="text-link" href="/works/sayt-advokata-antona-okulova/">Original (Russian) →</a></p>
+    </div>
+  </article>
+</Base>
