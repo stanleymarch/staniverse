@@ -10,7 +10,6 @@ stack: ["8th Wall", "A-Frame", "cannon-es"]
 types: ["песочница"]
 platforms: ["мобильные"]
 capabilities: ["физика"]
-complexity: 2
 tags: ["ar","webxr","8th-wall","physics"]
 entities: []
 featured: false

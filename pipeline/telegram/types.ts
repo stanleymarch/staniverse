@@ -9,6 +9,8 @@ export interface TelegramMessage {
   text?: string | Array<string | TelegramTextEntity>;
   text_entities?: TelegramTextEntity[];
   reply_to_message_id?: number;
+  /** Telegram export field: the channel or contact this message was forwarded from. */
+  forwarded_from?: string;
   grouped_id?: string | number;
   photo?: string;
   file?: string;
@@ -46,6 +48,8 @@ export interface CanonicalPublication {
   kind: "telegram-post"|"telegram-article";
   sourceId: string;
   sourceUrl: string;
+  /** Present when the post is a forward: the original channel name, shown instead of pretending authorship. */
+  forwardFrom?: string;
   date?: string;
   title?: string;
   editedDate?: string;

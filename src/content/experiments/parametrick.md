@@ -9,7 +9,6 @@ stack: ["Next.js", "three.js", "Meyda"]
 types: ["инструмент"]
 platforms: ["десктоп"]
 capabilities: ["звук"]
-complexity: 3
 date: "2026-02-10"
 updated: "2026-02-11"
 tags: ["web","3d","generative"]

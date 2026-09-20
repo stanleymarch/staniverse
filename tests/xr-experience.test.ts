@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { applyRadialDeadzone, AR_ROOM_DIAMETER_M, AR_SURFACE_CLEARANCE, AR_TABLE_DIAMETER_M, arContentLift, arDiameterForMode, cameraArOffer, cameraRelativeStep, createGestureTracker, experienceStateForAr, GESTURE_DRAG_THRESHOLD_PX, MIN_TOUCH_TARGET_PX, nearestScreenTarget, nextArPlacementState, nextExperienceState, nextSnapTurn, normalizedArContentTransform, xrOffer } from "../src/lib/xr-experience";
+import { applyRadialDeadzone, AR_ROOM_DIAMETER_M, AR_STREET_DIAMETER_M, AR_SURFACE_CLEARANCE, AR_TABLE_DIAMETER_M, arContentLift, arDiameterForMode, arModeSurrounds, cameraArOffer, cameraRelativeStep, createGestureTracker, experienceStateForAr, GESTURE_DRAG_THRESHOLD_PX, MIN_TOUCH_TARGET_PX, nearestScreenTarget, nextArPlacementState, nextExperienceState, nextSnapTurn, normalizedArContentTransform, xrOffer } from "../src/lib/xr-experience";
 
 test("flight motion follows the viewed direction", () => {
   assert.deepEqual(cameraRelativeStep({ forward: 1, strafe: 0, rise: 0 }, 0, 2), { x: 0, y: 0, z: -2 });
@@ -83,16 +83,23 @@ test("AR content lift keeps the lowest node on the surface while the scale contr
     assert.ok(Math.abs(bottomAboveSurface - AR_SURFACE_CLEARANCE) < 1e-12, `bottom sits ${bottomAboveSurface}m above the surface at scale ${scaleFactor}`);
   }
 });
-test("AR placement modes scale the same extent to tabletop reach or room surround", () => {
+test("AR placement modes scale the same extent to tabletop reach or a surround the viewer wears", () => {
   assert.equal(AR_TABLE_DIAMETER_M, 1);
   assert.equal(AR_ROOM_DIAMETER_M, 3.5);
+  assert.equal(AR_STREET_DIAMETER_M, 10);
   assert.equal(arDiameterForMode("table"), 1);
   assert.equal(arDiameterForMode("room"), 3.5);
+  assert.equal(arDiameterForMode("street"), 10);
+  assert.equal(arModeSurrounds("table"), false);
+  assert.equal(arModeSurrounds("room"), true);
+  assert.equal(arModeSurrounds("street"), true);
   const extent = [{ x: -10, y: -5, z: 0 }, { x: 10, y: 5, z: 0 }];
   const table = normalizedArContentTransform(extent);
   const room = normalizedArContentTransform(extent, arDiameterForMode("room"));
+  const street = normalizedArContentTransform(extent, arDiameterForMode("street"));
   assert.ok(Math.abs(table.scale - 0.05) < 1e-9);
   assert.ok(Math.abs(room.scale - 0.175) < 1e-9);
+  assert.ok(Math.abs(street.scale - 0.5) < 1e-9);
   assert.ok(Math.abs((arContentLift(room.offsetY, 1) + -5 * room.scale) - AR_SURFACE_CLEARANCE) < 1e-12);
 });
 

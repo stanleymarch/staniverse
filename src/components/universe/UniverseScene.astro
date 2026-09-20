@@ -60,7 +60,7 @@ const catalogue = `${nodeCount} ${pluralRu(nodeCount, "узел", "узла", "�
         <span class="section-kicker">Живая карта связей</span>
         <span class="intro-readout">{catalogue}</span>
       </div>
-      <IntroHeading>{embedded ? "Карта связей" : "Летай между идеями"}</IntroHeading>
+      <IntroHeading>{embedded ? "XR-карта" : "Летай между идеями"}</IntroHeading>
       <p class="intro-note">{embedded
         ? "Тяните мышью или пальцем — осмотритесь. Нажмите на звезду, чтобы открыть её контекст; повторный выбор или «Закрыть» вернёт всю карту без перемещения камеры."
         : "Космос из ваших материалов: тяните — обзор, тап по звезде — контекст и живые связи, колесо или пинч — дистанция."}</p>
@@ -80,6 +80,7 @@ const catalogue = `${nodeCount} ${pluralRu(nodeCount, "узел", "узла", "�
         <div class="ar-mode" role="group" aria-label="Масштаб размещения">
           <button class="icon-button" type="button" data-ar-mode="table" aria-pressed="true">Стол</button>
           <button class="icon-button" type="button" data-ar-mode="room" aria-pressed="false">Комната</button>
+          <button class="icon-button" type="button" data-ar-mode="street" aria-pressed="false">Улица</button>
         </div>
         <button class="icon-button ar-primary" type="button" data-ar-place disabled>Разместить</button>
         <button class="icon-button" type="button" data-ar-relocate disabled>Перенести</button>

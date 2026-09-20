@@ -9,7 +9,6 @@ stack: ["Immersive Web SDK", "three.js"]
 types: ["игра"]
 platforms: ["гарнитуры", "десктоп"]
 capabilities: []
-complexity: 3
 date: "2026-05-01"
 updated: "2026-05-01"
 tags: ["xr","webxr","game"]

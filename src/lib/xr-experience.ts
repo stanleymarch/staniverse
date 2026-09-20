@@ -39,14 +39,24 @@ export function nextSnapTurn(state: SnapTurnState, axisX: number, yaw: number, d
 
 /** Tabletop diameter in meters: the default placement fits the whole constellation in reach. */
 export const AR_TABLE_DIAMETER_M = 1;
-/** Room diameter in meters: the constellation surrounds the viewer, reference-style. */
+/** Room diameter in meters: the constellation is a ring the viewer stands inside. */
 export const AR_ROOM_DIAMETER_M = 3.5;
-/** Placement scale: `table` fits in reach, `room` surrounds the viewer. */
-export type ArPlacementMode = "table" | "room";
+/** Street diameter in meters: an outdoor scale for courtyards and squares. */
+export const AR_STREET_DIAMETER_M = 10;
+/** Placement scale: `table` sits in front, `room` and `street` are worn by the viewer. */
+export type ArPlacementMode = "table" | "room" | "street";
 
 /** Physical diameter for a placement mode; unknown input falls back to the tabletop. */
 export function arDiameterForMode(mode: ArPlacementMode): number {
-  return mode === "room" ? AR_ROOM_DIAMETER_M : AR_TABLE_DIAMETER_M;
+  return mode === "room" ? AR_ROOM_DIAMETER_M : mode === "street" ? AR_STREET_DIAMETER_M : AR_TABLE_DIAMETER_M;
+}
+
+/** How far below the eye the surround modes drop the constellation's center, in meters. */
+export const AR_SURROUND_EYE_DROP_M: Record<Exclude<ArPlacementMode, "table">, number> = { room: 1.1, street: 2.2 };
+
+/** Room and street place the viewer inside the constellation instead of in front of it. */
+export function arModeSurrounds(mode: ArPlacementMode): boolean {
+  return mode !== "table";
 }
 
 /** Clearance in meters between the normalized constellation's bottom and the detected surface. */

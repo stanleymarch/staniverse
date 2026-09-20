@@ -1,12 +1,12 @@
 ---
 import Base from "../../layouts/Base.astro";
 import { getCollection } from "astro:content";
-import { complexityLabels, hrefFor } from "../../lib/content";
+import { hrefFor } from "../../lib/content";
 
 /* The catalogue is the content collection itself: a facet vocabulary is derived
    from the rows, so a new experiment adds its own type, platform, capability or
    technology to the filters just by existing. A row without values never shows
-   (no empty chips), and complexity keeps its fixed three levels. */
+   (no empty chips). */
 const entries = (await getCollection("experiments")).sort((a, b) => a.data.title.localeCompare(b.data.title, "ru"));
 const vocabulary = (values: string[]) => [...new Set(values)].sort((a, b) => a.localeCompare(b, "ru"));
 const facetRows = [
@@ -14,12 +14,10 @@ const facetRows = [
   { key: "platform", label: "Платформа", any: "Любая", values: vocabulary(entries.flatMap((entry) => entry.data.platforms)) },
   { key: "capability", label: "Возможности", any: "Любые", values: vocabulary(entries.flatMap((entry) => entry.data.capabilities)) },
   { key: "stack", label: "Технология", any: "Все", values: vocabulary(entries.flatMap((entry) => entry.data.stack)) },
-  { key: "complexity", label: "Сложность", any: "Любая", values: ([3, 2, 1] as const).filter((level) => entries.some((entry) => entry.data.complexity === level)).map(String) },
+
 ].filter((row) => row.values.length > 0);
 const facetField: Record<string, "types" | "platforms" | "capabilities" | "stack"> = { type: "types", platform: "platforms", capability: "capabilities", stack: "stack" };
-const facetCount = (key: string, value: string) => key === "complexity"
-  ? entries.filter((entry) => String(entry.data.complexity) === value).length
-  : entries.filter((entry) => (entry.data[facetField[key] ?? "types"]).includes(value)).length;
+const facetCount = (key: string, value: string) => entries.filter((entry) => (entry.data[facetField[key] ?? "types"]).includes(value)).length;
 
 const jsonLd = {
   "@type": "CollectionPage",
@@ -58,15 +56,13 @@ const jsonLd = {
             <div class="catalog-controls" role="group" aria-label={row.label}>
               <span class="facet-label">{row.label}</span>
               <button type="button" class="filter-button active" data-facet={row.key} data-value="all" aria-pressed="true">{row.any}<small>{entries.length}</small></button>
-              {row.values.map((value) => <button type="button" class="filter-button" data-facet={row.key} data-value={value} aria-pressed="false">{row.key === "complexity" ? complexityLabels[Number(value)] : value}<small>{facetCount(row.key, value)}</small></button>)}
+              {row.values.map((value) => <button type="button" class="filter-button" data-facet={row.key} data-value={value} aria-pressed="false">{value}<small>{facetCount(row.key, value)}</small></button>)}
             </div>
           ))}
           <div class="catalog-controls">
             <label class="facet-label" for="lab-sort">Сортировка</label>
             <select class="filter-button lab-sort" id="lab-sort" data-lab-sort>
               <option value="catalog">Порядок в каталоге</option>
-              <option value="complexity-desc">Сложность: сначала сложные</option>
-              <option value="complexity-asc">Сложность: сначала простые</option>
               <option value="title">Название: А–Я</option>
             </select>
             <output class="lab-count" data-lab-count aria-live="polite">{entries.length} из {entries.length}</output>
@@ -84,11 +80,9 @@ const jsonLd = {
               data-platforms={entry.data.platforms.join("|")}
               data-capabilities={entry.data.capabilities.join("|")}
               data-stack={entry.data.stack.join("|")}
-              data-complexity={entry.data.complexity}
             >
               <div class="card-meta">
                 <span>Эксперимент</span>
-                <span>{complexityLabels[entry.data.complexity]}</span>
                 {entry.data.status === "live"
                   ? <span class="status">Работает</span>
                   : <span class="status">Скоро</span>}
@@ -119,21 +113,18 @@ const jsonLd = {
       const empty = document.querySelector("[data-lab-empty]");
       const count = document.querySelector("[data-lab-count]");
       const sortSelect = document.querySelector("[data-lab-sort]");
-      const state = { type: "all", platform: "all", capability: "all", stack: "all", complexity: "all", sort: "catalog" };
+      const state = { type: "all", platform: "all", capability: "all", stack: "all", sort: "catalog" };
 
       const holds = (list, value) => value === "all" || (list || "").split("|").includes(value);
       const matches = (card) =>
         holds(card.dataset.types, state.type) &&
         holds(card.dataset.platforms, state.platform) &&
         holds(card.dataset.capabilities, state.capability) &&
-        holds(card.dataset.stack, state.stack) &&
-        (state.complexity === "all" || card.dataset.complexity === state.complexity);
+        holds(card.dataset.stack, state.stack);
 
       const order = (card) => Number(card.dataset.index);
       const compare = (a, b) => {
         if (state.sort === "title") return a.dataset.title.localeCompare(b.dataset.title, "ru");
-        if (state.sort === "complexity-desc") return Number(b.dataset.complexity) - Number(a.dataset.complexity) || order(a) - order(b);
-        if (state.sort === "complexity-asc") return Number(a.dataset.complexity) - Number(b.dataset.complexity) || order(a) - order(b);
         return order(a) - order(b);
       };
 

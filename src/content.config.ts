@@ -82,6 +82,9 @@ const common = z.object({
   entities: z.array(z.string()).default([]),
   relations: z.array(relation).default([]),
   featured: z.boolean().default(false),
+  /* Telegram forwards carry the original channel so a repost is never presented
+     as authored here; unused on the authored collections. */
+  forwardFrom: z.string().optional(),
   date: z.coerce.date().optional(),
   updated: z.coerce.date().optional(),
 });
@@ -139,8 +142,6 @@ const experiments = defineCollection({
     platforms: z.array(z.string()).default([]),
     /** What it can do beyond rendering: ИИ, бэкенд, физика, звук, мультиплеер. */
     capabilities: z.array(z.string()).default([]),
-    /** 1 — одна механика, 2 — механика со счётом или физикой, 3 — несколько состояний и прогрессия. */
-    complexity: z.union([z.literal(1), z.literal(2), z.literal(3)]),
     legacySource: z.string().optional(),
   }),
 });

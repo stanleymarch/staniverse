@@ -129,6 +129,7 @@ export function normalizeExport(data: TelegramExport, handle = "staniverse"): Ca
       kind: anchor.rich_message ? "telegram-article" : "telegram-post",
       sourceId: String(group.rootId),
       sourceUrl: `https://t.me/${handle}/${group.rootId}`,
+      ...(anchor.forwarded_from ? { forwardFrom: anchor.forwarded_from } : {}),
       date: anchor.date,
       editedDate: group.messages.map((message) => message.edited).filter(Boolean).at(-1),
       threadIds: group.messages.map((message) => String(message.id)),

@@ -337,9 +337,11 @@
 }
 [data-xr="ar"] .universe-ar-actions, [data-xr="camera-ar"] .universe-ar-actions { display: flex; }
 [data-xr="ar"] .universe-ar-actions .icon-button, [data-xr="camera-ar"] .universe-ar-actions .icon-button { min-width: var(--target); min-height: var(--target); }
-.ar-mode { display: inline-flex; gap: 4px; padding: 3px; border: 1px solid var(--hairline); border-radius: var(--radius-round); background: color-mix(in srgb, var(--page-ground) 60%, transparent); }
-.ar-mode .icon-button { border-color: transparent; background: transparent; }
-.ar-mode .icon-button[aria-pressed="true"] { border-color: var(--line-accent); color: var(--cyan); background: color-mix(in srgb, var(--cyan) 12%, transparent); }
+/* Matte-glass segmented control: one pill, the selected segment is a frosted pill of
+   the same radius — no second shape, matching the site's glass cards. */
+.ar-mode { display: inline-flex; gap: 2px; padding: 3px; border: 1px solid var(--hairline); border-radius: var(--radius-round); background: color-mix(in srgb, var(--page-surface) 55%, transparent); box-shadow: inset 0 1px 0 color-mix(in srgb, var(--text) 8%, transparent); backdrop-filter: blur(14px) saturate(1.4); -webkit-backdrop-filter: blur(14px) saturate(1.4); }
+.ar-mode .icon-button { border: 0; border-radius: var(--radius-round); background: transparent; }
+.ar-mode .icon-button[aria-pressed="true"] { color: var(--cyan); background: color-mix(in srgb, var(--text) 10%, var(--page-surface) 88%); box-shadow: inset 0 1px 0 color-mix(in srgb, var(--text) 18%, transparent), inset 0 0 0 1px var(--hairline), 0 4px 14px rgb(1 5 16 / .35); }
 .universe-ar-actions .ar-primary { border-color: var(--line-accent); color: var(--cyan); }
 [data-xr="ar"] .flight-joystick,
 [data-xr="ar"] .universe-tools,
@@ -501,7 +503,9 @@
   .intro-note { margin-bottom: 0; font-size: .75rem; }
   /* A phone dossier is a bottom sheet, not a takeover: the sky and the marked star stay visible above it. */
   .node-card { right: var(--rail-start); left: var(--rail-start); width: auto; max-height: min(58dvh, 30rem); border-radius: var(--radius-panel, 14px); }
-  [data-xr="ar"] .node-card, [data-xr="camera-ar"] .node-card { right: var(--rail-start); left: var(--rail-start); top: max(76px, calc(var(--dock) + 64px)); transform: none; }
+  /* In AR the dossier is a translucent bottom sheet: the constellation and the marked
+     star's links stay visible above it, reference-style, instead of a full takeover. */
+  [data-xr="ar"] .node-card, [data-xr="camera-ar"] .node-card { right: var(--rail-start); left: var(--rail-start); top: auto; bottom: calc(var(--dock) + var(--dock-h) + var(--gap)); transform: none; max-height: min(46dvh, 24rem); background: color-mix(in srgb, var(--page-surface) 72%, transparent); }
   .node-summary { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
   .flight-joystick small { display: none; }
 }
@@ -514,7 +518,7 @@
 }
 @media (prefers-reduced-transparency: reduce) {
   .universe-page { --panel: var(--panel-solid); }
-  .node-card, .universe-fallback, .universe-ar-actions, .icon-button, .node-search input, .audio-signal, .universe-tool-panel { backdrop-filter: none; }
+  .node-card, .universe-fallback, .universe-ar-actions, .ar-mode, .icon-button, .node-search input, .audio-signal, .universe-tool-panel { backdrop-filter: none; }
   .universe-intro { background: linear-gradient(90deg, var(--panel-solid), color-mix(in srgb, var(--panel-solid) 88%, transparent)); }
   .flight-joystick { background: var(--panel-solid); }
   .universe-loading { background: var(--page-ground); }

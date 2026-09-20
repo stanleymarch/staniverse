@@ -1,7 +1,7 @@
 import type { CanvasTexture, Group, Line, LineBasicMaterial, LineSegments, Material, Mesh, Points, Quaternion, Vector3, XRTargetRaySpace } from "three";
 import type { GraphEdge, GraphNode } from "../../lib/graph";
 import { provenanceField, relationLabel } from "../../lib/graph-visuals";
-import { applyRadialDeadzone, arContentLift, arDiameterForMode, cameraArOffer, cameraRelativeStep, createGestureTracker, experienceStateForAr, nearestScreenTarget, nextArPlacementState, nextExperienceState, nextSnapTurn, normalizedArContentTransform, xrOffer, VR_SPEED_METERS_PER_SECOND, type ArPlacementEvent, type ArPlacementMode, type ArPlacementState, type ExperienceState, type SnapTurnState } from "../../lib/xr-experience";
+import { applyRadialDeadzone, arContentLift, arDiameterForMode, arModeSurrounds, cameraArOffer, cameraRelativeStep, createGestureTracker, experienceStateForAr, nearestScreenTarget, nextArPlacementState, nextExperienceState, nextSnapTurn, normalizedArContentTransform, xrOffer, AR_SURROUND_EYE_DROP_M, VR_SPEED_METERS_PER_SECOND, type ArPlacementEvent, type ArPlacementMode, type ArPlacementState, type ExperienceState, type SnapTurnState } from "../../lib/xr-experience";
 import { startCameraAr, type CameraArSession, type CameraArStateEvent } from "./UniverseCameraAr";
 import { NODE_LABELS, UniverseWorld } from "./UniverseWorld";
 import { GenerativeUniverseAudio } from "./UniverseAudio";
@@ -666,6 +666,7 @@ export async function mountUniverse(scope: ParentNode = document) {
     let arBase = normalizedArContentTransform(arPositions, arDiameterForMode(arMode));
     let arScaleFactor = 1;
     let arRotation = 0;
+    const arHeadPosition = new THREE.Vector3();
     const arBounds = world.contentBounds();
     const applyArTransform = () => {
       contentRoot.scale.setScalar(arBase.scale * arScaleFactor);
@@ -873,10 +874,20 @@ export async function mountUniverse(scope: ParentNode = document) {
       arAnchorMode = false;
       arRoot.matrix.fromArray(lastHitMatrix);
       arRoot.matrix.decompose(arRoot.position, arRoot.quaternion, arRoot.scale);
+      // Surround modes are worn, not visited: the ring centers on the head at
+      // placement time, so the viewer stands inside the constellation from the first frame.
+      if (arModeSurrounds(arMode)) {
+        camera.getWorldPosition(arHeadPosition);
+        arRoot.position.x = arHeadPosition.x;
+        arRoot.position.z = arHeadPosition.z;
+      }
       contentRoot.visible = true;
       setArState("place");
       const identity = arSessionIdentity;
-      if (lastHitResult?.createAnchor) {
+      if (arModeSurrounds(arMode)) {
+        setArState("hit-missed");
+        announce("Созвездие размещено вокруг вас: смотрите в любую сторону и выбирайте звёзды.");
+      } else if (lastHitResult?.createAnchor) {
         announce("Созвездие размещено. Проверяю поддержку пространственного якоря.");
         lastHitResult.createAnchor().then((anchor) => {
           if (identity !== arSessionIdentity || arState !== "placed") { anchor.delete(); return; }
@@ -929,13 +940,13 @@ export async function mountUniverse(scope: ParentNode = document) {
       }
       root.dataset.arMode = mode;
       modeButtons.forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.arMode === mode)));
-      announce(mode === "room"
-        ? "Режим комнаты: созвездие 3,5 метра — обходите его и выбирайте звёзды."
-        : "Режим стола: созвездие 1 метр — в пределах досягаемости.");
+      announce(mode === "table"
+        ? "Режим стола: созвездие 1 метр перед вами — в пределах досягаемости."
+        : `Режим ${mode === "room" ? "комнаты: 3,5 метра" : "улицы: 10 метров"} вокруг вас — оборачивайтесь на 360° и выбирайте звёзды.`);
     };
     modeButtons.forEach((button) => button.addEventListener("click", () => {
       const mode = button.dataset.arMode as ArPlacementMode;
-      if (cameraArSession) cameraArSession.setMode?.(normalizedArContentTransform(arPositions, arDiameterForMode(mode)));
+      if (cameraArSession) cameraArSession.setMode?.(normalizedArContentTransform(arPositions, arDiameterForMode(mode)), mode !== "table" ? AR_SURROUND_EYE_DROP_M[mode] : 0);
       setArMode(mode);
     }, { signal: controller.signal }));
     root.dataset.arMode = arMode;

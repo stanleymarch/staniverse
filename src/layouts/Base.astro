@@ -46,7 +46,7 @@ const chrome = lang === "en" ? {
   ] as const,
   search: "Search",
   searchLabel: "Site search (Ctrl+K)",
-  map: "Connection map",
+  map: "XR map",
   menu: "Menu",
   tagline: "Connections between technology, memory, media and place.",
   footerLinks: [
@@ -76,7 +76,7 @@ const chrome = lang === "en" ? {
   ] as const,
   search: "Поиск",
   searchLabel: "Поиск по сайту (Ctrl+K)",
-  map: "Карта связей",
+  map: "XR-карта",
   menu: "Меню",
   tagline: "Связи между технологиями, памятью, медиа и местом.",
   footerLinks: [
@@ -348,7 +348,7 @@ const articleLike = ["works", "projects", "garden", "articles", "topics"].includ
       spotCard?.style.setProperty("--my", `${spotY.toFixed(1)}px`);
     };
     addEventListener("pointermove", (event) => {
-      const card = (event.target as Element | null)?.closest<HTMLElement>(".content-card");
+      const card = (event.target as Element | null)?.closest<HTMLElement>(".content-card, .direction-tile");
       if (!card) return;
       const rect = card.getBoundingClientRect();
       spotCard = card;

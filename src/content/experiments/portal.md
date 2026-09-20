@@ -10,7 +10,6 @@ stack: ["8th Wall", "A-Frame", "three.js"]
 types: ["игра"]
 platforms: ["мобильные"]
 capabilities: []
-complexity: 2
 tags: ["ar","webxr","8th-wall"]
 entities: []
 featured: false

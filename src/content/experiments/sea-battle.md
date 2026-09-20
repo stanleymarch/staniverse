@@ -10,7 +10,6 @@ stack: ["8th Wall", "A-Frame", "three.js", "WebAudio"]
 types: ["игра"]
 platforms: ["мобильные"]
 capabilities: ["звук"]
-complexity: 3
 tags: ["ar","webxr","8th-wall","retro"]
 entities: []
 featured: false

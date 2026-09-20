@@ -9,7 +9,6 @@ stack: ["p5.js"]
 types: ["арт-опыт"]
 platforms: ["десктоп"]
 capabilities: ["звук"]
-complexity: 1
 tags: ["web","art"]
 entities: []
 featured: true

@@ -52,8 +52,8 @@ export interface CameraArSession {
   cancelRelocate(): void;
   /** Scale in relative steps; rotation in radians. */
   adjust(scaleDelta: number, rotateDelta: number): void;
-  /** New tabletop normalization after a Стол/Комната switch; applies on placed content. */
-  setMode?(base: { scale: number; offsetY: number }): void;
+  /** New normalization and surround drop after a Стол/Комната/Улица switch; applies on placed content. */
+  setMode?(base: { scale: number; offsetY: number }, surroundDropM?: number): void;
   /** Resolves when the engine is stopped and the graph is back in the screen scene. */
   end(): Promise<void>;
   /** Raycast through the engine camera into the world meshes; a node id or nothing. */
@@ -91,6 +91,8 @@ interface CameraArShared {
   xrCamera?: PerspectiveCamera;
   scaleFactor: number;
   rotation: number;
+  /** Meters the surround modes drop the ring below the eye; 0 places the constellation in front. */
+  surroundDrop: number;
   placed: boolean;
   ended: boolean;
   worldReturned: boolean;
@@ -164,6 +166,7 @@ export async function startCameraAr(options: CameraArOptions): Promise<CameraArS
     previousParent: null,
     scaleFactor: 1,
     rotation: 0,
+    surroundDrop: 0,
     placed: false,
     ended: false,
     worldReturned: false,
@@ -174,6 +177,7 @@ export async function startCameraAr(options: CameraArOptions): Promise<CameraArS
   shared.options = options;
   shared.scaleFactor = 1;
   shared.rotation = 0;
+  shared.surroundDrop = 0;
   shared.placed = false;
   shared.ended = false;
   shared.worldReturned = false;
@@ -276,18 +280,26 @@ export async function startCameraAr(options: CameraArOptions): Promise<CameraArS
   const position = new THREE.Vector3();
   const pointer = new THREE.Vector2();
   const raycaster = new THREE.Raycaster();
+  /* Placement follows the mode: table settles where the viewer is looking — a step
+     away and a little below eye height; surround modes center the ring on the viewer
+     so the constellation is worn, with its band dropped below the eye. */
+  const applyPlacement = (state: CameraArShared) => {
+    if (!state.xrCamera) return;
+    state.xrCamera.getWorldPosition(position);
+    if (state.surroundDrop > 0) {
+      state.placement.position.set(position.x, position.y - state.surroundDrop, position.z);
+    } else {
+      state.xrCamera.getWorldDirection(forward);
+      state.placement.position.copy(position).addScaledVector(forward, 1.4);
+      state.placement.position.y -= .35;
+    }
+    state.placement.lookAt(position.x, state.placement.position.y, position.z);
+  };
 
   return {
     place() {
       if (shared.ended || !shared.xrCamera) return;
-      shared.xrCamera.getWorldPosition(position);
-      shared.xrCamera.getWorldDirection(forward);
-      // Camera-relative placement, honestly: no surface hit-test exists in this
-      // engine, so the constellation settles where the viewer is looking — a
-      // step away and a little below eye height.
-      shared.placement.position.copy(position).addScaledVector(forward, 1.4);
-      shared.placement.position.y -= .35;
-      shared.placement.lookAt(position.x, shared.placement.position.y, position.z);
+      applyPlacement(shared);
       applyContentTransform(shared);
       shared.placed = true;
       options.onState("placed");
@@ -299,7 +311,7 @@ export async function startCameraAr(options: CameraArOptions): Promise<CameraArS
       shared.rotation += rotateDelta;
       if (shared.placed) applyContentTransform(shared);
     },
-    setMode(base) { shared.options.contentBase = base; shared.scaleFactor = 1; if (shared.placed) applyContentTransform(shared); },
+    setMode(base, surroundDropM = 0) { shared.options.contentBase = base; shared.scaleFactor = 1; shared.surroundDrop = surroundDropM; if (shared.placed) { applyPlacement(shared); applyContentTransform(shared); } },
     async end() {
       if (shared.ended) return;
       window.clearTimeout(shared.readinessTimer);

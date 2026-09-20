@@ -114,7 +114,7 @@ const entryJsonLd: Record<string, unknown> = {
     <div class="entry-columns">
     <div class="entry-main">
     <header class="entry-hero">
-      <div class="entry-hero-meta"><span class="section-kicker">{kindLabel[entry.data.kind]}{status && ` · ${status}`}</span>{showPublished && published && <time datetime={published.toISOString()}>{publishedLabel}</time>}</div>
+      <div class="entry-hero-meta"><span class="section-kicker">{entry.data.forwardFrom ? `Репост из «${entry.data.forwardFrom}»` : kindLabel[entry.data.kind]}{status && ` · ${status}`}</span>{showPublished && published && <time datetime={published.toISOString()}>{publishedLabel}</time>}</div>
       <nav class="entry-breadcrumbs" aria-label="Хлебные крошки"><a href="/">станивёрс</a> <span aria-hidden="true">/</span> <a href={parentCrumb.href}>{parentCrumb.name}</a> <span aria-hidden="true">/</span> <span aria-current="page">{entry.data.title}</span></nav>
       <h1 class:list={{ "is-long": entry.data.title.length > 64, "is-very-long": entry.data.title.length > 105 }}>{entry.data.title}</h1>
       {(showReadingEstimate || connectionCount > 0) && <div class="entry-reading-meta" aria-label="Параметры материала">
@@ -171,6 +171,11 @@ const entryJsonLd: Record<string, unknown> = {
     {entry.collection === "projects" && entry.data.gallery.length > 0 && <p class="media-carousel-note">Все изображения — концепты будущего внедрения, а не фотографии работающих инсталляций.</p>}
     <div class="prose"><Content />
         {chapters.length>0&&<section class="project-chapters" aria-labelledby="project-chapters-title"><h2 id="project-chapters-title">Главы и результаты проекта</h2><p>Материалы собраны здесь в контексте собственной инициативы, а не среди заказных работ.</p><div>{chapters.map((chapter)=><a href={hrefFor(chapter)}><small>{chapter.data.kind==="work"?chapter.data.year:""}</small><strong>{chapter.data.title}</strong><span>{chapter.data.summary}</span></a>)}</div></section>}
+        {(sourceTagLinks.length > 0 || inferredTopics.length > 0) && <footer class="entry-taxonomy" aria-label="Темы и теги материала">
+          <h2>Темы и теги</h2>
+          {sourceTagLinks.length > 0 && <div class="tag-group"><span class="tag-origin">Теги автора</span><div class="tag-row">{sourceTagLinks.map(({ tag, href }) => <a href={href}>#{tag}</a>)}</div></div>}
+          {inferredTopics.length > 0 && <div class="tag-group"><span class="tag-origin">Ещё по теме · найдено автоматически</span><div class="tag-row is-inferred">{inferredTopics.map(({ label, href }) => <a href={href}>{label}</a>)}</div></div>}
+        </footer>}
         {recommendations.length > 0 && (
           <section class="read-next" aria-labelledby="read-next-title">
             <h2 id="read-next-title">Читать дальше</h2>
@@ -187,11 +192,6 @@ const entryJsonLd: Record<string, unknown> = {
             </ol>
           </section>
         )}
-        {(sourceTagLinks.length > 0 || inferredTopics.length > 0) && <footer class="entry-taxonomy" aria-label="Темы и теги материала">
-          <h2>Темы и теги</h2>
-          {sourceTagLinks.length > 0 && <div class="tag-group"><span class="tag-origin">Теги автора</span><div class="tag-row">{sourceTagLinks.map(({ tag, href }) => <a href={href}>#{tag}</a>)}</div></div>}
-          {inferredTopics.length > 0 && <div class="tag-group"><span class="tag-origin">Ещё по теме · найдено автоматически</span><div class="tag-row is-inferred">{inferredTopics.map(({ label, href }) => <a href={href}>{label}</a>)}</div></div>}
-        </footer>}
     </div>
     </div>
 

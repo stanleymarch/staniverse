@@ -38,12 +38,6 @@ export const experimentStatus: Record<string, string> = {
   soon: "Скоро",
 };
 
-/** The three words the lab filters and experiment cards read for complexity. */
-export const complexityLabels: Record<number, string> = {
-  1: "Простая",
-  2: "Средняя",
-  3: "Сложная",
-};
 
 export function hrefFor(entry: AnyEntry) {
   /* The manifesto keeps its article data (graph, relations) but lives at its own

@@ -277,7 +277,6 @@ const homepageJsonLd = {
     <section class="section home-directions" aria-labelledby="directions-title">
       <div class="section-head">
         <div><div class="section-kicker">Directions</div><h2 id="directions-title">One way of working,<br class="home-break" /> four entry points</h2></div>
-        <a class="text-link" href="/works/">All works →</a>
       </div>
       <p class="section-copy">Most often it all starts with the question of what has to change. Businesses need processes, predictability and less manual routine; museums and cultural institutions need preservation, display and a conversation with the visitor; media and educational projects need their material assembled, texts, video and publication. Below are four ways to build that kind of work.</p>
       <div class="directions-grid">
@@ -531,9 +530,9 @@ const homepageJsonLd = {
   .direction-tile > * { position: relative; z-index: 1; }
   .direction-tile:hover, .direction-tile:focus-within { border-color: var(--accent-line); background: var(--glass-strong); box-shadow: var(--glass-hi), var(--glass-glow), var(--glow); transform: translateY(-3px); }
   .direction-tile:hover::before, .direction-tile:focus-within::before { opacity: 1; }
-  .direction-icon { display: grid; width: 2.75rem; height: 2.75rem; margin-bottom: var(--s-2); place-items: center; border: 1px solid var(--accent-line); border-radius: 12px; background: color-mix(in srgb, var(--accent) 10%, transparent); color: var(--accent); box-shadow: inset 0 1px 0 color-mix(in srgb, var(--ink) 12%, transparent), 0 0 24px color-mix(in srgb, var(--accent) 20%, transparent); transition: transform var(--dur-2) var(--ease), box-shadow var(--dur-2) var(--ease); }
+  .direction-icon { display: grid; width: 2.75rem; height: 2.75rem; place-items: center; border: 1px solid var(--accent-line); border-radius: 12px; background: color-mix(in srgb, var(--accent) 10%, transparent); color: var(--accent); box-shadow: inset 0 1px 0 color-mix(in srgb, var(--ink) 12%, transparent), 0 0 24px color-mix(in srgb, var(--accent) 20%, transparent); transition: transform var(--dur-2) var(--ease), box-shadow var(--dur-2) var(--ease); }
   .direction-icon svg { width: 1.35rem; height: 1.35rem; overflow: visible; fill: none; stroke: currentColor; stroke-width: 1.45; stroke-linecap: round; stroke-linejoin: round; }
-  .direction-tile h3 { margin: 0; color: var(--ink); font: 500 clamp(1.02rem, .92rem + 1vw, 1.3rem) / 1.22 Unbounded; letter-spacing: -.02em; text-wrap: balance; transition: color var(--dur-2) var(--ease); }
+  .direction-tile h3 { margin: 0; min-height: 2.44em; color: var(--ink); font: 500 clamp(1.02rem, .92rem + 1vw, 1.3rem) / 1.22 Unbounded; letter-spacing: -.02em; text-wrap: balance; transition: color var(--dur-2) var(--ease); }
   .direction-tile p { margin: 0; color: var(--ink-2); font-size: .88rem; line-height: 1.6; text-wrap: pretty; }
   .direction-proof { margin-top: auto; color: var(--accent); font-size: .8rem; text-decoration-thickness: 1px; text-underline-offset: .2em; }
   .direction-proof::after { position: absolute; inset: 0; content: ""; }
