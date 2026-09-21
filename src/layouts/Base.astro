@@ -3,6 +3,7 @@ import "../styles/global.css";
 import "../styles/details.css";
 import { analyticsEnabled, metrikaCounterId, webmasterVerification } from "../lib/analytics";
 import { alternatesFor } from "../lib/i18n";
+import { ogImageFor } from "../lib/og";
 
 interface Props {
   title: string;
@@ -17,6 +18,9 @@ interface Props {
   /** Publish/update times for article-like pages (og:type=article). */
   published?: Date;
   modified?: Date;
+  /** Trail below the site root for the BreadcrumbList node. Omitted: derived from
+      the URL. Roots and pages outside the section vocabulary get no node. */
+  breadcrumbs?: { name: string; href: string }[];
 }
 // One description for the whole site: XR, AI-автоматизация, архивы и медиа для
 // бизнеса, музеев и культурных проектов — no audience is the afterthought here.
@@ -31,18 +35,19 @@ const {
   lang = "ru",
   published,
   modified,
+  breadcrumbs,
 } = Astro.props;
 /* Shared chrome (nav, search, footer, consent) stays bilingual in one place so an
    EN page is a full citizen of the site, not a translated island. */
 const chrome = lang === "en" ? {
   skipLink: "Skip to content",
   nav: [
-    ["/works/", "Works"],
-    ["/projects/", "Projects"],
-    ["/lab/", "Lab"],
+    ["/en/works/", "Works"],
+    ["/en/projects/", "Projects"],
+    ["/en/lab/", "Lab"],
     ["/garden/", "Garden"],
-    ["/about/", "About"],
-    ["/contacts/", "Contacts"],
+    ["/en/about/", "About"],
+    ["/en/contacts/", "Contacts"],
   ] as const,
   search: "Search",
   searchLabel: "Site search (Ctrl+K)",
@@ -50,11 +55,11 @@ const chrome = lang === "en" ? {
   menu: "Menu",
   tagline: "Connections between technology, memory, media and place.",
   footerLinks: [
-    ["/works/", "Works"],
-    ["/projects/", "Projects"],
-    ["/lab/", "Lab"],
+    ["/en/works/", "Works"],
+    ["/en/projects/", "Projects"],
+    ["/en/lab/", "Lab"],
     ["/videos/", "Video"],
-    ["/contacts/", "Contacts"],
+    ["/en/contacts/", "Contacts"],
     ["/manifesto/", "Manifesto"],
     ["/donate/", "Support"],
     ["/privacy/", "Privacy"],
@@ -177,18 +182,67 @@ const baseGraph: Record<string, unknown>[] = [
         mainEntity: { "@id": personId },
       }]
     : []),
-  ...(jsonLd ? [jsonLd] : []),
 ];
-const structuredData = { "@context": "https://schema.org", "@graph": baseGraph };
-const sectionImages: Record<string, string> = { works: "/og/works.png", projects: "/og/projects.png", garden: "/og/garden.png", videos: "/og/videos.png", topics: "/og/topics.png", articles: "/og/articles.png", about: "/og/about.png", universe: "/og/universe.png", donate: "/og/donate.png" };
 const segments = Astro.url.pathname.split("/").filter(Boolean);
 /* EN twins live under /en/<section>/… — they are article-like exactly like their RU originals. */
 const sectionSegment = segments[0] === "en" ? segments[1] ?? "" : segments[0] ?? "";
-const image = new URL(ogImage ?? sectionImages[sectionSegment] ?? "/og/staniverse.png", Astro.site);
+const image = new URL(ogImage ?? ogImageFor(sectionSegment), Astro.site);
 /* YouTube thumbnails are 480×360; every own OG card is 1200×630. Lying dimensions
    make scrapers crop the card, so the pair follows the actual image source. */
 const [imageWidth, imageHeight] = ogImage && !ogImage.startsWith("/") ? [480, 360] : [1200, 630];
 const articleLike = ["works", "projects", "garden", "articles", "topics"].includes(sectionSegment) && segments.length > (segments[0] === "en" ? 2 : 1);
+/* Search engines read the hierarchy from a BreadcrumbList node, and Yandex's
+   «Навигационная цепочка» report wants it as an object of its own — a breadcrumb
+   nested inside the page's CreativeWork is Google's shape, not Yandex's. One
+   derivation serves every route: root, then section, then the page itself, with
+   the section label taken from the vocabulary the header navigation already uses. */
+const sectionCrumbs: Record<string, Record<"ru" | "en", { name: string; href: string }>> = {
+  works: { ru: { name: "Работы", href: "/works/" }, en: { name: "Works", href: "/en/works/" } },
+  projects: { ru: { name: "Проекты", href: "/projects/" }, en: { name: "Projects", href: "/en/projects/" } },
+  garden: { ru: { name: "Сад", href: "/garden/" }, en: { name: "Garden", href: "/garden/" } },
+  articles: { ru: { name: "Статьи", href: "/articles/" }, en: { name: "Articles", href: "/en/articles/" } },
+  videos: { ru: { name: "Видео", href: "/videos/" }, en: { name: "Videos", href: "/videos/" } },
+  topics: { ru: { name: "Темы", href: "/topics/" }, en: { name: "Topics", href: "/topics/" } },
+  lab: { ru: { name: "Лаборатория", href: "/lab/" }, en: { name: "Lab", href: "/en/lab/" } },
+  experiments: { ru: { name: "Лаборатория", href: "/lab/" }, en: { name: "Lab", href: "/en/lab/" } },
+  about: { ru: { name: "Обо мне", href: "/about/" }, en: { name: "About", href: "/en/about/" } },
+  contacts: { ru: { name: "Контакты", href: "/contacts/" }, en: { name: "Contacts", href: "/en/contacts/" } },
+  manifesto: { ru: { name: "Манифест", href: "/manifesto/" }, en: { name: "Manifesto", href: "/manifesto/" } },
+  donate: { ru: { name: "Поддержать", href: "/donate/" }, en: { name: "Support", href: "/donate/" } },
+  privacy: { ru: { name: "Конфиденциальность", href: "/privacy/" }, en: { name: "Privacy", href: "/privacy/" } },
+  licenses: { ru: { name: "Лицензии", href: "/licenses/" }, en: { name: "Licenses", href: "/licenses/" } },
+  universe: { ru: { name: "Вселенная", href: "/universe/" }, en: { name: "Universe", href: "/universe/" } },
+};
+const isSiteRoot = canonical.pathname === "/" || canonical.pathname === "/en/";
+/* /en/<section>/ is as shallow as /<section>/: both end on their own section. */
+const sectionDepth = segments[0] === "en" ? 2 : 1;
+const sectionCrumb = sectionCrumbs[sectionSegment]?.[lang];
+const derivedTrail = isSiteRoot
+  ? []
+  : segments.length <= sectionDepth
+    ? sectionCrumb ? [sectionCrumb] : []
+    : [...(sectionCrumb ? [sectionCrumb] : []), { name: title, href: canonical.href }];
+const trail = breadcrumbs ?? derivedTrail;
+const breadcrumbNode = trail.length
+  ? {
+      "@type": "BreadcrumbList",
+      "@id": `${canonical.href}#breadcrumb`,
+      /* The root is prepended here rather than in the trail, so no caller can
+         publish a chain that starts halfway up the tree. */
+      itemListElement: [{ name: lang === "en" ? "Home" : "станивёрс", href: lang === "en" ? "/en/" : "/" }, ...trail]
+        .map((crumb, index) => ({ "@type": "ListItem", position: index + 1, name: crumb.name, item: new URL(crumb.href, Astro.site).href })),
+    }
+  : undefined;
+const structuredData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    ...baseGraph,
+    /* Rich results require an image on article-like nodes; a page that brought its
+       own node gets the same card og:image advertises unless it sets its own. */
+    ...(jsonLd ? [jsonLd.image ? jsonLd : { ...jsonLd, image: image.href }] : []),
+    ...(breadcrumbNode ? [breadcrumbNode] : []),
+  ],
+};
 ---
 <!doctype html>
 <html lang={lang} class:list={{ immersive }}>
@@ -243,7 +297,7 @@ const articleLike = ["works", "projects", "garden", "articles", "topics"].includ
     <a class="skip-link" href="#content">{chrome.skipLink}</a>
     {!immersive && (
       <header class:list={["site-header", languageSwitch && "has-language-switch"]}>
-        <a class="brand" href="/" aria-label="станивёрс"><span class="brand-mark">s</span><span>станивёрс</span></a>
+        <a class="brand" href={lang === "en" ? "/en/" : "/"} aria-label="станивёрс"><span class="brand-mark">s</span><span>станивёрс</span></a>
         <nav id="primary-navigation" aria-label={chrome.menu}>
           {chrome.nav.map(([href, label]) => <a href={href}>{label}</a>)}
         </nav>

@@ -1,41 +1,48 @@
 # Staniverse (станивёрс) — Станислав Ермоленко: XR, AI, digital garden and spatial portfolio
 
-> Staniverse / станивёрс (staniverse.xyz) is the personal site and portfolio of Stanislav Ermolenko (Станислав Ермоленко), born 1994, originally from Vyatka (Kirov region), now based in Saint Petersburg, Russia. He works across XR/virtual worlds (including WebXR and 8th Wall), AI agents and automation (agent harnesses: Claude Code, Codex, OpenCode, OpenClaw, Hermes, Pico Claw, pi), media production, and web products; he offers these as services, including paid consultations. The site is a canonical digital garden: commissioned works, own projects with honest statuses, long-form articles, verified YouTube videos, and a Telegram publication archive (700+ posts) connected by a reviewed topic/relation graph.
+> Staniverse / станивёрс ([staniverse.xyz](https://staniverse.xyz/)) is the personal site and portfolio of Stanislav Ermolenko (Станислав Ермоленко), born 1994, originally from Vyatka (Kirov region), now based in Saint Petersburg, Russia. He works across XR/virtual worlds (including WebXR and 8th Wall), AI agents and automation (agent harnesses: Claude Code, Codex, OpenCode, OpenClaw, Hermes, Pico Claw, pi), media production, and web products; he offers these as services, including paid consultations. The site is a canonical digital garden: commissioned works, own projects with honest statuses, long-form articles, verified YouTube videos, and a Telegram publication archive (700+ posts) connected by a reviewed topic/relation graph.
 
 ## Key facts
-- Author: Stanislav Ermolenko (Станислав Ермоленко); email stas@staniverse.xyz; Telegram @staniverse.
+
+- Author: Stanislav Ermolenko (Станислав Ермоленко); email [stas@staniverse.xyz](mailto:stas@staniverse.xyz); Telegram [@staniverse](https://t.me/staniverse).
 - Education: bachelor GMU VyatGU (2026); since 2026 — master's at ITMO University, "Digital Methods in Humanities Research" (Digital Humanities), 45.04.04.
 - Teaching: VyatGU "Digital Chairs" methodist and lecturer 2023-2026; built the "Product Management Basics" course in summer 2026.
 - Languages: Russian is primary. English versions cover the home page, the works and projects indexes, and selected flagship projects.
 
 ## Main sections
-- Home: https://staniverse.xyz/
-- Works (commissioned portfolio): https://staniverse.xyz/works/
-- Projects (own laboratory): https://staniverse.xyz/projects/
-- Garden (catalog of publications, articles, videos, threads): https://staniverse.xyz/garden/
-- Topics index: https://staniverse.xyz/topics/
-- About (bio, education and tools): https://staniverse.xyz/about/
-- Manifesto: https://staniverse.xyz/manifesto/
-- Contacts and collaboration: https://staniverse.xyz/contacts/
-- Support: https://staniverse.xyz/donate/
-- Lab (standalone WebXR/browser experiments): https://staniverse.xyz/lab/
+
+- [Home](https://staniverse.xyz/): entry point with featured works, projects and the spatial universe.
+- [Works](https://staniverse.xyz/works/): commissioned portfolio with case notes.
+- [Projects](https://staniverse.xyz/projects/): own laboratory, each project carries an honest status.
+- [Garden](https://staniverse.xyz/garden/): catalogue of publications, articles, videos and Telegram threads.
+- [Videos](https://staniverse.xyz/videos/): verified YouTube catalogue with per-video metadata.
+- [Topics](https://staniverse.xyz/topics/): reviewed topic index over the whole catalogue.
+- [Universe](https://staniverse.xyz/universe/): WebXR/AR spatial view of the same catalogue.
+- [About](https://staniverse.xyz/about/): bio, education and tools.
+- [Manifesto](https://staniverse.xyz/manifesto/): how and why the archive is kept.
+- [Contacts](https://staniverse.xyz/contacts/): collaboration and paid consultations.
+- [Donate](https://staniverse.xyz/donate/): support for the independent archive.
+- [Lab](https://staniverse.xyz/lab/): standalone WebXR/browser experiments.
 
 ## English entry points
-- Home: https://staniverse.xyz/en/
-- Works: https://staniverse.xyz/en/works/
-- Projects: https://staniverse.xyz/en/projects/
-- MetaVyatka: https://staniverse.xyz/en/projects/metavyatka/
-- I. You. City.: https://staniverse.xyz/en/projects/ya-ty-gorod/
-- Mnemoform: https://staniverse.xyz/en/projects/mnemoform/
-- Staniverse: https://staniverse.xyz/en/projects/staniverse/
+
+- [Home (EN)](https://staniverse.xyz/en/): English landing page.
+- [Works (EN)](https://staniverse.xyz/en/works/): English works index.
+- [Projects (EN)](https://staniverse.xyz/en/projects/): English projects index.
+- [MetaVyatka (EN)](https://staniverse.xyz/en/projects/metavyatka/): urban-memory project.
+- [I. You. City. (EN)](https://staniverse.xyz/en/projects/ya-ty-gorod/): city perception project.
+- [Mnemoform (EN)](https://staniverse.xyz/en/projects/mnemoform/): memory-form research project.
+- [Staniverse (EN)](https://staniverse.xyz/en/projects/staniverse/): the archive project itself.
 
 ## For agents and crawlers
-- Sitemap: https://staniverse.xyz/sitemap.xml
-- RSS feed (latest 30): https://staniverse.xyz/rss.xml
-- Every material page carries a local graph of reviewed relations; automatic topic suggestions are labeled "Автоматически найденные темы" and rendered as hypotheses.
+
+- [Sitemap](https://staniverse.xyz/sitemap.xml): every indexable URL with lastmod dates.
+- [RSS feed](https://staniverse.xyz/rss.xml): latest 30 materials.
+- Every material page carries a local graph of reviewed relations; automatic topic suggestions are labelled "Автоматически найденные темы" and rendered as hypotheses.
 - Publications keep original Telegram text, media order, author hashtags (# source tags) and source links; they are never rewritten by LLMs.
 - Citation preference: cite the material page URL, not the raw Telegram link, when referring to curated content.
-- Do not fetch `https://staniverse.xyz/media/` archive originals for indexing or model ingestion. Use the material page text, metadata, poster context and source links instead.
+- Do not fetch [the media archive](https://staniverse.xyz/media/) originals for indexing or model ingestion. Use the material page text, metadata, poster context and source links instead.
 
 ## Change cadence
+
 Updated incrementally from the Telegram archive and editorial passes; see section pages for per-item dates.

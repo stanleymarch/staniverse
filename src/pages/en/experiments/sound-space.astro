@@ -1,4 +1,5 @@
 ---
+import { withoutTrailingStop } from "../../../lib/typography";
 import Base from "../../../layouts/Base.astro";
 import { getCollection } from "astro:content";
 
@@ -11,7 +12,7 @@ const jsonLd = { "@type": "CreativeWork", "@id": new URL("/en/experiments/sound-
 ---
 <Base title="SOUND//SPACE" description={description} lang="en" jsonLd={jsonLd}>
   <article class="entry-shell">
-    <header class="entry-hero"><div class="entry-hero-meta"><span class="section-kicker">Experiment · Running</span></div><h1>SOUND//SPACE</h1><p class="entry-summary">{description}</p><div class="publication-facts">{href && <a href={href}>Open experiment ↗</a>}{repo && <a href={repo}>Code ↗</a>}</div><dl class="work-facts"><div><dt>Type</dt><dd>Art experience</dd></div><div><dt>Platforms</dt><dd>Headsets · mobile · desktop</dd></div><div><dt>Capabilities</dt><dd>Sound</dd></div><div><dt>Technology</dt><dd>{source?.data.stack.join(" · ")}</dd></div>{updated && <div><dt>Updated</dt><dd>{updated}</dd></div>}</dl></header>
+    <header class="entry-hero"><div class="entry-hero-meta"><span class="section-kicker">Experiment · Running</span></div><h1>SOUND//SPACE</h1><p class="entry-summary">{withoutTrailingStop(description)}</p><div class="publication-facts">{href && <a href={href}>Open experiment ↗</a>}{repo && <a href={repo}>Code ↗</a>}</div><dl class="work-facts"><div><dt>Type</dt><dd>Art experience</dd></div><div><dt>Platforms</dt><dd>Headsets · mobile · desktop</dd></div><div><dt>Capabilities</dt><dd>Sound</dd></div><div><dt>Technology</dt><dd>{source?.data.stack.join(" · ")}</dd></div>{updated && <div><dt>Updated</dt><dd>{updated}</dd></div>}</dl></header>
     <div class="prose">
       <h2>The experience</h2><p>Sound stops disappearing and becomes space. After microphone permission, a live FFT draws a luminous ribbon: speech becomes a nervous relief, music a spectral fabric, and a clap a short shock with an expanding ring. A chosen moment remains as a 3D sculpture; together they make a history of the last minutes.</p>
       <h2>Interaction</h2><ul><li><strong>MIC</strong> requests the microphone.</li><li>Tap, click, pinch or <strong>FREEZE</strong> saves the current sound moment.</li><li>Drag moves or turns a selected sculpture; hold or squeeze removes it. <strong>Clear</strong> removes the entire history.</li></ul>

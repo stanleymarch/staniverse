@@ -116,7 +116,7 @@ const cloudTopics = [...topics].sort((a, b) => b.entries.length - a.entries.leng
     <header class="garden-hero">
       <div class="section-kicker">Публичная память</div>
       <h1>Сад</h1>
-      <p>Публикации, статьи, видео и проекты — по темам, датам и живым связям.</p>
+      <p>Публикации, статьи, видео и проекты — по темам, датам и живым связям</p>
     </header>
 
     <section class="garden-cloud" aria-labelledby="garden-cloud-title">
@@ -217,7 +217,7 @@ const cloudTopics = [...topics].sort((a, b) => b.entries.length - a.entries.leng
           </div>
           <button class="garden-more" type="button" data-garden-more>Показать ещё</button>
         </section>
-        <aside class="garden-map-panel" data-garden-map hidden><div class="section-kicker">Карта контекста</div><h2>Связи выбранного набора</h2><p>Сплошные линии означают доказанные связи. Пунктиром показаны тематические и смысловые рекомендации.</p><p class="garden-map-count" data-garden-map-count></p><p class="garden-map-pan-hint">Проведите по карте, чтобы увидеть остальные узлы.</p><div class="garden-map-viewport" tabindex="0" aria-label="Панорамная область карты"><svg class="garden-map-svg" data-garden-map-svg viewBox="0 0 800 560" role="img" aria-label="Граф отфильтрованных материалов"></svg></div><ol class="garden-map-list" data-garden-map-list aria-label="Материалы на карте"></ol><p class="garden-map-note">Выберите материал, чтобы открыть его локальный граф. Для пространственного путешествия есть <a href="/universe/">XR-вселенная связей</a>.</p></aside>
+        <aside class="garden-map-panel" data-garden-map hidden><div class="section-kicker">Карта контекста</div><h2>Связи выбранного набора</h2><p>Сплошные линии означают доказанные связи. Пунктиром показаны тематические и смысловые рекомендации.</p><p class="garden-map-count" data-garden-map-count></p><p class="garden-map-pan-hint">Проведите по карте, чтобы увидеть остальные узлы.</p><div class="garden-map-viewport" tabindex="0" aria-label="Панорамная область карты"><svg class="garden-map-svg" data-garden-map-svg viewBox="0 0 800 560" role="img" aria-label="Граф отфильтрованных материалов"></svg></div><ol class="garden-map-list" data-garden-map-list aria-label="Материалы на карте"></ol><p class="garden-map-note">Выберите материал, чтобы открыть его локальный граф. Для пространственного путешествия есть <a href="/universe/">XR-вселенная связей</a></p></aside>
       </div>
     </div>
   <script is:inline type="application/json" id="garden-records" set:html={JSON.stringify(records).replace(/</g,"\\u003c")} />

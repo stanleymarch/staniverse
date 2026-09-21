@@ -1,4 +1,5 @@
 ---
+import { withoutTrailingStop } from "../../../lib/typography";
 import Base from "../../../layouts/Base.astro";
 import { getCollection } from "astro:content";
 
@@ -31,7 +32,7 @@ const projectJsonLd = {
     <header class="entry-hero">
       <div class="entry-hero-meta"><span class="section-kicker">Own project · {status}</span></div>
       <h1>staniverse</h1>
-      <p class="entry-summary">{description}</p>
+      <p class="entry-summary">{withoutTrailingStop(description)}</p>
       <dl class="work-facts">
         <div><dt>Status</dt><dd>{status}</dd></div>
         <div><dt>Domains</dt><dd>{domains.join(" · ")}</dd></div>

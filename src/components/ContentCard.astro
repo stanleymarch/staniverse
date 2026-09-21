@@ -1,6 +1,7 @@
 ---
 import type { AnyEntry } from "../lib/content";
 import { hrefFor, kindLabel, projectStatus, workStatus } from "../lib/content";
+import { withoutTrailingStop } from "../lib/typography";
 interface Props {
   entry: AnyEntry; large?: boolean; headingLevel?: "h2" | "h3"; showDate?: boolean;
   /* EN pages render the same card from the RU entry with translated strings. */
@@ -21,6 +22,6 @@ const publishedLabel = published ? new Intl.DateTimeFormat(isEn ? "en-GB" : "ru-
 <a class:list={["content-card", { large }]} href={hrefOverride ?? hrefFor(entry)} data-kind={entry.data.kind} data-date={published?.toISOString() ?? ""} data-tags={[...entry.data.tags, ...extraFilters].join(" ")} data-search={`${titleOverride ?? entry.data.title} ${summaryOverride ?? entry.data.summary} ${entry.data.tags.join(" ")} ${extraFilters.join(" ")}`.toLowerCase()}>
   <div class="card-meta"><span>{kindLabelOverride ?? (entry.data.forwardFrom ? `Репост · ${entry.data.forwardFrom}` : kindLabel[entry.data.kind])}</span>{status && <span class="status">{status}</span>}{entry.data.featured && <span class="featured" title={isEn ? "Featured" : "Избранное"}><span aria-hidden="true">★</span><span class="sr-only">{isEn ? "Featured" : "Избранное"}</span></span>}{showDate && published && <time datetime={published.toISOString()}>{publishedLabel}</time>}</div>
   <Heading>{keepShortWords(titleOverride ?? entry.data.title)}</Heading>
-  <p>{keepShortWords(summaryOverride ?? entry.data.summary)}</p>
+  <p>{keepShortWords(withoutTrailingStop(summaryOverride ?? entry.data.summary))}</p>
   {showTags && <div class="tag-row">{(tagsOverride ?? entry.data.tags.slice(0, 4)).map((tag) => <span>#{tag}</span>)}</div>}
 </a>

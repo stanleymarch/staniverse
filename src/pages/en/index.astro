@@ -95,7 +95,7 @@ const directions = [
   {
     icon: "xr",
     title: "XR and spatial experiences",
-    text: "Virtual offices, VR scenes, AR try-ons, digital twins and exhibition worlds. I build them in Unity and WebXR so that a space has a script, not only geometry.",
+    text: "Virtual offices, VR scenes, AR try-ons, digital twins and exhibition worlds. I build them in Unity and WebXR so that a space has a script, not only geometry",
     tags: ["WebXR", "Unity", "Blender"],
     entryId: "work:virtualnyy-ofis-advokata",
     proof: "Virtual office for a lawyer",
@@ -103,7 +103,7 @@ const directions = [
   {
     icon: "ai",
     title: "AI automation and agents",
-    text: "I bring models, data and tools into understandable working processes. In practice that runs from research and documents to a knowledge system where decisions and taste stay with people.",
+    text: "I bring models, data and tools into understandable working processes. In practice that runs from research and documents to a knowledge system where decisions and taste stay with people",
     tags: ["agents", "Obsidian", "automation"],
     entryId: "article:ai-diploma",
     proof: "How I defended my thesis with AI agents",
@@ -111,7 +111,7 @@ const directions = [
   {
     icon: "archive",
     title: "Digital archives and culture",
-    text: "Photogrammetry, sound, local history and museum collections in a format that lives online, in a headset and on a screen in the hall. With attention to the source and to rights.",
+    text: "Photogrammetry, sound, local history and museum collections in a format that lives online, in a headset and on a screen in the hall. With attention to the source and to rights",
     tags: ["photogrammetry", "archives", "heritage"],
     entryId: "project:metavyatka",
     proof: "MetaVyatka — the archive of Vyatka",
@@ -119,7 +119,7 @@ const directions = [
   {
     icon: "media",
     title: "Media and education",
-    text: "Documentary stories, texts, video and teaching materials: from the idea and the shoot to an educational product, a publication and a handover to the team.",
+    text: "Documentary stories, texts, video and teaching materials: from the idea and the shoot to an educational product, a publication and a handover to the team",
     tags: ["media", "education", "professional training"],
     entryId: "work:prepodavanie-metodicheskaya-rabota-i-prodakshn-v-tsifrovykh-kafedrakh",
     proof: "Teaching, methodology and production",
@@ -234,9 +234,9 @@ const homepageJsonLd = {
 
       <div class="home-hero-copy">
         <h1 id="home-title" class="display">Hi 👋 everyone,<br />I'm Stas!</h1>
-        <p class="hero-lead">I make XR spaces, AI automation and digital archives&nbsp;—&nbsp;for business, museums and cultural projects. I like tasks where the technology does not make noise but helps people work, remember and understand.</p>
+        <p class="hero-lead">I make XR spaces, AI automation and digital archives&nbsp;—&nbsp;for business, museums and cultural projects. I like tasks where the technology does not make noise but helps people work, remember and understand</p>
         <div class="hero-actions">
-          <a class="button primary" href="/works/">See the works</a>
+          <a class="button primary" href="/en/works/">See the works</a>
           <a class="button quiet" href="mailto:stas@staniverse.xyz?subject=Project for Stas">Write to me</a>
         </div>
       </div>
@@ -268,8 +268,8 @@ const homepageJsonLd = {
     </section>
 
     <nav class="signal-strip" aria-label="Main sections">
-      <a href="/works/"><strong>Works</strong><span>delivered work</span></a>
-      <a href="/projects/"><strong>Projects</strong><span>own living systems</span></a>
+      <a href="/en/works/"><strong>Works</strong><span>delivered work</span></a>
+      <a href="/en/projects/"><strong>Projects</strong><span>own living systems</span></a>
       <a href="/garden/"><strong>Garden</strong><span>publications and topics</span></a>
       <button type="button" data-profile-open><strong>About me</strong><span>experience, skills and contacts</span></button>
     </nav>
@@ -278,7 +278,7 @@ const homepageJsonLd = {
       <div class="section-head">
         <div><div class="section-kicker">Directions</div><h2 id="directions-title">One way of working,<br class="home-break" /> four entry points</h2></div>
       </div>
-      <p class="section-copy">Most often it all starts with the question of what has to change. Businesses need processes, predictability and less manual routine; museums and cultural institutions need preservation, display and a conversation with the visitor; media and educational projects need their material assembled, texts, video and publication. Below are four ways to build that kind of work.</p>
+      <p class="section-copy">Most often it all starts with the question of what has to change. Businesses need processes, predictability and less manual routine; museums and cultural institutions need preservation, display and a conversation with the visitor; media and educational projects need their material assembled, texts, video and publication. Below are four ways to build that kind of work</p>
       <div class="directions-grid">
         {directions.map((direction) => (
           <article class="direction-tile">
@@ -296,21 +296,21 @@ const homepageJsonLd = {
         ))}
       </div>
     </section>
-    <section class="section" aria-labelledby="works-title"><div class="section-head"><div><div class="section-kicker">Selected works</div><h2 id="works-title">The ones that became<br class="home-break" /> real</h2></div><a class="text-link" href="/works/">All works →</a></div><div class="card-grid">{works.map((entry, i) => <ContentCard entry={entry} large={i === 0 || i === 3} showDate={false} titleOverride={copy[entry.data.id]?.title} summaryOverride={copy[entry.data.id]?.summary} tagsOverride={tagsOf(entry)} kindLabelOverride={kindOf(entry)} statusOverride={statusOf(entry)} />)}</div></section>
+    <section class="section" aria-labelledby="works-title"><div class="section-head"><div><div class="section-kicker">Selected works</div><h2 id="works-title">The ones that became<br class="home-break" /> real</h2></div><a class="text-link" href="/en/works/">All works →</a></div><div class="card-grid">{works.map((entry, i) => <ContentCard entry={entry} large={i === 0 || i === 3} showDate={false} titleOverride={copy[entry.data.id]?.title} summaryOverride={copy[entry.data.id]?.summary} tagsOverride={tagsOf(entry)} kindLabelOverride={kindOf(entry)} statusOverride={statusOf(entry)} />)}</div></section>
 
     <section class="section home-projects" aria-labelledby="projects-title">
-      <div class="section-head"><div><div class="section-kicker">Own projects</div><h2 id="projects-title">The ones that keep<br class="home-break" /> moving</h2></div><a class="text-link" href="/projects/">All projects →</a></div>
-      <p class="section-copy">Ideas, research and systems do not have to be finished. They have a status, a history and a next action.</p>
+      <div class="section-head"><div><div class="section-kicker">Own projects</div><h2 id="projects-title">The ones that keep<br class="home-break" /> moving</h2></div><a class="text-link" href="/en/projects/">All projects →</a></div>
+      <p class="section-copy">Ideas, research and systems do not have to be finished. They have a status, a history and a next action</p>
       <div class="card-grid">{projects.map((entry) => <ContentCard entry={entry} showDate={false} hrefOverride={translatedProjects[entry.data.id]} titleOverride={copy[entry.data.id]?.title} summaryOverride={copy[entry.data.id]?.summary} tagsOverride={tagsOf(entry)} kindLabelOverride={kindOf(entry)} statusOverride={statusOf(entry)} />)}</div>
     </section>
     <section class="section home-profile" aria-labelledby="home-profile-title">
       <div class="section-head">
         <div><div class="section-kicker">Profile</div><h2 id="home-profile-title">I design digital experience —<br class="home-break" /> from research to a working system</h2></div>
-        <a class="text-link" href="/about/">About me →</a>
+        <a class="text-link" href="/en/about/">About me →</a>
       </div>
       <div class="profile-band">
         <div class="profile-band-cell">
-          <p class="profile-lead">I work at the intersection of XR, AI, web and documentary media: I design spatial experiences, automation and systems in which technology helps a person remember, understand and be present.</p>
+          <p class="profile-lead">I work at the intersection of XR, AI, web and documentary media: I design spatial experiences, automation and systems in which technology helps a person remember, understand and be present</p>
           <div class="profile-facts"><span><strong>1994</strong><small>year of birth</small></span><span><strong>11+</strong><small>years in media</small></span><span><strong>XR · AI · Web</strong><small>working focus</small></span><span><strong>St. Petersburg · from Vyatka</strong><small>based in St. Petersburg</small></span></div>
         </div>
         <div class="profile-band-cell">
@@ -327,12 +327,12 @@ const homepageJsonLd = {
         <div>
           <div class="section-kicker">Conversation</div>
           <h2 id="invite-title">Tell me what<br class="home-break" /> you are working on</h2>
-          <p class="section-copy">Describe it in a couple of words: what is happening, where the bottleneck is and what result would be good enough. I will answer honestly whether it needs XR, AI or plain careful automation, and suggest the next step — without a big blind rollout.</p>
+          <p class="section-copy">Describe it in a couple of words: what is happening, where the bottleneck is and what result would be good enough. I will answer honestly whether it needs XR, AI or plain careful automation, and suggest the next step — without a big blind rollout</p>
         </div>
         <div class="home-invite-actions">
           <a class="button primary" href="mailto:stas@staniverse.xyz?subject=Project for Stas">Write to me</a>
           <a class="button quiet" href="/cv/Stanislav-Ermolenko-CV-RU.pdf" download>Download CV</a>
-          <a class="text-link" href="/contacts/">Other contacts →</a>
+          <a class="text-link" href="/en/contacts/">Other contacts →</a>
         </div>
       </div>
     </section>
@@ -351,7 +351,7 @@ const homepageJsonLd = {
         <div><span class="profile-label">Tools</span><p>XR: Unity · Blender · Substance · WebXR · 8th Wall · Three.js<br />AI: n8n · LangChain · Dify · Supabase · Neo4j · ComfyUI · Python<br />Harnesses and agents: Claude Code · Codex · OpenCode · OpenClaw · Hermes · Pico Claw · pi<br />Web: Astro · Tilda · WordPress · Telegram Bot API<br />Infrastructure: Linux · Docker · Nginx · Home Assistant<br />Media: DaVinci Resolve · Premiere · Photoshop · OBS Studio</p></div>
         <div><span class="profile-label">Achievements</span><p>Prize-winner of the XV Russian Youth Delphic Games in TV journalism, winner of “MediaMaster-2019”, finalist of the student media projects competition at the “Space of Eurasia” forum, Top-10 at ArtMasters-2025 in the “Virtual world designer” category.</p></div>
       </div></details>
-      <div class="profile-page-link"><a class="text-link" href="/about/">Open the separate page and the manifesto →</a></div>
+      <div class="profile-page-link"><a class="text-link" href="/en/about/">Open the separate page and the manifesto →</a></div>
       </div>
     </dialog>
   </div>
@@ -398,6 +398,15 @@ const homepageJsonLd = {
       board.addEventListener("pointerdown", (event) => { const node = target(event); if (node) highlight(node.dataset.node); });
       board.addEventListener("focusin", (event) => { const node = target(event); if (node) highlight(node.dataset.node); });
       board.addEventListener("focusout", () => highlight());
+    }
+
+    /* The dashed drift runs only while the map is on screen: it repaints every
+       frame, and off-screen it would burn that on nothing. */
+    if (board && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      const drift = new IntersectionObserver(([entry]) => {
+        board.toggleAttribute("data-const-idle", !entry.isIntersecting);
+      }, { rootMargin: "15% 0px" });
+      drift.observe(board);
     }
 
     // Gentle depth: the sky and the constellation drift with the pointer, by a few
@@ -534,7 +543,8 @@ const homepageJsonLd = {
   .direction-icon svg { width: 1.35rem; height: 1.35rem; overflow: visible; fill: none; stroke: currentColor; stroke-width: 1.45; stroke-linecap: round; stroke-linejoin: round; }
   .direction-tile h3 { margin: 0; min-height: 2.44em; color: var(--ink); font: 500 clamp(1.02rem, .92rem + 1vw, 1.3rem) / 1.22 Unbounded; letter-spacing: -.02em; text-wrap: balance; transition: color var(--dur-2) var(--ease); }
   .direction-tile p { margin: 0; color: var(--ink-2); font-size: .88rem; line-height: 1.6; text-wrap: pretty; }
-  .direction-proof { margin-top: auto; color: var(--accent); font-size: .8rem; text-decoration-thickness: 1px; text-underline-offset: .2em; }
+  .direction-tile .tag-row { margin-top: auto; }
+  .direction-proof { padding-top: var(--s-3); color: var(--accent); font-size: .8rem; text-decoration-thickness: 1px; text-underline-offset: .2em; }
   .direction-proof::after { position: absolute; inset: 0; content: ""; }
   .direction-tile:hover .direction-icon, .direction-tile:focus-within .direction-icon { box-shadow: inset 0 1px 0 color-mix(in srgb, var(--ink) 16%, transparent), 0 0 30px color-mix(in srgb, var(--accent) 30%, transparent); transform: translateY(-2px) rotate(-2deg); }
   .direction-tile:hover h3, .direction-tile:focus-within h3 { color: color-mix(in srgb, var(--ink) 78%, var(--accent)); }
@@ -612,4 +622,11 @@ const homepageJsonLd = {
     .const-node:hover .const-label, .const-node:focus-visible .const-label { translate: -50% 0; rotate: none; }
     .direction-tile:hover, .direction-tile:focus-within, .direction-tile:hover .direction-icon, .direction-tile:focus-within .direction-icon { transform: none; }
   }
+
+  /* The dashed drift recalculates style on every frame: six edges measured at
+     ~1.3 s of main thread per six seconds, a fifth of a core, for a detail that
+     reads as texture. A phone gets the map without it; wider screens keep it
+     only while the board is on screen, which the script above maintains. */
+  @media (max-width: 700px) { .const-edge { animation: none; } }
+  .const-board[data-const-idle] .const-edge { animation-play-state: paused; }
 </style>

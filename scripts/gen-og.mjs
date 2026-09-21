@@ -48,13 +48,17 @@ const images = {
   "staniverse": { label: "Staniverse", title: "Цифровой сад", accent: "#64dff4" },
   "works": { label: "Работы", title: "Портфолио", accent: "#64dff4" },
   "projects": { label: "Проекты", title: "Собственные проекты", accent: "#7183bd" },
-  "experiments": { label: "Лаборатория", title: "Эксперименты", accent: "#7183bd" },
+  "lab": { label: "Лаборатория", title: "Эксперименты", accent: "#7183bd" },
   "garden": { label: "Сад", title: "Каталог опыта", accent: "#64dff4" },
   "videos": { label: "Видео", title: "Видеотека", accent: "#ef8ecf" },
   "topics": { label: "Темы", title: "Указатель", accent: "#7183bd" },
   "articles": { label: "Статьи", title: "Лонгриды", accent: "#ef8ecf" },
   "about": { label: "Обо мне", title: "Профиль", accent: "#64dff4" },
   "universe": { label: "Вселенная", title: "Пространство идей", accent: "#7183bd" },
+  "contacts": { label: "Контакты", title: "Связь", accent: "#64dff4" },
+  "manifesto": { label: "Манифест", title: "Позиция", accent: "#ef8ecf" },
+  "licenses": { label: "Лицензии", title: "Технологии", accent: "#7183bd" },
+  "privacy": { label: "Конфиденциальность", title: "Приватность", accent: "#7183bd" },
   "donate": { label: "Поддержать", title: "Топливо для проектов", accent: "#ef8ecf" },
 };
 

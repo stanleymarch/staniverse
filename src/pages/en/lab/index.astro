@@ -1,4 +1,5 @@
 ---
+import { withoutTrailingStop } from "../../../lib/typography";
 import Base from "../../../layouts/Base.astro";
 import { getCollection, type CollectionEntry } from "astro:content";
 
@@ -102,7 +103,7 @@ const jsonLd = {
   <header class="catalog-hero">
     <div class="section-kicker">Lab</div>
     <h1>Experiments</h1>
-    <p class="hero-lead">Standalone applications rather than games alone: WebXR scenes, SDK demos, spatial mechanics, and further on — things with AI and a backend. Every experiment launches from a link on its card, and next to it lies a short breakdown: what is inside and how to use it. Google XR Blocks work targets Quest 3; the WebXR capabilities they need can be absent on iOS Safari, so those demos may not start there. Camera-based demos are best opened from a phone.</p>
+    <p class="hero-lead">Standalone applications rather than games alone: WebXR scenes, SDK demos, spatial mechanics, and further on — things with AI and a backend. Every experiment launches from a link on its card, and next to it lies a short breakdown: what is inside and how to use it. Google XR Blocks work targets Quest 3; the WebXR capabilities they need can be absent on iOS Safari, so those demos may not start there. Camera-based demos are best opened from a phone</p>
   </header>
   <section class="section">
     {entries.length === 0 ? (

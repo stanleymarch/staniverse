@@ -1,4 +1,5 @@
 ---
+import { withoutTrailingStop } from "../../../lib/typography";
 import Base from "../../../layouts/Base.astro";
 import { getCollection } from "astro:content";
 
@@ -13,7 +14,7 @@ const jsonLd = { "@type": "CreativeWork", "@id": new URL("/en/experiments/weathe
   <article class="entry-shell">
     <header class="entry-hero">
       <div class="entry-hero-meta"><span class="section-kicker">Experiment · Running</span></div>
-      <h1>WEATHER//ROOM</h1><p class="entry-summary">{description}</p>
+      <h1>WEATHER//ROOM</h1><p class="entry-summary">{withoutTrailingStop(description)}</p>
       <div class="publication-facts">{href && <a href={href}>Open experiment ↗</a>}{repo && <a href={repo}>Code ↗</a>}</div>
       <dl class="work-facts"><div><dt>Type</dt><dd>Art experience</dd></div><div><dt>Platforms</dt><dd>Headsets · mobile · desktop</dd></div><div><dt>Technology</dt><dd>{source?.data.stack.join(" · ")}</dd></div>{updated && <div><dt>Updated</dt><dd>{updated}</dd></div>}</dl>
     </header>

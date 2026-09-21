@@ -1,4 +1,5 @@
 ---
+import { withoutTrailingStop } from "../../../lib/typography";
 import Base from "../../../layouts/Base.astro";
 import { getCollection } from "astro:content";
 
@@ -11,7 +12,7 @@ const jsonLd = { "@type": "CreativeWork", "@id": new URL("/en/experiments/echo-r
 ---
 <Base title="ECHO//ROOM" description={description} lang="en" jsonLd={jsonLd}>
   <article class="entry-shell">
-    <header class="entry-hero"><div class="entry-hero-meta"><span class="section-kicker">Experiment · Running</span></div><h1>ECHO//ROOM</h1><p class="entry-summary">{description}</p><div class="publication-facts">{href && <a href={href}>Open experiment ↗</a>}{repo && <a href={repo}>Code ↗</a>}</div><dl class="work-facts"><div><dt>Type</dt><dd>Tool · art experience</dd></div><div><dt>Platforms</dt><dd>Headsets · mobile · desktop</dd></div><div><dt>Technology</dt><dd>{source?.data.stack.join(" · ")}</dd></div>{updated && <div><dt>Updated</dt><dd>{updated}</dd></div>}</dl></header>
+    <header class="entry-hero"><div class="entry-hero-meta"><span class="section-kicker">Experiment · Running</span></div><h1>ECHO//ROOM</h1><p class="entry-summary">{withoutTrailingStop(description)}</p><div class="publication-facts">{href && <a href={href}>Open experiment ↗</a>}{repo && <a href={repo}>Code ↗</a>}</div><dl class="work-facts"><div><dt>Type</dt><dd>Tool · art experience</dd></div><div><dt>Platforms</dt><dd>Headsets · mobile · desktop</dd></div><div><dt>Technology</dt><dd>{source?.data.stack.join(" · ")}</dd></div>{updated && <div><dt>Updated</dt><dd>{updated}</dd></div>}</dl></header>
     <div class="prose">
       <h2>The experience</h2><p>Space keeps the last 60 seconds. A ray trajectory remains a translucent thread, a tap makes a ✦ impulse, and selecting an old impulse unfolds four states around it: NOW, −1, −2, −3 and −4 seconds. This is a three-dimensional temporal debugger of actions in the room, not a recording of the room.</p>
       <h2>Interaction</h2><ul><li>Select in empty space creates a ✦.</li><li>Select near an old impulse opens local time layers.</li><li>Quest hand or controller rays, and the same select API on phones and desktop, work alike.</li><li><strong>Clear history</strong> removes all traces and layers.</li></ul>

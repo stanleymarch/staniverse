@@ -1,4 +1,5 @@
 ---
+import { withoutTrailingStop } from "../../../lib/typography";
 import Base from "../../../layouts/Base.astro";
 import { getCollection } from "astro:content";
 
@@ -29,7 +30,7 @@ const articleJsonLd = {
       <div class="entry-hero-meta"><span class="section-kicker">Article</span>{published && <time datetime={source!.data.date!.toISOString()}>{published}</time>}</div>
       <h1>Building an AI waifu and more: a guide to creating virtual companions</h1>
 
-      <p class="entry-summary">{description}</p>
+      <p class="entry-summary">{withoutTrailingStop(description)}</p>
 
       <dl class="work-facts">
         {published && <div><dt>Published</dt><dd>{published}</dd></div>}

@@ -7,6 +7,8 @@ import TableOfContents from "./TableOfContents.astro";
 import { experimentStatus, hrefFor, kindLabel, projectStatus, workStatus } from "../lib/content";
 import { buildRecommendations } from "../lib/recommendations";
 import { topicRoute } from "../lib/topics";
+import { ogImageFor } from "../lib/og";
+import { withoutTrailingStop } from "../lib/typography";
 import { getCollection, render } from "astro:content";
 import { getTopicDefinition, normalizeTopics } from "../lib/taxonomy";
 interface Props { entry: AnyEntry; nodes: GraphNode[]; edges: GraphEdge[]; chapters?: AnyEntry[] }
@@ -74,10 +76,11 @@ const schemaType = ["youtube-video", "video"].includes(entry.data.kind)
   : ["article", "telegram-post", "telegram-article"].includes(entry.data.kind)
     ? "Article"
     : "CreativeWork";
-/* Rich results need an image; a work or project falls back to its section card. */
+/* Rich results need an image; the card follows the route section, exactly like
+   og:image, so the page and its structured data can never advertise different files. */
 const schemaImage = entry.collection === "publications" && entry.data.thumbnailUrl
   ? entry.data.thumbnailUrl
-  : new URL(`/og/${entry.collection === "projects" ? "projects" : entry.collection === "works" ? "works" : entry.collection === "articles" ? "articles" : entry.collection === "experiments" ? "experiments" : "garden"}.png`, Astro.site).href;
+  : new URL(ogImageFor(hrefFor(entry).split("/").filter(Boolean)[0]), Astro.site).href;
 const parentCrumb = entry.collection === "works"
   ? { name: "Работы", href: "/works/" }
   : entry.collection === "projects"
@@ -100,13 +103,6 @@ const entryJsonLd: Record<string, unknown> = {
   ...(entry.data.updated ? { dateModified: entry.data.updated.toISOString() } : {}),
   ...(entry.collection === "publications" && entry.data.thumbnailUrl ? { thumbnailUrl: entry.data.thumbnailUrl } : {}),
   ...(entry.collection === "publications" && entry.data.embedUrl ? { embedUrl: entry.data.embedUrl } : {}),
-  breadcrumb: {
-    "@type": "BreadcrumbList",
-    itemListElement: [
-      { "@type": "ListItem", position: 1, name: parentCrumb.name, item: new URL(parentCrumb.href, Astro.site).href },
-      { "@type": "ListItem", position: 2, name: entry.data.title, item: new URL(hrefFor(entry), Astro.site).href },
-    ],
-  },
 };
 ---
 <Base title={entry.data.title} description={entry.data.summary} ogImage={entry.collection === "publications" ? entry.data.thumbnailUrl : undefined} jsonLd={entryJsonLd} published={entry.data.date} modified={entry.data.updated ?? entry.data.date}>
@@ -114,14 +110,14 @@ const entryJsonLd: Record<string, unknown> = {
     <div class="entry-columns">
     <div class="entry-main">
     <header class="entry-hero">
-      <div class="entry-hero-meta"><span class="section-kicker">{entry.data.forwardFrom ? `Репост из «${entry.data.forwardFrom}»` : kindLabel[entry.data.kind]}{status && ` · ${status}`}</span>{showPublished && published && <time datetime={published.toISOString()}>{publishedLabel}</time>}</div>
+      <div class="entry-hero-meta"><span class="section-kicker">{entry.data.forwardFrom ? `Репост из «${entry.data.forwardFrom}»` : kindLabel[entry.data.kind]}{status && ` · ${status}`}</span>{showPublished && published && <><span class="entry-hero-meta-separator" aria-hidden="true">·</span><time datetime={published.toISOString()}>{publishedLabel}</time></>}</div>
       <nav class="entry-breadcrumbs" aria-label="Хлебные крошки"><a href="/">станивёрс</a> <span aria-hidden="true">/</span> <a href={parentCrumb.href}>{parentCrumb.name}</a> <span aria-hidden="true">/</span> <span aria-current="page">{entry.data.title}</span></nav>
       <h1 class:list={{ "is-long": entry.data.title.length > 64, "is-very-long": entry.data.title.length > 105 }}>{entry.data.title}</h1>
       {(showReadingEstimate || connectionCount > 0) && <div class="entry-reading-meta" aria-label="Параметры материала">
         {showReadingEstimate && <span>{readingLabel}</span>}
         {connectionCount > 0 && <button type="button" data-open-graph>↗ {connectionCount} {connectionWord}</button>}
       </div>}
-      {showSummary && <p class="entry-summary">{entry.data.summary}</p>}
+      {showSummary && <p class="entry-summary">{withoutTrailingStop(entry.data.summary)}</p>}
       {entities.length > 0 && <details class="auto-topics entity-list"><summary>{entitySummary}</summary><div class="tag-row">{entities.map((entity) => <span>{entity}</span>)}</div></details>}
       {publicationMeta && <div class="publication-facts"><span>{publicationMeta.platform}</span><span>{publicationMeta.ownership}</span><a href={publicationMeta.sourceUrl}>Открыть оригинал ↗</a></div>}
       {entry.data.kind === "work" && <dl class="work-facts">
@@ -332,6 +328,8 @@ const entryJsonLd: Record<string, unknown> = {
   .channel-gallery-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s-3); }
   .channel-gallery-grid a { min-width: 0; color: inherit; }
   .channel-gallery-grid img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border: 1px solid var(--line); }
+  .entry-hero-meta { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s-2); }
+  .entry-hero-meta-separator { color: var(--ink-2); }
   .entry-reading-meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2) var(--s-4); margin: -.1rem 0 var(--s-3); color: var(--ink-2); font-size: .78rem; }
   .entry-reading-meta button { padding: 0; border: 0; background: transparent; color: var(--accent); font: inherit; cursor: pointer; }
   .entry-reading-meta button:hover, .entry-reading-meta button:focus-visible { text-decoration: underline; text-underline-offset: .22em; }
