@@ -26,6 +26,7 @@ export type ThreeModule = typeof import("three");
 export interface WorldNodeVisual {
   node: GraphNode;
   mesh?: Mesh;
+  core?: Mesh;
   aura?: Sprite;
   label?: Sprite;
   position: Vector3;
@@ -148,6 +149,9 @@ interface ConstellationEdge {
   active: boolean;
   secondary: boolean;
   spark: Sprite;
+  /** Daylight-readable physical stroke; hidden outside AR. */
+  tube: Mesh;
+  tubeMaterial: MeshBasicMaterial;
 }
 
 function cleanTitle(value: string, limit = 34) {
@@ -208,11 +212,14 @@ export class UniverseWorld {
   };
   private readonly sharedSphereGeometry: SphereGeometry;
   private readonly sharedMeshMaterial: MeshBasicMaterial;
+  private readonly opticalSphereGeometry: SphereGeometry;
   private readonly glowTexture: CanvasTexture;
   private readonly starPoints: Points;
   private readonly starMaterial: ShaderMaterial;
   private readonly backdrop: UniverseBackdrop;
   private readonly ambientEdges: Line[] = [];
+  /** Strongest ambient routes receive physical filaments in AR; hidden on the screen sky. */
+  private readonly ambientTubes: Mesh[] = [];
   private constellation: ConstellationEdge[] = [];
   /** Spectral colour per node, cached: the sky is tinted once, never per frame. */
   private readonly spectra = new Map<string, Color>();
@@ -229,8 +236,8 @@ export class UniverseWorld {
   private disposed = false;
   private vrPresentation = false;
   private arPresentation = false;
-  /** AR squeezes the world into ~1m; point sprites shrink with that scale, so their pixel size is compensated here. */
-  private arPointCompensation = 1;
+  /** Live AR content scale (graph units → metres); pick tolerance follows it physically. */
+  private arContentScale = 1;
   private beaconLimit = 0;
   /** Scratch vectors for per-frame proximity: no allocation in the hot path. */
   private readonly probeEar: Vector3;
@@ -262,6 +269,7 @@ export class UniverseWorld {
     // The sphere is a generous controller/mouse hit volume only. Visible semantic nodes are
     // optical point sources attached below, so proximity never turns a star into a flat ball.
     this.sharedSphereGeometry = new this.THREE.SphereGeometry(1, 8, 6);
+    this.opticalSphereGeometry = new this.THREE.SphereGeometry(1, 20, 14);
     this.sharedMeshMaterial = new this.THREE.MeshBasicMaterial({
       transparent: true,
       opacity: 0,
@@ -391,14 +399,25 @@ export class UniverseWorld {
       const source = this.visuals.get(edge.source);
       const target = this.visuals.get(edge.target);
       if (!source || !target) return;
+      const inferred = isInferredGraphEdge(edge);
+      const causal = isCausalRelation(edge);
+      const character = inferred ? 0x6de1f4 : causal ? 0xf1b7dd : 0x8ea6c0;
       const geometry = new this.THREE.BufferGeometry().setFromPoints([source.position, target.position]);
-      const material = isInferredGraphEdge(edge)
-        ? new this.THREE.LineDashedMaterial({ color: 0x6de1f4, transparent: true, opacity: AMBIENT_EDGE_OPACITY, dashSize: .32, gapSize: .22 })
-        : new this.THREE.LineBasicMaterial({ color: isCausalRelation(edge) ? 0xf1b7dd : 0x8ea6c0, transparent: true, opacity: AMBIENT_EDGE_OPACITY });
+      const material = inferred
+        ? new this.THREE.LineDashedMaterial({ color: character, transparent: true, opacity: AMBIENT_EDGE_OPACITY, dashSize: .32, gapSize: .22 })
+        : new this.THREE.LineBasicMaterial({ color: character, transparent: true, opacity: AMBIENT_EDGE_OPACITY });
       const line = new this.THREE.Line(geometry, material);
-      if (isInferredGraphEdge(edge)) line.computeLineDistances();
-      this.root.add(line);
+      line.userData.character = inferred ? "inferred" : causal ? "causal" : "related";
+      if (inferred) line.computeLineDistances();
+      const tube = new this.THREE.Mesh(
+        new this.THREE.TubeGeometry(new this.THREE.LineCurve3(source.position, target.position), 1, .12, 3, false),
+        new this.THREE.MeshBasicMaterial({ color: character, transparent: true, opacity: 0, depthTest: false, depthWrite: false }),
+      );
+      tube.visible = false;
+      tube.renderOrder = 1;
+      this.root.add(line, tube);
       this.ambientEdges.push(line);
+      this.ambientTubes.push(tube);
     });
   }
 
@@ -718,23 +737,31 @@ export class UniverseWorld {
   private ensureMesh(id: string) {
     const visual = this.visuals.get(id);
     if (!visual || visual.mesh || this.disposed) return visual;
+    // This mesh is a raycast volume only. `colorWrite:false` is invariant across
+    // screen, VR and AR; making it visible created faceted balls over the camera.
     const mesh = new this.THREE.Mesh(this.sharedSphereGeometry, this.sharedMeshMaterial.clone());
-    if (this.arPresentation) {
-      // Opaque readable core over the camera feed — tinted like its star, never the
-      // raw white the shared hit material would otherwise show.
-      const material = mesh.material as MeshBasicMaterial;
-      material.colorWrite = true;
-      material.opacity = .95;
-      material.color.copy(this.spectral(id, visual.node.kind));
-    }
     mesh.scale.setScalar(visual.radius);
     mesh.position.copy(visual.position);
     mesh.userData.nodeId = id;
     mesh.visible = false;
     this.root.add(mesh);
     visual.mesh = mesh;
+    const core = new this.THREE.Mesh(
+      this.opticalSphereGeometry,
+      new this.THREE.MeshBasicMaterial({
+        color: this.spectral(id, visual.node.kind),
+        transparent: true,
+        opacity: .94,
+        depthWrite: false,
+      }),
+    );
+    core.scale.setScalar(.72);
+    core.visible = this.arPresentation;
+    core.renderOrder = 3;
+    mesh.add(core);
+    visual.core = core;
     if (!this.compact || visual.layer !== "archive") {
-      const aura = new this.THREE.Sprite(new this.THREE.SpriteMaterial({ map: this.glowTexture, color: this.spectral(id, visual.node.kind), transparent: true, opacity: 0, blending: this.THREE.AdditiveBlending, depthWrite: false }));
+      const aura = new this.THREE.Sprite(new this.THREE.SpriteMaterial({ map: this.glowTexture, color: this.spectral(id, visual.node.kind), transparent: true, opacity: 0, blending: this.arPresentation ? this.THREE.NormalBlending : this.THREE.AdditiveBlending, depthWrite: false }));
       const auraSize = this.compact
         ? visual.node.featured ? 1.15 : visual.layer === "core" ? .92 : .54
         : visual.node.featured ? 1.6 : visual.layer === "core" ? 1.25 : visual.layer === "neighborhood" ? .74 : .32;
@@ -763,7 +790,7 @@ export class UniverseWorld {
     if (!visual?.mesh) return;
     visual.revealed = true;
     visual.mesh.visible = true;
-    const auraDim = this.arPresentation ? .5 : 1;
+    const auraDim = this.arPresentation ? .85 : 1;
     if (visual.aura) (visual.aura.material as SpriteMaterial).opacity = auraDim * (visual.node.featured ? .62 : visual.layer === "core" ? .46 : visual.layer === "neighborhood" ? .24 : .06);
   }
 
@@ -800,18 +827,20 @@ export class UniverseWorld {
   }
 
   private disposeConstellation() {
-    this.constellation.forEach(({ line, material, spark }) => {
+    this.constellation.forEach(({ line, material, spark, tube, tubeMaterial }) => {
       line.geometry.dispose();
       material.dispose();
       (spark.material as SpriteMaterial).dispose();
-      this.root.remove(line, spark);
+      tube.geometry.dispose();
+      tubeMaterial.dispose();
+      this.root.remove(line, spark, tube);
     });
     this.constellation = [];
   }
 
   private buildConstellation(id: string) {
     this.disposeConstellation();
-    const budget = this.compact ? 72 : 180;
+    const budget = this.arPresentation ? (this.compact ? 36 : 72) : this.compact ? 72 : 180;
     // Direct spokes answer "what is this star tied to"; edges between its neighbours answer
     // "are those tied to each other" — one constellation, two questions, drawn together.
     const directEdges = (this.edgesByNode.get(id) ?? []).map(({ edge }) => edge);
@@ -849,13 +878,24 @@ export class UniverseWorld {
         : new this.THREE.LineBasicMaterial({ color: character, transparent: true, opacity: .92 });
       const line = new this.THREE.Line(geometry, material);
       if (inferred) line.computeLineDistances();
+      // WebGL line width is fixed to one pixel on mobile. A low-poly physical tube
+      // supplies a real daylight-readable stroke in AR; the original line remains
+      // on top to preserve the dashed/solid relation character.
+      const tubeMaterial = new this.THREE.MeshBasicMaterial({ color: character, transparent: true, opacity: 0, depthTest: false, depthWrite: false });
+      const tube = new this.THREE.Mesh(
+        new this.THREE.TubeGeometry(new this.THREE.LineCurve3(source.position, target.position), 1, .11, 4, false),
+        tubeMaterial,
+      );
+      tube.visible = false;
+      tube.renderOrder = 2;
       // A travelling spark per connection: the pulse that makes a live route legible in depth.
       const spark = new this.THREE.Sprite(new this.THREE.SpriteMaterial({ map: this.glowTexture, color: character, transparent: true, opacity: .85, blending: this.THREE.AdditiveBlending, depthWrite: false }));
       const sparkScale = Math.max(.18, Math.min(source.radius, target.radius) * 2.2);
       spark.scale.setScalar(sparkScale);
+      spark.userData.baseWorldScale = sparkScale;
       spark.position.copy(source.position);
       spark.visible = false;
-      this.root.add(line, spark);
+      this.root.add(line, spark, tube);
       this.constellation.push({
         line,
         material,
@@ -866,6 +906,8 @@ export class UniverseWorld {
         active: false,
         secondary: secondary.has(edge),
         spark,
+        tube,
+        tubeMaterial,
       });
     });
     this.toneConstellation();
@@ -877,7 +919,7 @@ export class UniverseWorld {
       const isPath = this.selectedId === visual.node.id || direct.has(visual.node.id);
       visual.mesh.visible = !this.selectedId || isPath;
       if (visual.label) visual.label.visible = Boolean(this.selectedId && isPath);
-      const auraDim = this.arPresentation ? .5 : 1;
+      const auraDim = this.arPresentation ? .85 : 1;
       if (visual.aura) {
         const baseOpacity = visual.node.featured ? .62 : visual.layer === "core" ? .46 : visual.layer === "neighborhood" ? .24 : .06;
         (visual.aura.material as SpriteMaterial).opacity = auraDim * (this.selectedId === visual.node.id ? .9 : direct.has(visual.node.id) ? Math.max(.42, baseOpacity) : baseOpacity);
@@ -888,10 +930,12 @@ export class UniverseWorld {
     this.constellation.forEach((item) => {
       item.line.visible = true;
       item.active = item.edge.source === this.selectedId || item.edge.target === this.selectedId;
-      (item.material as LineBasicMaterial | LineDashedMaterial).opacity = item.active ? (this.arPresentation ? 1 : .92) : item.secondary ? (this.arPresentation ? .6 : .34) : (this.arPresentation ? .2 : .08);
+      (item.material as LineBasicMaterial | LineDashedMaterial).opacity = item.active ? (this.arPresentation ? 1 : .92) : item.secondary ? (this.arPresentation ? .72 : .34) : (this.arPresentation ? .24 : .08);
+      item.tube.visible = this.arPresentation;
+      item.tubeMaterial.opacity = item.active ? .9 : item.secondary ? .36 : .16;
       item.spark.visible = false;
     });
-    this.starMaterial.uniforms.uOpacity.value = this.selectedId ? (this.arPresentation ? .16 : .34) : (this.arPresentation ? .85 : .9);
+    this.starMaterial.uniforms.uOpacity.value = this.selectedId ? (this.arPresentation ? .8 : .34) : (this.arPresentation ? 1 : .9);
   }
 
   /**
@@ -907,7 +951,10 @@ export class UniverseWorld {
     const viewport = pointViewport();
     this.starMaterial.uniforms.uTime.value = motion ? elapsedSeconds : 0;
     this.starMaterial.uniforms.uEnergy.value = energy * (motion ? 1 : .45);
-    this.starMaterial.uniforms.uScale.value = viewport.scale * this.arPointCompensation;
+    // Physical star sizing: gl_PointSize ∝ aSize·scale/depth already tracks the physical
+    // metres the content scale produces, so the featured/core/satellite hierarchy survives
+    // AR placement without pixel compensation (which saturated every tier to one blob size).
+    this.starMaterial.uniforms.uScale.value = viewport.scale;
     // A selected constellation is a live route: the edges breathe and a spark travels each one.
     this.constellation.forEach((item) => {
       if (!item.active) return;
@@ -915,6 +962,7 @@ export class UniverseWorld {
       if (!motion) return;
       const wave = .76 + .24 * Math.sin(elapsedSeconds * 2.3 + item.phase * Math.PI * 2);
       (item.material as LineBasicMaterial | LineDashedMaterial).opacity = .92 * wave;
+      if (item.tube.visible) item.tubeMaterial.opacity = .9 * wave;
       item.spark.position.lerpVectors(item.from, item.to, (elapsedSeconds * .22 + item.phase) % 1);
     });
     if (viewer) this.focusBeacons(viewer);
@@ -1037,19 +1085,21 @@ export class UniverseWorld {
     this.applyBeaconScale();
     this.starMaterial.blending = enabled ? this.THREE.NormalBlending : this.THREE.AdditiveBlending;
     this.starMaterial.uniforms.uDaylight.value = enabled ? 1 : 0;
-    // Additive auras vanish against a bright camera feed, so each revealed star gets its
-    // compact opaque core back — tinted, not the raw white of the hit material.
+    this.starMaterial.uniforms.uMaxSize.value = enabled ? 42 : 64;
+    // Hit volumes never render. Only optical sprites change blending for the camera
+    // feed, which removes faceted spheres without sacrificing large raycast targets.
     this.visuals.forEach((visual) => {
-      if (!visual.mesh) return;
-      const material = visual.mesh.material as MeshBasicMaterial;
-      material.colorWrite = enabled;
-      material.opacity = enabled ? .95 : 0;
-      if (enabled) material.color.copy(this.spectral(visual.node.id, visual.node.kind));
+      if (visual.core) visual.core.visible = enabled;
+      if (!visual.aura) return;
+      const material = visual.aura.material as SpriteMaterial;
+      material.blending = enabled ? this.THREE.NormalBlending : this.THREE.AdditiveBlending;
+      material.needsUpdate = true;
     });
+    if (this.selectedId) this.buildConstellation(this.selectedId);
     this.toneAmbientEdges();
     this.toneConstellation();
     this.updateHighlights();
-    if (!enabled) this.arPointCompensation = 1;
+    if (!enabled) this.arContentScale = 1;
     this.backdrop.setPresentation(this.presentation());
   }
 
@@ -1057,14 +1107,20 @@ export class UniverseWorld {
    *  disappear entirely, so AR re-inks them darker and far more opaque. */
   private toneAmbientEdges() {
     const ar = this.arPresentation;
-    this.ambientEdges.forEach((line) => {
+    this.ambientEdges.forEach((line, index) => {
       const material = line.material as LineBasicMaterial | LineDashedMaterial;
-      const inferred = material instanceof this.THREE.LineDashedMaterial;
-      const causal = (material as LineBasicMaterial).color.getHex() === 0xf1b7dd;
-      material.opacity = ar ? .48 : AMBIENT_EDGE_OPACITY;
-      (material as LineBasicMaterial).color.set(ar
-        ? inferred ? 0x1f6f86 : causal ? 0x9c3d6e : 0x2e4d68
-        : inferred ? 0x6de1f4 : causal ? 0xf1b7dd : 0x8ea6c0);
+      const character = line.userData.character as "inferred" | "causal" | "related";
+      const color = ar
+        ? character === "inferred" ? 0x0b6278 : character === "causal" ? 0x8c285a : 0x174968
+        : character === "inferred" ? 0x6de1f4 : character === "causal" ? 0xf1b7dd : 0x8ea6c0;
+      material.opacity = ar ? .68 : AMBIENT_EDGE_OPACITY;
+      (material as LineBasicMaterial).color.set(color);
+      const tube = this.ambientTubes[index];
+      if (!tube) return;
+      tube.visible = ar;
+      const tubeMaterial = tube.material as MeshBasicMaterial;
+      tubeMaterial.color.set(color);
+      tubeMaterial.opacity = ar ? .32 : 0;
     });
   }
 
@@ -1075,18 +1131,18 @@ export class UniverseWorld {
     this.constellation.forEach((item) => {
       const inferred = isInferredGraphEdge(item.edge);
       const causal = isCausalRelation(item.edge);
-      (item.material as LineBasicMaterial).color.set(ar
-        ? inferred ? 0x1f8fae : causal ? 0xb84a7e : 0x2f6d94
-        : inferred ? 0x6de1f4 : causal ? 0xf1b7dd : 0x8ea6c0);
+      const character = ar
+        ? inferred ? 0x087a9a : causal ? 0xa52f69 : 0x155a82
+        : inferred ? 0x6de1f4 : causal ? 0xf1b7dd : 0x8ea6c0;
+      (item.material as LineBasicMaterial).color.set(character);
+      item.tubeMaterial.color.set(character);
       const spark = item.spark.material as SpriteMaterial;
       spark.blending = ar ? this.THREE.NormalBlending : this.THREE.AdditiveBlending;
       spark.opacity = ar ? 1 : .85;
-      const baseScale = Number(item.spark.userData.baseWorldScale);
-      if (!Number.isFinite(baseScale)) {
-        item.spark.userData.baseWorldScale = item.spark.scale.x;
-      } else {
-        item.spark.scale.setScalar(baseScale * (ar ? 1.7 : 1));
-      }
+      const storedScale = Number(item.spark.userData.baseWorldScale);
+      const baseScale = Number.isFinite(storedScale) ? storedScale : item.spark.scale.x;
+      item.spark.userData.baseWorldScale = baseScale;
+      item.spark.scale.setScalar(baseScale * (ar ? 1.7 : 1));
     });
   }
 
@@ -1102,7 +1158,7 @@ export class UniverseWorld {
       const baseWidth = Number(beacon.label.userData.baseWidth);
       if (mini) {
         // Only the strongest sectors stay named on a tabletop; the rest keep a faint halo.
-        const named = index < 4;
+        const named = index < 6;
         if (Number.isFinite(baseScale)) halo.scale.setScalar(baseScale * .35);
         if (Number.isFinite(baseOpacity)) {
           // Additive halos turn into milky white discs over a bright feed: in AR they
@@ -1135,24 +1191,21 @@ export class UniverseWorld {
   }
 
   /**
-   * The final content scale of the AR placement: stars are point sprites whose pixel size
-   * follows the group scale, so the shader scale is divided back out to keep them readable
-   * dots over the camera feed. Called whenever placement or the scale controls change.
+   * The live content scale of the AR placement (graph units → physical metres). Star
+   * sprites are sized physically by the shader and need no compensation; pick tolerance
+   * and the ghost preview read the scale from here.
    */
   setArContentScale(scale: number) {
-    this.arPointCompensation = this.arPresentation && Number.isFinite(scale) && scale > 0
-      ? this.THREE.MathUtils.clamp(1 / scale, 1, 64)
-      : 1;
+    if (Number.isFinite(scale) && scale > 0) this.arContentScale = scale;
   }
   /**
-   * Point-cloud picking tolerance in world units. On screen one unit is one graph unit,
-   * so the base slop applies directly; in AR the whole constellation is squeezed into
-   * ~a metre and the same world-unit threshold would swallow half the graph, making taps
-   * pick stars nowhere near the finger. The tolerance shrinks with the live content scale.
+   * Point-cloud picking tolerance in world (graph) units. In AR the constellation is
+   * scaled to physical metres, so the slop must follow: eight physical centimetres is a
+   * forgiving fingertip target that still cannot swallow a neighbour at tabletop scale.
    */
   pickTolerance(): number {
-    if (!this.arPresentation) return .42;
-    return this.THREE.MathUtils.clamp(.42 / this.arPointCompensation, .02, .42);
+    if (!this.arPresentation || !Number.isFinite(this.arContentScale) || this.arContentScale <= 0) return .42;
+    return this.THREE.MathUtils.clamp(.08 / this.arContentScale, .08, .42);
   }
   /** Bounds of the revealed constellation in graph coordinates, for the AR ghost preview. */
   contentBounds(): { center: Vector3; size: Vector3 } {
@@ -1201,9 +1254,8 @@ export class UniverseWorld {
     this.root.traverse((object) => {
       const renderObject = object as Mesh | Line | Sprite | Points;
       const geometry = renderObject.geometry as BufferGeometry | undefined;
-      // Every revealed mesh shares one sphere geometry: disposing it per mesh would release the same
-      // GPU buffer once per node, so the shared instance is released exactly once below.
-      if (geometry && geometry !== this.sharedSphereGeometry) geometry.dispose?.();
+      // Interactive and optical meshes share their sphere buffers.
+      if (geometry && geometry !== this.sharedSphereGeometry && geometry !== this.opticalSphereGeometry) geometry.dispose?.();
       const material = renderObject.material as Material | Material[] | undefined;
       if (Array.isArray(material)) material.forEach((item) => item.dispose()); else material?.dispose?.();
     });
@@ -1213,6 +1265,7 @@ export class UniverseWorld {
     });
     this.beacons.forEach((beacon) => (beacon.label.material as SpriteMaterial).map?.dispose());
     this.sharedSphereGeometry.dispose();
+    this.opticalSphereGeometry.dispose();
     this.glowTexture.dispose();
     (this.focusReticle.material as SpriteMaterial).map?.dispose();
     this.sharedMeshMaterial.dispose();

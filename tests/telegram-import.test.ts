@@ -80,6 +80,17 @@ test("collects one album from consecutive media messages that share a timestamp"
   assert.deepEqual(posts[0].media.map((item)=>[item.messageId,item.sourcePath,item.order]),[[100,"photos/a.jpg",0],[101,"photos/b.jpg",1],[102,"photos/c.jpg",2]]);
   assert.equal(posts[0].body,"Подпись");
 });
+test("collects one album when Telegram timestamps its first media one second earlier", () => {
+  const posts = normalizeExport({ messages: [
+    { id: 103, date: "2026-09-02T16:11:14", date_unixtime: "1788354674", edited: "2026-09-02T16:34:03", photo: "photos/a.jpg", text: "Подпись" },
+    { id: 104, date: "2026-09-02T16:11:15", date_unixtime: "1788354675", photo: "photos/b.jpg", text: "" },
+    { id: 105, date: "2026-09-02T16:11:15", date_unixtime: "1788354675", edited: "2026-09-02T16:11:20", photo: "photos/c.jpg", text: "" },
+  ] });
+  assert.deepEqual(posts.map((post) => post.sourceId), ["103"]);
+  assert.deepEqual(posts[0].threadIds, ["103", "104", "105"]);
+  assert.equal(posts[0].editedDate, "2026-09-02T16:34:03");
+});
+
 
 test("anchors an album on the message that carries its caption", () => {
   const [album]=normalizeExport({messages:[
@@ -244,6 +255,16 @@ test("keeps a one-paragraph post in the body", () => {
   assert.equal(display.title,"Короткая заметка про VRchat");
   assert.equal(display.body,"Короткая заметка про VRchat.");
 });
+test("keeps Telegram Article media markers out of the summary", () => {
+  const [article] = normalizeExport({ messages: [{ id: 64, date: "2026-01-01", rich_message: { blocks: [
+    { type: "paragraph", text: "Текст перед фото" },
+    { type: "photo", photo: "photos/inside.jpg" },
+    { type: "paragraph", text: "Текст после фото" },
+  ] } }] });
+  const display = publicationDisplay(article);
+  assert.equal(display.summary, "Текст перед фото Текст после фото");
+});
+
 
 test("extracts tags and explicit post references without rewriting text", () => {
   const posts = normalizeExport({messages:[

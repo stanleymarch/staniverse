@@ -1,5 +1,4 @@
 ---
-import { withoutTrailingStop } from "../../../lib/typography";
 import Base from "../../../layouts/Base.astro";
 import { getCollection, type CollectionEntry } from "astro:content";
 
@@ -68,7 +67,7 @@ type Experiment = CollectionEntry<"experiments">;
 const titleOf = (entry: Experiment) => copy[entry.data.id]?.title ?? entry.data.title;
 const summaryOf = (entry: Experiment) => copy[entry.data.id]?.summary ?? entry.data.summary;
 
-const entries = (await getCollection("experiments")).sort((a, b) => titleOf(a).localeCompare(titleOf(b), "en"));
+const entries = (await getCollection("experiments")).sort((a, b) => (b.data.date?.getTime() ?? 0) - (a.data.date?.getTime() ?? 0) || titleOf(a).localeCompare(titleOf(b), "en"));
 const translated = (entry: Experiment) => `/en/experiments/${entry.id}/`;
 const vocabulary = (values: string[]) => [...new Set(values)].sort((a, b) => a.localeCompare(b, "en"));
 const facetRows = [
@@ -124,20 +123,20 @@ const jsonLd = {
           <div class="catalog-controls">
             <label class="facet-label" for="lab-sort">Sorting</label>
             <select class="filter-button lab-sort" id="lab-sort" data-lab-sort>
-              <option value="catalog">Catalogue order</option>
+              <option value="newest">Newest first</option>
               <option value="title">Title: A–Z</option>
             </select>
             <output class="lab-count" data-lab-count aria-live="polite">{entries.length} of {entries.length}</output>
           </div>
         </div>
         <div class="card-grid" data-lab-grid>
-          {entries.map((entry, index) => (
+          {entries.map((entry) => (
             <article
               class:list={["content-card", { "is-soon": entry.data.status === "soon" }]}
               id={entry.id}
               data-kind="experiment"
-              data-index={index}
               data-title={titleOf(entry)}
+              data-date={entry.data.date?.toISOString() ?? ""}
               data-types={entry.data.types.join("|")}
               data-platforms={entry.data.platforms.join("|")}
               data-capabilities={entry.data.capabilities.join("|")}
@@ -163,7 +162,7 @@ const jsonLd = {
             </article>
           ))}
         </div>
-        <div class="empty-state" data-lab-empty>No experiments match this set of facets yet — clear some of the filters.</div>
+        <div class="empty-state" data-lab-empty hidden>No experiments match this set of facets yet — clear some of the filters.</div>
       </>
     )}
   </section>
@@ -175,7 +174,7 @@ const jsonLd = {
       const empty = document.querySelector("[data-lab-empty]");
       const count = document.querySelector("[data-lab-count]");
       const sortSelect = document.querySelector("[data-lab-sort]");
-      const state = { type: "all", platform: "all", capability: "all", stack: "all", sort: "catalog" };
+      const state = { type: "all", platform: "all", capability: "all", stack: "all", sort: "newest" };
 
       const holds = (list, value) => value === "all" || (list || "").split("|").includes(value);
       const matches = (card) =>
@@ -184,10 +183,9 @@ const jsonLd = {
         holds(card.dataset.capabilities, state.capability) &&
         holds(card.dataset.stack, state.stack);
 
-      const order = (card) => Number(card.dataset.index);
       const compare = (a, b) => {
         if (state.sort === "title") return a.dataset.title.localeCompare(b.dataset.title, "en");
-        return order(a) - order(b);
+        return Date.parse(b.dataset.date || "1970-01-01") - Date.parse(a.dataset.date || "1970-01-01");
       };
 
       const render = () => {
@@ -198,7 +196,7 @@ const jsonLd = {
           card.hidden = !visible;
           if (visible) shown += 1;
         });
-        if (empty) empty.style.display = shown ? "none" : "block";
+        if (empty) empty.hidden = shown > 0;
         if (count) count.textContent = `${shown} of ${cards.length}`;
       };
 
@@ -226,6 +224,8 @@ const jsonLd = {
   .facet-label { display: inline-flex; align-items: center; min-height: 44px; margin-right: var(--s-1); color: var(--ink-2); font-size: .68rem; letter-spacing: .09em; text-transform: uppercase; }
   .lab-sort { width: auto; padding-right: var(--s-5); color: var(--ink); font: inherit; }
   .lab-count { display: inline-flex; align-items: center; min-height: 44px; color: var(--ink-2); font-size: .78rem; font-variant-numeric: tabular-nums; }
+  .empty-state { margin-top: var(--s-5); }
+  .empty-state[hidden] { display: none; }
   .tag-row.is-facet span { border: 1px solid var(--line); background: transparent; }
   .card-title-link { color: inherit; text-decoration: none; }
   .card-title-link:hover, .card-title-link:focus-visible { color: var(--accent); }

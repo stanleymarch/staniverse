@@ -124,6 +124,10 @@ export function normalizeExport(data: TelegramExport, handle = "staniverse"): Ca
     const bodyParts = group.messages.map(renderText).filter(Boolean);
     const media = group.messages.flatMap(messageMedia);
     const tags = [...new Set(group.messages.flatMap((message) => [...rawText(message).matchAll(hashtagPattern)].map((match) => match[0].slice(1).toLocaleLowerCase("ru"))))];
+    const editedDate = group.messages.reduce<string | undefined>((latest, message) => {
+      if (!message.edited) return latest;
+      return !latest || Date.parse(message.edited) > Date.parse(latest) ? message.edited : latest;
+    }, undefined);
     return {
       id: `publication:telegram:${handle}:${group.rootId}`,
       kind: anchor.rich_message ? "telegram-article" : "telegram-post",
@@ -131,7 +135,7 @@ export function normalizeExport(data: TelegramExport, handle = "staniverse"): Ca
       sourceUrl: `https://t.me/${handle}/${group.rootId}`,
       ...(anchor.forwarded_from ? { forwardFrom: anchor.forwarded_from } : {}),
       date: anchor.date,
-      editedDate: group.messages.map((message) => message.edited).filter(Boolean).at(-1),
+      editedDate,
       threadIds: group.messages.map((message) => String(message.id)),
       body: bodyParts.join("\n\n"),
       tags,

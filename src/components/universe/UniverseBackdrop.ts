@@ -38,7 +38,7 @@ export function pointViewport(): PointViewport {
  * borrows a temperature from this ramp, so a field of stars reads as a real sky instead
  * of one repeated white dot.
  */
-export const SPECTRAL_TINTS = [0xffc9a0, 0xffe0b8, 0xfff6e4, 0xe8f0ff, 0xc2d8ff, 0x9fc0ff] as const;
+export const SPECTRAL_TINTS = [0xffa95c, 0xffd7a1, 0xfff1d6, 0xf18cff, 0xa78bfa, 0x7fdcff, 0x65e6c4] as const;
 
 export interface PointCloudAttributes {
   positions: Float32Array;
@@ -153,11 +153,14 @@ const POINT_FRAGMENT_SHADER = `
       float flares = (cross + diagonal * 0.18) * vSpikes;
       alpha = clamp(photosphere + halo + airy * vSpikes + flares, 0.0, 1.0) * uOpacity;
       colour = vColor * (0.42 + 1.18 * photosphere + 0.42 * flares) * vBrightness;
-      // Over a daylight camera feed an additive star is invisible: give every star a
-      // small dark plate under its core so the dot reads on any background.
-      float plate = exp(-radius * 2.6) * uDaylight * (0.35 + 0.65 * uOpacity);
-      alpha = max(alpha, plate);
-      colour = mix(colour, vec3(0.016, 0.043, 0.078), clamp(plate, 0.0, 1.0) * 0.85);
+      // Normal blending over a daylight camera feed needs a compact dark outline
+      // and a saturated coloured core. Keep the backing tight: it reads as a star,
+      // not the old broad white/faceted ball.
+      float plate = exp(-radius * 5.2) * uDaylight * (0.5 + 0.5 * uOpacity);
+      alpha = max(alpha, plate * 0.82);
+      float daylightCore = exp(-radius * radius * 18.0) * uDaylight;
+      colour = mix(colour, vec3(0.008, 0.025, 0.048), clamp(plate, 0.0, 1.0) * 0.9);
+      colour = mix(colour, vColor * 1.35, daylightCore);
     }
     if (alpha < 0.004) discard;
     gl_FragColor = vec4(colour, alpha);

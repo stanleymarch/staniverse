@@ -78,8 +78,8 @@ const catalogue = `${nodeCount} ${pluralRu(nodeCount, "узел", "узла", "�
       <datalist id="universe-nodes">{graph.nodes.map((node) => <option value={node.title} />)}</datalist>
       <nav class="universe-ar-actions" data-ar-actions aria-label="Размещение созвездия в дополненной реальности">
         <div class="ar-mode" role="group" aria-label="Масштаб размещения">
-          <button class="icon-button" type="button" data-ar-mode="table" aria-pressed="true">Стол</button>
-          <button class="icon-button" type="button" data-ar-mode="room" aria-pressed="false">Комната</button>
+          <button class="icon-button" type="button" data-ar-mode="table" aria-pressed="false">Стол</button>
+          <button class="icon-button" type="button" data-ar-mode="room" aria-pressed="true">Комната</button>
           <button class="icon-button" type="button" data-ar-mode="street" aria-pressed="false">Улица</button>
         </div>
         <button class="icon-button ar-primary" type="button" data-ar-place disabled>Разместить</button>

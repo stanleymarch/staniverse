@@ -13,6 +13,7 @@ capabilities: []
 tags: ["xr", "webxr", "openstreetmap", "overpass", "geolocation"]
 entities: []
 featured: false
+date: "2026-09-20"
 relations: []
 ---
 ## Что это

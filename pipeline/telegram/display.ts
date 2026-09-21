@@ -10,6 +10,7 @@ const sourceLink = /[\r\n ]*\[Оригинал в Telegram\]\([^)]*\)\s*$/;
 const ledeHeading = /^(?:#{1,6}[ \t]+([^\n]+?)|\*\*([^\n]+?)\*\*)[ \t]*\r?\n(?:[ \t]*\r?\n)*/;
 
 const plain = (value: string) => value
+  .replace(/<!--[\s\S]*?-->/g, " ")
   .replace(/```[\s\S]*?```/g, " ")
   .replace(/!\[([^\]]*)\]\([^)]*\)/g, "$1")
   .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")

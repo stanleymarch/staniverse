@@ -13,6 +13,7 @@ capabilities: []
 tags: ["xr", "webxr", "trails", "time", "debug"]
 entities: []
 featured: false
+date: "2026-09-20"
 relations: []
 ---
 ## Что это

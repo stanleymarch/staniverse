@@ -85,10 +85,10 @@ test("AR content lift keeps the lowest node on the surface while the scale contr
 });
 test("AR placement modes scale the same extent to tabletop reach or a surround the viewer wears", () => {
   assert.equal(AR_TABLE_DIAMETER_M, 1);
-  assert.equal(AR_ROOM_DIAMETER_M, 3.5);
+  assert.equal(AR_ROOM_DIAMETER_M, 4.5);
   assert.equal(AR_STREET_DIAMETER_M, 10);
   assert.equal(arDiameterForMode("table"), 1);
-  assert.equal(arDiameterForMode("room"), 3.5);
+  assert.equal(arDiameterForMode("room"), 4.5);
   assert.equal(arDiameterForMode("street"), 10);
   assert.equal(arModeSurrounds("table"), false);
   assert.equal(arModeSurrounds("room"), true);
@@ -98,7 +98,7 @@ test("AR placement modes scale the same extent to tabletop reach or a surround t
   const room = normalizedArContentTransform(extent, arDiameterForMode("room"));
   const street = normalizedArContentTransform(extent, arDiameterForMode("street"));
   assert.ok(Math.abs(table.scale - 0.05) < 1e-9);
-  assert.ok(Math.abs(room.scale - 0.175) < 1e-9);
+  assert.ok(Math.abs(room.scale - 0.225) < 1e-9);
   assert.ok(Math.abs(street.scale - 0.5) < 1e-9);
   assert.ok(Math.abs((arContentLift(room.offsetY, 1) + -5 * room.scale) - AR_SURFACE_CLEARANCE) < 1e-12);
 });

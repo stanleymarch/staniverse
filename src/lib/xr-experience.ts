@@ -40,7 +40,7 @@ export function nextSnapTurn(state: SnapTurnState, axisX: number, yaw: number, d
 /** Tabletop diameter in meters: the default placement fits the whole constellation in reach. */
 export const AR_TABLE_DIAMETER_M = 1;
 /** Room diameter in meters: the constellation is a ring the viewer stands inside. */
-export const AR_ROOM_DIAMETER_M = 3.5;
+export const AR_ROOM_DIAMETER_M = 4.5;
 /** Street diameter in meters: an outdoor scale for courtyards and squares. */
 export const AR_STREET_DIAMETER_M = 10;
 /** Placement scale: `table` sits in front, `room` and `street` are worn by the viewer. */

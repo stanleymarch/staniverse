@@ -13,6 +13,7 @@ capabilities: ["звук"]
 tags: ["xr", "webxr", "web-audio", "fft", "microphone"]
 entities: []
 featured: false
+date: "2026-09-20"
 relations: []
 ---
 ## Что это

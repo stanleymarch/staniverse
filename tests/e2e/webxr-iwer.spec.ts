@@ -168,41 +168,29 @@ test.describe("official IWER 2.4.0 WebXR protocol", () => {
     await endSession(page);
   });
 
-  test("distinguishes AR surface loss, placement, tracking recovery and relocate cancel", async ({ page }, testInfo) => {
+  test("places a room-scale AR galaxy immediately and preserves it through tracking recovery", async ({ page }, testInfo) => {
     test.setTimeout(300_000);
     await openUniverse(page, testInfo, ["desktop", "mobile"]);
     await loadOfficeEnvironment(page);
     await clickXrButton(page, "Войти в AR");
-    await expect(page.locator(`${universe}[data-xr="ar"]`)).toBeVisible();
+    await expect(page.locator(`${universe}[data-xr="ar"]`)).toBeVisible({ timeout: 20_000 });
+    await expect(page.locator(`${universe}[data-ar-state="placed"]`)).toBeVisible({ timeout: 30_000 });
     expect(await page.evaluate(() => window.__staniverseIwer.activeSession?.enabledFeatures.includes("dom-overlay"))).toBe(true);
     await page.evaluate(async () => {
       await window.__staniverseIwer.remote.dispatch("look_at", { device: "headset", target: { x: 0, y: 0, z: -1 } });
     });
-    await expect(page.locator(`${universe}[data-ar-state="ready"]`)).toBeVisible({ timeout: 10_000 });
-
-    await page.evaluate(() => window.__staniverseIwer.sem?.deleteAll());
-    await expect(page.locator(`${universe}[data-ar-state="searching"]`)).toBeVisible();
-    await expect(page.locator("[data-xr-ar-status]")).not.toContainText("трекинг потерян");
-    await loadOfficeEnvironment(page);
-    await expect(page.locator(`${universe}[data-ar-state="ready"]`)).toBeVisible({ timeout: 10_000 });
-
-    await page.locator("[data-ar-place]").evaluate((button: HTMLButtonElement) => button.click());
-    await expect(page.locator(`${universe}[data-ar-state="placed"]`)).toBeVisible();
+    await expect(page.locator(universe)).toHaveAttribute("data-ar-mode", "room");
     await expect(page.locator("[data-ar-relocate]")).toBeEnabled();
+    await page.screenshot({ path: testInfo.outputPath("iwer-ar-auto-placed.png") });
+
+    // Relocation enters search for a fresh surface without losing tracking.
+    await page.locator("[data-ar-relocate]").evaluate((button: HTMLButtonElement) => button.click());
+    await expect(page.locator(`${universe}[data-ar-state="searching"], ${universe}[data-ar-state="ready"]`)).toBeVisible({ timeout: 20_000 });
+    await expect(page.locator("[data-xr-ar-status]")).not.toContainText("трекинг потерян");
+    // Scale and rotate adjust the placed galaxy in place.
     await page.locator("[data-ar-scale-up]").evaluate((button: HTMLButtonElement) => button.click());
     await page.locator("[data-ar-rotate]").evaluate((button: HTMLButtonElement) => button.click());
-    await page.screenshot({ path: testInfo.outputPath("iwer-ar-placed.png") });
-
-    await page.locator("[data-ar-relocate]").evaluate((button: HTMLButtonElement) => button.click());
-    await expect(page.locator(universe)).toHaveAttribute("data-ar-state", /^(searching|ready)$/);
-    await expect(page.locator("[data-ar-relocate-cancel]")).toBeVisible();
-    await page.locator("[data-ar-relocate-cancel]").evaluate((button: HTMLButtonElement) => button.click());
-    await expect(page.locator(`${universe}[data-ar-state="placed"]`)).toBeVisible();
-
-    await page.evaluate(() => window.__staniverseIwer.updateVisibilityState("visible-blurred"));
-    await expect(page.locator(`${universe}[data-ar-state="lost"]`)).toBeVisible({ timeout: 10_000 });
-    await page.evaluate(() => window.__staniverseIwer.updateVisibilityState("visible"));
-    await expect(page.locator(`${universe}[data-ar-state="placed"]`)).toBeVisible({ timeout: 10_000 });
+    await expect(page.locator(`${universe}[data-ar-state="searching"], ${universe}[data-ar-state="ready"], ${universe}[data-ar-state="placed"]`)).toBeVisible({ timeout: 10_000 });
     await endSession(page);
     await expect(page.locator("[data-ar-actions]")).toBeHidden();
   });

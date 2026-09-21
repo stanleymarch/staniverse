@@ -45,17 +45,16 @@ export function continuationSource(message: TelegramMessage, ids: Set<number>, h
   return candidates.find((id) => id !== message.id && ids.has(id));
 }
 
-const instant = (message: TelegramMessage) => message.date_unixtime ?? message.date;
 
 /**
  * Telegram albums are one posting action that carries several media items and at most one
  * caption; the caption is the message the album is anchored to, which is also the id the
  * published Quartz site used for those posts.
  *
- * The archive marks albums with `grouped_id`. This export omits that field, but the album
- * shape survives: consecutive ids, one identical timestamp, every member a media message
- * and at most one of them carrying text. Posts that merely happen to share a second carry
- * their own text — two captions never collapse into one publication.
+ * The archive marks albums with `grouped_id`. Some exports omit that field, but the album
+ * shape survives: consecutive ids, timestamps no more than two seconds apart, every member
+ * a media message, and at most one member carrying text. The small tolerance covers Telegram
+ * splitting one ten-item upload across adjacent seconds; separate captions still stay separate.
  */
 function albumAnchors(messages: TelegramMessage[]): Map<number, number> {
   const anchors = new Map<number, number>();
@@ -92,7 +91,14 @@ function albumAnchors(messages: TelegramMessage[]): Map<number, number> {
   };
   for (const [index, message] of messages.entries()) {
     const previous = messages[index - 1];
-    const samePosting = previous !== undefined && previous.id + 1 === message.id && instant(previous) === instant(message) && instant(message) !== undefined;
+    const previousTime = previous ? Number(previous.date_unixtime) || (previous.date ? Date.parse(previous.date) / 1000 : Number.NaN) : Number.NaN;
+    const currentTime = Number(message.date_unixtime) || (message.date ? Date.parse(message.date) / 1000 : Number.NaN);
+    const samePosting = previous !== undefined
+      && previous.id + 1 === message.id
+      && Number.isFinite(previousTime)
+      && Number.isFinite(currentTime)
+      && Math.abs(currentTime - previousTime) <= 2
+      && run.length < 10;
     if (!samePosting) flushRun();
     run.push(message);
   }
