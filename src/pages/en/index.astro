@@ -400,15 +400,6 @@ const homepageJsonLd = {
       board.addEventListener("focusout", () => highlight());
     }
 
-    /* The dashed drift runs only while the map is on screen: it repaints every
-       frame, and off-screen it would burn that on nothing. */
-    if (board && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      const drift = new IntersectionObserver(([entry]) => {
-        board.toggleAttribute("data-const-idle", !entry.isIntersecting);
-      }, { rootMargin: "15% 0px" });
-      drift.observe(board);
-    }
-
     // Gentle depth: the sky and the constellation drift with the pointer, by a few
     // pixels, and only when the visitor has not asked for calm.
     const scene = document.querySelector<HTMLElement>("[data-scene]");
@@ -497,8 +488,14 @@ const homepageJsonLd = {
   .const-edges { position: absolute; inset: 0; width: 100%; height: 100%; }
   .const-edges-narrow { display: none; }
   @media (max-width: 700px) { .const-edges-wide { display: none; } .const-edges-narrow { display: block; } }
-  .const-edge { stroke: color-mix(in srgb, var(--ink) 40%, transparent); stroke-width: 1; stroke-linecap: round; stroke-dasharray: 6 5; vector-effect: non-scaling-stroke; animation: const-drift calc(var(--dur-3) * 13) linear infinite; transition: stroke var(--dur-2) var(--ease), stroke-width var(--dur-2) var(--ease); }
-  .const-edge.is-hot { stroke: color-mix(in srgb, var(--accent) 92%, transparent); stroke-width: 1.5; animation-duration: calc(var(--dur-3) * 4); }
+  .const-edge { stroke: color-mix(in srgb, var(--ink) 40%, transparent); stroke-width: 1; stroke-linecap: round; stroke-dasharray: 6 5; vector-effect: non-scaling-stroke; transition: stroke var(--dur-2) var(--ease), stroke-width var(--dur-2) var(--ease); }
+  /* The drift is style work on every frame — six edges measured at 2.2 s of main
+     thread per six seconds when it ran idle. It now moves only along the
+     connections a star lights up, and only where a pointer can hover: a tap on a
+     phone keeps the highlight, and a marching dash there would run until the
+     visitor touches somewhere else. */
+  .const-edge.is-hot { stroke: color-mix(in srgb, var(--accent) 92%, transparent); stroke-width: 1.5; }
+  @media (pointer: fine) { .const-edge.is-hot { animation: const-drift calc(var(--dur-3) * 4) linear infinite; } }
   .const-edge.is-dim { stroke: color-mix(in srgb, var(--ink) 12%, transparent); }
   @keyframes const-drift { to { stroke-dashoffset: -11; } }
 
@@ -622,11 +619,4 @@ const homepageJsonLd = {
     .const-node:hover .const-label, .const-node:focus-visible .const-label { translate: -50% 0; rotate: none; }
     .direction-tile:hover, .direction-tile:focus-within, .direction-tile:hover .direction-icon, .direction-tile:focus-within .direction-icon { transform: none; }
   }
-
-  /* The dashed drift recalculates style on every frame: six edges measured at
-     ~1.3 s of main thread per six seconds, a fifth of a core, for a detail that
-     reads as texture. A phone gets the map without it; wider screens keep it
-     only while the board is on screen, which the script above maintains. */
-  @media (max-width: 700px) { .const-edge { animation: none; } }
-  .const-board[data-const-idle] .const-edge { animation-play-state: paused; }
 </style>
