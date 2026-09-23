@@ -37,7 +37,8 @@
     "videos:sync": "tsx pipeline/sync-youtube.ts && npm run videos:materialize",
     "videos:verify": "tsx pipeline/verify-videos.ts",
     "videos:posters": "tsx pipeline/fetch-video-posters.ts",
-    "card:print": "node scripts/gen-card-qr.mjs"
+    "card:print": "node scripts/gen-card-qr.mjs",
+    "check:encoding": "node scripts/check-encoding.mjs dist"
   },
   "dependencies": {
     "@astrojs/check": "latest",

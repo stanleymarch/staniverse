@@ -68,7 +68,11 @@ jobs:
         run: npm run build
 
       - name: Verify build output
-        run: test -f dist/index.html && test -f dist/404.html
+        run: |
+          test -f dist/index.html && test -f dist/404.html
+          # Cyrillic site: a document without a charset declaration renders as
+          # mojibake in the visitor's browser while the build stays green.
+          node scripts/check-encoding.mjs dist
 
       # A fresh Astro build gives every file a new mtime, so a plain `s3 sync`
       # re-PUTs nearly the whole 2000-page site. The manifest compares content

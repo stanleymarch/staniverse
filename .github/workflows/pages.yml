@@ -108,6 +108,8 @@ jobs:
           SITE_URL: ${{ steps.pages.outputs.base_url }}
           BASE_PATH: ${{ steps.pages.outputs.base_path }}
         run: node scripts/check-pages-base.mjs
+      - name: Check document encoding
+        run: node scripts/check-encoding.mjs dist
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5
         with:
