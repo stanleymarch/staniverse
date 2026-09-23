@@ -4,12 +4,16 @@ import { allEntries } from "../../lib/content";
 import { buildGraph } from "../../lib/graph";
 import { getCardPortalGraph } from "../../lib/card/graphSubset";
 import { CARD_PORTAL } from "../../config/cardPortal";
+import { targetAspectFor } from "../../lib/card/targetAspect";
 import "../../styles/card.css";
 
 const portalGraph = getCardPortalGraph(buildGraph(await allEntries()));
+/* The aperture must follow the tracked artwork, so the aspect is measured here
+   rather than stored next to the card's millimetre size. */
+const portalConfig = { ...CARD_PORTAL, targetAspect: await targetAspectFor(CARD_PORTAL.targetAspectSource, CARD_PORTAL.targetAspectFallback) };
 ---
 <Base title="STANIVERSE PORTAL — Стас Ермоленко" description="Физический портал в живую карту проектов, работ, XR-экспериментов и цифровой памяти Стаса Ермоленко." immersive ogImage="/og/staniverse.png" viewportFit="cover">
-  <main class="card-portal" data-card-portal data-state="idle" data-debug={Astro.url.searchParams.get("debug") === "1" ? "true" : "false"} data-graph={JSON.stringify(portalGraph)} data-config={JSON.stringify(CARD_PORTAL)}>
+  <main class="card-portal" data-card-portal data-state="idle" data-debug={Astro.url.searchParams.get("debug") === "1" ? "true" : "false"} data-graph={JSON.stringify(portalGraph)} data-config={JSON.stringify(portalConfig)}>
     <div class="card-stage" data-stage aria-hidden="true"></div>
     <section class="card-landing" data-landing aria-labelledby="portal-title">
       <div class="card-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>

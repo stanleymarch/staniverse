@@ -1,6 +1,9 @@
 export const CARD_PORTAL = {
   targetSrc: "/card/targets/card-target-dev.mind",
-  targetAspect: 85 / 55,
+  /** Source artwork of the compiled target: the aperture aspect is measured from it. */
+  targetAspectSource: "/card/targets/card-target-source-dev.png",
+  /** Only used when the source artwork cannot be measured at build time. */
+  targetAspectFallback: 85 / 55,
   portalScale: 0.82,
   lostDelayMs: 700,
   resetDelayMs: 30_000,

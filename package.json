@@ -36,7 +36,8 @@
     "videos:materialize": "tsx pipeline/materialize-videos.ts",
     "videos:sync": "tsx pipeline/sync-youtube.ts && npm run videos:materialize",
     "videos:verify": "tsx pipeline/verify-videos.ts",
-    "videos:posters": "tsx pipeline/fetch-video-posters.ts"
+    "videos:posters": "tsx pipeline/fetch-video-posters.ts",
+    "card:print": "node scripts/gen-card-qr.mjs"
   },
   "dependencies": {
     "@astrojs/check": "latest",
@@ -56,6 +57,8 @@
     "@types/node": "^26.2.0",
     "@types/three": "0.185.4",
     "iwer": "^2.4.0",
+    "jsqr": "1.4.0",
+    "qrcode": "1.5.4",
     "tsx": "latest"
   },
   "overrides": {
