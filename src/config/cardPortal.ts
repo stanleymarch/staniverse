@@ -1,0 +1,28 @@
+export const CARD_PORTAL = {
+  targetSrc: "/card/targets/card-target-dev.mind",
+  targetAspect: 85 / 55,
+  portalScale: 0.82,
+  lostDelayMs: 700,
+  resetDelayMs: 30_000,
+  foregroundLimit: 14,
+  backgroundLimit: 120,
+  edgeLimit: 32,
+  curatedIds: [
+    "project:loci",
+    "project:nearventure",
+    "project:metavyatka",
+    "project:omnipub",
+    "project:mnemoform",
+    "experiment:reality-field",
+    "experiment:city-orbit",
+    "experiment:sound-space",
+    "experiment:echo-room",
+    "work:virtualnyy-ofis-advokata",
+    "work:arka-vyatskogo-kremlya",
+    "work:maslenitsa-v-slobodskom",
+    "work:ya-obmanyvat-sebya-ne-stanu",
+  ],
+  topicIds: ["topic:ai", "topic:xr", "topic:place-heritage", "topic:agents-automation", "topic:games", "topic:sound"],
+} as const;
+
+export type CardQuality = "high" | "medium" | "low";

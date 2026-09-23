@@ -1,0 +1,83 @@
+---
+import Base from "../../layouts/Base.astro";
+import { allEntries } from "../../lib/content";
+import { buildGraph } from "../../lib/graph";
+import { getCardPortalGraph } from "../../lib/card/graphSubset";
+import { CARD_PORTAL } from "../../config/cardPortal";
+import "../../styles/card.css";
+
+const portalGraph = getCardPortalGraph(buildGraph(await allEntries()));
+---
+<Base title="STANIVERSE PORTAL — Стас Ермоленко" description="Физический портал в живую карту проектов, работ, XR-экспериментов и цифровой памяти Стаса Ермоленко." immersive ogImage="/og/staniverse.png" viewportFit="cover">
+  <main class="card-portal" data-card-portal data-state="idle" data-debug={Astro.url.searchParams.get("debug") === "1" ? "true" : "false"} data-graph={JSON.stringify(portalGraph)} data-config={JSON.stringify(CARD_PORTAL)}>
+    <div class="card-stage" data-stage aria-hidden="true"></div>
+    <section class="card-landing" data-landing aria-labelledby="portal-title">
+      <div class="card-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+      <p class="card-brand">станивёрс</p>
+      <h1 id="portal-title">STANIVERSE<br />PORTAL</h1>
+      <p class="card-lead">Загляните внутрь визитки.</p>
+      <p class="card-privacy">Камера используется только для распознавания визитки. Изображение не сохраняется и не отправляется на сервер.</p>
+      <div class="card-actions">
+        <button class="card-button card-button-primary" type="button" data-ar-start>Открыть портал</button>
+        <a class="card-button" href="/">Перейти на сайт</a>
+      </div>
+      <a class="card-text-link" href="/universe/">XR-карта</a>
+      <p class="card-desktop">Портал рассчитан на камеру телефона. На этом устройстве доступны все обычные ссылки.</p>
+    </section>
+
+    <section class="card-tracking" data-tracking aria-live="polite" hidden>
+      <div class="card-target-guide" aria-hidden="true"><span></span></div>
+      <p data-tracking-message>Переверните визитку и наведите камеру на лицевую сторону</p>
+      <button class="card-stop" type="button" data-ar-stop>Закрыть камеру</button>
+    </section>
+
+    <section class="card-error" data-error aria-live="assertive" hidden>
+      <p class="card-error-title">Камера не включена</p>
+      <p data-error-message>Портал не смог получить доступ к камере. Обычная версия сайта по-прежнему доступна.</p>
+      <div class="card-actions">
+        <button class="card-button card-button-primary" type="button" data-ar-retry>Попробовать снова</button>
+        <a class="card-button" href="/">Перейти на staniverse.xyz</a>
+      </div>
+      <a class="card-text-link" href="/universe/">Открыть XR-карту</a>
+    </section>
+
+    <nav class="card-hud" data-hud aria-label="Быстрые ссылки" hidden>
+      <a href="/">Сайт</a>
+      <a href="https://t.me/staniverse" target="_blank" rel="noreferrer">Канал</a>
+      <button type="button" data-contact-open>Связаться</button>
+      <button type="button" data-ar-stop aria-label="Закрыть камеру">×</button>
+    </nav>
+
+    <aside class="card-node" data-node-card aria-live="polite" hidden>
+      <button class="card-node-close" type="button" data-node-close aria-label="Закрыть карточку">×</button>
+      <p class="card-node-kind" data-node-kind></p>
+      <h2 data-node-title></h2>
+      <p data-node-summary></p>
+      <a class="card-node-link" data-node-launch target="_blank" rel="noreferrer" hidden>Запустить опыт ↗</a>
+      <a class="card-node-link" data-node-link>Открыть материал →</a>
+      <a class="card-node-link" data-node-about hidden>О сайте →</a>
+    </aside>
+
+    <a class="card-enter" data-enter href="/universe/" hidden>ВОЙТИ ВО ВСЕЛЕННУЮ →</a>
+    <output class="card-debug" data-debug-panel hidden>tracking: idle</output>
+    <dialog class="card-contact" data-contact-dialog>
+      <button class="card-node-close" type="button" data-contact-close aria-label="Закрыть">×</button>
+      <h2>Связаться</h2>
+      <a class="card-button card-button-primary" href="https://t.me/stanleymarch" target="_blank" rel="noreferrer">Написать в Telegram</a>
+      <a class="card-button" href="mailto:stas@staniverse.xyz">Email</a>
+      <a class="card-text-link" href="/contacts/">Все контакты</a>
+    </dialog>
+  </main>
+  <section class="card-fallback" aria-label="Обычная визитка">
+    <p>Стас Ермоленко</p>
+    <h2>XR · AI · цифровые архивы · медиа</h2>
+    <nav>
+      <a href="/">staniverse.xyz</a><a href="/universe/">XR-карта</a><a href="https://t.me/staniverse">Telegram-канал</a><a href="https://t.me/stanleymarch">Написать в Telegram</a><a href="mailto:stas@staniverse.xyz">stas@staniverse.xyz</a>
+    </nav>
+  </section>
+</Base>
+
+<script>
+  import { mountCardPortal } from "../../lib/card/bootstrap";
+  mountCardPortal();
+</script>

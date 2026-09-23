@@ -16,6 +16,8 @@ export interface GraphNode {
   summary: string;
   kind: string;
   href: string;
+  /** Absolute run address for experiments that live outside the site. */
+  launch?: string;
   /** Canonical taxonomy labels, never raw source hashtags. */
   topics: string[];
   /** Verbatim author or editorial tags kept as provenance. */
@@ -70,6 +72,7 @@ export function buildGraph(entries: AnyEntry[]) {
       summary: summaryExcerpt(entry.data.summary),
       kind: entry.data.kind,
       href: entryHref(entry),
+      launch: entry.collection === "experiments" ? entry.data.href : undefined,
       topics: normalizeTopics(topicValues).filter((topic) => Boolean(getTopicDefinition(topic))),
       sourceTags: [...new Set(sourceTags)],
       featured: entry.data.featured,

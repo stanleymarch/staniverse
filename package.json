@@ -42,9 +42,11 @@
     "@astrojs/check": "latest",
     "@astrojs/markdown-remark": "^7.2.4",
     "astro": "latest",
+    "mind-ar": "1.2.5",
     "sharp": "^0.35.3",
     "subset-font": "^2.9.0",
-    "three": "latest",
+    "three": "0.185.1",
+    "three-mindar": "npm:three@0.160.1",
     "typescript": "latest",
     "yaml": "^2.9.0"
   },
@@ -52,8 +54,11 @@
     "@iwer/sem": "^2.4.0",
     "@playwright/test": "^1.62.1",
     "@types/node": "^26.2.0",
-    "@types/three": "^0.185.4",
+    "@types/three": "0.185.4",
     "iwer": "^2.4.0",
     "tsx": "latest"
+  },
+  "overrides": {
+    "canvas": "npm:empty-npm-package@1.0.0"
   }
 }

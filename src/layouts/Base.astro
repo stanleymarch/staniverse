@@ -9,6 +9,8 @@ interface Props {
   title: string;
   description?: string;
   immersive?: boolean;
+  /** Extends the viewport meta; `/card/` needs `cover` for env(safe-area-inset-*)`. */
+  viewportFit?: string;
   ogImage?: string;
   jsonLd?: Record<string, unknown>;
   /** Adds the typed page node search engines look for on these two routes. */
@@ -29,6 +31,7 @@ const {
   title,
   description = siteDescription,
   immersive = false,
+  viewportFit,
   ogImage,
   jsonLd,
   pageType,
@@ -247,8 +250,7 @@ const structuredData = {
 <!doctype html>
 <html lang={lang} class:list={{ immersive }}>
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content={`width=device-width, initial-scale=1${viewportFit ? `, viewport-fit=${viewportFit}` : ""}`} />
     <meta name="author" content="Станислав Ермоленко" />
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <meta name="description" content={description} />
