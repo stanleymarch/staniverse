@@ -7,6 +7,9 @@
  * card's real millimetre size, so what is printed is what the tracker was
  * compiled from.
  *
+ * Outputs stay outside `public/` on purpose: the print sides and the source
+ * artwork are working files, and only the compiled `.mind` target is served.
+ *
  *   node scripts/gen-card-qr.mjs
  */
 import { readFile, writeFile, mkdir } from "node:fs/promises";
@@ -19,8 +22,8 @@ const ENTRY_URL = "https://staniverse.xyz/card/";
 /** ISO card size, portrait-agnostic: 85 × 55 mm landscape. */
 const CARD = { width: 85, height: 55 };
 const QR_MM = 25;
-const TARGET_SOURCE = "public/card/targets/card-target-source-dev.png";
-const PRINT_DIR = "public/card/print";
+const TARGET_SOURCE = "design/card/targets/card-target-source-dev.png";
+const PRINT_DIR = "design/card/print";
 
 const write = async (path, content) => {
   await mkdir(dirname(path), { recursive: true });

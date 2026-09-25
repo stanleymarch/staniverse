@@ -8,9 +8,17 @@ import { targetAspectFor } from "../../lib/card/targetAspect";
 import "../../styles/card.css";
 
 const portalGraph = getCardPortalGraph(buildGraph(await allEntries()));
-/* The aperture must follow the tracked artwork, so the aspect is measured here
-   rather than stored next to the card's millimetre size. */
-const portalConfig = { ...CARD_PORTAL, targetAspect: await targetAspectFor(CARD_PORTAL.targetAspectSource, CARD_PORTAL.targetAspectFallback) };
+/* Only what the client reads is serialised: the aperture source is a build-time
+   file path and has no business in the served HTML. The aperture must follow the
+   tracked artwork, so the aspect is measured here rather than stored next to the
+   card's millimetre size. */
+const portalConfig = {
+  targetSrc: CARD_PORTAL.targetSrc,
+  portalScale: CARD_PORTAL.portalScale,
+  lostDelayMs: CARD_PORTAL.lostDelayMs,
+  resetDelayMs: CARD_PORTAL.resetDelayMs,
+  targetAspect: await targetAspectFor(CARD_PORTAL.targetAspectSource, CARD_PORTAL.targetAspectFallback),
+};
 ---
 <Base title="STANIVERSE PORTAL — Стас Ермоленко" description="Физический портал в живую карту проектов, работ, XR-экспериментов и цифровой памяти Стаса Ермоленко." immersive ogImage="/og/staniverse.png" viewportFit="cover">
   <main class="card-portal" data-card-portal data-state="idle" data-debug={Astro.url.searchParams.get("debug") === "1" ? "true" : "false"} data-graph={JSON.stringify(portalGraph)} data-config={JSON.stringify(portalConfig)}>
