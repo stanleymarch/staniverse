@@ -3,7 +3,7 @@ id: "experiment:echo-room"
 kind: experiment
 title: "ECHO//ROOM"
 summary: "Пространственный temporal debugger: луч и импульсы оставляют следы на минуту, а старый след раскрывает локальную перемотку времени."
-status: "live"
+status: "soon"
 href: "https://stanleymarch.github.io/xr-experiments/xrblocks/echo-room/"
 repo: "https://github.com/stanleymarch/xr-experiments"
 stack: ["Google XR Blocks", "three.js"]
@@ -40,5 +40,5 @@ Google XR Blocks опирается на WebXR. На iOS, включая Safari,
 
 ## Ссылки
 
-- [Открыть опыт](https://stanleymarch.github.io/xr-experiments/xrblocks/echo-room/)
+- Опыт пока в разработке — публичного запуска нет.
 - [Код эксперимента](https://github.com/stanleymarch/xr-experiments)

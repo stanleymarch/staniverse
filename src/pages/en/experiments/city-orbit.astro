@@ -4,7 +4,11 @@ import Base from "../../../layouts/Base.astro";
 import { getCollection } from "astro:content";
 
 const source = (await getCollection("experiments")).find((item) => item.data.id === "experiment:city-orbit");
-const href = source?.data.href;
+/* A `soon` entry keeps its write-up and loses every launch link: the demo stays
+   out of visitors' hands until it is live. */
+const live = source?.data.status === "live";
+const status = live ? "Running" : "In development";
+const href = live ? source?.data.href : undefined;
 const repo = source?.data.repo;
 const updated = source?.data.updated ? new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric" }).format(source.data.updated) : "";
 const description = "A street from OpenStreetMap becomes a hologram: select places with a ray, lift their cards and change the city radius with a gesture.";
@@ -12,7 +16,7 @@ const jsonLd = { "@type": "CreativeWork", "@id": new URL("/en/experiments/city-o
 ---
 <Base title="CITY//ORBIT" description={description} lang="en" jsonLd={jsonLd}>
   <article class="entry-shell">
-    <header class="entry-hero"><div class="entry-hero-meta"><span class="section-kicker">Experiment · Running</span></div><h1>CITY//ORBIT</h1><p class="entry-summary">{withoutTrailingStop(description)}</p><div class="publication-facts">{href && <a href={href}>Open experiment ↗</a>}{repo && <a href={repo}>Code ↗</a>}</div><dl class="work-facts"><div><dt>Type</dt><dd>Art experience</dd></div><div><dt>Platforms</dt><dd>Headsets · mobile · desktop</dd></div><div><dt>Technology</dt><dd>{source?.data.stack.join(" · ")}</dd></div>{updated && <div><dt>Updated</dt><dd>{updated}</dd></div>}</dl></header>
+    <header class="entry-hero"><div class="entry-hero-meta"><span class="section-kicker">Experiment · {status}</span></div><h1>CITY//ORBIT</h1><p class="entry-summary">{withoutTrailingStop(description)}</p><div class="publication-facts">{href && <a href={href}>Open experiment ↗</a>}{repo && <a href={repo}>Code ↗</a>}</div><dl class="work-facts"><div><dt>Type</dt><dd>Art experience</dd></div><div><dt>Platforms</dt><dd>Headsets · mobile · desktop</dd></div><div><dt>Technology</dt><dd>{source?.data.stack.join(" · ")}</dd></div>{updated && <div><dt>Updated</dt><dd>{updated}</dd></div>}</dl></header>
     <div class="prose">
       <h2>The experience</h2><p>A real city contracts into a hologram between your hands. Named OpenStreetMap places become abstract points around a point called YOU: place the model on a table or unfold it 360° around yourself, without using ready-made 3D buildings.</p>
       <h2>Interaction</h2><ul><li><strong>TABLE</strong> places a 1.2-metre orbital model in front of you; <strong>360°</strong> surrounds you with it.</li><li>Select, pinch or click chooses a POI and lifts its card.</li><li>Two hands in pinch, spreading apart, change the radius: <strong>200 m → 1 km → 5 km</strong>.</li><li>Phone and desktop retain HTML controls and coordinates as a fallback.</li></ul>

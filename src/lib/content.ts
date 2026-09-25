@@ -35,7 +35,7 @@ export const workStatus: Record<string, string> = {
 
 export const experimentStatus: Record<string, string> = {
   live: "Работает",
-  soon: "Скоро",
+  soon: "В разработке",
 };
 
 

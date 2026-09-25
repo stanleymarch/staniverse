@@ -72,7 +72,9 @@ export function buildGraph(entries: AnyEntry[]) {
       summary: summaryExcerpt(entry.data.summary),
       kind: entry.data.kind,
       href: entryHref(entry),
-      launch: entry.collection === "experiments" ? entry.data.href : undefined,
+      /* A demo that is not live is never launched from the graph: the node keeps
+         its write-up and loses the run address. */
+      launch: entry.collection === "experiments" && entry.data.status === "live" ? entry.data.href : undefined,
       topics: normalizeTopics(topicValues).filter((topic) => Boolean(getTopicDefinition(topic))),
       sourceTags: [...new Set(sourceTags)],
       featured: entry.data.featured,

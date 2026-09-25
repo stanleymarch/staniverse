@@ -3,7 +3,7 @@ id: "experiment:reality-field"
 kind: experiment
 title: "REALITY//FIELD"
 summary: "Комната становится физическим полем: жесты выпускают импульсы, волны и частицы, которые цепляются за стол, пол и стены."
-status: "live"
+status: "soon"
 href: "https://stanleymarch.github.io/xr-experiments/xrblocks/reality-field/"
 repo: "https://github.com/stanleymarch/xr-experiments"
 stack: ["Google XR Blocks", "three.js"]
@@ -41,5 +41,5 @@ Google XR Blocks опирается на WebXR. На iOS, включая Safari,
 
 ## Ссылки
 
-- [Открыть опыт](https://stanleymarch.github.io/xr-experiments/xrblocks/reality-field/)
+- Опыт пока в разработке — публичного запуска нет.
 - [Код эксперимента](https://github.com/stanleymarch/xr-experiments)

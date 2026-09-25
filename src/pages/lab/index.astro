@@ -1,7 +1,7 @@
 ---
 import Base from "../../layouts/Base.astro";
 import { getCollection } from "astro:content";
-import { hrefFor } from "../../lib/content";
+import { experimentStatus, hrefFor } from "../../lib/content";
 import { withoutTrailingStop } from "../../lib/typography";
 
 /* The catalogue is the content collection itself: a facet vocabulary is derived
@@ -33,7 +33,8 @@ const jsonLd = {
     name: entry.data.title,
     description: entry.data.summary,
     keywords: [...entry.data.types, ...entry.data.platforms, ...entry.data.capabilities, ...entry.data.stack].join(", "),
-    url: entry.data.href ?? new URL(hrefFor(entry), Astro.site).href,
+    /* A `soon` entry is not launched yet: its structured data must not advertise the demo URL. */
+    url: (entry.data.status === "live" ? entry.data.href : undefined) ?? new URL(hrefFor(entry), Astro.site).href,
   })),
 };
 ---
@@ -84,9 +85,7 @@ const jsonLd = {
             >
               <div class="card-meta">
                 <span>Эксперимент</span>
-                {entry.data.status === "live"
-                  ? <span class="status">Работает</span>
-                  : <span class="status">Скоро</span>}
+                <span class="status">{experimentStatus[entry.data.status]}</span>
               </div>
               <h2><a class="card-title-link" href={hrefFor(entry)}>{entry.data.title}</a></h2>
               <p>{withoutTrailingStop(entry.data.summary)}</p>

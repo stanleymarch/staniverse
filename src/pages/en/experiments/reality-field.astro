@@ -4,7 +4,11 @@ import Base from "../../../layouts/Base.astro";
 import { getCollection } from "astro:content";
 
 const source = (await getCollection("experiments")).find((item) => item.data.id === "experiment:reality-field");
-const href = source?.data.href;
+/* A `soon` entry keeps its write-up and loses every launch link: the demo stays
+   out of visitors' hands until it is live. */
+const live = source?.data.status === "live";
+const status = live ? "Running" : "In development";
+const href = live ? source?.data.href : undefined;
 const repo = source?.data.repo;
 const updated = source?.data.updated ? new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric" }).format(source.data.updated) : "";
 const description = "Your room becomes an interactive physical field: gestures release impulses, waves and particles that meet the table, floor and walls.";
@@ -13,7 +17,7 @@ const jsonLd = { "@type": "CreativeWork", "@id": new URL("/en/experiments/realit
 <Base title="REALITY//FIELD" description={description} lang="en" jsonLd={jsonLd}>
   <article class="entry-shell">
     <header class="entry-hero">
-      <div class="entry-hero-meta"><span class="section-kicker">Experiment · Running</span></div>
+      <div class="entry-hero-meta"><span class="section-kicker">Experiment · {status}</span></div>
       <h1>REALITY//FIELD</h1>
       <p class="entry-summary">{withoutTrailingStop(description)}</p>
       <div class="publication-facts">{href && <a href={href}>Open experiment ↗</a>}{repo && <a href={repo}>Code ↗</a>}</div>

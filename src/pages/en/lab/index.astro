@@ -93,7 +93,8 @@ const jsonLd = {
     name: titleOf(entry),
     description: summaryOf(entry),
     keywords: [...entry.data.types, ...entry.data.platforms, ...entry.data.capabilities, ...entry.data.stack].map(facetText).join(", "),
-    url: entry.data.href ?? new URL(translated(entry), Astro.site).href,
+    /* A `soon` entry is not launched yet: its structured data must not advertise the demo URL. */
+    url: (entry.data.status === "live" ? entry.data.href : undefined) ?? new URL(translated(entry), Astro.site).href,
   })),
 };
 ---
@@ -146,7 +147,7 @@ const jsonLd = {
                 <span>Experiment</span>
                 {entry.data.status === "live"
                   ? <span class="status">Running</span>
-                  : <span class="status">Coming soon</span>}
+                  : <span class="status">In development</span>}
               </div>
               <h2><a class="card-title-link" href={translated(entry)}>{titleOf(entry)}</a></h2>
               <p>{summaryOf(entry)}</p>

@@ -6,7 +6,7 @@ import { getCollection } from "astro:content";
 /* The structural facts stay bound to the Russian entry — status, facets, stack and
    the update date are read from the collection, never retyped for the translation. */
 const source = (await getCollection("experiments")).find((item) => item.data.id === "experiment:tyaga");
-const statusLabels: Record<string, string> = { live: "Running", soon: "Coming soon" };
+const statusLabels: Record<string, string> = { live: "Running", soon: "In development" };
 const typeLabels: Record<string, string> = { "игра": "Game", "песочница": "Sandbox", "инструмент": "Tool", "арт-опыт": "Art experience" };
 const platformLabels: Record<string, string> = { "мобильные": "Mobile", "гарнитуры": "Headsets", "десктоп": "Desktop" };
 const capabilityLabels: Record<string, string> = { "физика": "Physics", "звук": "Sound" };

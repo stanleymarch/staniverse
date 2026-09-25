@@ -3,7 +3,7 @@ id: "experiment:sound-space"
 kind: experiment
 title: "SOUND//SPACE"
 summary: "Звук становится пространством: микрофон строит световую структуру, а pinch замораживает фразу, музыку или хлопок в 3D-скульптуру."
-status: "live"
+status: "soon"
 href: "https://stanleymarch.github.io/xr-experiments/xrblocks/sound-space/"
 repo: "https://github.com/stanleymarch/xr-experiments"
 stack: ["Google XR Blocks", "three.js", "Web Audio API"]
@@ -41,5 +41,5 @@ Google XR Blocks опирается на WebXR. На iOS, включая Safari,
 
 ## Ссылки
 
-- [Открыть опыт](https://stanleymarch.github.io/xr-experiments/xrblocks/sound-space/)
+- Опыт пока в разработке — публичного запуска нет.
 - [Код эксперимента](https://github.com/stanleymarch/xr-experiments)

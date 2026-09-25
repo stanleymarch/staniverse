@@ -3,7 +3,7 @@ id: "experiment:city-orbit"
 kind: experiment
 title: "CITY//ORBIT"
 summary: "Улица из OpenStreetMap сжимается в голограмму: выбирай места лучом, поднимай карточки и меняй радиус города жестом."
-status: "live"
+status: "soon"
 href: "https://stanleymarch.github.io/xr-experiments/xrblocks/city-orbit/"
 repo: "https://github.com/stanleymarch/xr-experiments"
 stack: ["Google XR Blocks", "three.js", "OpenStreetMap", "Overpass API"]
@@ -41,5 +41,5 @@ Google XR Blocks опирается на WebXR. На iOS, включая Safari,
 
 ## Ссылки
 
-- [Открыть опыт](https://stanleymarch.github.io/xr-experiments/xrblocks/city-orbit/)
+- Опыт пока в разработке — публичного запуска нет.
 - [Код эксперимента](https://github.com/stanleymarch/xr-experiments)
