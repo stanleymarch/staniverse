@@ -39,6 +39,10 @@ export interface EnrichmentResult {
   createdAt: string;
   summary: string;
   topics: string[];
+  /** Jev provider: how many leading characters of the source body the judged
+   * state actually carried. A smaller value than the current cap on a longer
+   * body means the answer saw a truncated state and must be re-asked. */
+  stateChars?: number;
   topicEvidence?: Array<{topicId:string;quote:string}>;
   entities: string[];
   relations: Array<{

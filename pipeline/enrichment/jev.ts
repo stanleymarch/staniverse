@@ -30,9 +30,18 @@ import type { EnrichmentBundle, EnrichmentResult } from "./types";
 
 const MODEL = process.env.JEV_MODEL ?? "typesafe/jev-1.13";
 const THRESHOLD = Number(process.env.JEV_THRESHOLD ?? 0.7);
+// Long Telegram articles ran past the old 6000-char state and were judged on
+// their opening (a splat-focused article lost its splat topic): the cap now
+// covers the whole corpus at token prices that keep it irrelevant.
+const STATE_CAP = 30_000;
 const CACHE_DIR = "pipeline/enrichment/review/jev-cache";
 const FULL = "pipeline/enrichment/generated/full.json";
 const FLOOR = 0.001;
+/** An answer is usable only if its state covered the body as fully as the
+ * current cap allows; answers without the marker predate STATE_CAP and are
+ * assumed to have seen the old 6000-char window. */
+const coversBody = (result: EnrichmentResult, bodyLength: number) =>
+  (result.stateChars ?? 6000) >= Math.min(bodyLength, STATE_CAP);
 
 const key = (await readFile(".env", "utf8"))
   .split(/\r?\n/).map((l) => l.match(/^OPENROUTER_API_KEY=(.*)$/)?.[1]?.trim().replace(/^["']|["']$/g, "")).find(Boolean) ?? process.env.OPENROUTER_API_KEY ?? "";
@@ -44,7 +53,11 @@ const bundle: EnrichmentBundle = JSON.parse(await readFile(FULL, "utf8"));
 const byId = new Map(bundle.results.map((r) => [r.id, r]));
 
 const publications = (await readPublications("pipeline/telegram/archive/canonical.json"))
-  .filter((p) => p.body.trim().length > 0 && !(() => { const c = byId.get(p.id); return c && isFresh(c, p.body); })());
+  .filter((p) => {
+    if (p.body.trim().length === 0) return false;
+    const covered = byId.get(p.id);
+    return !covered || !isFresh(covered, p.body) || (covered.provider === "jev" && !coversBody(covered, p.body.length));
+  });
 
 if (publications.length === 0) {
   console.log(JSON.stringify({ tagged: 0, deferred: 0, spent: 0, note: "nothing uncovered" }));
@@ -68,7 +81,7 @@ async function askJev(post: (typeof publications)[number]): Promise<{ topics: st
   const response = await fetch("https://openrouter.ai/api/alpha/decisions", {
     method: "POST",
     headers: { Authorization: "Bearer " + key, "Content-Type": "application/json" },
-    body: JSON.stringify({ model: MODEL, state: { post: { kind: post.kind, text: post.body.slice(0, 6000) } }, questions }),
+    body: JSON.stringify({ model: MODEL, state: { post: { kind: post.kind, text: post.body.slice(0, STATE_CAP) } }, questions }),
     signal: AbortSignal.timeout(120_000),
   });
   if (!response.ok) {
@@ -87,7 +100,7 @@ for (const post of publications) {
   const local = enrichLocally(post);
   const cachePath = resolve(CACHE_DIR, local.textHash + ".json");
   let result: EnrichmentResult | null = null;
-  if (existsSync(cachePath)) {
+  if (existsSync(cachePath) && coversBody(JSON.parse(await readFile(cachePath, "utf8")) as EnrichmentResult, post.body.length)) {
     result = JSON.parse(await readFile(cachePath, "utf8")) as EnrichmentResult;
   } else {
     const remaining = await limitRemaining();
@@ -112,6 +125,7 @@ for (const post of publications) {
     result = {
       id: post.id, textHash: local.textHash, promptVersion: "staniverse-jev-v1", provider: "jev", model: MODEL,
       createdAt: new Date().toISOString(), summary: "", topics: answer.topics, topicEvidence: [],
+      stateChars: Math.min(post.body.length, STATE_CAP),
       entities: local.entities, relations: local.relations, needsReview: false,
     };
     await writeFile(cachePath, JSON.stringify(result), "utf8");
