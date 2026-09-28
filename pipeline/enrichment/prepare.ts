@@ -65,7 +65,7 @@ export function expandSegments(job: EnrichmentJob, maxChars: number = SEGMENT_MA
 }
 
 /** Inclusion boundaries transcribed from the reviewed vocabulary table. */
-const TOPIC_BOUNDARIES: Record<string, string> = {
+export const TOPIC_BOUNDARIES: Record<string, string> = {
   ai: "Общие методы/применения искусственного интеллекта; конкретная языковая модель получает также llm.",
   llm: "Языковые модели, обучение, prompting, inference и их продукты; не любой автоматический скрипт.",
   "agents-automation": "Агент, workflow или автоматизация, выполняющая цепочку действий; чат без действия не достаточен.",

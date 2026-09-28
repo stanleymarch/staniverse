@@ -12,4 +12,4 @@ ExecStart=/usr/bin/bash %h/Projects/staniverse-site/scripts/telegram-sync.sh
 # A failed run must not leave a half-written archive: report loudly in the journal.
 StandardOutput=journal
 StandardError=journal
-TimeoutStartSec=1800
+TimeoutStartSec=3600
