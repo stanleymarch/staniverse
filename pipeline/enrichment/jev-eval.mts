@@ -19,6 +19,7 @@ import { readFile } from "node:fs/promises";
 import { writeFileSync } from "node:fs";
 import { readPublications } from "./prepare";
 import { isFresh } from "./catalog";
+import type { EnrichmentBundle, EnrichmentResult } from "./types";
 import { jevTopicQuestions } from "./jev-criteria";
 
 const API = "https://openrouter.ai/api/alpha/decisions";
@@ -34,7 +35,7 @@ if (!key) throw new Error("OPENROUTER_API_KEY is missing from .env");
 
 const questions = Object.fromEntries(Object.entries(jevTopicQuestions).map(([id, q]) => [id, { type: "noul", instructions: q.instructions, criteria: q.criteria }]));
 
-const reviewed = new Map(JSON.parse(await readFile("pipeline/enrichment/generated/full.json", "utf8")).results.map((r) => [r.id, r]));
+const reviewed = new Map<string, EnrichmentResult>((JSON.parse(await readFile("pipeline/enrichment/generated/full.json", "utf8")) as EnrichmentBundle).results.map((r) => [r.id, r]));
 const clean = new Map<string, string[]>(Object.entries(JSON.parse(await readFile("pipeline/enrichment/jev-calibration-truth.json", "utf8")) as Record<string, string[]>).filter(([k]) => k !== "_comment"));
 
 const pubs = (await readPublications("pipeline/telegram/archive/canonical.json"))
