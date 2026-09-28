@@ -18,7 +18,7 @@
     "telegram:publish-media": "tsx pipeline/telegram/publish-media.ts",
     "enrichment:prepare": "tsx pipeline/enrichment/prepare.ts",
     "enrichment:local": "tsx pipeline/enrichment/local.ts",
-    "enrichment:openai": "tsx pipeline/enrichment/openai.ts",
+    "enrichment:jev": "tsx pipeline/enrichment/jev.ts",
     "enrichment:openrouter": "tsx pipeline/enrichment/openrouter.ts",
     "enrichment:review": "tsx pipeline/enrichment/review.ts",
     "enrichment:relations": "tsx pipeline/enrichment/relations.ts --pilot --limit 30",

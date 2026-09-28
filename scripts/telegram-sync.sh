@@ -73,34 +73,34 @@ npm run telegram:update
 restore_untouched
 publish "Telegram sync: $(date -u +%Y-%m-%dT%H:%MZ)" src/content/publications/telegram public/media/telegram || true
 
-# LLM catch-up. The OpenRouter run is incremental: answers are cached by
-# (source hash, model, prompt), so posts already covered by generated/full.json
-# cost nothing and a night with no new posts makes zero paid calls; a failed
-# night retries itself, because the cache, not this run's diff, drives the work.
-# merge.ts lands LLM topics/entities automatically but keeps LLM relations
-# gated on an explicit review accept, so no unreviewed claim reaches the graph.
+# Jev catch-up — only the leftovers, never the whole corpus. The chat-model
+# full runs (enrichment:prepare-full + openrouter-full + combine) paid per job
+# with no cache hits and would respend the key limit monthly; Jev asks only
+# about posts generated/full.json does not freshly cover, resumes for free
+# from review/jev-cache after a stop, and defers quietly under the budget
+# floor (exit 0). merge.ts lands its topics/entities; relations stay gated.
 #
 # A retag is only published for pages the sync itself had the last word on
 # (their latest commit is a `Telegram sync:` one). A page any human commit ever
 # curated keeps its committed topics: that covers hand-review fixes on new
 # posts and the keyword-tagged backlog alike, while posts the timer published
-# still get their LLM pass whenever it first succeeds.
+# still get their pass whenever it first succeeds.
 restore_hand_curated() {
   git status --porcelain -- src/content/publications/telegram | while read -r _status file; do
+    # The machine may retag a sync-owned page but never delete a published
+    # one: a D entry is always resurrected (a dangling relation target is a
+    # broken graph, whatever last touched the page).
+    if [[ "$_status" == "D" ]]; then
+      echo "restoring dropped publication: $file"
+      git checkout -- "$file"
+      continue
+    fi
     if [[ $(git log -1 --format=%s -- "$file") == "Telegram sync"* ]]; then continue; fi
     if git ls-files --error-unmatch "$file" >/dev/null 2>&1; then git checkout -- "$file"; else rm -f "$file"; fi
   done
 }
 
-npm run enrichment:prepare-full
-# A budget stop (monthly key cap) or a provider error exits 1; the content is
-# already published above, so defer the retag to the next run instead of
-# failing the whole sync.
-if npm run enrichment:openrouter-full; then
-  npm run enrichment:combine
-  npm run telegram:materialize
-  restore_hand_curated
-  publish "Telegram sync: LLM enrichment $(date -u +%Y-%m-%dT%H:%MZ)" src/content/publications/telegram pipeline/enrichment/generated/full.json || true
-else
-  echo "LLM enrichment deferred (budget stop or provider error); retried on the next run"
-fi
+npm run enrichment:jev
+npm run telegram:materialize
+restore_hand_curated
+publish "Telegram sync: Jev enrichment $(date -u +%Y-%m-%dT%H:%MZ)" src/content/publications/telegram pipeline/enrichment/generated/full.json || true
