@@ -32,7 +32,10 @@ if [[ "$branch" != "master" ]]; then
 fi
 
 # Fetch new posts, merge the archive, rebuild media and materialize pages.
-baseline=$(sed -n 's/.*"lastMessageId": *\([0-9]*\).*/\1/p' pipeline/telegram/archive/source/state.json 2>/dev/null)
+# Baseline = highest sourceId already committed. state.json will not do here:
+# the fetch above bumps it before anything is published, so after a crashed run
+# it runs ahead of the site and the restore filter below would eat the new pages.
+baseline=$(git grep -h '^sourceId: "' HEAD -- src/content/publications/telegram | sed 's/^sourceId: "\([0-9]*\)".*/\1/' | sort -n | tail -1)
 baseline=${baseline:-0}
 npm run telegram:update
 
@@ -42,7 +45,10 @@ npm run telegram:update
 # hundreds of old pages, so keep only what this run actually brought: pages whose
 # Telegram id is newer than the baseline captured above.
 git status --porcelain -- src/content/publications/telegram | while read -r _status file; do
-  id=$(sed -n 's/^sourceId: "\([0-9]*\)".*/\1/p' "$file" | head -1)
+  # A page this run's materialize dropped has no worktree file to read; an empty
+  # id must fall through to the restore branch, not kill the script (sed exits 2
+  # on a missing input file, which set -e would propagate).
+  id=$(sed -n 's/^sourceId: "\([0-9]*\)".*/\1/p' "$file" 2>/dev/null | head -1 || true)
   if [[ -n "$id" && "$id" -gt "$baseline" ]]; then continue; fi
   echo "restoring untouched publication: $file"
   if git ls-files --error-unmatch "$file" >/dev/null 2>&1; then git checkout -- "$file"; else rm -f "$file"; fi
