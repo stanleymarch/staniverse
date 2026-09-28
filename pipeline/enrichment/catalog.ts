@@ -19,7 +19,11 @@ export const topicRules: Rule[] = [
   { label: "веб-разработка", patterns: [/разработ(?:ал|ать|ка|ке|ки)[\p{L}\s-]{0,24}(?:сайт|веб)/iu, /лендинг/iu, /frontend/iu, /astro\b/iu, /next\.js/iu, /javascript/iu, /typescript/iu] },
   { label: "цифровая культура", patterns: [/цифров[\p{L}-]*\s+культур/iu, /интернет[- ]культур/iu, /медиаарт/iu, /киберкультур/iu, /виртуальн[\p{L}-]*\s+мир/iu] },
   { label: "арт и сценография", patterns: [/(?:^|[^\p{L}])(?:art|арт)(?:$|[^\p{L}])/iu, /искусств(?!енн)/iu, /галере/iu, /выставк/iu, /худож(?:ник|ниц|еств)/iu, /инсталляц/iu, /биеннал/iu, /сценограф/iu, /экспозици/iu, /экспонат/iu, /вернисаж/iu] },
-  { label: "видео и продакшн", patterns: [/видео/iu, /съ[её]м/iu, /монтаж/iu, /продакшн/iu, /youtube/iu, /документальн/iu] },
+  /* Bare /видео/ fired on any consumption mention («посмотрел видео»), and
+     /youtube/ on any channel link — a D&D link-dump got the production topic.
+     Keep the topic for actual production: capture, editing, hosting, camera
+     work, plus the capture-for-splats wording (стереовидео, spatial video). */
+  { label: "видео и продакшн", patterns: [/съ[её]м/iu, /монтаж/iu, /продакшн/iu, /документальн/iu, /стереовидео/iu, /spatial video/iu, /видео(?:запис|ролик|съ[её]мк|курс|обзор|редактор|плеер|хостинг|поток|контент|камер|стен)/iu, /записыва\w*\s+(?:стерео\s+)?видео/iu] },
   { label: "образование", patterns: [/образован/iu, /преподав/iu, /студент/iu, /школьник/iu, /университет/iu, /диплом/iu, /(?:^|[^\p{L}])курс(?:ы|а|е|ом|ов)?(?:$|[^\p{L}])/iu] },
   /* Киров and Слободской need a word start: "заблокированный"/"разблокировать"
      contain киров, "Новослободской" contains слободск, and neither is the region.
