@@ -3416,12 +3416,13 @@
       "promptVersion": "staniverse-jev-v1",
       "provider": "jev",
       "model": "typesafe/jev-1.13",
-      "createdAt": "2026-09-28T21:26:25.149Z",
+      "createdAt": "2026-09-28T21:36:09.904Z",
       "summary": "",
       "topics": [
         "sound"
       ],
       "topicEvidence": [],
+      "stateChars": 6595,
       "entities": [
         "Staniverse"
       ],
@@ -8720,13 +8721,14 @@
       "promptVersion": "staniverse-jev-v1",
       "provider": "jev",
       "model": "typesafe/jev-1.13",
-      "createdAt": "2026-09-28T21:26:58.142Z",
+      "createdAt": "2026-09-28T21:36:10.773Z",
       "summary": "",
       "topics": [
         "sound",
         "lifestyle"
       ],
       "topicEvidence": [],
+      "stateChars": 6644,
       "entities": [
         "Staniverse"
       ],
@@ -12259,13 +12261,15 @@
       "promptVersion": "staniverse-jev-v1",
       "provider": "jev",
       "model": "typesafe/jev-1.13",
-      "createdAt": "2026-09-28T21:27:23.077Z",
+      "createdAt": "2026-09-28T21:36:11.597Z",
       "summary": "",
       "topics": [
         "xr",
+        "education",
         "kirov"
       ],
       "topicEvidence": [],
+      "stateChars": 7822,
       "entities": [
         "Staniverse",
         "Я, ты, город",
@@ -13286,14 +13290,18 @@
       "promptVersion": "staniverse-jev-v1",
       "provider": "jev",
       "model": "typesafe/jev-1.13",
-      "createdAt": "2026-09-28T21:27:45.885Z",
+      "createdAt": "2026-09-28T21:36:12.717Z",
       "summary": "",
       "topics": [
+        "agents-automation",
+        "open-source",
         "web",
         "place-heritage",
-        "travel"
+        "travel",
+        "kirov"
       ],
       "topicEvidence": [],
+      "stateChars": 8133,
       "entities": [
         "Staniverse",
         "Nearventure",
@@ -13533,7 +13541,7 @@
       "promptVersion": "staniverse-jev-v1",
       "provider": "jev",
       "model": "typesafe/jev-1.13",
-      "createdAt": "2026-09-28T21:27:53.849Z",
+      "createdAt": "2026-09-28T21:36:13.298Z",
       "summary": "",
       "topics": [
         "ai",
@@ -13543,6 +13551,7 @@
         "culture"
       ],
       "topicEvidence": [],
+      "stateChars": 6112,
       "entities": [
         "Staniverse",
         "Альбина",
@@ -13557,14 +13566,16 @@
       "promptVersion": "staniverse-jev-v1",
       "provider": "jev",
       "model": "typesafe/jev-1.13",
-      "createdAt": "2026-09-28T21:27:54.439Z",
+      "createdAt": "2026-09-28T21:36:14.064Z",
       "summary": "",
       "topics": [
         "xr",
+        "gaussian-splatting",
         "open-source",
         "games"
       ],
       "topicEvidence": [],
+      "stateChars": 9027,
       "entities": [
         "OpenAI",
         "Anthropic",
@@ -13579,7 +13590,7 @@
       "promptVersion": "staniverse-jev-v1",
       "provider": "jev",
       "model": "typesafe/jev-1.13",
-      "createdAt": "2026-09-28T21:27:55.007Z",
+      "createdAt": "2026-09-28T21:36:16.015Z",
       "summary": "",
       "topics": [
         "sound",
@@ -13588,6 +13599,7 @@
         "art"
       ],
       "topicEvidence": [],
+      "stateChars": 7929,
       "entities": [
         "Telegram"
       ],
@@ -13600,12 +13612,14 @@
       "promptVersion": "staniverse-jev-v1",
       "provider": "jev",
       "model": "typesafe/jev-1.13",
-      "createdAt": "2026-09-28T21:27:55.614Z",
+      "createdAt": "2026-09-28T21:36:16.654Z",
       "summary": "",
       "topics": [
+        "culture",
         "games"
       ],
       "topicEvidence": [],
+      "stateChars": 8880,
       "entities": [
         "Staniverse",
         "Telegram",
