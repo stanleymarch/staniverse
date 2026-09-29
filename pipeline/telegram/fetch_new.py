@@ -91,6 +91,19 @@ def rich_block(block: Any, photos: dict[int, str]) -> list[dict[str, Any]]:
     return []
 
 
+async def full_rich_source(client: TelegramClient, message: Any) -> Any:
+    """iter_messages hands articles out with no `rich_message` at all or with a
+    partial one (part=True — a stub 1163 and silently truncated 1164..1166 came
+    from exactly that); channels.getMessages returns the complete body."""
+    rich = getattr(message, "rich_message", None)
+    if rich is not None and not getattr(rich, "part", False):
+        return message
+    refilled = await client.get_messages(message.peer_id, ids=[message.id])
+    if refilled is not None and getattr(refilled, "rich_message", None) is not None:
+        return refilled
+    return message
+
+
 async def rich_message_payload(client: TelegramClient, message: Any, media_dir: Path) -> dict[str, Any] | None:
     """Telegram Articles carry their body on the message itself (`rich_message`),
     not in a webpage cached page. Both use the same PageBlock/Text node types, so
@@ -139,7 +152,8 @@ async def serialize_message(client: TelegramClient, message: Any, output: Path) 
     reply_id = getattr(getattr(message, "reply_to", None), "reply_to_msg_id", None)
     if reply_id:
         item["reply_to_message_id"] = int(reply_id)
-    rich = await rich_message_payload(client, message, output / "media") or await cached_page_payload(client, message, output / "media")
+    rich_source = await full_rich_source(client, message)
+    rich = await rich_message_payload(client, rich_source, output / "media") or await cached_page_payload(client, message, output / "media")
     if rich:
         item["rich_message"] = rich
     if message.photo or message.document or message.video or message.audio or message.voice:

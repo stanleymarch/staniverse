@@ -1,1 +1,1 @@
-telethon==1.44.0
+telethon>=1.45.0  # layer with the newer article media constructor; 1.44 parses such posts as MessageMediaUnsupported
