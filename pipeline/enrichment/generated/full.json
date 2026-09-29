@@ -13562,11 +13562,11 @@
     },
     {
       "id": "publication:telegram:staniverse:1164",
-      "textHash": "3f8065d652b7a2785663626b2f4c67f9d72ed33f92abf6c800590d58f8e6d32c",
+      "textHash": "e68987592304e3b9cdbf001c89491138bb88da188e134f7627307d6d6d111da7",
       "promptVersion": "staniverse-jev-v1",
       "provider": "jev",
       "model": "typesafe/jev-1.13",
-      "createdAt": "2026-09-29T20:01:33.615Z",
+      "createdAt": "2026-09-29T20:03:08.947Z",
       "summary": "",
       "topics": [
         "xr",
@@ -13586,11 +13586,11 @@
     },
     {
       "id": "publication:telegram:staniverse:1165",
-      "textHash": "a7b77fd0e71507f056a78e35b2d967ceb19a4106d1c2b3e383f2f47ce41c64d7",
+      "textHash": "007cdf610c703c829af4fc0375654f17469c29fabd8544123c7c8ac5fcc75c6a",
       "promptVersion": "staniverse-jev-v1",
       "provider": "jev",
       "model": "typesafe/jev-1.13",
-      "createdAt": "2026-09-29T20:01:34.334Z",
+      "createdAt": "2026-09-29T20:03:09.647Z",
       "summary": "",
       "topics": [
         "sound",
@@ -13599,7 +13599,7 @@
         "art"
       ],
       "topicEvidence": [],
-      "stateChars": 7917,
+      "stateChars": 7911,
       "entities": [
         "Telegram"
       ],
@@ -13608,18 +13608,17 @@
     },
     {
       "id": "publication:telegram:staniverse:1166",
-      "textHash": "2e5d73a7b305d04c27584aed500a18b49aa6c3fd5b4d343f24b9cdad0a9b4ab1",
+      "textHash": "ce05517ac2dc31bf55d9b4a4980691f42166d1e5898c5b31aae2b875cb1be977",
       "promptVersion": "staniverse-jev-v1",
       "provider": "jev",
       "model": "typesafe/jev-1.13",
-      "createdAt": "2026-09-29T20:01:34.993Z",
+      "createdAt": "2026-09-29T20:03:10.378Z",
       "summary": "",
       "topics": [
-        "culture",
         "games"
       ],
       "topicEvidence": [],
-      "stateChars": 8880,
+      "stateChars": 8874,
       "entities": [
         "Staniverse",
         "Telegram",
