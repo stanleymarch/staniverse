@@ -46,7 +46,6 @@ for (const publication of publications) {
     `entities: ${yaml(enriched.entities)}`,
     `sourceUrl: ${yaml(publication.sourceUrl)}`,
     `sourceId: ${yaml(publication.sourceId)}`,
-    publication.forwardFrom ? `forwardFrom: ${yaml(publication.forwardFrom)}` : undefined,
     `threadIds: ${yaml(publication.threadIds)}`,
     `media: ${yaml(media)}`,
     "featured: false",

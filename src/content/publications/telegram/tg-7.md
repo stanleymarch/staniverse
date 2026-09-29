@@ -11,8 +11,8 @@ topics: []
 entities: []
 sourceUrl: "https://t.me/staniverse/7"
 sourceId: "7"
-threadIds: ["7"]
-media: [{"sourcePath":"photos/photo_2@27-09-2023_20-56-48.jpg","publicPath":"/media/telegram/7-7-0.webp","type":"image","messageId":7}]
+threadIds: ["7","8"]
+media: [{"sourcePath":"photos/photo_2@27-09-2023_20-56-48.jpg","publicPath":"/media/telegram/7-7-0.webp","type":"image","messageId":7},{"sourcePath":"photos/photo_3@27-09-2023_20-56-49.jpg","publicPath":"/media/telegram/7-8-1.webp","type":"image","messageId":8}]
 featured: false
 relations: []
 ---

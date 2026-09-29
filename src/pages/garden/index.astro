@@ -50,7 +50,6 @@ const records = included.map((entry) => {
     summary: entry.data.summary,
     kind: entry.data.kind,
     kindLabel: kindLabel[entry.data.kind],
-    forwardFrom: entry.data.forwardFrom,
     // A project update is editorial maintenance, not a new garden publication.
     date: gardenDate(entry)?.toISOString() ?? "",
     sourceTags,
@@ -200,7 +199,7 @@ const cloudTopics = [...topics].sort((a, b) => b.entries.length - a.entries.leng
               <a class={`garden-row${record.thumbnail ? " has-thumbnail" : ""}`} href={record.href}>
                 <div class="garden-row-meta">
                   {record.thumbnail && <img class="garden-row-thumbnail" src={record.thumbnail} alt="" loading="lazy" width="320" height="180" />}
-                  <span>{record.forwardFrom ? `Репост · ${record.forwardFrom}` : record.channelLabel || record.kindLabel}</span>
+                  <span>{record.channelLabel || record.kindLabel}</span>
                 </div>
                 <div class="garden-row-body">
                   <h2>{record.title}</h2>

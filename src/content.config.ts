@@ -82,9 +82,6 @@ const common = z.object({
   entities: z.array(z.string()).default([]),
   relations: z.array(relation).default([]),
   featured: z.boolean().default(false),
-  /* Telegram forwards carry the original channel so a repost is never presented
-     as authored here; unused on the authored collections. */
-  forwardFrom: z.string().optional(),
   date: z.coerce.date().optional(),
   updated: z.coerce.date().optional(),
 });

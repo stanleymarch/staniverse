@@ -49,8 +49,6 @@ export interface CanonicalPublication {
   kind: "telegram-post"|"telegram-article";
   sourceId: string;
   sourceUrl: string;
-  /** Present when the post is a forward: the original channel name, shown instead of pretending authorship. */
-  forwardFrom?: string;
   date?: string;
   title?: string;
   editedDate?: string;

@@ -184,6 +184,34 @@ test("deduplicates messages by Telegram ID", () => {
   assert.equal(groups.length,1); assert.equal(groups[0].messages[0].text,"new");
 });
 
+test("a forwarded post is someone else's work and never becomes a publication", () => {
+  const posts = normalizeExport({messages:[
+    {id:70,date:"2026-09-16T09:00:00",date_unixtime:"1",text:"Мой пост"},
+    {id:71,date:"2026-09-17T11:44:33",date_unixtime:"2",forwarded_from:"Мухи и нейроны",text:"Коллекция видосов про муху"},
+    {id:72,date:"2026-09-18T09:00:00",date_unixtime:"3",text:"Ещё мой пост"},
+  ]});
+  assert.deepEqual(posts.map((post)=>post.sourceId),["70","72"]);
+});
+
+test("a forwarded album is dropped whole, media members included", () => {
+  const posts = normalizeExport({messages:[
+    {id:80,date:"2026-09-17T11:44:33",date_unixtime:"2",forwarded_from:"Мухи и нейроны",text:"Живите теперь с этим",video_file:"video_files/fly0.mp4"},
+    {id:81,date:"2026-09-17T11:44:33",date_unixtime:"2",forwarded_from:"Мухи и нейроны",video_file:"video_files/fly1.mp4",text:""},
+    {id:82,date:"2026-09-17T11:44:34",date_unixtime:"2",forwarded_from:"Мухи и нейроны",video_file:"video_files/fly2.mp4",text:""},
+  ]});
+  assert.deepEqual(posts,[]);
+});
+
+test("a forward with continuation wording never merges into an authored chain", () => {
+  const posts = normalizeExport({messages:[
+    {id:85,date:"2026-05-01T09:00:00",date_unixtime:"1",text:"Начало мысли"},
+    {id:86,date:"2026-05-01T10:00:00",date_unixtime:"2",forwarded_from:"Чужой канал",text:"продолжение поста\n\nЧужой текст"},
+    {id:87,date:"2026-05-02T09:00:00",date_unixtime:"3",text:"Своя мысль после репоста"},
+  ]});
+  assert.deepEqual(posts.map((post)=>post.sourceId),["85","87"]);
+  assert.deepEqual(posts[0].relations,[]);
+});
+
 test("records a Russian continuation marker with a post number without merging", () => {
   const posts = normalizeExport({messages:[{id:40,text:"root"},{id:41,text:"\u041f\u0440\u043e\u0434\u043e\u043b\u0436\u0435\u043d\u0438\u0435 \u043f\u043e\u0441\u0442\u0430 \u211640"}]});
   assert.deepEqual(posts.map((post)=>post.sourceId),["40","41"]);

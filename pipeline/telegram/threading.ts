@@ -83,7 +83,9 @@ function albumAnchors(messages: TelegramMessage[]): Map<number, number> {
   };
   const flushRun = () => {
     for (const message of run) {
-      if (isMediaMessage(message) && !message.rich_message) album.push(message);
+      // A forwarded message is its own posting action and never joins an album
+      // run: a forward adjacent in time must not capture authored neighbours.
+      if (isMediaMessage(message) && !message.rich_message && !message.forwarded_from) album.push(message);
       else flushAlbum();
     }
     flushAlbum();
@@ -123,6 +125,9 @@ export function buildPublications(input: TelegramMessage[]): PublicationGroup[] 
   const ids = new Set(messages.map((message) => message.id));
   let previousRoot: number | undefined;
   for (const message of messages) {
+    // A forward cannot continue an authored chain: skipping it also keeps it
+    // from becoming the chain's merge target for the post that follows.
+    if (message.forwarded_from) continue;
     const ownRoot = rootOf.get(message.id)!;
     const text = plainText(message).trimStart();
     if (previousRoot !== undefined && ownRoot !== previousRoot && continuationLead.test(text) && !hasExplicitTarget(text)) {

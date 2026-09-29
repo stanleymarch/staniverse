@@ -139,6 +139,31 @@ async def cached_page_payload(client: TelegramClient, message: Any, media_dir: P
     return {"rtl": bool(getattr(page, "rtl", False)), "part": bool(getattr(page, "part", False)), "blocks": blocks} if blocks else None
 
 
+async def forward_origin(client: TelegramClient, header: Any) -> str:
+    """The export-compatible `forwarded_from` value: the original channel or
+    sender name, the same string Telegram's own export writes for a forward."""
+    name = getattr(header, "from_name", None)
+    if isinstance(name, str) and name:
+        return name
+    peer = getattr(header, "from_id", None)
+    if peer is not None:
+        try:
+            entity = await client.get_entity(peer)
+        except Exception:
+            entity = None
+        if entity is not None:
+            title = getattr(entity, "title", None)
+            if isinstance(title, str) and title:
+                return title
+            person = " ".join(str(part) for part in (getattr(entity, "first_name", None), getattr(entity, "last_name", None)) if isinstance(part, str))
+            if person:
+                return person
+            username = getattr(entity, "username", None)
+            if isinstance(username, str) and username:
+                return f"@{username}"
+    return "unknown"
+
+
 async def serialize_message(client: TelegramClient, message: Any, output: Path) -> dict[str, Any]:
     item: dict[str, Any] = {"id": message.id, "type": "message", "date": iso(message.date)}
     if message.edit_date:
@@ -152,6 +177,8 @@ async def serialize_message(client: TelegramClient, message: Any, output: Path) 
     reply_id = getattr(getattr(message, "reply_to", None), "reply_to_msg_id", None)
     if reply_id:
         item["reply_to_message_id"] = int(reply_id)
+    if message.fwd_from:
+        item["forwarded_from"] = await forward_origin(client, message.fwd_from)
     rich_source = await full_rich_source(client, message)
     rich = await rich_message_payload(client, rich_source, output / "media") or await cached_page_payload(client, message, output / "media")
     if rich:
@@ -202,8 +229,16 @@ async def fetch(args: argparse.Namespace) -> dict[str, Any]:
             if message:
                 messages.append(await serialize_message(client, message, output))
         payload = {"name": getattr(entity, "title", args.channel), "id": getattr(entity, "id", None), "type": "public_channel", "messages": messages}
+    # A fetched post with neither text, nor a rich body, nor any media is always
+    # content loss — most likely a Telegram constructor newer than the Telethon
+    # layer (MessageMediaUnsupported). Record it so the sync can fail loudly
+    # instead of silently materializing an empty stub page.
+    suspects = [item["id"] for item in messages
+                if not (item.get("text") or item.get("rich_message")
+                        or any(key in item for key in ("photo", "video_file", "audio_file", "voice_message", "file")))]
+    (output / "suspect.json").write_text(json.dumps(suspects), encoding="utf-8")
     (output / "result.json").write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
-    return {"sinceId": since_id, "added": len(messages), "lastId": max([since_id, *[item["id"] for item in messages]]), "output": str(output)}
+    return {"sinceId": since_id, "added": len(messages), "lastId": max([since_id, *[item["id"] for item in messages]]), "output": str(output), "suspect": suspects}
 
 
 def main() -> None:
