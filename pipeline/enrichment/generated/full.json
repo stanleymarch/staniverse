@@ -13562,11 +13562,11 @@
     },
     {
       "id": "publication:telegram:staniverse:1164",
-      "textHash": "3d66237fae0f46d650fd8a0d154dc98b679e28f5db88b3086c9e8c78fbee8221",
+      "textHash": "3f8065d652b7a2785663626b2f4c67f9d72ed33f92abf6c800590d58f8e6d32c",
       "promptVersion": "staniverse-jev-v1",
       "provider": "jev",
       "model": "typesafe/jev-1.13",
-      "createdAt": "2026-09-29T19:59:31.082Z",
+      "createdAt": "2026-09-29T20:01:33.615Z",
       "summary": "",
       "topics": [
         "xr",
@@ -13575,7 +13575,7 @@
         "games"
       ],
       "topicEvidence": [],
-      "stateChars": 9033,
+      "stateChars": 9027,
       "entities": [
         "OpenAI",
         "Anthropic",
@@ -13586,11 +13586,11 @@
     },
     {
       "id": "publication:telegram:staniverse:1165",
-      "textHash": "bb189fc9c360136d40c221d3998bddab5ef9f075696bea11c08b35527d65d84e",
+      "textHash": "a7b77fd0e71507f056a78e35b2d967ceb19a4106d1c2b3e383f2f47ce41c64d7",
       "promptVersion": "staniverse-jev-v1",
       "provider": "jev",
       "model": "typesafe/jev-1.13",
-      "createdAt": "2026-09-29T19:59:31.754Z",
+      "createdAt": "2026-09-29T20:01:34.334Z",
       "summary": "",
       "topics": [
         "sound",
@@ -13599,7 +13599,7 @@
         "art"
       ],
       "topicEvidence": [],
-      "stateChars": 7923,
+      "stateChars": 7917,
       "entities": [
         "Telegram"
       ],
@@ -13608,13 +13608,14 @@
     },
     {
       "id": "publication:telegram:staniverse:1166",
-      "textHash": "43ec1034be4f49f847307a8fd67d1848a2eb0b6252b19254653b1c1355cd79b0",
+      "textHash": "2e5d73a7b305d04c27584aed500a18b49aa6c3fd5b4d343f24b9cdad0a9b4ab1",
       "promptVersion": "staniverse-jev-v1",
       "provider": "jev",
       "model": "typesafe/jev-1.13",
-      "createdAt": "2026-09-29T19:59:32.356Z",
+      "createdAt": "2026-09-29T20:01:34.993Z",
       "summary": "",
       "topics": [
+        "culture",
         "games"
       ],
       "topicEvidence": [],
