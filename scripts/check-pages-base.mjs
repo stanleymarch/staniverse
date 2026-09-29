@@ -35,6 +35,13 @@ try {
   origin = "";
 }
 
+/** Sibling deployments on the same host whose links resolve outside this
+ * site's BASE_PATH by design: the XR experiments site at /xr-experiments/ on
+ * the same github.io origin. Mirrored in rewrite-pages-base.mjs
+ * (SIBLING_SITES) — keep the two in sync. */
+const SIBLING_SITES = ["/xr-experiments/"];
+const isSibling = (path) => SIBLING_SITES.some((prefix) => path.startsWith(prefix));
+
 if (!base) {
   console.log("check-pages-base: root-based deployment (BASE_PATH empty), nothing to verify.");
   process.exit(0);
@@ -52,6 +59,7 @@ function inspect(rule, file, value) {
   }
   if (!origin || !value.startsWith(origin)) return;
   const path = value.slice(origin.length);
+  if (isSibling(path)) return;
   if (sitePath && path !== sitePath && !path.startsWith(`${sitePath}/`) && !path.startsWith(`${sitePath}#`) && !path.startsWith(`${sitePath}?`)) {
     add(`${rule} [absolute URL missing base]`, file, value);
   }

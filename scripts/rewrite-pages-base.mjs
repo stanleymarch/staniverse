@@ -51,6 +51,13 @@ const bump = (kind) => kinds.set(kind, (kinds.get(kind) ?? 0) + 1);
 const hasBase = (value) =>
   value === base || value.startsWith(`${base}/`) || value.startsWith(`${base}?`) || value.startsWith(`${base}#`);
 
+/** Sibling deployments on the same host that preview links must keep pointing
+ * at verbatim: the XR experiments site lives at /xr-experiments/ on the same
+ * github.io origin, outside this site's BASE_PATH. Mirrored in
+ * check-pages-base.mjs (SIBLING_SITES) — keep the two in sync. */
+const SIBLING_SITES = ["/xr-experiments/"];
+const isSibling = (path) => SIBLING_SITES.some((prefix) => path.startsWith(prefix));
+
 /** Site-internal path: `/works/`, `/media/x.webp`, `/#anchor`, `/universe/?focus=x`.
  * Query and fragment may carry anything; the path itself must be URL-path only. */
 const isRootPath = (value) => {
@@ -70,7 +77,7 @@ function rewriteValue(value, { rootAlone }) {
   }
   if (origin && value.startsWith(origin)) {
     const rest = value.slice(origin.length);
-    if ((rest === "" || /^[/?#]/.test(rest)) && !hasBase(rest)) {
+    if ((rest === "" || /^[/?#]/.test(rest)) && !hasBase(rest) && !isSibling(rest)) {
       bump("absolute rebase");
       return `${origin}${base}${rest}`;
     }
