@@ -103,4 +103,21 @@ restore_hand_curated() {
 npm run enrichment:jev
 npm run telegram:materialize
 restore_hand_curated
-publish "Telegram sync: Jev enrichment $(date -u +%Y-%m-%dT%H:%MZ)" src/content/publications/telegram pipeline/enrichment/generated/full.json || true
+# Hand-curated pages are the reviewed truth; mirror their frontmatter into the
+# cache so the materialized-only CI audit (and the Pages preview workflow)
+# stays green instead of mailing about staleEnrichment.
+npm run enrichment:reconcile
+# The deterministic sidecar is committed by design (README): CI audits pages
+# against the committed bundles, and a never-committed telegram.json leaves
+# hand-curated pages matching neither bundle — the Pages preview failures.
+publish "Telegram sync: Jev enrichment $(date -u +%Y-%m-%dT%H:%MZ)" src/content/publications/telegram pipeline/enrichment/generated/full.json pipeline/enrichment/generated/telegram.json || true
+
+# Last, not first: everything valid is already published above. Failing here
+# turns the unit red so an empty-stub fetch is impossible to miss — most likely
+# a Telegram media constructor newer than the Telethon layer; the repair is
+# upgrading telethon and rewinding state.json to re-fetch.
+mapfile -t suspects < <(jq -r '.[]' pipeline/telegram/archive/incoming/suspect.json 2>/dev/null || true)
+if ((${#suspects[@]})); then
+  echo "SUSPECT EMPTY STUBS: ${suspects[*]} — content was NOT captured; upgrade telethon (see requirements-telegram.txt) and rewind pipeline/telegram/archive/source/state.json to re-fetch"
+  exit 1
+fi
