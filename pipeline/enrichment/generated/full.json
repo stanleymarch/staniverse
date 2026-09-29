@@ -13562,11 +13562,11 @@
     },
     {
       "id": "publication:telegram:staniverse:1164",
-      "textHash": "ef241f5b6699d2055ccc92d94c8f8aec25afb0aed4b22516cf03f62bfb37bd25",
+      "textHash": "3d66237fae0f46d650fd8a0d154dc98b679e28f5db88b3086c9e8c78fbee8221",
       "promptVersion": "staniverse-jev-v1",
       "provider": "jev",
       "model": "typesafe/jev-1.13",
-      "createdAt": "2026-09-28T21:36:14.064Z",
+      "createdAt": "2026-09-29T19:59:31.082Z",
       "summary": "",
       "topics": [
         "xr",
@@ -13575,7 +13575,7 @@
         "games"
       ],
       "topicEvidence": [],
-      "stateChars": 9027,
+      "stateChars": 9033,
       "entities": [
         "OpenAI",
         "Anthropic",
@@ -13586,11 +13586,11 @@
     },
     {
       "id": "publication:telegram:staniverse:1165",
-      "textHash": "2f83eee2ac76f09d343adfe7b3b9d0961b3f4e749ee6017c2c92376ee8cb0cf8",
+      "textHash": "bb189fc9c360136d40c221d3998bddab5ef9f075696bea11c08b35527d65d84e",
       "promptVersion": "staniverse-jev-v1",
       "provider": "jev",
       "model": "typesafe/jev-1.13",
-      "createdAt": "2026-09-28T21:36:16.015Z",
+      "createdAt": "2026-09-29T19:59:31.754Z",
       "summary": "",
       "topics": [
         "sound",
@@ -13599,7 +13599,7 @@
         "art"
       ],
       "topicEvidence": [],
-      "stateChars": 7929,
+      "stateChars": 7923,
       "entities": [
         "Telegram"
       ],
@@ -13608,14 +13608,13 @@
     },
     {
       "id": "publication:telegram:staniverse:1166",
-      "textHash": "97f173412af630e2ede1c2a54311e4f870fec2ac2cbf7bbd901a81d08fea5d6b",
+      "textHash": "43ec1034be4f49f847307a8fd67d1848a2eb0b6252b19254653b1c1355cd79b0",
       "promptVersion": "staniverse-jev-v1",
       "provider": "jev",
       "model": "typesafe/jev-1.13",
-      "createdAt": "2026-09-28T21:36:16.654Z",
+      "createdAt": "2026-09-29T19:59:32.356Z",
       "summary": "",
       "topics": [
-        "culture",
         "games"
       ],
       "topicEvidence": [],
@@ -13624,6 +13623,27 @@
         "Staniverse",
         "Telegram",
         "YouTube",
+        "VRChat"
+      ],
+      "relations": [],
+      "needsReview": false
+    },
+    {
+      "id": "publication:telegram:staniverse:1167",
+      "textHash": "239d4b952caa3f828b7756ac384b783910a0e2350825e79ed822270ba4030cb9",
+      "promptVersion": "staniverse-jev-v1",
+      "provider": "jev",
+      "model": "typesafe/jev-1.13",
+      "createdAt": "2026-09-29T19:59:33.085Z",
+      "summary": "",
+      "topics": [
+        "games"
+      ],
+      "topicEvidence": [],
+      "stateChars": 2934,
+      "entities": [
+        "Staniverse",
+        "Telegram",
         "VRChat"
       ],
       "relations": [],
