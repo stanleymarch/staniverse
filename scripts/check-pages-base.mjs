@@ -115,8 +115,11 @@ function walkJson(rule, file, value) {
 function walk(dir) {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     const full = join(dir, entry.name);
+    // Vendored third-party bundles (public/vendor/) carry their own string
+    // literals — GitHub API path templates, minified fragments — that look like
+    // site-absolute references but never are. They are not ours to rewrite.
     if (entry.isDirectory()) {
-      walk(full);
+      if (entry.name !== "vendor") walk(join(dir, entry.name));
       continue;
     }
     const ext = extname(entry.name).toLowerCase();

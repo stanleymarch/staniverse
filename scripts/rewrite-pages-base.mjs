@@ -163,8 +163,11 @@ function processFile(full) {
 
 function walk(dir) {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
-    if (entry.isDirectory()) walk(join(dir, entry.name));
-    else processFile(join(dir, entry.name));
+    // Vendored third-party bundles must pass through byte-identical: rewriting
+    // inside minified code would corrupt it, and its literals are not site paths.
+    if (entry.isDirectory()) {
+      if (entry.name !== "vendor") walk(join(dir, entry.name));
+    } else processFile(join(dir, entry.name));
   }
 }
 
