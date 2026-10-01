@@ -5,13 +5,22 @@ import { allEntries, hrefFor, kindLabel } from "../../lib/content";
 import { buildGraph } from "../../lib/graph";
 import { collectTopics, topicSlug } from "../../lib/topics";
 import { normalizeTopics, getTopicDefinition, topicRelations } from "../../lib/taxonomy";
+import type { AnyEntry } from "../../lib/content";
 import "../../styles/garden.css";
+import ActivityPanel from "../../components/ActivityPanel.astro";
 
-const gardenDate = (entry: Awaited<ReturnType<typeof getCollection>>[number]) =>
+const gardenDate = (entry: AnyEntry) =>
   entry.data.date ?? (entry.collection === "projects" ? undefined : entry.data.updated);
 const included = [...await getCollection("articles"), ...await getCollection("publications"), ...await getCollection("projects"), ...await getCollection("works")]
   .filter((entry) => !entry.data.hidden && entry.id !== "manifesto" && (entry.collection !== "publications" || !["video", "youtube-video"].includes(entry.data.kind) || entry.data.ownership === "verified" || entry.data.ownership === "own"))
   .sort((a, b) => (gardenDate(b)?.getTime() ?? 0) - (gardenDate(a)?.getTime() ?? 0));
+
+const isoDay = (value: Date) => `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2, "0")}-${String(value.getDate()).padStart(2, "0")}`;
+const gardenActivity = {
+  dates: included.map((entry) => gardenDate(entry)).filter((value): value is Date => value instanceof Date).map(isoDay),
+  chars: included.map((entry) => (entry.body ?? "").replace(/<!--[\s\S]*?-->/g, "").length),
+  topics: included.flatMap((entry) => entry.data.topics.map((topic) => getTopicDefinition(topic)?.label ?? topic)),
+};
 const topics = collectTopics(included, true);
 const projects = new Map(included.filter((entry) => entry.collection === "projects").map((entry) => [entry.data.id, entry.data.title]));
 
@@ -109,13 +118,14 @@ const cloudTopics = [...topics].sort((a, b) => b.entries.length - a.entries.leng
   size: Number((0.88 + 0.62 * (Math.log(topic.entries.length || 1) / Math.log(maxCount))).toFixed(3)),
   tier: index < 3 ? "lead" : topic.entries.length >= maxCount / 4 ? "major" : "minor",
 }));
+const [section] = await getCollection("sections", (entry) => entry.id === "garden");
 ---
-<Base title="Сад опыта" description="Цифровой сад Станислава Ермоленко: публикации, статьи и видео об AI, XR, вебе, медиа, культуре и технологиях — с темами, поиском и картой связей.">
+<Base title={section.data.title} description={section.data.summary}>
   <div class="garden-page">
     <header class="garden-hero">
-      <div class="section-kicker">Публичная память</div>
-      <h1>Сад</h1>
-      <p>Публикации, статьи, видео и проекты — по темам, датам и живым связям</p>
+      <div class="section-kicker">{section.data.kicker}</div>
+      <h1>{section.data.title}</h1>
+      <p>{section.data.lead}</p>
     </header>
 
     <section class="garden-cloud" aria-labelledby="garden-cloud-title">
@@ -192,6 +202,7 @@ const cloudTopics = [...topics].sort((a, b) => b.entries.length - a.entries.leng
           </fieldset>
           <button type="button" class="garden-reset" data-garden-reset>Сбросить фильтры</button>
         </div>
+        <ActivityPanel dates={gardenActivity.dates} chars={gardenActivity.chars} topics={gardenActivity.topics} heading="Ритм сада" avgLabel="Средняя длина материала" unit="материал" />
       </aside>
       <div class="garden-main">
         <section class="garden-results" aria-label="Материалы сада">

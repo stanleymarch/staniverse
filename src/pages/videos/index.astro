@@ -2,6 +2,7 @@
 import Base from "../../layouts/Base.astro";
 import { getCollection } from "astro:content";
 import { hrefFor } from "../../lib/content";
+const [section] = await getCollection("sections", (entry) => entry.id === "videos");
 
 /** The video archive is a thin reading of the publication corpus: every entry
  * whose platform is YouTube, newest first. Local material pages stay primary. */
@@ -17,14 +18,14 @@ const channelLabel = (channel?: { key: string; handle?: string }) =>
 const formatDate = (value?: Date) =>
   value ? new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "long", year: "numeric" }).format(value) : "";
 
-const description = "Видеоархив станивёрса: ролики с YouTube-каналов станивёрс и я.ты.город. со ссылками на связанные материалы сайта и первоисточник.";
+;
 
 const collectionJsonLd: Record<string, unknown> = {
   "@type": "CollectionPage",
   "@id": new URL("/videos/#collection", Astro.site).href,
   url: new URL("/videos/", Astro.site).href,
   name: "Видеоархив станивёрса",
-  description,
+  description: section.data.summary,
   inLanguage: "ru-RU",
   isPartOf: { "@id": new URL("/#website", Astro.site).href },
   mainEntity: {
@@ -50,11 +51,11 @@ const collectionJsonLd: Record<string, unknown> = {
   },
 };
 ---
-<Base title="Видеоархив" description={description} jsonLd={collectionJsonLd}>
+<Base title={section.data.title} description={section.data.summary} jsonLd={collectionJsonLd}>
   <header class="catalog-hero">
-    <div class="section-kicker">Видеоархив</div>
-    <h1>Видео</h1>
-    <p class="hero-lead">Ролики с YouTube-каналов <strong>станивёрс</strong> и <strong>я.ты.город.</strong> Здесь видео собраны как часть личного архива: у каждого есть страница на сайте с контекстом и связями, а ссылка на YouTube ведёт к первоисточнику. В списке нет встроенных плееров: видео открываются на своих страницах по клику — чтобы не отправлять ваш браузер на серверы Google без необходимости</p>
+    <div class="section-kicker">{section.data.kicker}</div>
+    <h1>{section.data.title}</h1>
+    <p class="hero-lead">{section.data.lead}</p>
     {videos.length > 0 && <p class="video-archive-note">{videos.length}{" "}видео · от новых к старым</p>}
   </header>
 

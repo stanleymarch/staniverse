@@ -1,11 +1,13 @@
 ---
 import Base from "../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+const [section] = await getCollection("sections", (entry) => entry.id === "contacts");
 ---
-<Base title="Контакты" description="Как связаться со Станиславом Ермоленко: почта, Telegram, YouTube и соцсети. XR и WebXR, AI-автоматизация, цифровые архивы и медиа — для бизнеса, музеев и культурных проектов." pageType="ContactPage">
+<Base title={section.data.title} description={section.data.summary} pageType="ContactPage">
   <header class="catalog-hero">
-    <div class="section-kicker">Связь</div>
-    <h1>Контакты</h1>
-    <p class="hero-lead">Проще всего написать на почту или в Telegram. Читаю всё сам, отвечаю по мере сил — обычно в течение пары дней</p>
+    <div class="section-kicker">{section.data.kicker}</div>
+    <h1>{section.data.title}</h1>
+    <p class="hero-lead">{section.data.lead}</p>
   </header>
   <section class="section" aria-labelledby="channels-title">
     <div class="section-head"><div><div class="section-kicker">Каналы</div><h2 id="channels-title">Куда написать</h2></div></div>

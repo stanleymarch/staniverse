@@ -173,4 +173,20 @@ const publications = defineCollection({
   }),
 });
 
-export const collections = { works, projects, articles, experiments, publications };
+/** Root pages of the site sections: the hero copy and SEO description live in
+ * content so the Sveltia admin can edit them like everything else. */
+const sections = defineCollection({
+  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/sections" }),
+  schema: z.object({
+    id: z.string(),
+    kind: z.literal("section"),
+    title: z.string(),
+    summary: z.string(),
+    kicker: z.string().optional(),
+    lead: z.string().optional(),
+    hidden: z.boolean().default(false),
+  }),
+});
+
+export const collections = { works, projects, articles, experiments, publications, sections };
+

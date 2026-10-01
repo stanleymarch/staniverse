@@ -4,11 +4,13 @@ import { allEntries } from "../../lib/content";
 import { buildGraph } from "../../lib/graph";
 import UniverseScene from "../../components/universe/UniverseScene.astro";
 import "../../styles/universe.css";
+import { getCollection } from "astro:content";
 
 const graph = buildGraph(await allEntries());
+const [section] = await getCollection("sections", (entry) => entry.id === "universe");
 ---
 
-<Base title="XR-карта" description="Интерактивная 3D-карта связей между работами, проектами, темами и публикациями Станислава Ермоленко. Экранный, VR- и AR-режимы." immersive>
+<Base title={section.data.title} description={section.data.summary} immersive>
   <UniverseScene {graph} />
 </Base>
 

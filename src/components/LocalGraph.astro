@@ -7,9 +7,12 @@ interface Props {
   currentId: string;
   nodes: GraphNode[];
   edges: GraphEdge[];
+  /** Life publications never enter the shared universe graph: no link to a map
+   * that does not know this material. */
+  universe?: boolean;
 }
 
-const { currentId, nodes, edges } = Astro.props;
+const { currentId, nodes, edges, universe = true } = Astro.props;
 const graph = buildLocalGraph(currentId, nodes, edges, 3);
 const view = buildLocalGraphView(graph);
 const directions = buildDirectedRelations(currentId, nodes, edges);
@@ -194,7 +197,7 @@ const arrowMarkerId = `local-graph-arrow-${currentId.replace(/[^a-z0-9]+/gi, "-"
     </div>
   )}
 
-  <a class="local-graph__universe-link" href={`/universe/?focus=${encodeURIComponent(currentId)}`}>Открыть во Вселенной <span aria-hidden="true">↗</span></a>
+  {universe && <a class="local-graph__universe-link" href={`/universe/?focus=${encodeURIComponent(currentId)}`}>Открыть во Вселенной <span aria-hidden="true">↗</span></a>}
   <p class="local-graph__status" data-graph-status aria-live="polite"></p>
 </aside>
 

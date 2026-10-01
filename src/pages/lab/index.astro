@@ -37,13 +37,14 @@ const jsonLd = {
     url: (entry.data.status === "live" ? entry.data.href : undefined) ?? new URL(hrefFor(entry), Astro.site).href,
   })),
 };
+const [section] = await getCollection("sections", (entry) => entry.id === "lab");
 ---
 
-<Base title="Лаборатория" description="Отдельные WebXR- и браузерные эксперименты Станислава Ермоленко: игры, приложения и арт-опыты — от мобильного AR до гарнитур. У каждого есть запуск и разбор механики." jsonLd={jsonLd}>
+<Base title={section.data.title} description={section.data.summary} jsonLd={jsonLd}>
   <header class="catalog-hero">
-    <div class="section-kicker">Лаборатория</div>
-    <h1>Эксперименты</h1>
-    <p class="hero-lead">Самостоятельные приложения, а не только игры: WebXR-сцены, демо SDK, пространственные механики, а дальше — вещи с ИИ и бэкендом. Каждый эксперимент запускается по ссылке из карточки, а рядом лежит короткий разбор: что внутри и как этим пользоваться. Опыты на Google XR Blocks рассчитаны прежде всего на Quest 3; в Safari на iOS нужных возможностей WebXR может не быть, поэтому такие демо там могут не запуститься. Демо с камерой стоит открывать с телефона</p>
+    <div class="section-kicker">{section.data.kicker}</div>
+    <h1>{section.data.title}</h1>
+    <p class="hero-lead">{section.data.lead}</p>
   </header>
   <section class="section">
     {entries.length === 0 ? (

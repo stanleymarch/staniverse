@@ -1,3 +1,5 @@
+# Sveltia CMS (Decap-compatible config).
+#
 # Two ways in:
 #  * remotely — «Sign In with GitHub Using Token» on the login screen: paste a
 #    fine-grained personal access token (this repository only, Contents: Read
@@ -6,10 +8,21 @@
 #    pipeline. No OAuth app, no proxy, nothing extra to host.
 #  * on the workstation — «Work with Local Repository»: edits the working copy
 #    directly, commits and pushes stay a manual git step.
+#
+# Machine-written fields (id, media, relations, threadIds, …) are declared as
+# hidden widgets so they round-trip untouched; tests/admin-config.test.ts fails
+# the build when a real frontmatter key is missing here, because an undeclared
+# key would be dropped on save.
+#
+# Collections owned by the Telegram sync (life, telegram, video) are edit-only:
+# new entries there are born in Telegram, not in the CMS. Works, projects,
+# articles and experiments can be created; their id is a visible field because
+# the schema keys graph relations by it.
 backend:
   name: github
   repo: stanleymarch/staniverse
   branch: master
+locale: ru
 media_folder: public/media/admin-uploads
 public_folder: /media/admin-uploads
 omit_empty_optional_fields: true
@@ -98,17 +111,18 @@ collections:
   - label: Работы
     name: works
     folder: src/content/works
-    create: false
+    create: true
+    slug: "{{title}}"
     fields:
-      - {label: ID, name: id, widget: hidden, required: false}
-      - {label: Тип, name: kind, widget: hidden, required: false}
+      - {label: 'ID (вида work:moi-slug)', name: id, widget: string}
+      - {label: Тип, name: kind, widget: hidden, default: work, required: false}
       - {label: Заголовок, name: title, widget: string}
-      - {label: Описание, name: summary, widget: text, required: false}
-      - {label: Год, name: year, widget: string, required: false}
-      - {label: Жанры, name: genres, widget: list, required: false}
-      - {label: Роль, name: role, widget: text, required: false}
+      - {label: Описание, name: summary, widget: text}
+      - {label: Год, name: year, widget: string}
+      - {label: Жанры, name: genres, widget: list}
+      - {label: Роль, name: role, widget: text}
       - {label: Клиент, name: client, widget: string, required: false}
-      - {label: Статус, name: status, widget: select, options: [ongoing, completed], required: false}
+      - {label: Статус, name: status, widget: select, options: [ongoing, completed], default: completed}
       - {label: features, name: features, widget: hidden, required: false}
       - {label: legacySource, name: legacySource, widget: hidden, required: false}
       - {label: Теги, name: tags, widget: list, required: false}
@@ -119,20 +133,22 @@ collections:
       - {label: Обновлено, name: updated, widget: datetime, format: "YYYY-MM-DD", required: false}
       - {label: Скрыто с сайта, name: hidden, widget: boolean, default: false, required: false}
       - {label: relations, name: relations, widget: hidden, required: false}
+      - {label: gallery, name: gallery, widget: hidden, required: false}
       - {label: Текст, name: body, widget: markdown}
 
   - label: Проекты
     name: projects
     folder: src/content/projects
-    create: false
+    create: true
+    slug: "{{title}}"
     fields:
-      - {label: ID, name: id, widget: hidden, required: false}
-      - {label: Тип, name: kind, widget: hidden, required: false}
+      - {label: 'ID (вида project:moi-slug)', name: id, widget: string}
+      - {label: Тип, name: kind, widget: hidden, default: project, required: false}
       - {label: Заголовок, name: title, widget: string}
-      - {label: Описание, name: summary, widget: text, required: false}
-      - {label: Статус, name: status, widget: select, options: [idea, planned, development, active, paused, completed, archived], required: false}
+      - {label: Описание, name: summary, widget: text}
+      - {label: Статус, name: status, widget: select, options: [idea, planned, development, active, paused, completed, archived], default: planned}
       - {label: Начат, name: started, widget: string, required: false}
-      - {label: Домены, name: domains, widget: list, required: false}
+      - {label: Домены, name: domains, widget: list}
       - {label: Теги, name: tags, widget: list, required: false}
       - {label: Темы, name: topics, widget: list, required: false}
       - {label: entities, name: entities, widget: hidden, required: false}
@@ -148,12 +164,13 @@ collections:
   - label: Статьи
     name: articles
     folder: src/content/articles
-    create: false
+    create: true
+    slug: "{{title}}"
     fields:
-      - {label: ID, name: id, widget: hidden, required: false}
-      - {label: Тип, name: kind, widget: hidden, required: false}
+      - {label: 'ID (вида article:moi-slug)', name: id, widget: string}
+      - {label: Тип, name: kind, widget: hidden, default: article, required: false}
       - {label: Заголовок, name: title, widget: string}
-      - {label: Описание, name: summary, widget: text, required: false}
+      - {label: Описание, name: summary, widget: text}
       - {label: Дата, name: date, widget: datetime, format: "YYYY-MM-DD", required: false}
       - {label: Обновлено, name: updated, widget: datetime, format: "YYYY-MM-DD", required: false}
       - {label: Теги, name: tags, widget: list, required: false}
@@ -161,6 +178,7 @@ collections:
       - {label: entities, name: entities, widget: hidden, required: false}
       - {label: featured, name: featured, widget: hidden, required: false}
       - {label: legacySource, name: legacySource, widget: hidden, required: false}
+      - {label: sourceUrl, name: sourceUrl, widget: hidden, required: false}
       - {label: Скрыто с сайта, name: hidden, widget: boolean, default: false, required: false}
       - {label: relations, name: relations, widget: hidden, required: false}
       - {label: Текст, name: body, widget: markdown}
@@ -168,13 +186,14 @@ collections:
   - label: Лаборатория
     name: experiments
     folder: src/content/experiments
-    create: false
+    create: true
+    slug: "{{title}}"
     fields:
-      - {label: ID, name: id, widget: hidden, required: false}
-      - {label: Тип, name: kind, widget: hidden, required: false}
+      - {label: 'ID (вида experiment:moi-slug)', name: id, widget: string}
+      - {label: Тип, name: kind, widget: hidden, default: experiment, required: false}
       - {label: Заголовок, name: title, widget: string}
-      - {label: Описание, name: summary, widget: text, required: false}
-      - {label: Статус, name: status, widget: select, options: [live, soon], required: false}
+      - {label: Описание, name: summary, widget: text}
+      - {label: Статус, name: status, widget: select, options: [live, soon], default: soon}
       - {label: Адрес, name: href, widget: string, required: false}
       - {label: Репозиторий, name: repo, widget: string, required: false}
       - {label: Стек, name: stack, widget: list, required: false}
@@ -190,3 +209,16 @@ collections:
       - {label: Скрыто с сайта, name: hidden, widget: boolean, default: false, required: false}
       - {label: relations, name: relations, widget: hidden, required: false}
       - {label: Текст, name: body, widget: markdown}
+
+  - label: Страницы разделов
+    name: sections
+    folder: src/content/sections
+    create: false
+    fields:
+      - {label: ID, name: id, widget: hidden, required: false}
+      - {label: Тип, name: kind, widget: hidden, required: false}
+      - {label: Надзаголовок, name: kicker, widget: string, required: false}
+      - {label: Заголовок, name: title, widget: string}
+      - {label: SEO-описание, name: summary, widget: text}
+      - {label: Подводка, name: lead, widget: text, required: false}
+      - {label: Скрыто с сайта, name: hidden, widget: boolean, default: false, required: false}

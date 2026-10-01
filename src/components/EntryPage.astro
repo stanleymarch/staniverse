@@ -1,8 +1,9 @@
 ---
 import type { AnyEntry } from "../lib/content";
-import type { GraphEdge, GraphNode } from "../lib/graph";
+import { isLifeEntry, type GraphEdge, type GraphNode } from "../lib/graph";
 import Base from "../layouts/Base.astro";
 import LocalGraph from "./LocalGraph.astro";
+import ActivityPanel from "./ActivityPanel.astro";
 import TableOfContents from "./TableOfContents.astro";
 import { experimentStatus, hrefFor, kindLabel, projectStatus, workStatus } from "../lib/content";
 import { buildRecommendations } from "../lib/recommendations";
@@ -34,6 +35,15 @@ const channelVideos = entry.collection === "publications" && entry.data.channel?
   .filter((video) => video.data.kind === "youtube-video" && video.data.channel?.key === entry.data.channel?.key && video.id !== entry.id && ["verified", "own"].includes(video.data.ownership ?? ""))
   .sort((a, b) => (b.data.date?.getTime() ?? 0) - (a.data.date?.getTime() ?? 0))
   .slice(0, 8) : [];
+/* The life channel's own rhythm: every visible note of it, so the sidebar can
+   show a calendar and stats without touching the shared corpus. */
+const lifeActivity = isLifeEntry(entry) ? (await getCollection("publications")).filter((item) => item.data.channel?.key === "life" && !item.data.hidden) : undefined;
+const isoDay = (value: Date) => `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2, "0")}-${String(value.getDate()).padStart(2, "0")}`;
+const activity = lifeActivity ? {
+  dates: lifeActivity.map((item) => item.data.date).filter((value): value is Date => value instanceof Date).map(isoDay),
+  chars: lifeActivity.map((item) => (item.body ?? "").replace(/<!--[\s\S]*?-->/g, "").length),
+  topics: lifeActivity.flatMap((item) => item.data.topics.map((topic) => getTopicDefinition(topic)?.label ?? topic)),
+} : undefined;
 const sourceTags = entry.collection === "publications" ? entry.data.sourceTags ?? [] : entry.data.sourceTags ?? entry.data.tags;
 // A topic already implied by the author's own tag is not an "automatically found" hypothesis.
 const sourceTagIds = new Set(normalizeTopics(sourceTags));
@@ -193,9 +203,10 @@ const entryJsonLd: Record<string, unknown> = {
 
     <aside class="entry-aside">
       <TableOfContents headings={headings} />
+      {activity && <ActivityPanel dates={activity.dates} chars={activity.chars} topics={activity.topics} heading="Ритм канала" avgLabel="Средняя длина записи" unit="запись" />}
       <details class="graph-fold" open>
         <summary class="graph-fold__title">Связи рядом</summary>
-        <LocalGraph currentId={entry.data.id} nodes={nodes} edges={edges} />
+        <LocalGraph currentId={entry.data.id} nodes={nodes} edges={edges} universe={!isLifeEntry(entry)} />
       </details>
     </aside>
     </div>

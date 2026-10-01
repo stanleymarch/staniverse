@@ -14,9 +14,10 @@ const entries = (await getCollection("works"))
 const countByGenre = new Map<string, number>();
 for (const entry of entries) for (const genre of entry.data.genres) countByGenre.set(genre, (countByGenre.get(genre) ?? 0) + 1);
 const genres = [...new Set(entries.flatMap((entry) => entry.data.genres))].sort((a, b) => a.localeCompare(b, "ru"));
+const [section] = await getCollection("sections", (entry) => entry.id === "works");
 ---
-<Base title="Работы" description="Портфолио Станислава Ермоленко: XR и WebXR, виртуальные миры, сайты, автоматизация, видео и цифровые медиа — для заказчиков, конкурсов и собственных инициатив.">
-  <header class="catalog-hero"><div class="section-kicker">Портфолио</div><h1>Работы</h1><p class="hero-lead">Кейсы с рамкой «задача → решение → результат»: для заказчиков, конкурсов и собственных инициатив. Живые системы со статусом и следующим шагом собраны отдельно, в проектах</p><div class="catalog-controls" data-filter-controls><button class="filter-button active" data-filter="all">Все<small>{entries.length}</small></button>{genres.map((genre) => <button class="filter-button" data-filter={genre}>{genre}<small>{countByGenre.get(genre)}</small></button>)}</div></header>
+<Base title={section.data.title} description={section.data.summary}>
+  <header class="catalog-hero"><div class="section-kicker">{section.data.kicker}</div><div class="catalog-controls" data-filter-controls><button class="filter-button active" data-filter="all">Все<small>{entries.length}</small></button>{genres.map((genre) => <button class="filter-button" data-filter={genre}>{genre}<small>{countByGenre.get(genre)}</small></button>)}</div></header>
   <section class="section"><div class="card-grid" data-filter-grid>{entries.map((entry) => <ContentCard entry={entry} headingLevel="h2" />)}</div><div class="empty-state">В этом жанре пока нет работ.</div></section>
   <script is:inline src="/scripts/catalog-filter.js"></script>
 </Base>

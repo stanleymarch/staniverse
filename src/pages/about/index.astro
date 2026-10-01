@@ -1,14 +1,16 @@
 ---
 import Base from "../../layouts/Base.astro";
+import { getCollection } from "astro:content";
 
+const [section] = await getCollection("sections", (entry) => entry.id === "about");
 ---
-<Base title="Обо мне" description="Опыт, образование, инструменты и манифест Станислава Ермоленко: XR и WebXR, AI-автоматизация, цифровые архивы и медиа, работа с бизнесом, музеями и культурными проектами." pageType="AboutPage">
+<Base title={section.data.title} description={section.data.summary} pageType="AboutPage">
   <div class="about-page">
     <header class="catalog-hero about-hero">
       <div class="about-hero-copy">
-        <div class="section-kicker">Станислав Ермоленко</div>
-        <h1>Не человек<br />одной кнопки</h1>
-        <p class="hero-lead">Родился в 1994 году в Вятке, живу в Санкт-Петербурге. Соединяю технологии, память, медиа и место: делаю XR-миры, автоматизацию, цифровые архивы, тексты и видео там, где одного инструмента уже недостаточно</p>
+        <div class="section-kicker">{section.data.kicker}</div>
+        <h1>{section.data.title}</h1>
+        <p class="hero-lead">{section.data.lead}</p>
         <div class="hero-actions"><a class="button primary" href="mailto:stas@staniverse.xyz">Написать</a><a class="button" href="/cv/Stanislav-Ermolenko-CV-RU.pdf" download>Скачать CV</a></div>
       </div>
       <div class="about-hero-note"><span class="section-kicker">Сейчас</span><p>Практикую на стыке XR, AI, веба и медиа. Учусь в магистратуре ИТМО (2026 - н.в.).</p><a class="text-link" href="#path">К опыту и образованию <span aria-hidden="true">↓</span></a></div>
