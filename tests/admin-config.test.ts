@@ -48,8 +48,8 @@ test("admin config declares every frontmatter key of every collection it edits",
 test("the admin page loads its vendored bundle locally, under a neutral name", async () => {
   const adminDir = await findAdminDir();
   const page = await readFile(resolve("public", adminDir, "index.html"), "utf8");
-  const source = page.match(/src="([^"]+)"/)?.[1];
-  assert.ok(source?.startsWith("/vendor/"), `expected a vendored bundle reference, got ${source}`);
+  const source = page.match(/src="([^"]+)"/)?.[1] ?? "";
+  assert.ok(source.startsWith("/vendor/"), `expected a vendored bundle reference, got ${source}`);
   assert.ok(!source.includes("sveltia"), "the bundle file name must not name the CMS");
   assert.ok((await stat(resolve("public", source.slice(1)))).size > 1_000_000, "vendored CMS bundle is missing or truncated");
 });
