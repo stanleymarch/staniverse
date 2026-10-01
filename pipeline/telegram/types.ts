@@ -48,7 +48,8 @@ export interface CanonicalPublication {
   id: string;
   kind: "telegram-post"|"telegram-article";
   sourceId: string;
-  sourceUrl: string;
+  /** Absent when the source channel is private: no public t.me link may name it. */
+  sourceUrl?: string;
   date?: string;
   title?: string;
   editedDate?: string;

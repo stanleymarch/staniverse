@@ -4,7 +4,7 @@ import EntryPage from "../../components/EntryPage.astro";
 import { allEntries } from "../../lib/content";
 import { buildGraph } from "../../lib/graph";
 /* The manifesto renders at /manifesto/ as its own entity; every other article keeps this route. */
-export async function getStaticPaths(){ return (await getCollection("articles")).filter((entry) => entry.id !== "manifesto").map((entry)=>({params:{id:entry.id},props:{entry}})); }
+export async function getStaticPaths(){ return (await getCollection("articles")).filter((entry) => entry.id !== "manifesto" && !entry.data.hidden).map((entry)=>({params:{id:entry.id},props:{entry}})); }
 const { entry } = Astro.props;
 const graph = buildGraph(await allEntries());
 ---

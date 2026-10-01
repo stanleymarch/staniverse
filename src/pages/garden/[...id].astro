@@ -3,7 +3,7 @@ import { getCollection, type CollectionEntry } from "astro:content";
 import EntryPage from "../../components/EntryPage.astro";
 import { getSiteGraph } from "../../lib/site-graph";
 export async function getStaticPaths(){
-  const entries=await getCollection("publications");
+  const entries=(await getCollection("publications")).filter((entry)=>!entry.data.hidden);
   return entries.flatMap((entry)=>{
     const current={params:{id:entry.id},props:{entry}};
     if(entry.data.kind!=="telegram-post"&&entry.data.kind!=="telegram-article")return [current];
@@ -16,6 +16,6 @@ export async function getStaticPaths(){
 const { entry, destination } = Astro.props as { entry?: CollectionEntry<"publications">; destination?: string };
 if(destination)return Astro.redirect(destination,301);
 if(!entry)throw new Error("Publication route is missing both entry and redirect destination.");
-const graph = await getSiteGraph();
+const graph = await getSiteGraph(entry?.data.channel?.key === "life");
 ---
 <EntryPage entry={entry} nodes={graph.nodes} edges={graph.edges} />

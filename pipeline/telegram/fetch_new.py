@@ -224,7 +224,24 @@ async def fetch(args: argparse.Namespace) -> dict[str, Any]:
     session_string = os.environ.get("TELEGRAM_SESSION_STRING")
     session: Any = StringSession(session_string) if session_string else args.session
     async with TelegramClient(session, int(api_id), api_hash) as client:
-        entity = await client.get_entity(args.channel)
+        channel = int(args.channel) if args.channel.lstrip("-").isdigit() else args.channel
+        entity = None
+        try:
+            entity = await client.get_entity(channel)
+        except Exception:
+            if not isinstance(channel, int):
+                raise
+        if isinstance(channel, int) and getattr(entity, "id", None) != channel:
+            entity = None
+        if entity is None and isinstance(channel, int):
+            # A numeric id resolves through the session cache; on a cold cache the
+            # dialog list still knows the channel, so fall back to it.
+            async for dialog in client.iter_dialogs():
+                if getattr(dialog.entity, "id", None) == channel:
+                    entity = dialog.entity
+                    break
+        if entity is None:
+            raise ValueError(f'Cannot find any entity corresponding to "{args.channel}"')
         async for message in client.iter_messages(entity, min_id=since_id, reverse=True):
             if message:
                 messages.append(await serialize_message(client, message, output))

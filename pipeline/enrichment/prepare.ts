@@ -161,7 +161,7 @@ export function parseMaterializedPublication(raw: string, fileName: string): Can
   const fm = match[1];
   const body = match[2].trim();
   const sourceId = unquote(scalar(fm, "sourceId") || fileName.match(/(\d+)/)?.[1] || "");
-  if (!sourceId || !body) return undefined;
+  if (!sourceId) return undefined;
   return {
     id: "publication:telegram:staniverse:" + sourceId,
     sourceId,
@@ -185,11 +185,13 @@ function splitFrontmatter(raw: string) {
   return match ? { fm: match[1], body: match[2].trim() } : undefined;
 }
 
-export async function readPublications(input: string): Promise<CanonicalPublication[]> {
+export async function readPublications(input: string, opts: { pagesDir?: string } = {}): Promise<CanonicalPublication[]> {
   try {
     return (JSON.parse(await readFile(resolve(input), "utf8")) as Archive).publications;
   } catch {
-    const root = resolve("src/content/publications/telegram");
+    /* A channel without its archive in CI reconstructs from its own pages; the
+       staniverse fallback stays the default so existing callers are unchanged. */
+    const root = resolve(opts.pagesDir ?? "src/content/publications/telegram");
     const rows: CanonicalPublication[] = [];
     for (const file of (await readdir(root)).filter((f) => f.endsWith(".md"))) {
       const parsed = parseMaterializedPublication(await readFile(resolve(root, file), "utf8"), file);

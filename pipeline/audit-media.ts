@@ -4,6 +4,9 @@ import { readPublications } from "./enrichment/prepare";
 
 const root = resolve(process.argv[2] ?? "public/media/telegram");
 const archivePath = process.argv[3] ?? "pipeline/telegram/archive/canonical.json";
+// In materialized-only CI the life archive is as absent as the main one: the
+// pages directory of the same channel reconstructs the expected media set.
+const pagesDir = process.argv[4];
 // Caps track the real deploy platform limits: 100MB per file is Git's hard
 // ceiling (95 with headroom), 1GB is the GitHub Pages published-site limit
 // (950 with headroom). Tighter curation belongs to the import pipeline.
@@ -14,7 +17,7 @@ const sizes = await Promise.all(files.map(async (name) => ({ name, bytes: (await
 const totalBytes = sizes.reduce((sum, file) => sum + file.bytes, 0);
 const largest = sizes.sort((a, b) => b.bytes - a.bytes)[0];
 const oversized = sizes.filter((file) => file.bytes > maxFileBytes);
-const records = (await readPublications(archivePath)).flatMap((publication) => publication.media);
+const records = (await readPublications(archivePath, pagesDir ? { pagesDir } : {})).flatMap((publication) => publication.media);
 const expected = new Set(records.map((media) => media.publicPath?.split("/").pop()).filter((name): name is string => Boolean(name)));
 const actual = new Set(files);
 const missing = [...expected].filter((name) => !actual.has(name));

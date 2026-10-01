@@ -4,5 +4,18 @@
     "baseUrl": ".",
     "types": ["node"],
     "paths": { "@/*": ["src/*"] }
-  }
+  },
+  "exclude": [
+    "node_modules",
+    "dist",
+    "pipeline/telegram/incoming",
+    "pipeline/telegram/archive",
+    "pipeline/telegram/private",
+    "pipeline/telegram/.venv",
+    "public",
+    "test-results",
+    "tmp",
+    ".tmp",
+    ".omp"
+  ]
 }

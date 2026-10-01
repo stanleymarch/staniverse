@@ -53,6 +53,8 @@ jobs:
         run: npm run audit:content
       - name: Audit media
         run: npm run audit:media
+      - name: Audit life media
+        run: npm run audit:media:life
       - name: Verify videos
         run: npm run videos:verify
 

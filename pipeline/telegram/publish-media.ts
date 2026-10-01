@@ -6,7 +6,7 @@ import sharp from "sharp";
 import type { CanonicalPublication } from "./types";
 
 interface Archive {version:number;channel:string;publications:CanonicalPublication[]}
-const [archiveFile="pipeline/telegram/archive/canonical.json",sourceFolder="pipeline/telegram/archive/source",outputFolder="public/media/telegram"]=process.argv.slice(2);
+const [archiveFile="pipeline/telegram/archive/canonical.json",sourceFolder="pipeline/telegram/archive/source",outputFolder="public/media/telegram",publicPrefix="/media/telegram",pageFolder="src/content/publications/telegram"]=process.argv.slice(2);
 const archive=JSON.parse(await readFile(resolve(archiveFile),"utf8")) as Archive;const output=resolve(outputFolder);await mkdir(output,{recursive:true});
 const run=promisify(execFile);
 let written=0,reused=0,missing=0,sourceBytes=0,outputBytes=0;
@@ -31,7 +31,7 @@ for (const publication of archive.publications) for (const media of publication.
       // fresh as its source is reused, so a nightly sync costs seconds instead of
       // re-encoding the whole archive.
       if (existing && existing.size > 0 && existing.mtimeMs >= sourceInfo.mtimeMs) {
-        media.publicPath = `/media/telegram/${name}`;
+        media.publicPath = `${publicPrefix}/${name}`;
         reused++;
         return;
       }
@@ -46,7 +46,7 @@ for (const publication of archive.publications) for (const media of publication.
         await copyFile(source, target);
       }
       outputBytes += (await stat(target)).size;
-      media.publicPath = `/media/telegram/${name}`;
+      media.publicPath = `${publicPrefix}/${name}`;
       written++;
     } catch (error) { console.warn(`media skipped: ${media.sourcePath}: ${error instanceof Error ? error.message : String(error)}`); missing++; }
   });
@@ -62,11 +62,11 @@ await Promise.all(Array.from({ length: WORKERS }, async () => {
 // scheme fall out on the following run.
 const referenced = new Set<string>();
 for (const publication of archive.publications) for (const media of publication.media) if (media.publicPath) referenced.add(basename(media.publicPath));
-const pageDir = resolve("src/content/publications/telegram");
+const pageDir = resolve(pageFolder);
 for (const name of await readdir(pageDir).catch(() => [])) {
   if (!name.endsWith(".md")) continue;
   const page = await readFile(resolve(pageDir, name), "utf8");
-  for (const match of page.matchAll(/\/media\/telegram\/([^)"'\s]+)/g)) referenced.add(match[1]);
+  for (const match of page.matchAll(new RegExp(publicPrefix.replace(/[^/\w-]/g, "\\$&") + "/([^)\"'\\s]+)", "g"))) referenced.add(match[1]);
 }
 let pruned = 0;
 for (const name of await readdir(output)) if (!referenced.has(name)) { await rm(resolve(output, name), { force: true }); pruned++; }

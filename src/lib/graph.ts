@@ -50,8 +50,24 @@ export interface GraphEdge {
   status?: "proposed" | "accepted" | "rejected" | "needs-review" | "pending" | "confirmed" | "inferred";
 }
 
-export function buildGraph(entries: AnyEntry[]) {
-  const ids = new Set(entries.map((entry) => entry.data.id));
+export interface SiteGraph {
+  nodes: GraphNode[];
+  edges: GraphEdge[];
+}
+
+/** Life-channel trivia stays out of the shared graph: those publications keep a local
+ * graph on their own pages, but the corpus graph — Universe, /api/graph.json and every
+ * other entry's neighbourhood — is built from the curated channels only. */
+export function isLifeEntry(entry: AnyEntry) {
+  return entry.collection === "publications" && entry.data.channel?.key === "life";
+}
+
+export function buildGraph(entries: AnyEntry[], opts: { includeLife?: boolean; hiddenIds?: Set<string> } = {}): SiteGraph {
+  const scoped = opts.includeLife ? entries : entries.filter((entry) => !isLifeEntry(entry));
+  const censored: AnyEntry[] = opts.hiddenIds?.size
+    ? scoped.map((entry) => ({ ...entry, data: { ...entry.data, relations: entry.data.relations.filter((relation) => !opts.hiddenIds!.has(relation.target)) } }) as AnyEntry)
+    : scoped;
+  const ids = new Set(censored.map((entry) => entry.data.id));
   const hiddenStatuses = new Set(["rejected", "proposed", "pending", "needs-review"]);
   const visibleRelations = (entry: AnyEntry) => entry.data.relations.filter((relation) => {
     const status = relation.status === "rejected" || relation.reviewStatus === "rejected"
@@ -59,9 +75,9 @@ export function buildGraph(entries: AnyEntry[]) {
       : relation.reviewStatus ?? relation.status;
     return !status || !hiddenStatuses.has(status);
   });
-  const missing = entries.flatMap((entry) => visibleRelations(entry).filter((relation) => !ids.has(relation.target)).map((relation) => `${entry.data.id} -> ${relation.target}`));
+  const missing = censored.flatMap((entry) => visibleRelations(entry).filter((relation) => !ids.has(relation.target)).map((relation) => `${entry.data.id} -> ${relation.target}`));
   if (missing.length) throw new Error(`Graph contains relations to missing targets:\n${missing.join("\n")}`);
-  const entryNodes: GraphNode[] = entries.map((entry) => {
+  const entryNodes: GraphNode[] = censored.map((entry) => {
     const sourceTags = entry.data.sourceTags ?? entry.data.tags;
     const topicValues = entry.collection === "publications"
       ? entry.data.topics ?? []
@@ -80,7 +96,7 @@ export function buildGraph(entries: AnyEntry[]) {
       featured: entry.data.featured,
     };
   });
-  const topics = collectTopics(entries, true);
+  const topics = collectTopics(censored, true);
   const topicNodes: GraphNode[] = topics.map((topic) => ({
     id: `topic:${topic.id}`,
     title: topic.name,
@@ -91,7 +107,7 @@ export function buildGraph(entries: AnyEntry[]) {
     sourceTags: [],
     featured: topic.entries.length >= 20,
   }));
-  const explicit: GraphEdge[] = entries.flatMap((entry) =>
+  const explicit: GraphEdge[] = censored.flatMap((entry) =>
     visibleRelations(entry).map((relation) => ({ source: entry.data.id, ...relation })),
   );
   const topicEdges: GraphEdge[] = topics.flatMap((topic) => topic.entries.map((entry) => {

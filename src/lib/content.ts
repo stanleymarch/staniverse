@@ -55,7 +55,23 @@ export async function allEntries(): Promise<AnyEntry[]> {
     getCollection("experiments"),
     getCollection("publications"),
   ]);
-  return groups.flat() as AnyEntry[];
+  // Hidden entries are absent from every public surface built on this reader:
+  // listings, topics, feeds, sitemap, search, graphs. Route-level guards mirror it.
+  return groups.flat().filter((entry) => !entry.data.hidden) as AnyEntry[];
+}
+
+/** Ids of entries the public surfaces never see. The graph loader uses this to
+ * quietly drop relations bound for a hidden entry — a hidden post keeps its
+ * file, so links to it are stale by curation, not broken by data loss. */
+export async function hiddenEntryIds(): Promise<Set<string>> {
+  const groups = await Promise.all([
+    getCollection("works"),
+    getCollection("projects"),
+    getCollection("articles"),
+    getCollection("experiments"),
+    getCollection("publications"),
+  ]);
+  return new Set(groups.flat().filter((entry) => entry.data.hidden).map((entry) => entry.data.id));
 }
 
 export function byStableId(entries: AnyEntry[]) {

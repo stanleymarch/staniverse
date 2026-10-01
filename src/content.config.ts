@@ -82,6 +82,9 @@ const common = z.object({
   entities: z.array(z.string()).default([]),
   relations: z.array(relation).default([]),
   featured: z.boolean().default(false),
+  /** Editorial kill switch: a hidden entry keeps its file and history in git but is
+   * absent from every public surface — listings, feeds, sitemap, search, graph, routes. */
+  hidden: z.boolean().default(false),
   date: z.coerce.date().optional(),
   updated: z.coerce.date().optional(),
 });
@@ -147,7 +150,8 @@ const publications = defineCollection({
   loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/publications" }),
   schema: common.extend({
     kind: z.enum(["telegram-post", "telegram-article", "youtube-video", "video"]),
-    sourceUrl: z.url(),
+    /** Absent for publications from private channels: no public URL may name the source. */
+    sourceUrl: z.url().optional(),
     sourceId: z.string(),
     threadIds: z.array(z.string()).default([]),
     media: z.array(z.object({ sourcePath: z.string(), publicPath: z.string().optional(), type: z.enum(["image", "video", "audio", "document"]), messageId: z.number() })).default([]),
@@ -157,7 +161,7 @@ const publications = defineCollection({
     embedUrl: z.url().optional(),
     // Local poster copies (fetched by pipeline/fetch-video-posters.ts) or the CDN URL.
     thumbnailUrl: z.union([z.url(), z.string().regex(/^\/media\//)]).optional(),
-    channel: z.object({ key: z.string(), handle: z.string().optional(), platform: z.enum(["youtube", "vk"]) }).optional(),
+    channel: z.object({ key: z.string(), handle: z.string().optional(), platform: z.enum(["youtube", "vk", "telegram"]) }).optional(),
     channelId: z.string().optional(),
     verification: z.object({
       status: z.enum(["verified", "pending", "external"]),

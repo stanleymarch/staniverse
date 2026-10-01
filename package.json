@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro check && astro build",
+    "build": "NODE_OPTIONS=--max-old-space-size=8192 astro check && astro build",
     "postbuild": "node scripts/gen-og.mjs && node scripts/subset-fonts.mjs && node scripts/bind-dashes.mjs",
     "check": "astro check",
     "test": "node --import tsx --test tests/*.test.ts",
@@ -39,7 +39,14 @@
     "videos:verify": "tsx pipeline/verify-videos.ts",
     "videos:posters": "tsx pipeline/fetch-video-posters.ts",
     "card:print": "node scripts/gen-card-qr.mjs",
-    "check:encoding": "node scripts/check-encoding.mjs dist"
+    "check:encoding": "node scripts/check-encoding.mjs dist",
+    "telegram:life": "npm run telegram:life-media && npm run telegram:life-materialize",
+    "enrichment:life-label": "tsx pipeline/telegram/life-label.ts",
+    "telegram:life-materialize": "tsx pipeline/telegram/life-materialize.ts",
+    "telegram:life-media": "tsx pipeline/telegram/publish-media.ts pipeline/telegram/archive/life/canonical.json pipeline/telegram/archive/life/source public/media/telegram-life /media/telegram-life src/content/publications/telegram-life",
+    "audit:media:life": "tsx pipeline/audit-media.ts public/media/telegram-life pipeline/telegram/archive/life/canonical.json src/content/publications/telegram-life",
+    "telegram:life:update": "npm run telegram:fetch-new -- --channel $(node -e \"console.log(require('./pipeline/telegram/archive/life/state.json').entityId||'')\") --state pipeline/telegram/archive/life/state.json --canonical pipeline/telegram/archive/life/canonical.json --output pipeline/telegram/archive/life/incoming && npm run telegram:life-sync -- pipeline/telegram/archive/life/incoming/result.json && npm run enrichment:life-label && npm run telegram:life-media && npm run telegram:life-materialize",
+    "telegram:life-sync": "tsx pipeline/telegram/life-sync.ts"
   },
   "dependencies": {
     "@astrojs/check": "latest",

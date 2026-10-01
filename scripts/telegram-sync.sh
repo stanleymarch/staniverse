@@ -31,6 +31,11 @@ if [[ "$branch" != "master" ]]; then
   exit 1
 fi
 
+# Remote edits through the Sveltia admin land on master between runs: rebase
+# onto them so the nightly publisher never loses the push race. A dirty tree
+# or a conflict fails loudly here instead of pushing over someone's work.
+git pull --rebase origin master
+
 # Fetch new posts, merge the archive, rebuild media and materialize pages.
 # Baseline = highest sourceId already committed. state.json will not do here:
 # the fetch above bumps it before anything is published, so after a crashed run
@@ -87,6 +92,25 @@ publish() {
 npm run telegram:update
 restore_untouched
 publish "Telegram sync: $(date -u +%Y-%m-%dT%H:%MZ)" src/content/publications/telegram public/media/telegram || true
+
+# Life channel — same pipeline, separate channel and archive, auto-updates with
+# labeling. Without a resolved channel entity (see
+# pipeline/telegram/private/LIFE-OPS.md) this block is a no-op, so a machine
+# without the private channel stays green.
+life_id=$(node -e "const fs=require('fs');try{console.log(JSON.parse(fs.readFileSync('pipeline/telegram/archive/life/source/state.json','utf8')).entityId||'')}catch{console.log('')}")
+if [[ -n "$life_id" ]]; then
+  python3 pipeline/telegram/fetch_new.py --channel "$life_id" --state pipeline/telegram/archive/life/source/state.json --canonical pipeline/telegram/archive/life/canonical.json --output pipeline/telegram/archive/life/incoming
+  npm run telegram:life-sync -- pipeline/telegram/archive/life/incoming/result.json
+  npm run enrichment:life-label
+  npm run telegram:life-media
+  npm run telegram:life-materialize
+  publish "Telegram life sync: $(date -u +%Y-%m-%dT%H:%MZ)" src/content/publications/telegram-life public/media/telegram-life || true
+  mapfile -t life_suspects < <(jq -r '.[]' pipeline/telegram/archive/life/source/suspect.json 2>/dev/null || true)
+  if ((${#life_suspects[@]})); then
+    echo "SUSPECT EMPTY LIFE STUBS: ${life_suspects[*]} — upgrade telethon and rewind pipeline/telegram/archive/life/source/state.json to re-fetch"
+    exit 1
+  fi
+fi
 
 # Jev catch-up — only the leftovers, never the whole corpus. The chat-model
 # full runs (enrichment:prepare-full + openrouter-full + combine) paid per job

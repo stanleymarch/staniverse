@@ -151,6 +151,54 @@ test("keeps replies as their own publications with a typed reply relation", () =
   assert.deepEqual(posts[2].relations,[]);
 });
 
+test("without the live option even minute-apart replies stay separate publications", () => {
+  const posts = normalizeExport({messages:[
+    {id:1,date:"2026-01-01T09:00:00",date_unixtime:"1782000000",text:"Начало"},
+    {id:2,date:"2026-01-01T09:30:00",date_unixtime:"1782001800",reply_to_message_id:1,text:"Ответ через полчаса"},
+  ]});
+  assert.deepEqual(posts.map((post)=>post.sourceId),["1","2"]);
+});
+
+test("a reply chain inside the live window is one publication", () => {
+  const posts = normalizeExport({messages:[
+    {id:479,date:"2026-07-09T15:48:00",date_unixtime:"1000",text:"Начал строить с нуля"},
+    {id:481,date:"2026-07-09T16:45:00",date_unixtime:"4560",reply_to_message_id:479,text:"Инсайты"},
+    {id:484,date:"2026-07-09T20:26:00",date_unixtime:"17880",reply_to_message_id:481,text:"Финал вечера"},
+  ]},"staniverse",{liveMergeHours:6});
+  assert.deepEqual(posts.map((post)=>post.sourceId),["479"]);
+  assert.deepEqual(posts[0].threadIds,["479","481","484"]);
+  assert.deepEqual(posts[0].relations,[]);
+});
+
+test("a topic picked back up after the live window is its own post tied by reply-to", () => {
+  const posts = normalizeExport({messages:[
+    {id:14,date:"2026-01-01T09:00:00",date_unixtime:"1782000000",text:"Тема началась"},
+    {id:57,date:"2026-01-10T04:00:00",date_unixtime:"1782777600",reply_to_message_id:14,text:"Возвращение к теме"},
+  ]},"staniverse",{liveMergeHours:6});
+  assert.deepEqual(posts.map((post)=>post.sourceId),["14","57"]);
+  assert.deepEqual(posts[1].relations,[{targetId:"publication:telegram:staniverse:14",type:"reply-to",evidence:"telegram-reply",confidence:1}]);
+});
+
+test("the live window cuts at six hours sharp", () => {
+  const posts = normalizeExport({messages:[
+    {id:1,date:"2026-01-01T09:00:00",date_unixtime:"1782000000",text:"Вечер"},
+    {id:2,date:"2026-01-01T14:59:00",date_unixtime:"1782021540",reply_to_message_id:1,text:"Почти шесть часов спустя"},
+    {id:3,date:"2026-01-01T21:01:00",date_unixtime:"1782043260",reply_to_message_id:2,text:"После окна"},
+  ]},"staniverse",{liveMergeHours:6});
+  assert.deepEqual(posts.map((post)=>post.sourceId),["1","3"]);
+  assert.deepEqual(posts[1].relations,[{targetId:"publication:telegram:staniverse:1",type:"reply-to",evidence:"telegram-reply",confidence:1}]);
+});
+
+test("an album replying inside a live chain rides with its anchor", () => {
+  const posts = normalizeExport({messages:[
+    {id:200,date:"2026-06-20T22:00:00",date_unixtime:"1782000000",text:"Основа"},
+    {id:201,date:"2026-06-20T22:30:00",date_unixtime:"1782001800",photo:"photos/a.jpg",text:"Вечеринка",reply_to_message_id:200},
+    {id:202,date:"2026-06-20T22:30:00",date_unixtime:"1782001800",photo:"photos/b.jpg",text:""},
+    {id:203,date:"2026-06-20T23:30:00",date_unixtime:"1782005400",text:"Поздний итог",reply_to_message_id:201},
+  ]},"staniverse",{liveMergeHours:6});
+  assert.deepEqual(posts.map((post)=>post.sourceId),["200"]);
+  assert.equal(posts[0].media.length,2);
+});
 test("keeps a linked continuation as its own publication with a continuation relation", () => {
   const posts = normalizeExport({messages:[{id:30,text:"Первая часть"},{id:31,text:"Продолжение https://t.me/staniverse/30"}]});
   assert.deepEqual(posts.map((post)=>post.sourceId),["30","31"]);

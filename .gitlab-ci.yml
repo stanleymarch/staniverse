@@ -14,6 +14,7 @@ deploy-pages:
     - npm test
     - npm run audit:content
     - npm run audit:media
+    - npm run audit:media:life
     - npm run videos:verify
     - npm run build
   pages:

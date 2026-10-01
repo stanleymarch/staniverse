@@ -115,8 +115,8 @@ function relationsFor(group: { rootId: number; messages: TelegramMessage[] }, ha
   return [...byTarget.values()];
 }
 
-export function normalizeExport(data: TelegramExport, handle = "staniverse"): CanonicalPublication[] {
-  const groups = buildPublications(data.messages).filter((group) => {
+export function normalizeExport(data: TelegramExport, handle = "staniverse", opts: { liveMergeHours?: number; publicSource?: boolean } = {}): CanonicalPublication[] {
+  const groups = buildPublications(data.messages, opts).filter((group) => {
     // The garden is authored content only: a forwarded post is someone else's
     // work, so the whole album is skipped, not republished under our name.
     return !group.messages.some((message) => message.forwarded_from);
@@ -136,7 +136,7 @@ export function normalizeExport(data: TelegramExport, handle = "staniverse"): Ca
       id: `publication:telegram:${handle}:${group.rootId}`,
       kind: anchor.rich_message ? "telegram-article" : "telegram-post",
       sourceId: String(group.rootId),
-      sourceUrl: `https://t.me/${handle}/${group.rootId}`,
+      sourceUrl: opts.publicSource === false ? undefined : `https://t.me/${handle}/${group.rootId}`,
       date: anchor.date,
       editedDate,
       threadIds: group.messages.map((message) => String(message.id)),

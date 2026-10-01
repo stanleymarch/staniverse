@@ -1,0 +1,192 @@
+# Two ways in:
+#  * remotely — «Sign In with GitHub Using Token» on the login screen: paste a
+#    fine-grained personal access token (this repository only, Contents: Read
+#    and write). The browser then talks to the GitHub API directly — commits,
+#    GPG-signed by Sveltia, land on master and deploy through the usual Actions
+#    pipeline. No OAuth app, no proxy, nothing extra to host.
+#  * on the workstation — «Work with Local Repository»: edits the working copy
+#    directly, commits and pushes stay a manual git step.
+backend:
+  name: github
+  repo: stanleymarch/staniverse
+  branch: master
+media_folder: public/media/admin-uploads
+public_folder: /media/admin-uploads
+omit_empty_optional_fields: true
+
+collections:
+  - label: Лайф-канал
+    name: life
+    folder: src/content/publications/telegram-life
+    create: false
+    fields:
+      - {label: ID, name: id, widget: hidden, required: false}
+      - {label: Тип, name: kind, widget: hidden, required: false}
+      - {label: Заголовок, name: title, widget: string}
+      - {label: Описание, name: summary, widget: text, required: false}
+      - {label: Дата, name: date, widget: datetime, format: "YYYY-MM-DD", required: false}
+      - {label: Обновлено, name: updated, widget: datetime, format: "YYYY-MM-DD", required: false}
+      - {label: Теги источника, name: tags, widget: list, required: false}
+      - {label: sourceTags, name: sourceTags, widget: hidden, required: false}
+      - {label: Темы, name: topics, widget: list, required: false}
+      - {label: entities, name: entities, widget: hidden, required: false}
+      - {label: sourceId, name: sourceId, widget: hidden, required: false}
+      - {label: threadIds, name: threadIds, widget: hidden, required: false}
+      - {label: media, name: media, widget: hidden, required: false}
+      - {label: featured, name: featured, widget: hidden, required: false}
+      - {label: Скрыто с сайта, name: hidden, widget: boolean, default: false, required: false}
+      - {label: channel, name: channel, widget: hidden, required: false}
+      - {label: relations, name: relations, widget: hidden, required: false}
+      - {label: Текст, name: body, widget: markdown}
+
+  - label: Станивёрс (Telegram)
+    name: telegram
+    folder: src/content/publications/telegram
+    create: false
+    fields:
+      - {label: ID, name: id, widget: hidden, required: false}
+      - {label: Тип, name: kind, widget: hidden, required: false}
+      - {label: Заголовок, name: title, widget: string}
+      - {label: Описание, name: summary, widget: text, required: false}
+      - {label: Дата, name: date, widget: datetime, format: "YYYY-MM-DD", required: false}
+      - {label: Обновлено, name: updated, widget: datetime, format: "YYYY-MM-DD", required: false}
+      - {label: Теги источника, name: tags, widget: list, required: false}
+      - {label: sourceTags, name: sourceTags, widget: hidden, required: false}
+      - {label: Темы, name: topics, widget: list, required: false}
+      - {label: entities, name: entities, widget: hidden, required: false}
+      - {label: sourceUrl, name: sourceUrl, widget: hidden, required: false}
+      - {label: sourceId, name: sourceId, widget: hidden, required: false}
+      - {label: threadIds, name: threadIds, widget: hidden, required: false}
+      - {label: media, name: media, widget: hidden, required: false}
+      - {label: featured, name: featured, widget: hidden, required: false}
+      - {label: Скрыто с сайта, name: hidden, widget: boolean, default: false, required: false}
+      - {label: relations, name: relations, widget: hidden, required: false}
+      - {label: Текст, name: body, widget: markdown}
+
+  - label: Видео (VK / YouTube)
+    name: video
+    folder: src/content/publications/video
+    create: false
+    fields:
+      - {label: ID, name: id, widget: hidden, required: false}
+      - {label: Тип, name: kind, widget: hidden, required: false}
+      - {label: Заголовок, name: title, widget: string}
+      - {label: Описание, name: summary, widget: text, required: false}
+      - {label: Дата, name: date, widget: datetime, format: "YYYY-MM-DD", required: false}
+      - {label: Обновлено, name: updated, widget: datetime, format: "YYYY-MM-DD", required: false}
+      - {label: Теги источника, name: tags, widget: list, required: false}
+      - {label: Темы, name: topics, widget: list, required: false}
+      - {label: entities, name: entities, widget: hidden, required: false}
+      - {label: sourceUrl, name: sourceUrl, widget: hidden, required: false}
+      - {label: sourceId, name: sourceId, widget: hidden, required: false}
+      - {label: threadIds, name: threadIds, widget: hidden, required: false}
+      - {label: media, name: media, widget: hidden, required: false}
+      - {label: platform, name: platform, widget: hidden, required: false}
+      - {label: videoId, name: videoId, widget: hidden, required: false}
+      - {label: format, name: format, widget: hidden, required: false}
+      - {label: embedUrl, name: embedUrl, widget: hidden, required: false}
+      - {label: thumbnailUrl, name: thumbnailUrl, widget: hidden, required: false}
+      - {label: channelId, name: channelId, widget: hidden, required: false}
+      - {label: channel, name: channel, widget: hidden, required: false}
+      - {label: ownership, name: ownership, widget: hidden, required: false}
+      - {label: verification, name: verification, widget: hidden, required: false}
+      - {label: featured, name: featured, widget: hidden, required: false}
+      - {label: Скрыто с сайта, name: hidden, widget: boolean, default: false, required: false}
+      - {label: relations, name: relations, widget: hidden, required: false}
+      - {label: Текст, name: body, widget: markdown}
+
+  - label: Работы
+    name: works
+    folder: src/content/works
+    create: false
+    fields:
+      - {label: ID, name: id, widget: hidden, required: false}
+      - {label: Тип, name: kind, widget: hidden, required: false}
+      - {label: Заголовок, name: title, widget: string}
+      - {label: Описание, name: summary, widget: text, required: false}
+      - {label: Год, name: year, widget: string, required: false}
+      - {label: Жанры, name: genres, widget: list, required: false}
+      - {label: Роль, name: role, widget: text, required: false}
+      - {label: Клиент, name: client, widget: string, required: false}
+      - {label: Статус, name: status, widget: select, options: [ongoing, completed], required: false}
+      - {label: features, name: features, widget: hidden, required: false}
+      - {label: legacySource, name: legacySource, widget: hidden, required: false}
+      - {label: Теги, name: tags, widget: list, required: false}
+      - {label: Темы, name: topics, widget: list, required: false}
+      - {label: entities, name: entities, widget: hidden, required: false}
+      - {label: featured, name: featured, widget: hidden, required: false}
+      - {label: Дата, name: date, widget: datetime, format: "YYYY-MM-DD", required: false}
+      - {label: Обновлено, name: updated, widget: datetime, format: "YYYY-MM-DD", required: false}
+      - {label: Скрыто с сайта, name: hidden, widget: boolean, default: false, required: false}
+      - {label: relations, name: relations, widget: hidden, required: false}
+      - {label: Текст, name: body, widget: markdown}
+
+  - label: Проекты
+    name: projects
+    folder: src/content/projects
+    create: false
+    fields:
+      - {label: ID, name: id, widget: hidden, required: false}
+      - {label: Тип, name: kind, widget: hidden, required: false}
+      - {label: Заголовок, name: title, widget: string}
+      - {label: Описание, name: summary, widget: text, required: false}
+      - {label: Статус, name: status, widget: select, options: [idea, planned, development, active, paused, completed, archived], required: false}
+      - {label: Начат, name: started, widget: string, required: false}
+      - {label: Домены, name: domains, widget: list, required: false}
+      - {label: Теги, name: tags, widget: list, required: false}
+      - {label: Темы, name: topics, widget: list, required: false}
+      - {label: entities, name: entities, widget: hidden, required: false}
+      - {label: featured, name: featured, widget: hidden, required: false}
+      - {label: legacySource, name: legacySource, widget: hidden, required: false}
+      - {label: Дата, name: date, widget: datetime, format: "YYYY-MM-DD", required: false}
+      - {label: Обновлено, name: updated, widget: datetime, format: "YYYY-MM-DD", required: false}
+      - {label: Скрыто с сайта, name: hidden, widget: boolean, default: false, required: false}
+      - {label: relations, name: relations, widget: hidden, required: false}
+      - {label: gallery, name: gallery, widget: hidden, required: false}
+      - {label: Текст, name: body, widget: markdown}
+
+  - label: Статьи
+    name: articles
+    folder: src/content/articles
+    create: false
+    fields:
+      - {label: ID, name: id, widget: hidden, required: false}
+      - {label: Тип, name: kind, widget: hidden, required: false}
+      - {label: Заголовок, name: title, widget: string}
+      - {label: Описание, name: summary, widget: text, required: false}
+      - {label: Дата, name: date, widget: datetime, format: "YYYY-MM-DD", required: false}
+      - {label: Обновлено, name: updated, widget: datetime, format: "YYYY-MM-DD", required: false}
+      - {label: Теги, name: tags, widget: list, required: false}
+      - {label: Темы, name: topics, widget: list, required: false}
+      - {label: entities, name: entities, widget: hidden, required: false}
+      - {label: featured, name: featured, widget: hidden, required: false}
+      - {label: legacySource, name: legacySource, widget: hidden, required: false}
+      - {label: Скрыто с сайта, name: hidden, widget: boolean, default: false, required: false}
+      - {label: relations, name: relations, widget: hidden, required: false}
+      - {label: Текст, name: body, widget: markdown}
+
+  - label: Лаборатория
+    name: experiments
+    folder: src/content/experiments
+    create: false
+    fields:
+      - {label: ID, name: id, widget: hidden, required: false}
+      - {label: Тип, name: kind, widget: hidden, required: false}
+      - {label: Заголовок, name: title, widget: string}
+      - {label: Описание, name: summary, widget: text, required: false}
+      - {label: Статус, name: status, widget: select, options: [live, soon], required: false}
+      - {label: Адрес, name: href, widget: string, required: false}
+      - {label: Репозиторий, name: repo, widget: string, required: false}
+      - {label: Стек, name: stack, widget: list, required: false}
+      - {label: Типы, name: types, widget: list, required: false}
+      - {label: Платформы, name: platforms, widget: list, required: false}
+      - {label: capabilities, name: capabilities, widget: hidden, required: false}
+      - {label: Теги, name: tags, widget: list, required: false}
+      - {label: Темы, name: topics, widget: list, required: false}
+      - {label: entities, name: entities, widget: hidden, required: false}
+      - {label: featured, name: featured, widget: hidden, required: false}
+      - {label: Дата, name: date, widget: datetime, format: "YYYY-MM-DD", required: false}
+      - {label: Обновлено, name: updated, widget: datetime, format: "YYYY-MM-DD", required: false}
+      - {label: Скрыто с сайта, name: hidden, widget: boolean, default: false, required: false}
+      - {label: relations, name: relations, widget: hidden, required: false}
+      - {label: Текст, name: body, widget: markdown}

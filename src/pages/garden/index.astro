@@ -10,7 +10,7 @@ import "../../styles/garden.css";
 const gardenDate = (entry: Awaited<ReturnType<typeof getCollection>>[number]) =>
   entry.data.date ?? (entry.collection === "projects" ? undefined : entry.data.updated);
 const included = [...await getCollection("articles"), ...await getCollection("publications"), ...await getCollection("projects"), ...await getCollection("works")]
-  .filter((entry) => entry.id !== "manifesto" && (entry.collection !== "publications" || !["video", "youtube-video"].includes(entry.data.kind) || entry.data.ownership === "verified" || entry.data.ownership === "own"))
+  .filter((entry) => !entry.data.hidden && entry.id !== "manifesto" && (entry.collection !== "publications" || !["video", "youtube-video"].includes(entry.data.kind) || entry.data.ownership === "verified" || entry.data.ownership === "own"))
   .sort((a, b) => (gardenDate(b)?.getTime() ?? 0) - (gardenDate(a)?.getTime() ?? 0));
 const topics = collectTopics(included, true);
 const projects = new Map(included.filter((entry) => entry.collection === "projects").map((entry) => [entry.data.id, entry.data.title]));
@@ -63,7 +63,7 @@ const records = included.map((entry) => {
     media: entry.collection === "publications" ? entry.data.media.length : 0,
     thumbnail: entry.collection === "publications" ? (entry.data.thumbnailUrl ?? entry.data.media.find((item) => item.type === "image")?.publicPath) : undefined,
     channelKey: entry.collection === "publications" ? entry.data.channel?.key : undefined,
-    channelLabel: entry.collection === "publications" && entry.data.channel?.key === "ya-ty-gorod" ? "я.ты.город." : entry.collection === "publications" && entry.data.channel?.key === "staniverse" ? "станивёрс" : undefined,
+    channelLabel: entry.collection === "publications" && entry.data.channel?.key === "ya-ty-gorod" ? "я.ты.город." : entry.collection === "publications" && entry.data.channel?.key === "staniverse" ? "станивёрс" : entry.collection === "publications" && entry.data.channel?.key === "life" ? "лайф" : undefined,
     relations: relationsByRecord.get(entry.data.id) ?? [],
     projectIds: [] as string[],
   };
@@ -186,6 +186,7 @@ const cloudTopics = [...topics].sort((a, b) => b.entries.length - a.entries.leng
               <label><input type="checkbox" value="staniverse" data-channel-filter /><span>станивёрс</span></label>
               <label><input type="checkbox" value="ya-ty-gorod" data-channel-filter /><span>я.ты.город.</span></label>
               {relationProjects.map((project) => <label><input type="checkbox" value={project.id} data-project-filter /><span>{project.title}</span></label>)}
+              <label><input type="checkbox" value="life" data-channel-filter /><span>лайф</span></label>
               <label><input type="checkbox" value="with-media" data-media-filter /><span>Только с медиа</span></label>
             </div>
           </fieldset>

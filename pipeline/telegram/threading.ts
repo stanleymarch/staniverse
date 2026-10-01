@@ -108,7 +108,7 @@ function albumAnchors(messages: TelegramMessage[]): Map<number, number> {
   return anchors;
 }
 
-export function buildPublications(input: TelegramMessage[]): PublicationGroup[] {
+export function buildPublications(input: TelegramMessage[], opts: { liveMergeHours?: number } = {}): PublicationGroup[] {
   const messages = [...new Map(input.filter((message) => message.type !== "service").map((message) => [message.id, message])).values()].sort((a, b) => a.id - b.id);
   const anchors = albumAnchors(messages);
   const rootOf = new Map<number, number>();
@@ -118,6 +118,9 @@ export function buildPublications(input: TelegramMessage[]): PublicationGroup[] 
     rootOf.set(message.id, root);
     membersOf.set(root, [...membersOf.get(root) ?? [], message.id]);
   }
+
+  if (opts.liveMergeHours !== undefined) mergeReplyLives(messages, anchors, rootOf, membersOf, opts.liveMergeHours);
+
   // Explicit continuations (a t.me link or a numbered target) are relations, not merges:
   // the author points at a specific post, which keeps its own page. A lead phrase with
   // no target merges into the previous publication, and chains merge transitively
@@ -153,5 +156,46 @@ export function buildPublications(input: TelegramMessage[]): PublicationGroup[] 
     telegramPostLink.lastIndex = 0;
     for (const match of text.matchAll(telegramPostLink)) if (ids.has(Number(match[2]))) return true;
     return false;
+  }
+
+  /** A life channel's live report: a reply chain the author keeps adding to over a
+   * few hours is one evening at an event, not a series of publications. Every reply
+   * edge is examined at album-anchor level — a whole album is the unit that answers —
+   * and the chain closes a segment once the gap to its latest message exceeds the
+   * threshold. A topic picked back up days later therefore opens its own publication,
+   * still tied to the earlier one by the reply-to relation the normalizer records. */
+  function mergeReplyLives(messages: TelegramMessage[], anchors: Map<number, number>, rootOf: Map<number, number>, membersOf: Map<number, number[]>, hours: number) {
+    const chainOf = new Map<number, number>(messages.map((message) => [message.id, message.id]));
+    const find = (id: number): number => {
+      let root = id;
+      while (chainOf.get(root) !== root) root = chainOf.get(root)!;
+      for (let walk = id; walk !== root;) { const next = chainOf.get(walk)!; chainOf.set(walk, root); walk = next; }
+      return root;
+    };
+    for (const message of messages) {
+      const target = message.reply_to_message_id;
+      if (target === undefined || !chainOf.has(target)) continue;
+      const from = find(anchors.get(message.id) ?? message.id);
+      const into = find(anchors.get(target) ?? target);
+      if (from !== into) chainOf.set(from, into);
+    }
+    const latest = new Map<number, { id: number; time: number }>();
+    for (const message of messages) {
+      // Album members ride on their anchor; only anchors open or continue a segment.
+      if ((anchors.get(message.id) ?? message.id) !== message.id) continue;
+      const chain = find(message.id);
+      const time = Number(message.date_unixtime) || (message.date ? Date.parse(message.date) / 1000 : Number.NaN);
+      const last = latest.get(chain);
+      if (last && Number.isFinite(time) && Number.isFinite(last.time) && time - last.time <= hours * 3600) {
+        const from = rootOf.get(message.id)!;
+        const into = rootOf.get(last.id)!;
+        if (from !== into) {
+          for (const memberId of membersOf.get(from) ?? []) rootOf.set(memberId, into);
+          membersOf.set(into, [...(membersOf.get(into) ?? []), ...(membersOf.get(from) ?? [])]);
+          membersOf.delete(from);
+        }
+      }
+      latest.set(chain, { id: message.id, time });
+    }
   }
 }

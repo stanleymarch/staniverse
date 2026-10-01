@@ -3,7 +3,7 @@ import { getCollection } from "astro:content";
 import EntryPage from "../../components/EntryPage.astro";
 import { allEntries } from "../../lib/content";
 import { buildGraph } from "../../lib/graph";
-export async function getStaticPaths(){ return (await getCollection("works")).map((entry)=>({params:{id:entry.id},props:{entry}})); }
+export async function getStaticPaths(){ return (await getCollection("works")).filter((entry)=>!entry.data.hidden).map((entry)=>({params:{id:entry.id},props:{entry}})); }
 const { entry } = Astro.props;
 const graph = buildGraph(await allEntries());
 ---
