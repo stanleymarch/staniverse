@@ -1,7 +1,7 @@
 import type { Camera, CanvasTexture, Group, Line, LineBasicMaterial, LineSegments, Material, Mesh, Points, Quaternion, Ray, Vector3, XRTargetRaySpace } from "three";
 import type { GraphEdge, GraphNode } from "../../lib/graph";
 import { provenanceField, relationLabel } from "../../lib/graph-visuals";
-import { applyRadialDeadzone, arContentLift, arDiameterForMode, arModeSurrounds, cameraArOffer, cameraRelativeStep, createGestureTracker, experienceStateForAr, nearestScreenTarget, nextArPlacementState, nextExperienceState, nextSnapTurn, normalizedArContentTransform, xrOffer, AR_SURROUND_EYE_DROP_M, VR_SPEED_METERS_PER_SECOND, type ArPlacementEvent, type ArPlacementMode, type ArPlacementState, type ExperienceState, type SnapTurnState } from "../../lib/xr-experience";
+import { applyRadialDeadzone, arContentLift, arDiameterForMode, arModeSurrounds, cameraArOffer, cameraRelativeStep, createGestureTracker, experienceStateForAr, nearestScreenTarget, nextArPlacementState, nextExperienceState, nextSnapTurn, normalizedArContentTransform, xrOffer, xrStickRise, AR_SURROUND_EYE_DROP_M, VR_SPEED_METERS_PER_SECOND, type ArPlacementEvent, type ArPlacementMode, type ArPlacementState, type ExperienceState, type SnapTurnState } from "../../lib/xr-experience";
 import { startCameraAr, type CameraArSession, type CameraArStateEvent } from "./UniverseCameraAr";
 import { NODE_LABELS, UniverseWorld } from "./UniverseWorld";
 import { GenerativeUniverseAudio } from "./UniverseAudio";
@@ -795,6 +795,26 @@ export async function mountUniverse(scope: ParentNode = document) {
 
     const controllerRayGeometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1)]);
     const xrControllers: XRTargetRaySpace[] = [];
+    // Which XRInputSource each controller object currently mirrors. three.js binds sources to
+    // controllers in connect order, so the `connected` event is the only reliable mapping —
+    // it also tells haptics which gamepad to pulse and hands from controllers apart.
+    const controllerSources = new Map<XRTargetRaySpace, XRInputSource>();
+    /** Haptics are decoration: fire-and-forget, and never loud enough to throw. */
+    const pulseSource = (source: XRInputSource | undefined, intensity: number, durationMs: number) => {
+      try {
+        const actuator = source?.gamepad?.hapticActuators?.[0];
+        if (!actuator) return;
+        const fired = typeof actuator.pulse === "function"
+          ? actuator.pulse(intensity, durationMs)
+          : actuator.playEffect?.("dual-rumble", { duration: durationMs, strongMagnitude: intensity, weakMagnitude: intensity * .6 });
+        fired?.catch?.(() => undefined);
+      } catch { /* a stub actuator must never break the frame loop */ }
+    };
+    const pulseController = (xrController: XRTargetRaySpace, intensity: number, durationMs: number) => pulseSource(controllerSources.get(xrController), intensity, durationMs);
+    // A held pinch below this travel is a tap, not a pull; per-frame jumps above the cap are tracking loss.
+    const HAND_DRAG_ENGAGE_M = .03;
+    const HAND_DRAG_MAX_STEP_M = .4;
+    const handDrags = new Map<XRTargetRaySpace, { previous: Vector3; engaged: boolean; travel: number }>();
     for (let index = 0; index < 2; index += 1) {
       const xrController = renderer.xr.getController(index);
       const ray = new THREE.Line(controllerRayGeometry, new THREE.LineBasicMaterial({ color: 0x6de1f4, transparent: true, opacity: .78 }));
@@ -802,6 +822,33 @@ export async function mountUniverse(scope: ParentNode = document) {
       xrController.add(ray);
       cameraRig.add(xrController);
       xrControllers.push(xrController);
+      const onConnected = (event: { data?: XRInputSource }) => {
+        if (!event.data) return;
+        controllerSources.set(xrController, event.data);
+        if (event.data.hand && renderer.xr.isPresenting) {
+          announce("Управление руками активно: щипок по звезде выбирает её, щипок с перемещением руки тянет пространство, сжатие кисти открывает и закрывает панель.");
+        }
+      };
+      const onDisconnected = () => { controllerSources.delete(xrController); handDrags.delete(xrController); };
+      xrController.addEventListener("connected", onConnected);
+      xrController.addEventListener("disconnected", onDisconnected);
+      xrDisposers.push(() => {
+        xrController.removeEventListener("connected", onConnected);
+        xrController.removeEventListener("disconnected", onDisconnected);
+      });
+      const dragStart = () => {
+        const source = controllerSources.get(xrController);
+        // Controllers keep their sticks; the drag is the hand substitute for locomotion.
+        if (!renderer.xr.isPresenting || activeXrMode !== "immersive-vr" || source?.gamepad || source?.targetRayMode !== "tracked-pointer") return;
+        handDrags.set(xrController, { previous: xrController.getWorldPosition(new THREE.Vector3()), engaged: false, travel: 0 });
+      };
+      const dragEnd = () => { handDrags.delete(xrController); };
+      xrController.addEventListener("selectstart", dragStart);
+      xrController.addEventListener("selectend", dragEnd);
+      xrDisposers.push(() => {
+        xrController.removeEventListener("selectstart", dragStart);
+        xrController.removeEventListener("selectend", dragEnd);
+      });
     }
 
     let arState: ArPlacementState = "idle";
@@ -1207,41 +1254,64 @@ export async function mountUniverse(scope: ParentNode = document) {
       scene.add(panelGroup);
       return panelGroup;
     };
+    // The in-scene panel matches the site's frosted-glass cards: a translucent blue-tinted
+    // surface, a hairline border, a lit top edge (--glass-hi) and a soft outer glow. Blur and
+    // saturation cannot travel into a canvas texture, so layered tints stand in for them.
+    // Positions and sizes stay fixed: the invisible ray-hit planes sit on top of them.
     const drawPanel = () => {
       if (!panelCanvas || !panelTexture) return;
       const context = panelCanvas.getContext("2d");
       if (!context) return;
       context.clearRect(0, 0, 1024, 640);
+      const glass = context.createLinearGradient(0, 0, 0, 640);
+      glass.addColorStop(0, "rgba(26,38,66,.66)");
+      glass.addColorStop(.5, "rgba(13,25,48,.72)");
+      glass.addColorStop(1, "rgba(8,14,28,.8)");
       context.beginPath();
       context.roundRect(6, 6, 1012, 628, 28);
-      context.fillStyle = "rgba(10,14,26,.82)";
+      context.save();
+      context.shadowColor = "rgba(1,5,16,.6)";
+      context.shadowBlur = 44;
+      context.fillStyle = glass;
       context.fill();
-      context.strokeStyle = "rgba(238,243,255,.22)";
+      context.restore();
+      // The blue breath of --glass across the whole pane.
+      context.fillStyle = "rgba(120,184,255,.07)";
+      context.fill();
+      // --glass-line border with a cyan ambient halo.
+      context.save();
+      context.shadowColor = "rgba(121,215,242,.28)";
+      context.shadowBlur = 18;
+      context.strokeStyle = "rgba(169,216,255,.22)";
       context.lineWidth = 2;
       context.stroke();
-      context.beginPath();
-      context.roundRect(6, 6, 1012, 120, [28, 28, 0, 0]);
-      context.fillStyle = "rgba(238,243,255,.06)";
-      context.fill();
-      context.beginPath();
-      context.roundRect(6, 6, 1012, 628, 28);
-      context.strokeStyle = "rgba(127,212,240,.4)";
+      context.restore();
+      // --glass-hi: one lit hairline under the top edge, fading at both ends.
+      const topLight = context.createLinearGradient(48, 0, 976, 0);
+      topLight.addColorStop(0, "rgba(238,243,255,0)");
+      topLight.addColorStop(.25, "rgba(238,243,255,.2)");
+      topLight.addColorStop(.75, "rgba(238,243,255,.2)");
+      topLight.addColorStop(1, "rgba(238,243,255,0)");
+      context.strokeStyle = topLight;
       context.lineWidth = 2;
+      context.beginPath();
+      context.moveTo(48, 9);
+      context.lineTo(976, 9);
       context.stroke();
       const selected = selectedId ? world.byId.get(selectedId) : undefined;
-      context.fillStyle = "#7fd4f0";
+      context.fillStyle = "#79d7f2";
       context.font = "500 24px Geologica, sans-serif";
       context.fillText(selected ? `✦ ${(NODE_LABELS[selected.kind] ?? selected.kind).toUpperCase()} · ДОСЬЕ` : "✦ СОЗВЕЗДИЕ", 36, 56);
-      context.fillStyle = "#eef3ff";
+      context.fillStyle = "#eef5ff";
       context.font = "650 44px Unbounded, Geologica, sans-serif";
       const title = selected ? selected.title : "Летайте между идеями";
       context.fillText(title.length > 40 ? `${title.slice(0, 39)}…` : title, 36, 112);
       context.font = "400 23px Geologica, sans-serif";
-      context.fillStyle = "#b8c7dd";
+      context.fillStyle = "#94aac8";
       const excerpt = selected?.summary ?? "Выберите звезду лучом, чтобы открыть её контекст и связи.";
       context.fillText(excerpt.length > 82 ? `${excerpt.slice(0, 81)}…` : excerpt, 36, 152);
       context.font = "400 25px Geologica, sans-serif";
-      context.fillStyle = "#aebfd2";
+      context.fillStyle = "#c3cfdf";
       const neighbors = selected ? world.edgesByNode.get(selected.id) ?? [] : [];
       const pageSize = 4;
       const pages = Math.max(1, Math.ceil(neighbors.length / pageSize));
@@ -1252,31 +1322,39 @@ export async function mountUniverse(scope: ParentNode = document) {
         const label = relationLabel(edge.type);
         const line = `${outgoing ? `${label} →` : `← ${label}`} ${neighbor?.title ?? ""}`;
         context.fillText(line.length > 58 ? `${line.slice(0, 57)}…` : line, 36, 210 + index * 66);
-        context.fillStyle = "rgba(127,212,240,.6)";
+        context.fillStyle = "rgba(121,215,242,.6)";
         context.fillText(`${Math.round(edge.confidence * 100)}% · ${edge.evidence}`, 60, 241 + index * 66);
-        context.fillStyle = "#aebfd2";
+        context.fillStyle = "#c3cfdf";
       });
-      context.fillStyle = "#8fa6bc";
+      context.fillStyle = "rgba(148,170,200,.75)";
       context.font = "400 22px Geologica, sans-serif";
       context.fillText(`Связей ${selected ? neighbors.length : 0} · страница ${panelPage + 1}/${pages}`, 36, 512);
       panelActions.forEach((action, index) => {
         const x = 36 + index * 140;
+        const accent = action === "exit";
         context.beginPath();
         context.roundRect(x, 540, 128, 66, 16);
-        context.fillStyle = action === "exit" ? "rgba(229,168,209,.16)" : "rgba(127,212,240,.12)";
+        context.fillStyle = accent ? "rgba(229,168,209,.14)" : "rgba(121,215,242,.11)";
         context.fill();
-        context.strokeStyle = action === "exit" ? "rgba(229,168,209,.5)" : "rgba(238,243,255,.28)";
+        context.strokeStyle = accent ? "rgba(229,168,209,.5)" : "rgba(169,216,255,.26)";
         context.lineWidth = 2;
         context.stroke();
-        context.fillStyle = "#dceefa";
+        // Inset top light: the glass-hi of the site buttons.
+        context.strokeStyle = "rgba(238,243,255,.12)";
+        context.lineWidth = 1;
+        context.beginPath();
+        context.moveTo(x + 10, 542.5);
+        context.lineTo(x + 118, 542.5);
+        context.stroke();
+        context.fillStyle = accent ? "#f4dcef" : "#d9ecf7";
         context.font = "500 24px Geologica, sans-serif";
         context.fillText(panelActionLabels[action], x + 12, 580);
       });
       panelTexture.needsUpdate = true;
     };
     // The panel is the only way to act inside immersive VR, where the DOM is not guaranteed to be
-    // visible: keep it 1.2m in front of the viewer, facing back, so the card is reachable and the
-    // panel raycast targets always sit where the viewer sees them.
+    // visible. It is placed once, 1.2m in front of the viewer and facing back, then left in the
+    // world: a card glued to the face cannot be looked away from, and a squeeze re-opens it.
     const PANEL_VIEW_DISTANCE = 1.2;
     const anchorPanelToViewer = (position = new THREE.Vector3(), forward = new THREE.Vector3()) => {
       const group = ensurePanel();
@@ -1325,7 +1403,11 @@ export async function mountUniverse(scope: ParentNode = document) {
     };
     const selectFromController = (xrController: XRTargetRaySpace) => {
       if (renderer.xr.isPresenting && activeXrMode === "immersive-ar") {
-        if (arState === "ready" || arState === "searching") { placeAr(); return; }
+        if (arState === "ready" || arState === "searching") {
+          pulseController(xrController, .5, 80);
+          placeAr();
+          return;
+        }
         if (arState !== "placed") return;
       }
       raycaster.setFromXRController(xrController);
@@ -1333,13 +1415,14 @@ export async function mountUniverse(scope: ParentNode = document) {
       if (panelOpen && panelGroup?.visible) {
         const panelHit = raycaster.intersectObjects(panelButtons, false)[0];
         const action = panelHit ? (panelHit.object.userData as { panelAction?: PanelAction }).panelAction : undefined;
-        if (action) { void runPanelAction(action); return; }
+        if (action) { pulseController(xrController, .6, 80); void runPanelAction(action); return; }
       }
       const hit = raycaster.intersectObjects(world.pickableObjects(), false)[0];
       const hitNodeId = hit ? world.nodeIdFromPick(hit.object as Mesh | Points, hit.index) : undefined;
       const nodeId = nearestNodeIdAlongRay(raycaster.ray) ?? hitNodeId;
       const node = nodeId ? world.byId.get(nodeId) : undefined;
       if (node) {
+        pulseController(xrController, .55, 90);
         focusNode(node);
         if (renderer.xr.isPresenting && activeXrMode === "immersive-vr" && panelOpen) drawPanel();
       }
@@ -1411,6 +1494,7 @@ export async function mountUniverse(scope: ParentNode = document) {
       if (xrStatus) xrStatus.textContent = screenModeLabel();
       pendingVrAlignment = false;
       pendingVrPanel = false;
+      handDrags.clear();
       vrButton.disabled = !vrSupported;
       arButton.disabled = !arSupported;
       if (panelGroup) { panelGroup.visible = false; panelOpen = false; }
@@ -1447,8 +1531,9 @@ export async function mountUniverse(scope: ParentNode = document) {
     const tmpQuaternion = new THREE.Quaternion();
     const tmpForward = new THREE.Vector3();
     const tmpRight = new THREE.Vector3();
-    const tmpPanelPosition = new THREE.Vector3();
-    const tmpPanelForward = new THREE.Vector3();
+    const tmpHandNow = new THREE.Vector3();
+    const tmpHandDelta = new THREE.Vector3();
+    const hoverKeys: Array<string | undefined> = [undefined, undefined];
     const tmpAudioListener = new THREE.Vector3();
     const tmpAudioTarget = new THREE.Vector3();
     let renderedAudioEnergy = -1;
@@ -1504,14 +1589,25 @@ export async function mountUniverse(scope: ParentNode = document) {
         }
       }
       if (renderer.xr.isPresenting) {
-        // Controller rays double as hover feedback: white on a hittable target.
-        xrControllers.forEach((xrController) => {
+        // Controller rays double as hover feedback: white on a hittable target, and cut to the
+        // hit distance so the laser stops on the panel and its buttons instead of running through.
+        xrControllers.forEach((xrController, index) => {
           raycaster.setFromXRController(xrController);
           raycaster.params.Points.threshold = world.pickTolerance();
           const ray = xrController.children[0] as Line | undefined;
           const panelHit = panelOpen && panelGroup?.visible ? raycaster.intersectObjects(panelButtons, false)[0] : undefined;
-          const hovered = panelHit ?? raycaster.intersectObjects(world.pickableObjects(), false)[0];
-          if (ray) (ray.material as LineBasicMaterial).color.set(hovered ? 0xffffff : 0x6de1f4);
+          const worldHit = raycaster.intersectObjects(world.pickableObjects(), false)[0];
+          const hovered = panelHit ?? worldHit;
+          if (ray) {
+            (ray.material as LineBasicMaterial).color.set(hovered ? 0xffffff : 0x6de1f4);
+            ray.scale.z = hovered ? Math.max(.1, Math.min(hovered.distance + .02, 8)) : 8;
+          }
+          // A tick when the target under the ray changes, not on every frame over the same one.
+          const hoverKey = panelHit
+            ? `panel:${(panelHit.object.userData as { panelAction?: PanelAction }).panelAction}`
+            : worldHit ? `star:${world.nodeIdFromPick(worldHit.object as Mesh | Points, worldHit.index) ?? worldHit.index}` : undefined;
+          if (hoverKey && hoverKey !== hoverKeys[index]) pulseController(xrController, panelHit ? .25 : .35, 40);
+          hoverKeys[index] = hoverKey;
         });
       }
       if (!renderer.xr.isPresenting) {
@@ -1560,9 +1656,8 @@ export async function mountUniverse(scope: ParentNode = document) {
           pendingVrPanel = false;
           placePanelBeforeViewer();
         }
-        // Locomotion moves the rig under the viewer: without re-anchoring, an open panel drifts out of
-        // reach while the raycast still reports its buttons as available.
-        if (panelOpen && panelGroup?.visible) anchorPanelToViewer(tmpPanelPosition, tmpPanelForward);
+        // The open panel stays where it was opened: a face-locked card cannot be looked away
+        // from. A squeeze (or a new focus) re-opens it in front of the viewer when wanted.
         camera.getWorldQuaternion(tmpQuaternion);
         tmpForward.set(0, 0, -1).applyQuaternion(tmpQuaternion);
         const planar = Math.hypot(tmpForward.x, tmpForward.z);
@@ -1583,12 +1678,38 @@ export async function mountUniverse(scope: ParentNode = document) {
                 cameraRig.position.z += (tmpForward.z * -y + tmpRight.z * x) * speed;
               }
             } else if (source.handedness === "right") {
-              cameraRig.position.y += y * VR_SPEED_METERS_PER_SECOND * elapsed;
+              // An xr-standard stick reads up as −1, so rising is the negated axis.
+              cameraRig.position.y += xrStickRise(y) * VR_SPEED_METERS_PER_SECOND * elapsed;
               const turn = nextSnapTurn(snapTurnState, x, rigYaw);
+              const snapped = turn.latched && !snapTurnState.latched;
               snapTurnState.latched = turn.latched;
               rigYaw = turn.yaw;
               cameraRig.rotation.y = rigYaw;
+              if (snapped) pulseSource(source, .3, 50);
             }
+          }
+        }
+        if (handDrags.size) {
+          for (const [xrController, drag] of handDrags) {
+            // The controller is a rig child, so its world position already includes the rig
+            // offset: moving the rig opposite the measured delta pins the grabbed point.
+            tmpHandDelta.copy(xrController.getWorldPosition(tmpHandNow)).sub(drag.previous);
+            const step = tmpHandDelta.length();
+            // A lost hand pose teleports; a teleport must never yank the rig with it.
+            if (step > HAND_DRAG_MAX_STEP_M) { drag.previous.copy(tmpHandNow); drag.engaged = false; drag.travel = 0; continue; }
+            if (!drag.engaged) {
+              drag.travel += step;
+              drag.previous.copy(tmpHandNow);
+              // The pull counts only past the engage threshold, and starts from a fresh baseline.
+              if (drag.travel < HAND_DRAG_ENGAGE_M) continue;
+              drag.engaged = true;
+              continue;
+            }
+            cameraRig.position.x -= tmpHandDelta.x;
+            cameraRig.position.y -= tmpHandDelta.y;
+            cameraRig.position.z -= tmpHandDelta.z;
+            frameMotion = Math.max(frameMotion, Math.min(1, step / Math.max(elapsed, 1e-3) / VR_SPEED_METERS_PER_SECOND));
+            drag.previous.copy(tmpHandNow).sub(tmpHandDelta);
           }
         }
       }

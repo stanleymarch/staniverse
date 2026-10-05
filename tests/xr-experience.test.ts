@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { applyRadialDeadzone, AR_ROOM_DIAMETER_M, AR_STREET_DIAMETER_M, AR_SURFACE_CLEARANCE, AR_TABLE_DIAMETER_M, arContentLift, arDiameterForMode, arModeSurrounds, cameraArOffer, cameraRelativeStep, createGestureTracker, experienceStateForAr, GESTURE_DRAG_THRESHOLD_PX, MIN_TOUCH_TARGET_PX, nearestScreenTarget, nextArPlacementState, nextExperienceState, nextSnapTurn, normalizedArContentTransform, xrOffer } from "../src/lib/xr-experience";
+import { applyRadialDeadzone, AR_ROOM_DIAMETER_M, AR_STREET_DIAMETER_M, AR_SURFACE_CLEARANCE, AR_TABLE_DIAMETER_M, arContentLift, arDiameterForMode, arModeSurrounds, cameraArOffer, cameraRelativeStep, createGestureTracker, experienceStateForAr, GESTURE_DRAG_THRESHOLD_PX, MIN_TOUCH_TARGET_PX, nearestScreenTarget, nextArPlacementState, nextExperienceState, nextSnapTurn, normalizedArContentTransform, xrOffer, xrStickRise } from "../src/lib/xr-experience";
 
 test("flight motion follows the viewed direction", () => {
   assert.deepEqual(cameraRelativeStep({ forward: 1, strafe: 0, rise: 0 }, 0, 2), { x: 0, y: 0, z: -2 });
@@ -52,19 +52,25 @@ test("radial deadzone keeps direction, kills drift and never amplifies beyond un
   assert.ok(Math.hypot(diagonal.x, diagonal.y) <= 1);
 });
 
-test("snap turn fires once per crossing and waits for the deadzone return", () => {
+test("snap turn looks the way the stick is pushed: right push turns clockwise", () => {
   let state = { latched: false };
-  const first = nextSnapTurn(state, 0.9, 0);
-  assert.equal(first.latched, true);
-  assert.ok(Math.abs(first.yaw - Math.PI / 6) < 1e-9);
-  const held = nextSnapTurn({ latched: first.latched }, 0.9, first.yaw);
-  assert.equal(held.yaw, first.yaw);
+  // three.js yaw grows counter-clockwise, so a right push (+1) must subtract the step.
+  const right = nextSnapTurn(state, 0.9, 0);
+  assert.equal(right.latched, true);
+  assert.ok(Math.abs(right.yaw + Math.PI / 6) < 1e-9);
+  const held = nextSnapTurn({ latched: right.latched }, 0.9, right.yaw);
+  assert.equal(held.yaw, right.yaw);
   const released = nextSnapTurn({ latched: held.latched }, 0.02, held.yaw);
   assert.equal(released.latched, false);
   const left = nextSnapTurn({ latched: released.latched }, -0.7, released.yaw);
-  assert.ok(Math.abs(left.yaw - 0) < 1e-9);
+  assert.ok(Math.abs(left.yaw) < 1e-9);
 });
 
+test("stick up reads −1, so rise is the negated axis: pushing up lifts the viewer", () => {
+  assert.equal(xrStickRise(-1), 1);
+  assert.equal(xrStickRise(1), -1);
+  assert.equal(xrStickRise(0), 0);
+});
 test("AR content transform normalizes extent to one meter and lifts the bottom above the surface", () => {
   const { scale, offsetY } = normalizedArContentTransform([{ x: -10, y: -5, z: 0 }, { x: 10, y: 5, z: 0 }]);
   assert.ok(Math.abs(scale - 0.05) < 1e-9);

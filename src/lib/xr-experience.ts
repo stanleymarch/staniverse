@@ -15,6 +15,13 @@ export function cameraRelativeStep(input: FlightInput, yaw: number, distance: nu
 export const VR_SPEED_METERS_PER_SECOND = 1.5;
 export const VR_THUMBSTICK_DEADZONE = 0.15;
 export const VR_SNAP_TURN_RADIANS = Math.PI / 6;
+/**
+ * Vertical thumbstick axis into rig rise. An xr-standard stick reads up as −1, so rising
+ * is the negated axis: pushing the stick up must lift the viewer, never sink them.
+ */
+export function xrStickRise(axisY: number): number {
+  return axisY === 0 ? 0 : -axisY;
+}
 
 /** Radial deadzone for xr-standard thumbsticks: direction is preserved, drift never moves the rig. */
 export function applyRadialDeadzone(x: number, y: number, deadzone = VR_THUMBSTICK_DEADZONE): { x: number; y: number } {
@@ -29,11 +36,16 @@ export interface SnapTurnState {
   latched: boolean;
 }
 
-/** Snap turn: one step per crossing, latched until the stick returns to the deadzone. */
+/**
+ * Snap turn: one step per crossing, latched until the stick returns to the deadzone.
+ * An xr-standard stick reads right as +1, while a three.js yaw grows counter-clockwise
+ * (to the viewer's left), so a push to the right must subtract the step: push right,
+ * look right.
+ */
 export function nextSnapTurn(state: SnapTurnState, axisX: number, yaw: number, deadzone = VR_THUMBSTICK_DEADZONE, step = VR_SNAP_TURN_RADIANS): { yaw: number; latched: boolean } {
   if (Math.abs(axisX) < deadzone) return { yaw, latched: false };
   if (state.latched) return { yaw, latched: true };
-  const turned = yaw + Math.sign(axisX) * step;
+  const turned = yaw - Math.sign(axisX) * step;
   return { yaw: Math.atan2(Math.sin(turned), Math.cos(turned)), latched: true };
 }
 
