@@ -1233,7 +1233,7 @@ export async function mountUniverse(scope: ParentNode = document) {
     let pendingOpenHref: string | undefined;
     const panelActions = ["prev", "next", "back", "reset", "sound", "open", "exit"] as const;
     type PanelAction = (typeof panelActions)[number];
-    const panelActionLabels: Record<PanelAction, string> = { prev: "◀ Сосед", next: "Сосед ▶", back: "Назад", reset: "Сброс", sound: "Звук", open: "Открыть", exit: "Выход XR" };
+    const panelActionLabels: Record<PanelAction, string> = { prev: "Назад", next: "Далее", back: "Назад", reset: "Сброс", sound: "Звук", open: "Открыть", exit: "Выход XR" };
     const ensurePanel = () => {
       if (panelGroup) return panelGroup;
       panelCanvas = document.createElement("canvas");
@@ -1334,9 +1334,9 @@ export async function mountUniverse(scope: ParentNode = document) {
         const accent = action === "exit";
         context.beginPath();
         context.roundRect(x, 540, 128, 66, 16);
-        context.fillStyle = accent ? "rgba(229,168,209,.14)" : "rgba(121,215,242,.11)";
+        context.fillStyle = accent ? "rgba(114,44,82,.62)" : "rgba(35,76,112,.72)";
         context.fill();
-        context.strokeStyle = accent ? "rgba(229,168,209,.5)" : "rgba(169,216,255,.26)";
+        context.strokeStyle = accent ? "rgba(244,220,239,.6)" : "rgba(169,216,255,.42)";
         context.lineWidth = 2;
         context.stroke();
         // Inset top light: the glass-hi of the site buttons.
@@ -1680,7 +1680,8 @@ export async function mountUniverse(scope: ParentNode = document) {
             } else if (source.handedness === "right") {
               // An xr-standard stick reads up as −1, so rising is the negated axis.
               cameraRig.position.y += xrStickRise(y) * VR_SPEED_METERS_PER_SECOND * elapsed;
-              const turn = nextSnapTurn(snapTurnState, x, rigYaw);
+              // A vertical push must never snap-turn because of a small horizontal stick drift.
+              const turn = nextSnapTurn(snapTurnState, Math.abs(x) > Math.abs(y) ? x : 0, rigYaw);
               const snapped = turn.latched && !snapTurnState.latched;
               snapTurnState.latched = turn.latched;
               rigYaw = turn.yaw;
