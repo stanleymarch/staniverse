@@ -1231,9 +1231,12 @@ export async function mountUniverse(scope: ParentNode = document) {
     let panelPage = 0;
     let panelOpen = false;
     let pendingOpenHref: string | undefined;
-    const panelActions = ["prev", "next", "back", "reset", "sound", "open", "exit"] as const;
+    const panelActions = ["prev", "next", "back", "reset", "sound", "open", "exit", "close"] as const;
     type PanelAction = (typeof panelActions)[number];
-    const panelActionLabels: Record<PanelAction, string> = { prev: "Назад", next: "Далее", back: "Назад", reset: "Сброс", sound: "Звук", open: "Открыть", exit: "Выход XR" };
+    const panelActionLabels: Record<PanelAction, string> = { prev: "Ранее", next: "Далее", back: "Назад", reset: "Сброс", sound: "Звук", open: "Открыть", exit: "Выход XR", close: "Закрыть" };
+    const panelButtonRects = panelActions.map((action, index) => action === "close"
+      ? { x: 850, y: 26, width: 138, height: 56 }
+      : { x: 36 + index * 140, y: 540, width: 128, height: 66 });
     const ensurePanel = () => {
       if (panelGroup) return panelGroup;
       panelCanvas = document.createElement("canvas");
@@ -1244,9 +1247,11 @@ export async function mountUniverse(scope: ParentNode = document) {
       const surface = new THREE.Mesh(new THREE.PlaneGeometry(.8, .5), new THREE.MeshBasicMaterial({ map: panelTexture, transparent: true, side: THREE.DoubleSide }));
       panelGroup.add(surface);
       panelButtons = panelActions.map((action, index) => {
-        const plane = new THREE.Mesh(new THREE.PlaneGeometry(.104, .07), new THREE.MeshBasicMaterial({ transparent: true, opacity: .001 }));
+        const rect = panelButtonRects[index];
+        // Raycast-only geometry must not render or write depth into the transparent card.
+        const plane = new THREE.Mesh(new THREE.PlaneGeometry(rect.width / 1024 * .8, rect.height / 640 * .5), new THREE.MeshBasicMaterial({ visible: false }));
         plane.userData.panelAction = action;
-        plane.position.set(-.338 + index * .1125, -.212, .001);
+        plane.position.set(((rect.x + rect.width / 2) / 1024 - .5) * .8, (.5 - (rect.y + rect.height / 2) / 640) * .5, .001);
         panelGroup!.add(plane);
         return plane;
       });
@@ -1330,10 +1335,10 @@ export async function mountUniverse(scope: ParentNode = document) {
       context.font = "400 22px Geologica, sans-serif";
       context.fillText(`Связей ${selected ? neighbors.length : 0} · страница ${panelPage + 1}/${pages}`, 36, 512);
       panelActions.forEach((action, index) => {
-        const x = 36 + index * 140;
+        const { x, y, width, height } = panelButtonRects[index];
         const accent = action === "exit";
         context.beginPath();
-        context.roundRect(x, 540, 128, 66, 16);
+        context.roundRect(x, y, width, height, 16);
         context.fillStyle = accent ? "rgba(114,44,82,.62)" : "rgba(35,76,112,.72)";
         context.fill();
         context.strokeStyle = accent ? "rgba(244,220,239,.6)" : "rgba(169,216,255,.42)";
@@ -1343,18 +1348,17 @@ export async function mountUniverse(scope: ParentNode = document) {
         context.strokeStyle = "rgba(238,243,255,.12)";
         context.lineWidth = 1;
         context.beginPath();
-        context.moveTo(x + 10, 542.5);
-        context.lineTo(x + 118, 542.5);
+        context.moveTo(x + 10, y + 2.5);
+        context.lineTo(x + width - 10, y + 2.5);
         context.stroke();
         context.fillStyle = accent ? "#f4dcef" : "#d9ecf7";
         context.font = "500 24px Geologica, sans-serif";
-        context.fillText(panelActionLabels[action], x + 12, 580);
+        context.fillText(panelActionLabels[action], x + 12, y + height / 2 + 7);
       });
       panelTexture.needsUpdate = true;
     };
-    // The panel is the only way to act inside immersive VR, where the DOM is not guaranteed to be
-    // visible. It is placed once, 1.2m in front of the viewer and facing back, then left in the
-    // world: a card glued to the face cannot be looked away from, and a squeeze re-opens it.
+    // Place the card in front on each star selection or explicit reopen, not every frame.
+    // It can be looked away from and closed using its own button or controller squeeze.
     const PANEL_VIEW_DISTANCE = 1.2;
     const anchorPanelToViewer = (position = new THREE.Vector3(), forward = new THREE.Vector3()) => {
       const group = ensurePanel();
@@ -1377,10 +1381,10 @@ export async function mountUniverse(scope: ParentNode = document) {
     onFocusCommitted = () => {
       if (!renderer.xr.isPresenting || activeXrMode !== "immersive-vr") return;
       panelPage = 0;
-      if (panelOpen && panelGroup?.visible) drawPanel();
-      else placePanelBeforeViewer();
+      placePanelBeforeViewer();
     };
     const runPanelAction = async (action: PanelAction) => {
+      if (action === "close") { if (panelGroup) panelGroup.visible = false; panelOpen = false; return; }
       if (action === "prev") { panelPage -= 1; drawPanel(); return; }
       if (action === "next") { panelPage += 1; drawPanel(); return; }
       if (action === "back") { if (focusedHistoryDepth > 0) history.back(); return; }
@@ -1423,8 +1427,8 @@ export async function mountUniverse(scope: ParentNode = document) {
       const node = nodeId ? world.byId.get(nodeId) : undefined;
       if (node) {
         pulseController(xrController, .55, 90);
-        focusNode(node);
-        if (renderer.xr.isPresenting && activeXrMode === "immersive-vr" && panelOpen) drawPanel();
+        if (selectedId === node.id && activeXrMode === "immersive-vr") placePanelBeforeViewer();
+        else focusNode(node);
       }
     };
     xrControllers.forEach((xrController) => {

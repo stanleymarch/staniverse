@@ -1,6 +1,12 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { expect, test, type Page, type TestInfo } from "@playwright/test";
+import type { Camera, Scene } from "three";
+import type { UniverseWorld } from "../../src/components/universe/UniverseWorld";
+
+interface XrPanelProbe {
+  __staniverseXR: { scene: Scene; camera: Camera; world: UniverseWorld };
+}
 
 interface IwerRemote {
   dispatch(method: string, params?: Record<string, unknown>): Promise<unknown>;
@@ -165,6 +171,59 @@ test.describe("official IWER 2.4.0 WebXR protocol", () => {
     await expect(page.locator(universe)).toHaveAttribute("data-xr", "vr");
     await expect.poll(() => page.evaluate(() => Boolean(window.__staniverseIwer.activeSession))).toBe(true);
     await page.evaluate(() => window.__staniverseIwer.remote.dispatch("set_select_value", { device: "hand-right", value: 0 }));
+    await endSession(page);
+  });
+
+  test("recalls the dossier after flight and closes it with raycast-only buttons", async ({ page }, testInfo) => {
+    await openUniverse(page, testInfo);
+    await clickXrButton(page, "Войти в VR");
+    const root = page.locator(universe);
+    await expect(root).toHaveAttribute("data-xr-panel", "true");
+    const beforeFlight = Number((await root.getAttribute("data-xr-rig"))!.split(",")[2]);
+    await page.evaluate(() => window.__staniverseIwer.controllers.left!.updateAxes("thumbstick", 0, -1));
+    await expect.poll(async () => Number((await root.getAttribute("data-xr-rig"))!.split(",")[2]), { timeout: 20_000 }).toBeLessThan(beforeFlight - 1);
+    await page.evaluate(() => window.__staniverseIwer.controllers.left!.updateAxes("thumbstick", 0, 0));
+    // Leave the old card open and select a different star through the actual XR trigger.
+    await page.evaluate(async () => {
+      const { camera, world } = (window as unknown as XrPanelProbe).__staniverseXR;
+      const visual = world.visuals.get("work:arka-vyatskogo-kremlya")!;
+      const point = camera.parent!.worldToLocal(world.root.localToWorld(visual.position.clone()));
+      const target = { x: point.x, y: point.y, z: point.z };
+      await window.__staniverseIwer.remote.dispatch("look_at", { device: "headset", target });
+      await window.__staniverseIwer.remote.dispatch("look_at", { device: "controller-right", target });
+    });
+    await page.evaluate(() => window.__staniverseIwer.controllers.right!.updateButtonValue("trigger", 1));
+    await expect(page.locator("[data-node-title]")).toHaveText("Арка Вятского Кремля");
+    await page.evaluate(() => window.__staniverseIwer.controllers.right!.updateButtonValue("trigger", 0));
+    await expect.poll(() => page.evaluate(() => {
+      const { camera, scene } = (window as unknown as XrPanelProbe).__staniverseXR;
+      const panel = scene.children.find(group => group.children.some(child => child.userData.panelAction))!;
+      const expected = camera.getWorldPosition(camera.position.clone()).addScaledVector(camera.getWorldDirection(camera.position.clone()), 1.2);
+      return panel.position.distanceTo(expected);
+    })).toBeLessThan(.01);
+    await page.screenshot({ path: testInfo.outputPath("xr-recalled-dossier-stereo.png") });
+    // The close target still works even though it must not contribute pixels or depth.
+    await page.evaluate(async () => {
+      const { camera, scene } = (window as unknown as XrPanelProbe).__staniverseXR;
+      const panel = scene.children.find(group => group.children.some(child => child.userData.panelAction))!;
+      const close = panel.children.find(child => child.userData.panelAction === "close")!;
+      const point = camera.parent!.worldToLocal(close.getWorldPosition(close.position.clone()));
+      await window.__staniverseIwer.remote.dispatch("look_at", { device: "controller-right", target: { x: point.x, y: point.y, z: point.z } });
+    });
+    await page.evaluate(() => window.__staniverseIwer.controllers.right!.updateButtonValue("trigger", 1));
+    await expect(root).toHaveAttribute("data-xr-panel", "false");
+    await page.evaluate(() => window.__staniverseIwer.controllers.right!.updateButtonValue("trigger", 0));
+    // Reselecting the same star brings its information back, rather than clearing the selection.
+    await page.evaluate(async () => {
+      const { camera, world } = (window as unknown as XrPanelProbe).__staniverseXR;
+      const visual = world.visuals.get("work:arka-vyatskogo-kremlya")!;
+      const point = camera.parent!.worldToLocal(world.root.localToWorld(visual.position.clone()));
+      await window.__staniverseIwer.remote.dispatch("look_at", { device: "controller-right", target: { x: point.x, y: point.y, z: point.z } });
+    });
+    await page.evaluate(() => window.__staniverseIwer.controllers.right!.updateButtonValue("trigger", 1));
+    await expect(root).toHaveAttribute("data-xr-panel", "true");
+    await expect(page.locator("[data-node-title]")).toHaveText("Арка Вятского Кремля");
+    await page.evaluate(() => window.__staniverseIwer.controllers.right!.updateButtonValue("trigger", 0));
     await endSession(page);
   });
 
