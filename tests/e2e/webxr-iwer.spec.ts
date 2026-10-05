@@ -25,6 +25,7 @@ interface IwerController {
 interface IwerDevice {
   readonly version: string;
   readonly activeSession?: { readonly enabledFeatures: readonly string[]; end(): Promise<void> };
+  readonly sessionOffered: boolean;
   readonly controllers: Partial<Record<"left" | "right", IwerController>>;
   readonly remote: IwerRemote;
   readonly sem?: IwerSem;
@@ -109,10 +110,14 @@ test.describe("official IWER 2.4.0 WebXR protocol", () => {
     await page.evaluate(async () => { await window.__staniverseIwer?.activeSession?.end(); }).catch(() => undefined);
   });
 
-  test("owns three repeatable VR entry and exit cycles", async ({ page }, testInfo) => {
+  test("owns native and button-driven VR entry and exit cycles", async ({ page }, testInfo) => {
     await openUniverse(page, testInfo);
     for (let cycle = 0; cycle < 3; cycle += 1) {
-      await clickXrButton(page, "Войти в VR");
+      if (cycle < 2) {
+        await expect.poll(() => page.evaluate(() => window.__staniverseIwer.sessionOffered)).toBe(true);
+        expect(await page.evaluate(() => Boolean(window.__staniverseIwer.activeSession))).toBe(false);
+        await page.evaluate(() => window.__staniverseIwer.remote.dispatch("accept_session"));
+      } else await clickXrButton(page, "Войти в VR");
       await expect(page.locator(`${universe}[data-xr="vr"]`)).toBeVisible();
       await expect(page.locator(`${universe}[data-experience-state="exploring"]`)).toBeVisible();
       await expect.poll(() => page.evaluate(() => Boolean(window.__staniverseIwer.activeSession))).toBe(true);
@@ -174,7 +179,7 @@ test.describe("official IWER 2.4.0 WebXR protocol", () => {
     await endSession(page);
   });
 
-  test("recalls the dossier after flight and closes it with raycast-only buttons", async ({ page }, testInfo) => {
+  test("recalls the dossier after flight, closes it, and returns to the previous selection without moving", async ({ page }, testInfo) => {
     await openUniverse(page, testInfo);
     await clickXrButton(page, "Войти в VR");
     const root = page.locator(universe);
@@ -224,6 +229,22 @@ test.describe("official IWER 2.4.0 WebXR protocol", () => {
     await expect(root).toHaveAttribute("data-xr-panel", "true");
     await expect(page.locator("[data-node-title]")).toHaveText("Арка Вятского Кремля");
     await page.evaluate(() => window.__staniverseIwer.controllers.right!.updateButtonValue("trigger", 0));
+    const rigBeforeBack = await page.evaluate(() => (window as unknown as XrPanelProbe).__staniverseXR.camera.parent!.position.toArray());
+    await page.evaluate(async () => {
+      const { camera, scene } = (window as unknown as XrPanelProbe).__staniverseXR;
+      const panel = scene.children.find(group => group.children.some(child => child.userData.panelAction))!;
+      const back = panel.children.find(child => child.userData.panelAction === "back")!;
+      const point = camera.parent!.worldToLocal(back.getWorldPosition(back.position.clone()));
+      await window.__staniverseIwer.remote.dispatch("look_at", { device: "controller-right", target: { x: point.x, y: point.y, z: point.z } });
+    });
+    await page.evaluate(() => window.__staniverseIwer.controllers.right!.updateButtonValue("trigger", 1));
+    await expect(page).toHaveURL(/focus=project%3Ametavyatka/);
+    await page.evaluate(() => window.__staniverseIwer.controllers.right!.updateButtonValue("trigger", 0));
+    await page.evaluate(() => new Promise<void>((resolve) => {
+      const session = window.__staniverseIwer.activeSession as XRSession;
+      session.requestAnimationFrame(() => session.requestAnimationFrame(() => resolve()));
+    }));
+    expect(await page.evaluate(() => (window as unknown as XrPanelProbe).__staniverseXR.camera.parent!.position.toArray())).toEqual(rigBeforeBack);
     await endSession(page);
   });
 

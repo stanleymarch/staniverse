@@ -1,4 +1,4 @@
-import type { Camera, CanvasTexture, Group, Line, LineBasicMaterial, LineSegments, Material, Mesh, Points, Quaternion, Ray, Vector3, XRTargetRaySpace } from "three";
+import type { Camera, CanvasTexture, Group, Line, LineBasicMaterial, LineSegments, Material, Mesh, MeshBasicMaterial, Points, Quaternion, Ray, Vector3, XRTargetRaySpace } from "three";
 import type { GraphEdge, GraphNode } from "../../lib/graph";
 import { provenanceField, relationLabel } from "../../lib/graph-visuals";
 import { applyRadialDeadzone, arContentLift, arDiameterForMode, arModeSurrounds, cameraArOffer, cameraRelativeStep, createGestureTracker, experienceStateForAr, nearestScreenTarget, nextArPlacementState, nextExperienceState, nextSnapTurn, normalizedArContentTransform, xrOffer, xrStickRise, AR_SURROUND_EYE_DROP_M, VR_SPEED_METERS_PER_SECOND, type ArPlacementEvent, type ArPlacementMode, type ArPlacementState, type ExperienceState, type SnapTurnState } from "../../lib/xr-experience";
@@ -383,7 +383,7 @@ export async function mountUniverse(scope: ParentNode = document) {
         root.dataset.focused = "true";
         neighborPage = neighborPageSizeOf(compactViewport);
         if (card) setCard(card.node, card.neighbors);
-        if (statePose) applyPose(statePose, true);
+        if (statePose && !renderer.xr.isPresenting) applyPose(statePose, true);
         root.querySelector<HTMLElement>("[data-intro]")?.setAttribute("data-hidden", "true");
         audio.select(node);
       } else {
@@ -392,7 +392,7 @@ export async function mountUniverse(scope: ParentNode = document) {
         world.reset();
         root.querySelector<HTMLElement>("[data-node-card]")!.hidden = true;
         root.querySelector<HTMLElement>("[data-intro]")?.removeAttribute("data-hidden");
-        if (statePose) applyPose(statePose, true);
+        if (statePose && !renderer.xr.isPresenting) applyPose(statePose, true);
         if (defaultAudioNode) audio.select(defaultAudioNode);
       }
       onFocusCommitted?.();
@@ -615,7 +615,9 @@ export async function mountUniverse(scope: ParentNode = document) {
     let activeXrMode: "immersive-vr" | "immersive-ar" | undefined;
     let preSessionPose: RigPose | undefined;
     root.dataset.xr = "screen";
-    const xrNavigator = (navigator as Navigator & { xr?: XRSystem }).xr;
+    const xrNavigator = (navigator as Navigator & {
+      xr?: XRSystem & { offerSession?: (mode: XRSessionMode, init: XRSessionInit) => Promise<XRSession> };
+    }).xr;
     // One short, stable readout for the screen mode: the immersive detail lives in the two status
     // chips, which only render while that session is running.
     const screenModeLabel = () => {
@@ -634,8 +636,16 @@ export async function mountUniverse(scope: ParentNode = document) {
     };
     const vrButton = makeXrButton("Войти в VR");
     const arButton = makeXrButton("Войти в AR");
-    const enterXr = async (mode: "immersive-vr" | "immersive-ar", button: HTMLButtonElement) => {
+    const xrSessionOptions: Record<"immersive-vr" | "immersive-ar", XRSessionInit> = {
+      "immersive-vr": { optionalFeatures: ["local-floor", "bounded-floor", "hand-tracking"] },
+      "immersive-ar": { requiredFeatures: ["hit-test", "dom-overlay"], optionalFeatures: ["anchors", "local-floor"], domOverlay: { root } },
+    };
+    const enterXr = async (mode: "immersive-vr" | "immersive-ar", button: HTMLButtonElement, offeredSession?: XRSession) => {
       const activeSession = renderer.xr.getSession();
+      if (offeredSession && (controller.signal.aborted || activeSession || button.disabled)) {
+        if (offeredSession !== activeSession) await offeredSession.end();
+        return;
+      }
       if (activeSession) {
         button.disabled = true;
         try { await activeSession.end(); } finally { button.disabled = false; }
@@ -652,10 +662,7 @@ export async function mountUniverse(scope: ParentNode = document) {
       let requestedSession: XRSession | undefined;
       try {
         renderer.xr.setReferenceSpaceType(mode === "immersive-vr" ? "local-floor" : "local");
-        const init: XRSessionInit = mode === "immersive-vr"
-          ? { optionalFeatures: ["local-floor", "bounded-floor", "hand-tracking"] }
-          : { requiredFeatures: ["hit-test", "dom-overlay"], optionalFeatures: ["anchors", "local-floor"], domOverlay: { root } };
-        requestedSession = await xrNavigator.requestSession(mode, init);
+        requestedSession = offeredSession ?? await xrNavigator.requestSession(mode, xrSessionOptions[mode]);
         activeXrMode = mode;
         await renderer.xr.setSession(requestedSession);
         button.textContent = mode === "immersive-vr" ? "Выйти из VR" : "Выйти из AR";
@@ -670,6 +677,22 @@ export async function mountUniverse(scope: ParentNode = document) {
         button.disabled = false;
       }
     };
+    // Browsers with offered-session entry can expose their own "Enter XR" affordance.
+    // Offering never enters XR: the browser resolves this only after the user's acceptance.
+    const offerNativeXr = () => {
+      if (!xrNavigator?.offerSession || controller.signal.aborted || renderer.xr.isPresenting) return;
+      const mode = vrSupported ? "immersive-vr" : arSupported ? "immersive-ar" : undefined;
+      if (!mode) return;
+      void xrNavigator.offerSession(mode, xrSessionOptions[mode])
+        .then((session) => enterXr(mode, mode === "immersive-vr" ? vrButton : arButton, session))
+        .catch((error) => { if (!controller.signal.aborted) console.info("Native XR entry offer unavailable", error); });
+    };
+    // Older Quest browsers grant entry via an event instead of returning an offered session.
+    const onNativeSessionGranted = () => {
+      if (!xrNavigator?.offerSession && vrSupported && !renderer.xr.isPresenting) void enterXr("immersive-vr", vrButton);
+    };
+    xrNavigator?.addEventListener("sessiongranted", onNativeSessionGranted);
+    xrDisposers.push(() => xrNavigator?.removeEventListener("sessiongranted", onNativeSessionGranted));
     vrButton.addEventListener("click", () => { void enterXr("immersive-vr", vrButton); }, { signal: controller.signal });
     arButton.addEventListener("click", () => { void enterXr("immersive-ar", arButton); }, { signal: controller.signal });
     // Only a device that really answers `immersive-*` is offered that mode. There is no platform
@@ -1233,25 +1256,29 @@ export async function mountUniverse(scope: ParentNode = document) {
     let pendingOpenHref: string | undefined;
     const panelActions = ["prev", "next", "back", "reset", "sound", "open", "exit", "close"] as const;
     type PanelAction = (typeof panelActions)[number];
-    const panelActionLabels: Record<PanelAction, string> = { prev: "Ранее", next: "Далее", back: "Назад", reset: "Сброс", sound: "Звук", open: "Открыть", exit: "Выход XR", close: "Закрыть" };
-    const panelButtonRects = panelActions.map((action, index) => action === "close"
-      ? { x: 850, y: 26, width: 138, height: 56 }
-      : { x: 36 + index * 140, y: 540, width: 128, height: 66 });
+    const panelActionLabels: Record<PanelAction, string> = {
+      prev: "Предыдущие связи", next: "Следующие связи", back: "Назад по выбору",
+      reset: "Снять выбор", sound: "Включить звук", open: "Открыть страницу · выйти из VR",
+      exit: "Выйти из VR", close: "Закрыть",
+    };
+    const panelActionEnabled: Record<PanelAction, boolean> = {
+      prev: false, next: false, back: false, reset: false, sound: true, open: false, exit: true, close: true,
+    };
+    let panelButtonRects = panelActions.map(() => ({ x: 0, y: 0, width: 1, height: 1 }));
     const ensurePanel = () => {
       if (panelGroup) return panelGroup;
       panelCanvas = document.createElement("canvas");
       panelCanvas.width = 1024;
-      panelCanvas.height = 640;
+      panelCanvas.height = 960;
       panelTexture = new THREE.CanvasTexture(panelCanvas);
+      panelTexture.colorSpace = THREE.SRGBColorSpace;
       panelGroup = new THREE.Group();
-      const surface = new THREE.Mesh(new THREE.PlaneGeometry(.8, .5), new THREE.MeshBasicMaterial({ map: panelTexture, transparent: true, side: THREE.DoubleSide }));
+      const surface = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: panelTexture, transparent: true, side: THREE.DoubleSide, toneMapped: false }));
       panelGroup.add(surface);
-      panelButtons = panelActions.map((action, index) => {
-        const rect = panelButtonRects[index];
-        // Raycast-only geometry must not render or write depth into the transparent card.
-        const plane = new THREE.Mesh(new THREE.PlaneGeometry(rect.width / 1024 * .8, rect.height / 640 * .5), new THREE.MeshBasicMaterial({ visible: false }));
+      panelButtons = panelActions.map((action) => {
+        // Raycast-only targets never contribute pixels or depth to the glass card.
+        const plane = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ visible: false }));
         plane.userData.panelAction = action;
-        plane.position.set(((rect.x + rect.width / 2) / 1024 - .5) * .8, (.5 - (rect.y + rect.height / 2) / 640) * .5, .001);
         panelGroup!.add(plane);
         return plane;
       });
@@ -1259,101 +1286,133 @@ export async function mountUniverse(scope: ParentNode = document) {
       scene.add(panelGroup);
       return panelGroup;
     };
-    // The in-scene panel matches the site's frosted-glass cards: a translucent blue-tinted
-    // surface, a hairline border, a lit top edge (--glass-hi) and a soft outer glow. Blur and
-    // saturation cannot travel into a canvas texture, so layered tints stand in for them.
-    // Positions and sizes stay fixed: the invisible ray-hit planes sit on top of them.
     const drawPanel = () => {
-      if (!panelCanvas || !panelTexture) return;
+      if (!panelCanvas || !panelTexture || !panelGroup) return;
       const context = panelCanvas.getContext("2d");
       if (!context) return;
-      context.clearRect(0, 0, 1024, 640);
-      const glass = context.createLinearGradient(0, 0, 0, 640);
-      glass.addColorStop(0, "rgba(26,38,66,.66)");
-      glass.addColorStop(.5, "rgba(13,25,48,.72)");
-      glass.addColorStop(1, "rgba(8,14,28,.8)");
-      context.beginPath();
-      context.roundRect(6, 6, 1012, 628, 28);
-      context.save();
-      context.shadowColor = "rgba(1,5,16,.6)";
-      context.shadowBlur = 44;
-      context.fillStyle = glass;
-      context.fill();
-      context.restore();
-      // The blue breath of --glass across the whole pane.
-      context.fillStyle = "rgba(120,184,255,.07)";
-      context.fill();
-      // --glass-line border with a cyan ambient halo.
-      context.save();
-      context.shadowColor = "rgba(121,215,242,.28)";
-      context.shadowBlur = 18;
-      context.strokeStyle = "rgba(169,216,255,.22)";
-      context.lineWidth = 2;
-      context.stroke();
-      context.restore();
-      // --glass-hi: one lit hairline under the top edge, fading at both ends.
-      const topLight = context.createLinearGradient(48, 0, 976, 0);
-      topLight.addColorStop(0, "rgba(238,243,255,0)");
-      topLight.addColorStop(.25, "rgba(238,243,255,.2)");
-      topLight.addColorStop(.75, "rgba(238,243,255,.2)");
-      topLight.addColorStop(1, "rgba(238,243,255,0)");
-      context.strokeStyle = topLight;
-      context.lineWidth = 2;
-      context.beginPath();
-      context.moveTo(48, 9);
-      context.lineTo(976, 9);
-      context.stroke();
+      // Canvas has no flex layout: measure words, wrap them, and derive every following box
+      // from the full text height. Even an unbroken title is wrapped, never ellipsized.
+      const wrapPanelText = (text: string, width: number): string[] => {
+        const lines: string[] = [];
+        let line = "";
+        for (const word of text.trim().split(/\s+/u)) {
+          const candidate = line ? `${line} ${word}` : word;
+          if (context.measureText(candidate).width <= width) { line = candidate; continue; }
+          if (line) { lines.push(line); line = ""; }
+          for (const letter of word) {
+            if (line && context.measureText(line + letter).width > width) { lines.push(line); line = ""; }
+            line += letter;
+          }
+        }
+        if (line) lines.push(line);
+        return lines;
+      };
       const selected = selectedId ? world.byId.get(selectedId) : undefined;
-      context.fillStyle = "#79d7f2";
-      context.font = "500 24px Geologica, sans-serif";
-      context.fillText(selected ? `✦ ${(NODE_LABELS[selected.kind] ?? selected.kind).toUpperCase()} · ДОСЬЕ` : "✦ СОЗВЕЗДИЕ", 36, 56);
-      context.fillStyle = "#eef5ff";
-      context.font = "650 44px Unbounded, Geologica, sans-serif";
-      const title = selected ? selected.title : "Летайте между идеями";
-      context.fillText(title.length > 40 ? `${title.slice(0, 39)}…` : title, 36, 112);
-      context.font = "400 23px Geologica, sans-serif";
-      context.fillStyle = "#94aac8";
-      const excerpt = selected?.summary ?? "Выберите звезду лучом, чтобы открыть её контекст и связи.";
-      context.fillText(excerpt.length > 82 ? `${excerpt.slice(0, 81)}…` : excerpt, 36, 152);
-      context.font = "400 25px Geologica, sans-serif";
-      context.fillStyle = "#c3cfdf";
       const neighbors = selected ? world.edgesByNode.get(selected.id) ?? [] : [];
       const pageSize = 4;
       const pages = Math.max(1, Math.ceil(neighbors.length / pageSize));
-      panelPage = ((panelPage % pages) + pages) % pages;
-      const slice = neighbors.slice(panelPage * pageSize, panelPage * pageSize + pageSize);
-      slice.forEach(({ edge, outgoing }, index) => {
+      panelPage = Math.max(0, Math.min(panelPage, pages - 1));
+      context.font = "650 40px Unbounded, Geologica, sans-serif";
+      const titleLines = wrapPanelText(selected?.title ?? "Летайте между идеями", 952);
+      context.font = "400 26px Geologica, sans-serif";
+      const summaryLines = wrapPanelText(selected?.summary ?? "Выберите звезду лучом. Здесь появятся её описание и связи с другими материалами.", 952);
+      const summaryY = 96 + titleLines.length * 50;
+      const navigationY = summaryY + summaryLines.length * 34 + 26;
+      let contentY = navigationY + 104;
+      const rows = neighbors.slice(panelPage * pageSize, (panelPage + 1) * pageSize).map(({ edge, outgoing }) => {
         const neighbor = world.byId.get(outgoing ? edge.target : edge.source);
-        const label = relationLabel(edge.type);
-        const line = `${outgoing ? `${label} →` : `← ${label}`} ${neighbor?.title ?? ""}`;
-        context.fillText(line.length > 58 ? `${line.slice(0, 57)}…` : line, 36, 210 + index * 66);
-        context.fillStyle = "rgba(121,215,242,.6)";
-        context.fillText(`${Math.round(edge.confidence * 100)}% · ${edge.evidence}`, 60, 241 + index * 66);
-        context.fillStyle = "#c3cfdf";
+        context.font = "500 27px Geologica, sans-serif";
+        const title = wrapPanelText(neighbor?.title ?? "", 928);
+        context.font = "400 23px Geologica, sans-serif";
+        const detail = wrapPanelText(`${outgoing ? "Исходящая" : "Входящая"} связь: ${relationLabel(edge.type)} · ${Math.round(edge.confidence * 100)}% · ${edge.evidence}`, 928);
+        const row = { y: contentY, title, detail };
+        contentY += title.length * 34 + detail.length * 30 + 24;
+        return row;
       });
-      context.fillStyle = "rgba(148,170,200,.75)";
-      context.font = "400 22px Geologica, sans-serif";
-      context.fillText(`Связей ${selected ? neighbors.length : 0} · страница ${panelPage + 1}/${pages}`, 36, 512);
+      if (!rows.length) contentY += 48;
+      const footerY = contentY + 20;
+      const height = Math.ceil(footerY + 208);
+      panelButtonRects = panelActions.map((action) => {
+        if (action === "close") return { x: 816, y: 20, width: 172, height: 56 };
+        if (action === "prev") return { x: 36, y: navigationY, width: 264, height: 76 };
+        if (action === "next") return { x: 724, y: navigationY, width: 264, height: 76 };
+        const index = ["back", "reset", "sound"].indexOf(action);
+        if (index !== -1) return { x: 36 + index * 322, y: footerY, width: 308, height: 76 };
+        return { x: action === "open" ? 36 : 520, y: footerY + 92, width: 468, height: 80 };
+      });
+      panelActionEnabled.prev = panelPage > 0;
+      panelActionEnabled.next = panelPage < pages - 1;
+      panelActionEnabled.back = focusedHistoryDepth > 0;
+      panelActionEnabled.reset = Boolean(selected);
+      panelActionEnabled.open = Boolean(selected);
+      panelActionLabels.sound = soundButton?.getAttribute("aria-pressed") === "true" ? "Выключить звук" : "Включить звук";
+      if (panelCanvas.height !== height) {
+        // Resizing a texture requires a new GPU allocation, only when this card's layout changes.
+        panelCanvas.height = height;
+        panelTexture.dispose();
+        panelTexture = new THREE.CanvasTexture(panelCanvas);
+        panelTexture.colorSpace = THREE.SRGBColorSpace;
+        ((panelGroup.children[0] as Mesh).material as MeshBasicMaterial).map = panelTexture;
+      }
+      const worldWidth = .9;
+      const worldHeight = worldWidth * height / 1024;
+      panelGroup.children[0].scale.set(worldWidth, worldHeight, 1);
+      panelButtons.forEach((button, index) => {
+        const rect = panelButtonRects[index];
+        button.scale.set(rect.width / 1024 * worldWidth, rect.height / height * worldHeight, 1);
+        button.position.set(((rect.x + rect.width / 2) / 1024 - .5) * worldWidth, (.5 - (rect.y + rect.height / 2) / height) * worldHeight, .001);
+      });
+      context.clearRect(0, 0, 1024, height);
+      const glass = context.createLinearGradient(0, 0, 0, height);
+      glass.addColorStop(0, "rgba(26,38,66,.86)");
+      glass.addColorStop(1, "rgba(13,25,48,.9)");
+      context.beginPath();
+      context.roundRect(6, 6, 1012, height - 12, 28);
+      context.fillStyle = glass;
+      context.fill();
+      context.strokeStyle = "rgba(169,216,255,.3)";
+      context.lineWidth = 2;
+      context.stroke();
+      context.fillStyle = "#79d7f2";
+      context.font = "500 24px Geologica, sans-serif";
+      context.fillText(selected ? `${NODE_LABELS[selected.kind] ?? selected.kind} · Досье` : "Созвездие", 36, 56);
+      context.fillStyle = "#eef5ff";
+      context.font = "650 40px Unbounded, Geologica, sans-serif";
+      titleLines.forEach((line, index) => context.fillText(line, 36, 112 + index * 50));
+      context.fillStyle = "#b8c7dd";
+      context.font = "400 26px Geologica, sans-serif";
+      summaryLines.forEach((line, index) => context.fillText(line, 36, summaryY + 24 + index * 34));
+      context.fillStyle = "#94aac8";
+      context.font = "400 24px Geologica, sans-serif";
+      context.textAlign = "center";
+      context.fillText(`Связи ${neighbors.length ? panelPage * pageSize + 1 : 0}–${Math.min((panelPage + 1) * pageSize, neighbors.length)} из ${neighbors.length}`, 512, navigationY + 32);
+      context.fillText(`Страница ${panelPage + 1} из ${pages}`, 512, navigationY + 62);
+      context.textAlign = "left";
+      if (!rows.length) context.fillText(selected ? "У этой звезды пока нет связей." : "Связи появятся после выбора звезды.", 36, navigationY + 136);
+      rows.forEach((row) => {
+        context.fillStyle = "#eef5ff";
+        context.font = "500 27px Geologica, sans-serif";
+        row.title.forEach((line, index) => context.fillText(line, 48, row.y + 27 + index * 34));
+        context.fillStyle = "#79d7f2";
+        context.font = "400 23px Geologica, sans-serif";
+        row.detail.forEach((line, index) => context.fillText(line, 48, row.y + row.title.length * 34 + 23 + index * 30));
+      });
       panelActions.forEach((action, index) => {
-        const { x, y, width, height } = panelButtonRects[index];
-        const accent = action === "exit";
+        const { x, y, width, height: buttonHeight } = panelButtonRects[index];
+        const enabled = panelActionEnabled[action];
         context.beginPath();
-        context.roundRect(x, y, width, height, 16);
-        context.fillStyle = accent ? "rgba(114,44,82,.62)" : "rgba(35,76,112,.72)";
+        context.roundRect(x, y, width, buttonHeight, 16);
+        context.fillStyle = enabled ? action === "exit" ? "rgba(114,44,82,.62)" : "rgba(35,76,112,.72)" : "rgba(35,52,72,.45)";
         context.fill();
-        context.strokeStyle = accent ? "rgba(244,220,239,.6)" : "rgba(169,216,255,.42)";
-        context.lineWidth = 2;
+        context.strokeStyle = enabled ? "rgba(169,216,255,.42)" : "rgba(169,216,255,.13)";
         context.stroke();
-        // Inset top light: the glass-hi of the site buttons.
-        context.strokeStyle = "rgba(238,243,255,.12)";
-        context.lineWidth = 1;
-        context.beginPath();
-        context.moveTo(x + 10, y + 2.5);
-        context.lineTo(x + width - 10, y + 2.5);
-        context.stroke();
-        context.fillStyle = accent ? "#f4dcef" : "#d9ecf7";
         context.font = "500 24px Geologica, sans-serif";
-        context.fillText(panelActionLabels[action], x + 12, y + height / 2 + 7);
+        const lines = wrapPanelText(panelActionLabels[action], width - 24);
+        context.fillStyle = enabled ? "#eef5ff" : "#74869d";
+        context.textAlign = "center";
+        const textY = y + (buttonHeight - lines.length * 30) / 2 + 23;
+        lines.forEach((line, lineIndex) => context.fillText(line, x + width / 2, textY + lineIndex * 30));
+        context.textAlign = "left";
       });
       panelTexture.needsUpdate = true;
     };
@@ -1384,6 +1443,7 @@ export async function mountUniverse(scope: ParentNode = document) {
       placePanelBeforeViewer();
     };
     const runPanelAction = async (action: PanelAction) => {
+      if (!panelActionEnabled[action]) return;
       if (action === "close") { if (panelGroup) panelGroup.visible = false; panelOpen = false; return; }
       if (action === "prev") { panelPage -= 1; drawPanel(); return; }
       if (action === "next") { panelPage += 1; drawPanel(); return; }
@@ -1419,7 +1479,10 @@ export async function mountUniverse(scope: ParentNode = document) {
       if (panelOpen && panelGroup?.visible) {
         const panelHit = raycaster.intersectObjects(panelButtons, false)[0];
         const action = panelHit ? (panelHit.object.userData as { panelAction?: PanelAction }).panelAction : undefined;
-        if (action) { pulseController(xrController, .6, 80); void runPanelAction(action); return; }
+        if (action) {
+          if (panelActionEnabled[action]) { pulseController(xrController, .6, 80); void runPanelAction(action); }
+          return;
+        }
       }
       const hit = raycaster.intersectObjects(world.pickableObjects(), false)[0];
       const hitNodeId = hit ? world.nodeIdFromPick(hit.object as Mesh | Points, hit.index) : undefined;
@@ -1515,7 +1578,7 @@ export async function mountUniverse(scope: ParentNode = document) {
         const href = pendingOpenHref;
         pendingOpenHref = undefined;
         window.location.assign(href);
-      }
+      } else offerNativeXr();
     };
     renderer.xr.addEventListener("sessionstart", onSessionStart);
     renderer.xr.addEventListener("sessionend", onSessionEnd);
@@ -1750,6 +1813,7 @@ export async function mountUniverse(scope: ParentNode = document) {
       }
     };
     renderer.setAnimationLoop(frame);
+    offerNativeXr();
     announce(`Карта загружена: ${graph.nodes.length} узлов, ${graph.edges.length} связей. Секторы доступны для свободного полёта.`);
 
     let cleaned = false;
